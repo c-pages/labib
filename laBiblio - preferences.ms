@@ -27,10 +27,10 @@ struct PrefsApercus_struct (
 	
 	fichier ="",	-- le fichier des preferences
 	
-	nomVide 							= "apVide" ,
+	nomVide 						= "apVide" ,
 	nomCalqueImport 			= "ImportTemp",
-	dossier 							= "C:\\Users\\kris\\AppData\\Local\\Autodesk\\3dsMax\\2014 - 64bit\\ENU\\scripts\\laBiblio V1.0\\apercus",
-	dossierImport 					= "C:\Users\kris\Documents\donnees 3D",
+	dossier 							= 	GetDir #userScripts + "\\laBiblio V1.0\\apercus",
+	dossierImport 					= "C:",
 	afficherVFB						= false,
 	
 	convertToCoronaMats 		= true,
@@ -144,9 +144,11 @@ struct PrefsRollPrincipale_struct (
 	couleurFond 	= (color 56 56 56),
 	tailleApercus 	= [255, 255 ],
 	
-	apercuVide 	= "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\laBiblio V1.0\img\apVide.jpg",
-	apercuDossier 	= "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\laBiblio V1.0\img\apNoeud.jpg",
 	caseVide		=	"-",
+-- 	apercuVide 	= "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\laBiblio V1.0\img\apVide.jpg",
+-- 	apercuDossier 	= "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\laBiblio V1.0\img\apNoeud.jpg",
+	apercuVide 	= GetDir #userScripts + "\laBiblio V1.0\img\apVide.jpg",
+	apercuDossier 	= GetDir #userScripts + "\laBiblio V1.0\img\apNoeud.jpg",
 	
 	------------ Les fonctions	----------------------------------------------------------------------------------
 	---- les fonctions	----
@@ -212,7 +214,7 @@ struct PrefsProxies_struct (
 	fichier ="",	-- le fichier des preferences
 	
 	---- les parametres ----
-	dossier 							= "C:\\Users\\kris\\AppData\\Local\\Autodesk\\3dsMax\\2014 - 64bit\\ENU\\scripts\\laBiblio V1.0\\proxies",
+	dossier 							= GetDir #userScripts + "\\laBiblio V1.0\\proxies",
 	
 	------------ Les fonctions	----------------------------------------------------------------------------------
 	fn enregistrer =  (
@@ -224,7 +226,7 @@ struct PrefsProxies_struct (
 	)
 	
 )
-
+/* 
 ------------------------------------------------------------------------------
 -- Les preferences pour les nouveau asset						--
 ------------------------------------------------------------------------------
@@ -247,7 +249,7 @@ struct PrefsAssets_struct (
 	
 )
 
-
+ */
 
 
 
@@ -263,11 +265,11 @@ private
 
 public	
 	---- les structs des diferenetes preferences	----
-	fenetre 		=  PrefsRollPrincipale_struct 	(),
-	fenInfos	 	=  PrefsRollInfos_struct 			(),
-	apercus 		= 	PrefsApercus_struct 		(),
-	proxies	 	= 	PrefsProxies_struct 		(),
-	assets	 		= 	PrefsAssets_struct 			(),
+	fenetre 		=  PrefsRollPrincipale_struct 	fichier:fichier,
+	fenInfos	 	=  PrefsRollInfos_struct 		fichier:fichier,
+	apercus 		= 	PrefsApercus_struct 		fichier:fichier,
+	proxies	 	= 	PrefsProxies_struct 			fichier:fichier,
+-- 	assets	 		= 	PrefsAssets_struct 			(),
 	
 public	
 	---- les fonctions	----
@@ -276,7 +278,7 @@ public
 		fenInfos.enregistrer	()
 		apercus.enregistrer	()
 		proxies.enregistrer	()
-		assets.enregistrer	()
+-- 		assets.enregistrer	()
 	),
 	fn charger = (
 		---- si existe pas on initialise le fichier ----
@@ -287,39 +289,34 @@ public
 			fenInfos.charger	()
 			apercus.charger	()
 			proxies.charger	()
-			assets.charger	()
+-- 			assets.charger	()
 		)
 	),
 	fn reset = (
 		
-		fenetre 		=  prefsRollPrincipale	()
-		fenInfos	 	=  prefsRollInfos 			()
-		apercus 		= 	prefsApercus 			()
-		proxies	 	= 	prefsProxies 			()
-		assets	 	= 	prefsAssets 			()
+		fenetre 		=  prefsRollPrincipale	fichier:fichier
+		fenInfos	 	=  prefsRollInfos 			fichier:fichier
+		apercus 		= 	prefsApercus 			fichier:fichier
+		proxies	 	= 	prefsProxies 			fichier:fichier
+		assets	 	= 	prefsAssets 			fichier:fichier
 		
-		fenetre.fichier		=	fichier
-		fenInfos.fichier	=	fichier
-		apercus.fichier		=	fichier
-		proxies.fichier		=	fichier
-		assets.fichier		=	fichier
+-- 		assets.fichier		=	fichier
 		
 		enregistrer ()
 	), 
 	fn resetApercus = (
-		apercus 			= 	prefsApercus 		()
-		apercus.fichier	=	fichier		
+		apercus 			= 	prefsApercus 		fichier:fichier
 		enregistrer ()
-	), 
+	)
 	
-	---- Initialisation ----
+/* 	---- Initialisation ----
 	on create do (		
 		fenetre.fichier		=	fichier
 		fenInfos.fichier	=	fichier
 		apercus.fichier		=	fichier
 		proxies.fichier		=	fichier
-		assets.fichier		=	fichier
-	)
+-- 		assets.fichier		=	fichier
+	) */
 	
 )
 

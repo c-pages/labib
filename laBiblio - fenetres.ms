@@ -52,15 +52,36 @@ rcMenu rcPrincipal
 ------------------------------------------------------------------------------
 ----------	Le rollout principale ------------------------------------------
 ------------------------------------------------------------------------------
-rollout m_rollPrincipal "labib" width:1200 height:500  (
+rollout m_rollPrincipal "labib" /* width:1200 height:500 */  (
 	
 	------------ structures	----------------------------------------------------------------------------------
-	struct btnVirtuel_Slide_struct (
-		pos = [0,0],
-		taille = [0,0]
+	struct btnVirtuel_struct (
+		---- membres ----
+		pos 			= [0,0],
+		width 		= 0,
+		height 		= 0,
+		
+		pressed 		= false,
+		posPress 	= [0,0],
+		posOrigine 	= [0,0],
+		
+		---- fonctions ----
+		fn bouge _decallage = (
+			pos	= posOrigine + _decallage
+		),
+		fn survole _pos =(
+			local result = false
+			if _pos.x > pos.x	and _pos.x < pos.x + width do
+				if _pos.y > pos.y	and _pos.y < pos.y + height do
+					result = true
+			result
+		)
+		
 	)
 	
 	------------ MEMBRES	----------------------------------------------------------------------------------
+	local tailleRolloutCreation = [1200 , 500 ]
+	
 	local arbo		---- pointeur vers le struct arbo ----
 	local prefs		---- pointeur vers le struct preferences ----
 	local prt		---- pointeur vers le struct fenetre  parent----
@@ -71,45 +92,44 @@ rollout m_rollPrincipal "labib" width:1200 height:500  (
 	local col_textes 		= color 45	42	35	----  ----
 	local col_image 		= color 36 36 36			----  ----
 	
-	local ecartUI			= 15		----  ----
+	local ecartUI			= 13		----  ----
 	local ecartUISimple	= 2		----  ----
 	
 	---- TV l'arborescence ----
 	local listeNoeudsTV = #()
 	
 	------------ L'UI	----------------------------------------------------------------------------------	
-	-- Bouton virtuel perso pour slider ---
--- 	local 	btnV_Slide  = btnVirtuel_Slide_struct 				pos:			[200, ecartUI] \
--- 																				taille:			[ecartUI, 500 - 2*ecartUI ]
 	
-	button 	btnV_Slide  "" visible:false 								pos:			[200, ecartUI] \
+	-- Bouton virtuel Slider Horizontal---
+	local 	btnVirt_Slider_H  = btnVirtuel_struct		 		pos:			[200, ecartUI] \
 																				width:		ecartUI	\
-																				height: 		(500 - 2*ecartUI )
+																				height: 		( tailleRolloutCreation.y - 2 *ecartUI )
 																				
+	-- Bouton virtuel Slider Vertical---
+	local 	btnVirt_Slider_V  = btnVirtuel_struct		 		pos:			[ecartUI, 250 ] \
+																				width:		( btnVirt_Slider_H.pos.x - ecartUI)	\
+																				height: 		ecartUI
+																				
+	-- la recherche des tags --
+	edittext 			ui_editRecherche 		""	 				pos:			( [ecartUI ,ecartUI] ) \
+																				width:		btnVirt_Slider_V.width \
+																				height:		17		 \
+																				fieldWidth:	0		labelOnTop:true 
 	-- le TreeView (TV) arborescence --
-	dotNetControl 	ui_TV 						"TreeView" 		pos:			( [ecartUI,ecartUI] )		\
-																				width:		( btnV_Slide.pos.x -  ecartUI	 )	\
-																				height:		(500 - ( 160 + 3* ecartUI  + 2* ecartUISimple) ) \
+	dotNetControl 	ui_TV 						"TreeView" 		pos:			[ ecartUI , 	ui_editRecherche.pos.y + ui_editRecherche.height  + ecartUI ]	\
+																				width:		btnVirt_Slider_V.width	\
+																				height:		( btnVirt_Slider_V.pos.y - ( ui_editRecherche.height + 2 * ecartUI ) ) \
 																				enabled:		true
 	-- la liste des tags --
 	MultiListBox 		ui_lstBoxTags				"" 					pos:			( ui_TV.pos + [0,ui_TV.height + ecartUI ] ) \
-																				width:		ui_TV.width \
-																				height:		10
-	-- la recherche des tags --
-	edittext 			ui_editRecherche 		""	 				pos:			( ui_lstBoxTags.pos + [-4,ui_lstBoxTags.height + ecartUISimple ]) \
-																				width:		ui_TV.width\
-																				height:		17	
-	-- la barre de progression --
-	progressBar 		ui_progressBar				"ProgressBar" 	pos:			( ui_editRecherche.pos + [0,ui_editRecherche.height + ecartUISimple +2 ]) \
-																				width:		ui_TV.width \
-																				height:		6 \
-																				color:		(color 50 150 246) 
+																				width:		btnVirt_Slider_V.width \
+																				height:		( ( tailleRolloutCreation.y - ( btnVirt_Slider_V.pos.y + btnVirt_Slider_V.height + ecartUI ) ) / 13 ) 
+																				
 	-- la ListView (LV) pour le cointenu des noeud (apercus) --
-	dotNetControl 	ui_LV "system.windows.forms.listView" pos:			[btnV_Slide.pos + btnV_Slide.width, ecartUI ] \
-																				width:		(1200 - ( btnV_Slide.taille.x + 3* ecartUI ) ) \
-																				height:		( 500 - 2* ecartUI ) \
+	dotNetControl 	ui_LV "system.windows.forms.listView" pos:			[ btnVirt_Slider_H.pos.x + btnVirt_Slider_H.width, ecartUI ] \
+																				width:		( tailleRolloutCreation.x - ( btnVirt_Slider_H.pos.x + btnVirt_Slider_H.width +  ecartUI ) ) \
+																				height:		( tailleRolloutCreation.y - 2* ecartUI ) \
 																				border:		false			
-	
 	
 	
 	
@@ -160,7 +180,6 @@ rollout m_rollPrincipal "labib" width:1200 height:500  (
 				li.subItems.add 	( "" )
 				
 				append listeElementAAfficher li	
-				
 				---- pour la vue image ----
 				img = dotNetClass "System.Drawing.Image"
 				apercusImages.images.add ( img.fromFile 	prefs.fenetre.apercuDossier )
@@ -322,74 +341,48 @@ rollout m_rollPrincipal "labib" width:1200 height:500  (
 	
 	
 	-------- Le rollout --------
-	fn bougerFenetre 	pos= (		
+	fn bougerFenetre 	pos	= (		
 		prefs.fenetre.pos = pos
 	)
 	fn redimensionnerUI 	= (
-		debug "redimensionnerUI"
+		
 		local tailleRollout = [ m_rollPrincipal.width, m_rollPrincipal.height ]
 		
-		debug "ecartUI" var:ecartUI
-		debug "btnV_Slide.pos.x" var:btnV_Slide.pos.x
-		debug "ui_TV.pos.x" var:ui_TV
-		show ui_tv
-		ui_TV.width 				= btnV_Slide.pos.x 			-  ecartUI
+		--- on reorganise l'ui ---
+		-- les sliders ---
+		btnVirt_Slider_H.height	= tailleRollout.y - 2* ecartUI		
+		btnVirt_Slider_V.width	= btnVirt_Slider_H.pos.x - ecartUI
 		
-		/* 
-		ui_TV.height 				= tailleRollout.y 				- ( 160 + 3* ecartUI  + 2* ecartUISimple)
+		if btnVirt_Slider_H.pos.x > ( tailleRollout.x - ( 3* ecartUI ) ) do 
+			btnVirt_Slider_H.pos.x = tailleRollout.x - ( 3* ecartUI )			
+		if btnVirt_Slider_H.pos.x <  ( 3* ecartUI )  do 
+			btnVirt_Slider_H.pos.x =  3* ecartUI 		
 		
-		ui_lstBoxTags.pos 		= ui_TV.pos 					+ [0,ui_TV.height + ecartUI] 
-		ui_lstBoxTags.width 		= ui_TV.width
+		if btnVirt_Slider_V.pos.y > ( tailleRollout.y - ( 3* ecartUI ) ) do 
+			btnVirt_Slider_V.pos.y = tailleRollout.y - ( 3* ecartUI )		
+		if btnVirt_Slider_V.pos.y < ( 5* ecartUI )  do 
+			btnVirt_Slider_V.pos.y = 5* ecartUI 
 		
-		ui_editRecherche.pos	= ui_lstBoxTags.pos 		+ [0,ui_lstBoxTags.height + ecartUISimple ]
-		ui_editRecherche.width = ui_TV.width
+		-- les autres ---
+		ui_editRecherche.width = btnVirt_Slider_V.width
 		
-		ui_progressBar.pos		= ui_editRecherche.pos 	+ [0,ui_editRecherche.height + ecartUISimple  +2]
-		ui_progressBar.width 	= ui_TV.width
+		ui_TV.width 				= btnVirt_Slider_V.width
+		ui_TV.height 				= btnVirt_Slider_V.pos.y - ( ui_editRecherche.height + 2 * ecartUI )
 		
-		ui_LV.pos					= [btnV_Slide.pos + btnV_Slide.taille.x, ecartUI ]
-		ui_LV.width					= tailleRollout.x 				-  ( btnV_Slide.taille.x + 3* ecartUI )
-		ui_LV.height				= tailleRollout.y 				- 2* ecartUI
-		 */
+		ui_lstBoxTags.pos 		= ui_TV.pos + [0,ui_TV.height + ecartUI ]
+		ui_lstBoxTags.width 		= btnVirt_Slider_V.width
+		ui_lstBoxTags.height		= tailleRollout.y - ( btnVirt_Slider_V.pos.y + btnVirt_Slider_V.height + ecartUI )
 		
-		/* 
-
-	
-	-- le TreeView (TV) arborescence --
-	dotNetControl 	ui_TV 						"TreeView" 		pos:			( [ecartUI,ecartUI] )		\
-																				width:		btnV_Slide.pos.x -  ecartUI		\
-																				height:		(500 - ( 160 + 3* ecartUI  + 2* ecartUISimple) ) \
-																				enabled:		true
-	-- la liste des tags --
-	MultiListBox 		ui_lstBoxTags				"" 					pos:			( ui_TV.pos + [0,ui_TV.height + ecartUI ] ) \
-																				width:		ui_TV.width \
-																				height:		10
-	-- la recherche des tags --
-	edittext 			ui_editRecherche 		""	 				pos:			( ui_lstBoxTags.pos + [-4,ui_lstBoxTags.height + ecartUISimple ]) \
-																				width:		ui_TV.width\
-																				height:		17	
-	-- la barre de progression --
-	progressBar 		ui_progressBar				"ProgressBar" 	pos:			( ui_editRecherche.pos + [0,ui_editRecherche.height + ecartUISimple +2 ]) \
-																				width:		ui_TV.width \
-																				height:		6 \
-																				color:		(color 50 150 246) 
-	-- la ListView (LV) pour le cointenu des noeud (apercus) --
-	dotNetControl 	ui_LV "system.windows.forms.listView" pos:			[btnV_Slide.pos + btnV_Slide.taille.x, ecartUI ] \
-																				width:		(1200 - ( btnV_Slide.taille.x + 3* ecartUI ) ) \
-																				height:		( 500 - 2* ecartUI ) \ */
+		ui_LV.pos					= [btnVirt_Slider_H.pos.x + btnVirt_Slider_H.width, ecartUI ]
+		ui_LV.width					= tailleRollout.x - ( btnVirt_Slider_H.pos.x + btnVirt_Slider_H.width +  ecartUI )
+		ui_LV.height				= tailleRollout.y - 2* ecartUI
 		
-		
-		
-		
-		/* 
-		btnV_Slide.pos 	= [ui_TV.pos.x + ui_TV.width, ui_TV.pos.y ]
-		btnV_Slide.taille 	= [ecartUI, ui_LV.height ] */
-		
+		--- on stock la taille  ---
 		prefs.fenetre.taille = tailleRollout
+		
 	)	
 	fn actualiser = (
 		
-		show ui_tv
 		---- 
 		redimensionnerUI ()
 		
@@ -405,7 +398,6 @@ rollout m_rollPrincipal "labib" width:1200 height:500  (
 	fn initialiser = (
 		
 		---- la vue liste----
--- 		ui_LV.borderstyle 		= (dotnetclass "System.Windows.Forms.BorderStyle").fixedsingle
 		ui_LV.borderstyle 		= (dotnetclass "System.Windows.Forms.BorderStyle").None
 		ui_LV.showitemtooltips 	= true
 		ui_LV.gridlines 			= true
@@ -418,7 +410,6 @@ rollout m_rollPrincipal "labib" width:1200 height:500  (
 		ui_LV.ForeColor 			= (dotNetClass "System.Drawing.Color").fromARGB 	col_textes.r 		col_textes.g 		col_textes.b
 		
 		---- l'arborescence----
--- 		ui_TV.borderstyle 		= (dotnetclass "System.Windows.Forms.BorderStyle").fixedsingle
 		ui_TV.borderstyle 		= (dotnetclass "System.Windows.Forms.BorderStyle").None
 		ui_TV.LabelEdit 			= true 
 		ui_TV.allowdrop 			= true
@@ -428,7 +419,23 @@ rollout m_rollPrincipal "labib" width:1200 height:500  (
 		
 	)	
 	
-	
+	---- bouton virtuel slider ----
+	fn sliderUI _pos =(
+		if btnVirt_Slider_H.pressed  do (
+			
+			local ecart = ( _pos.x - btnVirt_Slider_H.posPress.x )
+			btnVirt_Slider_H.bouge [ ecart , 0 ]
+			
+			redimensionnerUI()
+		)
+		if btnVirt_Slider_V.pressed  do (
+			
+			local ecart = ( _pos.y - btnVirt_Slider_V.posPress.y )
+			btnVirt_Slider_V.bouge [ 0 , ecart ]
+			
+			redimensionnerUI()
+		)
+	)
 	
 	
 	------------  EVENEMENTS	----------------------------------------------------------------------------------
@@ -437,16 +444,24 @@ rollout m_rollPrincipal "labib" width:1200 height:500  (
 	on m_rollPrincipal	moved 	pos	do bougerFenetre 		pos
 	on m_rollPrincipal	resized _size  	do redimensionnerUI 	()
 	
+	---- le bouton virtuel ----
 	on m_rollPrincipal lbuttondown 	_pos 	do 	(
-		
-		---
-		
--- 		if 
-		debug "press" var:_pos
-		
+		if btnVirt_Slider_H.survole _pos then (
+			btnVirt_Slider_H.pressed 		= true
+			btnVirt_Slider_H.posPress 		= _pos
+			btnVirt_Slider_H.posOrigine 	= btnVirt_Slider_H.pos
+		)	
+		if btnVirt_Slider_V.survole _pos then (
+			btnVirt_Slider_V.pressed 		= true
+			btnVirt_Slider_V.posPress 		= _pos
+			btnVirt_Slider_V.posOrigine 	= btnVirt_Slider_V.pos
+		)	
 	)
-	on m_rollPrincipal lbuttonup	 	_pos 	do 	debug "up" var:_pos
-	on m_rollPrincipal mousemove 	_pos 	do  	() --debug "bouge" var:_pos
+	on m_rollPrincipal lbuttonup	 	_pos 	do  ( 
+		btnVirt_Slider_H.pressed = false	
+		btnVirt_Slider_V.pressed = false	
+	)
+	on m_rollPrincipal mousemove 	_pos 	do  	sliderUI 	_pos 
 	
 	---- TV arbo ----
 	on ui_TV 		mouseUp 		arg 		do  cliqueTV 	arg 	
@@ -486,11 +501,12 @@ struct Fenetre_struct (
 	------------ Les FONCTIONS	----------------------------------------------------------------------------------
 	fn ouvrir = (
 		try destroydialog dialog catch ()
-		createDialog dialog 	style:#(/* #style_toolwindow, */ #style_titlebar , #style_sysmenu, #style_resizing , #style_minimizebox, #style_maximizebox) \
-									menu:rcPrincipal \
-									pos:prt.prefs.fenetre.pos \
-									width:prt.prefs.fenetre.taille.x \
-									height:prt.prefs.fenetre.taille.y
+		createDialog dialog 	style:				#(/* #style_toolwindow, */ #style_titlebar , #style_sysmenu, #style_resizing , #style_minimizebox, #style_maximizebox) \
+									menu:				rcPrincipal \
+									pos:					prt.prefs.fenetre.pos \
+									width:				prt.prefs.fenetre.taille.x \
+									height:				prt.prefs.fenetre.taille.y \
+									escapeEnable:		false
 		/* 							bgcolor:(color 90  90 90 ) \
 									fgcolor:(color 250  250 220 ) */
 		dialog.arbo 		= prt.arbo
