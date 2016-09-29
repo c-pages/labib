@@ -62,6 +62,7 @@
 	include "$userScripts\labib\labib - arborescence.ms"
 	include "$userScripts\labib\labib - fenetres.ms"
 	include "$userScripts\labib\labib - edition.ms"
+	include "$userScripts\labib\labib - menus.ms"
 
 	-----------------------------------------
 	----- La structure principale -------
@@ -73,7 +74,8 @@
 		fenetre	= Fenetre_struct 			prt:this, 								---- les operations sur la fenetre principale ----
 		arbo		= Arborescence_struct 	fichier:prefs.fichierArbo,			---- la gestion de l'arborescenece de la bibliotheque ----	
 		apercu,																					---- la gestion des rendus des apercus ----		
-		edition	= Edition_struct 			prefs:prefs	arbo:arbo					---- l'edition proprement dite de la bibliotheque (creation d'un asset, import dans la scene ... ) ----
+		edition	= Edition_struct 				prefs:prefs	arbo:arbo,				---- l'edition proprement dite de la bibliotheque (creation d'un asset, import dans la scene ... ) ----
+		menu		= menu_struct ()								---- les menus clique droit ----
 		
 		------------ Fonctions		----------------------------------------------------------------------------------
 		

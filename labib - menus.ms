@@ -26,37 +26,68 @@
 -------------------------------------------------------------
 ------- le struct ------------------------------------------
 -------------------------------------------------------------
-struct Menus (
+struct menu_struct (
+	
 	public 
 	
-		fn creerMenuElements = (
+		fn elements = (
 			debug "creerMenuTest"
-			-------------------------------------------------------------
-			------- le menu ------------------------------------------
-			-------------------------------------------------------------
+			
+			
 			rcMenu rcMenuElements
 			(
+				------- le menu ------------------------------------------
 				menuItem importer 				"Importer" 
-				menuItem importerCollapsed 	"Importer collapsed" 		
-				menuItem importerProxy 		"Importer Proxy Corona" 
 				
-				seperator sep01
-				
-				subMenu  "Options d'import" (
-					menuItem matNeRienFaire 		"Matériaux d'origine" 								checked:( not bibliotheque.prefs.apercus.convertToCoronaMats )
-					menuItem matconvertCorona 		"Convertir matériaux en Corona" 		checked:( bibliotheque.prefs.apercus.convertToCoronaMats )
+				subMenu  "Options" (
+					
+					menuItem importerMax 			"brut" 		
+					menuItem importerCollapsed 	"collapsé" 		
+					menuItem importerProxy 		"proxy" 
+					
+-- 					seperator sep01
+-- 					
+-- 					menuItem matconvertCorona 		"Convertir matériaux en Corona" 		--checked:( bibliotheque.prefs.apercus.convertToCoronaMats )
 				)
 				
 				seperator sep02
 				
-				menuItem supprimer 			"Supprimer de la bibliothèque" 
+				subMenu  "Edition" (
+					
+					menuItem couper 		"Couper"
+					menuItem coller 			"Coller"
+					
+					seperator sep03
+					
+					menuItem supprimer 	"Supprimer" 
+					
+					seperator sep04
+					
+					menuItem Ourvir 			"Ourvir" 
+					menuItem OurvirExplo 	"Ourvir dans l'explorateur" 
+					
+				)					
 				
-				seperator sep03
+				subMenu  "Affichage" (
+					
+					menuItem	affichage_liste 		"Liste"		checked:( labib.fenetre.affichageLV == #liste )
+					menuItem 	affichage_appercus	"Appercus"	checked:( labib.fenetre.affichageLV == #apercus )
+-- 					menuItem 	affichage_detail		"detail"		checked:( labib.fenetre.affichageLV == #detail )
+					
+				)				
+				
+				seperator sep05
 				
 				menuItem ouvirFichierMax 		"Ouvir le fichier max" 
 				menuItem ouvirFichierExplo 	"Ouvir dans l'explorateur" 
 				
-				on matNeRienFaire picked do	()
+				------- les evenements ------------------------------------------
+				
+				on affichage_liste 		picked do	labib.fenetre.definirAffichage  #liste
+				on affichage_appercus 	picked do	labib.fenetre.definirAffichage  #apercus
+-- 				on affichage_detail 		picked do	labib.fenetre.definirAffichage  #detail
+				
+				/* on matNeRienFaire picked do	()
 				on matconvertCorona picked do	(	)
 				
 				on importer picked do	()
@@ -66,7 +97,7 @@ struct Menus (
 				
 				on ouvirFichier picked do		(	)
 				
-				on supprimer picked do	()
+				on supprimer picked do	() */
 				
 			
 			)
@@ -78,7 +109,7 @@ struct Menus (
 		),
 		
 		
-		fn creerMenuArbo = (
+		fn arbo = (
 			debug "creerMenuTest"
 			-------------------------------------------------------------
 			------- le menu ------------------------------------------
@@ -99,7 +130,7 @@ struct Menus (
 			popUpMenu 	rcMenuDossiers
 		),
 		
-		fn getMenuPrincipal = (
+		fn principal = (
 			
 			rcMenu rcPrincipal
 			(

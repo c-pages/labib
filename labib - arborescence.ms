@@ -226,9 +226,9 @@ struct Arborescence_struct (
 			root.nom 			= "ROOT"
 			root.nomUnique 	= "ROOT"
 			
-			noeudRecherche					= Noeud_struct()
-			noeudRecherche.nom 			= "RECHERCHE"
-			noeudRecherche.nomUnique 	= "RECHERCHE"
+			recherche					= Noeud_struct()
+			recherche.nom 			= "RECHERCHE"
+			recherche.nomUnique 	= "RECHERCHE"
 			
 			nbrElements 		= 0
 			nbrNoeuds 			= 0
@@ -362,15 +362,20 @@ struct Arborescence_struct (
 		fn getParNomUnique 	_nomUnique  	noeud:root	= (
 			
 			local result 	= undefined
-			if noeud.nomUnique == _nomUnique	
-				then result =  noeud
-				else	if classOf noeud ==	Noeud_struct do	(		
-					local trouve 	= false
-					for enfant in noeud.enfants while not trouve	do (
-							result =  getParNomUnique 	_nomUnique	 	noeud:enfant
-							if result != undefined do 	trouve = true
-						)						
-					) -- fin if classof --
+			debug "_nomUnique" 	var:_nomUnique
+			
+			-- si c'est recherche --
+			if _nomUnique == "RECHERCHE" then
+				result = recherche
+			else	if noeud.nomUnique == _nomUnique	
+						then result =  noeud
+						else	if classOf noeud ==	Noeud_struct do	(		
+							local trouve 	= false
+							for enfant in noeud.enfants while not trouve	do (
+									result =  getParNomUnique 	_nomUnique	 	noeud:enfant
+									if result != undefined do 	trouve = true
+								)						
+							) -- fin if classof --
 			
 			result
 			

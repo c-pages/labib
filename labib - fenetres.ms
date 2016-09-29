@@ -84,13 +84,20 @@ rollout m_rollPrincipal "labib"  (
 	------------ MEMBRES	----------------------------------------------------------------------------------
 	local tailleRolloutCreation =  [1200 , 500 ]
 	
-	local arbo		---- pointeur vers le struct arbo ----
-	local prefs		---- pointeur vers le struct preferences ----
 	local prt		---- pointeur vers le struct fenetre  parent----
 	
-	local col_fondVue 	= color 160 166 182	----  ----
-	local col_textes 		= color 45	42	35	----  ----
-	local col_image 		= color 36 36 36			----  ----
+	local arbo		---- pointeur vers le struct arbo ----
+	local prefs		---- pointeur vers le struct preferences ----
+	local menu		---- pointeur vers le struct menu ----
+	
+	local col_fondVue 		= color 160 166 182	----  ----
+	
+-- 	local col_fondDossier 	= color 140 146 162	----  ----
+	local col_fondDossier 	= color 190 196 212	----  ----
+	local col_foreDossier 	= color 255 255 255	----  ----
+	
+	local col_textes 			= color 45	42	35		----  ----
+	local col_image 			= color 36 36 36		----  ----
 	
 	local ecartUI			= 13		----  ----
 	local ecartUISimple	= 2		----  ----
@@ -137,7 +144,8 @@ rollout m_rollPrincipal "labib"  (
 	
 	------------  FONCTIONS	----------------------------------------------------------------------------------	
 	
-	-------- Choisir la selection des vues  --------
+	
+	-------- le LV ( les elements  ) --------
 	---- Selectionner un noeud du LV ----
 	fn selectionnerLV 	_elemsArbo 	= (
 		
@@ -149,19 +157,7 @@ rollout m_rollPrincipal "labib"  (
 			)
 		)
 	)
-	---- Selectionner un noeud du TV ----
-	fn selectionnerTV 	_noeudArbo 	= (		
-		for noeudTV in listeNoeudsTV do 
-				if noeudTV.name == _noeudArbo.nomUnique do 
-					ui_TV.SelectedNode = noeudTV
-		
-		prt.selectionNoeud = _noeudArbo
-	)	
-	
-	
-	
-	
-	fn ajouterLV  _elements	&_elemsAAfficher		&_apercusAAfficher	&_id	=(
+	fn ajouterLV  _elements	&_elemsAAfficher		&_apercusAAfficher		&_id	=(
 		
 		for element  in _elements do (
 			
@@ -177,24 +173,40 @@ rollout m_rollPrincipal "labib"  (
 			-- remplissage en fonction de la classe de l'élément --
 			case classof element of (
 				Noeud_struct: (
+					
+					---- couleurs ----
+					li.ForeColor		=	(dotNetClass "System.Drawing.Color").fromARGB 	col_foreDossier.r 		col_foreDossier.g 	col_foreDossier .b
+					if prt.affichageLV == #liste do 
+						li.BackColor		=	(dotNetClass "System.Drawing.Color").fromARGB 	col_fondDossier.r 	col_fondDossier.g 	col_fondDossier .b
+					
 					---- pour la vue liste ----
 					li.subItems.add 	( "" )
 					li.subItems.add 	( "" )
 					li.subItems.add 	( "" )
 					li.subItems.add 	( "" )
 					li.subItems.add 	( "" )
-					li.subItems.add 	( "" )					
+					li.subItems.add 	( "" )		
+					
 					---- pour la vue image ----
 					_apercusAAfficher.images.add ( img.fromFile 	prefs.fenetre.apercuDossier )					
 				)
-				Element_struct: (						
+				Element_struct: (				
 					---- pour la vue liste ----
 					li.subItems.add 	( element.nbrVertex  as string )
 					li.subItems.add 	( arbo.dateToString 	element.dateDernierImport   )
 					li.subItems.add 	( if ( element.nbrImports  > 0 ) 		then  element.nbrImports as string else prefs.fenetre.caseVide )
 					li.subItems.add 	( if ( doesfileExist element.proxy ) 	then "true" else prefs.fenetre.caseVide  )
 					li.subItems.add 	( if ( doesfileExist element.detail )  	then "true" else prefs.fenetre.caseVide  )
-					li.subItems.add 	( arbo.dateToString 	element.dateCreation   )					
+					li.subItems.add 	( arbo.dateToString 	element.dateCreation   )		
+					/* 
+				ui_LV.columns.add "Nom" 200
+				ui_LV.columns.add "Verts" 70
+				ui_LV.columns.add "Dernier import" 130
+				ui_LV.columns.add "Nbre d'imports" 70
+				ui_LV.columns.add "Proxy" 70
+				ui_LV.columns.add "Détail" 70
+				ui_LV.columns.add "Création" 130 */
+					
 					---- pour la vue image ----
 					if element.apercu != undefined do
 						if doesfileexist element.apercu 	then _apercusAAfficher.images.add ( img.fromFile element.apercu )
@@ -208,8 +220,12 @@ rollout m_rollPrincipal "labib"  (
 	fn actualiserLV = (
 		
 		local noeudSelect = prt.selectionNoeud
-		
+			
+			
+			
 		if noeudSelect != undefined then (
+			
+			debug "actualiserLV" var:noeudSelect.nom
 			
 			-- on vide la liste --
 			ui_LV.items.Clear()
@@ -235,94 +251,19 @@ rollout m_rollPrincipal "labib"  (
 			
 		)
 	)
-	---- Redimenssionner appercus ----
-	fn zoomerApercu 	_deltaArg = (
-		local delta
-		
-		if _deltaArg > 0 
-			then delta = 10
-			else  delta = -10
-			
-		local tailleMin 		= 60
-		local tailleMax 	= prefs.apercus.taille.x
-		prt.tailleApercus += [delta, delta]
-		
-		if  prt.tailleApercus .x < tailleMin do 
-			prt.tailleApercus = [tailleMin,tailleMin]
-		if prt.tailleApercus .x > tailleMax  do 
-			prt.tailleApercus = [tailleMax , tailleMax]
-		
-		ui_LV.LargeImageList.imageSize	= dotNetObject "System.Drawing.Size" 	prt.tailleApercus.x 	prt.tailleApercus.y
-		
-		actualiserLV			()
-		selectionnerLV		prt.selectionElements
-	)
 	
-	
-	
-	
-	---- historique ----
-	-- se deplacer dans l'historique --
-	fn historiqueBouge  _sens =(
-		prt.hist_pos += _sens
-		local posMax =  prt.hist_Noeuds.count 
-		if prt.hist_pos > posMax
-			do prt.hist_pos = posMax
-		if prt.hist_pos < 1
-			do prt.hist_pos = 1
-		
-		debug "hist_pos" var:prt.hist_pos
-		
-		selectionnerTV  prt.hist_Noeuds[ prt.hist_pos   ]
-	)
-	
-	-- enregistrer l'historique --
-	fn historiqueEnregistrer =(
-		--on tronque l'historique a l'emplacement courant
-		debug "prt.hist_Noeuds avt " var:( for noeud in prt.hist_Noeuds collect noeud.nom )
-		while prt.hist_pos > 1 do (
-			if prt.hist_Noeuds.count > 0 do
-				deleteItem 	prt.hist_Noeuds		1
-			prt.hist_pos -= 1
-		)
-		
-		debug "prt.hist_Noeuds aprs 1" var:( for noeud in prt.hist_Noeuds collect noeud.nom )
-		
-		if prt.selectionNoeud != prt.hist_Noeuds[1] do
-			insertItem 		prt.selectionNoeud 	prt.hist_Noeuds 	1
-		
-		debug "prt.hist_Noeuds aprs 2" var:( for noeud in prt.hist_Noeuds collect noeud.nom )
-	)
-	
-	
-	
-	
-	---- cliquer le LV ----
-	fn cliqueLV 	_arg 	= (		
--- 		debug "arg" var:_arg.Button.value__		
-		case _arg.Button.value__ of (
-			
-			-- clique gauche --
-			1048576:	(				
-				prt.selectionElements 	= #()				
-				for i = 0 to ui_LV.SelectedItems.count - 1 do (
-					elem = 	arbo.getParNomUnique 	 ui_LV.SelectedItems.item[i].name
-					if elem != undefined do 
-						append 	prt.selectionElements 		elem
-				)				
-			) 			
-			-- clique droit --
-			2097152:	()	
-			-- btn precedant --
-			8388608:	historiqueBouge 1
-			-- btn suivant --
-			16777216:	historiqueBouge -1			
-		) -- fin case of arg ---
-		
-	)
 	
 	
 	-------- le TV (arborescence ) --------
+	---- Selectionner un noeud du TV ----
+	fn selectionnerTV 	_noeudArbo 	= (		
+		for noeudTV in listeNoeudsTV do 
+				if noeudTV.name == _noeudArbo.nomUnique do 
+					ui_TV.SelectedNode = noeudTV
+		
+		prt.selectionNoeud = _noeudArbo
+		actualiserLV ()
+	)	
 	--- création de L'arborescence TV (treeview) ----
 	fn ajouterTV			_noeudArbo	 _noeudTV 	     =	(
 		
@@ -357,48 +298,96 @@ rollout m_rollPrincipal "labib"  (
 			listeNoeudsEnfants		=	arbo.getNoeuds 	noeud:arbo.recherche			
 			for enfant in listeNoeudsEnfants do
 				ajouterTV 	enfant  	noeudTVRech			
-		)		
+		)
+		-- on l'ajoute à la liste des noeud ----
+		append listeNoeudsTV 	noeudTVRech
+		
 	)
 	
 	
 	
 	
-	fn ouvrirNoeud		_noeud =(
-		-- historique --
-		prt.selectionNoeud = _noeud		
-		historiqueEnregistrer  ()
+	---- historique ----
+	-- se deplacer dans l'historique --
+	fn historiqueBouge  _sens =(
 		
-		-- afficher les elements --
+		-- on gere la position  dans l'historique ---
+		local posMax =  prt.hist_Noeuds.count 
+		prt.hist_pos += _sens
+		
+		if prt.hist_pos > posMax
+			do prt.hist_pos = posMax
+		if prt.hist_pos < 1
+			do prt.hist_pos = 1
+		
+		-- on affiche le noeud adequate ---
+		selectionnerTV  prt.hist_Noeuds[ prt.hist_pos   ]
+		
+	)
+	-- enregistrer l'historique --
+	fn historiqueEnregistrer _noeudArbo 	=(
+		
+		-- le noeud courant --
+		prt.selectionNoeud = _noeudArbo
+		
+		debug "historique: selectionNoeud" var:_noeudArbo.nom
+		
+		--on tronque l'historique a l'emplacement courant
+		while prt.hist_pos > 1 do (
+			if prt.hist_Noeuds.count > 0 do
+				deleteItem 	prt.hist_Noeuds		1
+			prt.hist_pos -= 1
+		)
+		
+		-- on ajoute le noeud actuel dans l'historique --
+		if _noeudArbo != prt.hist_Noeuds[1] do
+			insertItem 		_noeudArbo 	prt.hist_Noeuds 	1
+		
+	)
+	
+	
+	
+	
+	
+	
+	fn chargerAffichageLV  	_affichage =(
+		
+		ui_LV.columns.clear ()
+		
+		case _affichage  of (
+			#apercus: (
+				ui_LV.view = (dotNetClass "system.windows.forms.view").LargeIcon
+				ui_LV.Columns.add "Nom" 180
+				ui_LV.FullRowSelect = false
+				ui_LV.margin.all = 0
+			)
+			#liste: (
+				ui_LV.view = (dotNetClass "system.windows.forms.view").details
+				ui_LV.columns.add "Nom" 200
+				ui_LV.columns.add "Verts" 70
+				ui_LV.columns.add "Dernier import" 130
+				ui_LV.columns.add "Nbre d'imports" 70
+				ui_LV.columns.add "Proxy" 70
+				ui_LV.columns.add "Détail" 70
+				ui_LV.columns.add "Création" 130
+				
+				ui_LV.FullRowSelect = true
+			)
+			#detail: (
+				ui_LV.view = (dotNetClass "system.windows.forms.view").LargeIcon
+				ui_LV.Columns.add "Nom" 180
+				ui_LV.FullRowSelect = false
+				ui_LV.margin.all = 0
+			)
+		)
+		
 		actualiserLV ()
 		
-	)
-	
-	---- cliquer le TV ----
-	fn cliqueTV arg 	= (		
-		case arg.Button.value__ of (
-			-- clique gauche --
-			1048576:	(
-				local	noeudTVClique = ui_TV.GetNodeAt (dotNetObject "System.Drawing.Point" arg.x arg.y)
-				if noeudTVClique != undefined then (
-					ouvrirNoeud	 ( arbo.getParNomUnique 	noeudTVClique.name )
-				) 
-			)			
-			-- clique droit --
-			2097152:	()			
-			-- btn precedant --
-			8388608:	historiqueBouge 1
-			-- btn suivant --
-			16777216:	historiqueBouge -1	
-			
-		) -- fin case of arg ---
 	)
 	
 	
 	
 	-------- Le rollout --------
-	fn bougerFenetre 	pos	= (		
-		prefs.fenetre.pos = pos
-	)
 	fn recomposerUI 		= (
 		
 		local tailleRollout = [ m_rollPrincipal.width, m_rollPrincipal.height ]
@@ -434,7 +423,10 @@ rollout m_rollPrincipal "labib"  (
 		
 		
 	)	
-	fn redimensionnerFenetre 	_taille = (
+	fn bougerFenetre 	pos	= (		
+		prefs.fenetre.pos = pos
+	)
+	fn redimFenetre 	_taille = (
 		--- on stock la taille  ---
 		local tailleRollout = _taille
 		prefs.fenetre.taille = tailleRollout
@@ -447,15 +439,23 @@ rollout m_rollPrincipal "labib"  (
 		
 		-- l'arbo --
 		actualiserTV ()
-		if prt.selectionNoeud == undefined do prt.selectionNoeud = arbo.root
+		if prt.selectionNoeud == undefined do prt.selectionNoeud = arbo.root		
 		selectionnerTV	prt.selectionNoeud
 		
 		-- la liste --
 		actualiserLV ()		
 		selectionnerLV		prt.selectionElements
 		
+		-- historique --
+		historiqueEnregistrer  prt.selectionNoeud
+		
 	)
 	fn initialiser 			= (
+		
+		ui_LV.Clear()
+		
+		--- type d'affichage du LV ---
+		chargerAffichageLV	prt.affichageLV
 		
 		---- la vue liste----
 		ui_LV.borderstyle 		= (dotnetclass "System.Windows.Forms.BorderStyle").None
@@ -477,8 +477,107 @@ rollout m_rollPrincipal "labib"  (
 		ui_TV.BackColor 			= (dotNetClass "System.Drawing.Color").fromARGB  col_fondVue.r 	col_fondVue.g 	col_fondVue .b
 		ui_TV.ForeColor 			= (dotNetClass "System.Drawing.Color").fromARGB  col_textes.r 		col_textes.g 		col_textes.b
 		
-		recomposerUI ()		
+		recomposerUI ()
+		actualiser ()
+		
 	)	
+	
+	
+	
+	----- interactivité ------
+	-- Redimenssionner appercus ----
+	fn zoomerLV 	_deltaArg = (
+		local delta
+		
+		if _deltaArg > 0 
+			then delta = 10
+			else  delta = -10
+			
+		local tailleMin 		= 60
+		local tailleMax 	= prefs.apercus.taille.x
+		prt.tailleApercus += [delta, delta]
+		
+		if  prt.tailleApercus .x < tailleMin do 
+			prt.tailleApercus = [tailleMin,tailleMin]
+		if prt.tailleApercus .x > tailleMax  do 
+			prt.tailleApercus = [tailleMax , tailleMax]
+		
+		ui_LV.LargeImageList.imageSize	= dotNetObject "System.Drawing.Size" 	prt.tailleApercus.x 	prt.tailleApercus.y
+		
+		actualiserLV			()
+		selectionnerLV		prt.selectionElements
+	)
+	---- cliquer le LV ----
+	fn cliqueLV 	_arg 	= (		
+-- 		debug "arg" var:_arg.Button.value__		
+		case _arg.Button.value__ of (
+			
+			-- clique gauche --
+			1048576:	(				
+				prt.selectionElements 	= #()				
+				for i = 0 to ui_LV.SelectedItems.count - 1 do (
+					elem = 	arbo.getParNomUnique 	 ui_LV.SelectedItems.item[i].name
+					if elem != undefined do 
+						append 	prt.selectionElements 		elem
+				)				
+			) 			
+			-- clique droit --
+			2097152:	(
+				menu.elements ()
+			)	
+			-- btn precedant --
+			8388608:	historiqueBouge 1
+			-- btn suivant --
+			16777216:	historiqueBouge -1			
+		) -- fin case of arg ---
+		
+	)
+	---- double cliquer le LV ----
+	fn dbCliqueLV 	_arg 	= (
+		local noeudClique = prt.selectionElements[1]
+		case classOf noeudClique of (
+			element_struct: 	debug "IMPORTATION" var:noeudClique.nom 
+			noeud_struct:		( 
+				-- historique --
+				historiqueEnregistrer  noeudClique
+				
+				selectionnerTV 	noeudClique
+			)
+		)
+	)
+	
+	
+	---- cliquer le TV ----
+	fn cliqueTV arg 	= (		
+		case arg.Button.value__ of (
+			-- clique gauche --
+			1048576:	(
+				local	noeudTVClique = ui_TV.GetNodeAt (dotNetObject "System.Drawing.Point" arg.x arg.y)
+				if noeudTVClique != undefined then (
+					
+					debug "noeudTVClique.name" 		var:noeudTVClique.name
+					
+					local noeudArbo = ( arbo.getParNomUnique 	noeudTVClique.name )
+					
+					-- historique --
+					historiqueEnregistrer  noeudArbo
+					
+					-- afficher les elements --
+					actualiserLV ()
+					
+				) 
+			)			
+			-- clique droit --
+			2097152:	()			
+			-- btn precedant --
+			8388608:	historiqueBouge 1
+			-- btn suivant --
+			16777216:	historiqueBouge -1	
+			
+		) -- fin case of arg ---
+	)
+	
+	
 	
 	
 	-------- souris pour  bouton virtuel ( sliders )  --------
@@ -527,11 +626,13 @@ rollout m_rollPrincipal "labib"  (
 	
 	
 	
+	
+	
 	------------  EVENEMENTS	----------------------------------------------------------------------------------
 	---- rollout ----
-	on m_rollPrincipal	open 						do initialiser ()
+-- 	on m_rollPrincipal	open 						do initialiser ()
 	on m_rollPrincipal	moved 			pos	do bougerFenetre 			pos
-	on m_rollPrincipal	resized 			taille 	do redimensionnerFenetre 	taille
+	on m_rollPrincipal	resized 			taille 	do redimFenetre 	taille
 	
 	---- le bouton virtuel ----
 	on m_rollPrincipal lbuttondown 	pos 	do sourisClique 		pos 
@@ -542,10 +643,11 @@ rollout m_rollPrincipal "labib"  (
 	on ui_TV 		mouseUp 			arg 	do  cliqueTV 	arg 	
 	
 	--- LV apercus ----
-	on ui_LV 		mouseUp 			arg 	do  cliqueLV 	arg 	
-	on ui_LV		MouseWheel 		arg 	do  if keyboard.controlPressed do zoomerApercu arg.delta
-		
-		
+	on ui_LV 		DoubleClick			arg 	do  dbCliqueLV 	arg 	
+	on ui_LV 		mouseUp 			arg 	do  cliqueLV 		arg 	
+	on ui_LV		MouseWheel 		arg 	do  if keyboard.controlPressed do zoomerLV arg.delta
+	
+	
 	
 
 )
@@ -569,12 +671,18 @@ struct Fenetre_struct (
 	selectionElements 	= #(),				---- les elements selectionnés dans le listView ----
 	
 	tailleApercus,									---- la taille en cours des apercus ----
+	affichageLV 			= #apercus,		---- le type d'afichage de la liste ( #apercus, #liste, #detail (a faire )) ----
 	
 	---- historique ----
-	hist_Noeuds	= #(),						---- la liste des noeud visités, dans ordre chronologique ----
-	hist_pos			= 1,							---- la position dans l'historique, 0: derniere position
+	hist_Noeuds			= #(),				---- la liste des noeud visités, dans ordre chronologique ----
+	hist_pos					= 1,					---- la position dans l'historique, 0: derniere position
 	
 	------------ Les FONCTIONS	----------------------------------------------------------------------------------
+	fn definirAffichage  _nouvelAffichage 	= (
+		affichageLV = _nouvelAffichage
+		dialog.chargerAffichageLV  _nouvelAffichage
+	),
+	
 	fn ouvrir = (
 		try destroydialog dialog catch ()
 		createDialog dialog 	style:				#(/* #style_toolwindow, */ #style_titlebar , #style_sysmenu, #style_resizing , #style_minimizebox, #style_maximizebox)  \
@@ -587,8 +695,9 @@ struct Fenetre_struct (
 									fgcolor:(color 250  250 220 ) */
 		dialog.arbo 		= prt.arbo
 		dialog.prefs 	= prt.prefs
+		dialog.menu	= prt.menu
 		dialog.prt 		= this
-		dialog.actualiser ()
+		dialog.initialiser ()
 	),
 	fn fermer = (
 		try destroydialog dialog catch ()
