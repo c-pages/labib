@@ -67,7 +67,7 @@
 	-----------------------------------------
 	----- La structure principale -------
 	-----------------------------------------
-	struct labib_struct (	
+	struct labib_struct (
 		
 		------------ Les structures	----------------------------------------------------------------------------------
 		prefs		= Preference_struct 		dossierScript:dossierScript,		---- les préferences utilisateurs ----
@@ -93,7 +93,7 @@
 			local	nouveauNoeud  = arbo.creerNoeud  	parent:parent
 			
 			--ecriture du fichier ---
-			arbo.ecrireFichier ()
+			arbo.enregistrer ()
 			
 			-- actualisation rollout--
 			fenetre.actualiser()
@@ -106,15 +106,22 @@
 		fn supprimer _noeudsArbo	=(
 			local parent = _noeudsArbo[1].parent
 			arbo.supprimer _noeudsArbo
-			arbo.ecrireFichier ()
+			arbo.enregistrer ()
 			
 			fenetre.actualiser ()
 			
 			fenetre.dialog.SelectionnerTV 	parent
 			
-		)
+		),
+		
+		
+		fn ouvrirSiteInternet = (
+			DOSCommand  "start \"\" http://c-pages.fr"
+		),
 		
 		------------ Evenements 	----------------------------------------------------------------------------------
+		on create do 
+			debug "<labib>	creation struture"
 		
 	) -- fin struct labib ----
 	

@@ -41,15 +41,37 @@ format "\n----------------------------------------------------------------------
 --- ouvrir le dossier script --
 ShellLaunch "explorer.exe" @"C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib"
 
+ShellLaunch "explorer.exe" @"C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\data\"
+
 --- ouvrir le fichier arbo --
 ShellLaunch "explorer.exe" @"C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\data\arbo.ini"
 
+--- ouvrir le fichier prefs --
+ShellLaunch "explorer.exe" @"C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\data\prefs.ini"
+
+--- ouvrir le site internet --
+ShellLaunch "explorer.exe" @"C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\data\prefs.ini"
+
+--- ouvrir page internet
+DOSCommand  "start \"\" http://c-pages.fr"
+
+
+labib.prefs.fenetre.pos
+labib.prefs.charger()
+
+
+
+
+
+
+labib.prefs.enregistrer ()
 
  labib.fenetre.dialog.name
 labib.fenetre.dialog.selectionnerTV  labib.arbo.root
 
 labib.fenetre.dialog.ui_btnFermer.opacity = 0
 
+show	 labib.fenetre.dialog.ui_TV.nodes.item[0]
 
 recherche = labib.arbo.getParNomUnique "RECHERCHE"
 size = (dotnetclass "System.Drawing.Size").empty
@@ -59,7 +81,7 @@ size.empty.width = 100
 size.empty.Height = 100
 escape
 
-show	labib.fenetre.dialog.ui_TV
+showmethods	labib.fenetre.dialog.ui_LV
 
 
 labib.fenetre.dialog.ui_LV.LabelEdit = true

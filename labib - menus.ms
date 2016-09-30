@@ -28,74 +28,48 @@
 -------------------------------------------------------------
 struct menu_struct (
 	
-	public 
-	
-		fn elements = (
-			
+	public 	
+		fn elements = (			
 			rcMenu rcMenuElements
 			(
 				------- le menu ------------------------------------------
-				menuItem importer 				"Importer" 
-				
-				subMenu  "Options d'import" (
-					
+				menuItem importer 					"Importer" 				
+				subMenu  "Options d'import" (					
 					menuItem importerBrut 			"Brut" 			checked:true
 					menuItem importerCollapsed 	"Collapsed" 		
-					menuItem importerProxy 		"Proxy"
-					
-				)
-			
-				seperator sep03
-				
-				menuItem nouveauDossier 	"Nouveau dossier" 
-				
-				seperator sep01				
-				
-				menuItem Ourvir 			"Ourvir" 
-				menuItem OurvirExplo 		"Ourvir dans l'explorateur" 
-				
-				
+					menuItem importerProxy 		"Proxy"					
+				)			
+				seperator sep03				
+				menuItem nouveauDossier 		"Nouveau dossier" 				
+				seperator sep01								
+				menuItem Ourvir 						"Ourvir" 
+				menuItem OurvirExplo 				"Ourvir dans l'explorateur" 
 				seperator sep08
 				subMenu  "Supprimer" (
 					menuItem 	supprimer 			"de Labib" 
 					menuItem 	supprimerDD 		"de Labib et du DD"
-				)
-				
+				)				
 				seperator sep02
-				
 				subMenu  "Affichage" (
-					
-					menuItem	affichage_liste 				"Liste"			checked:( labib.fenetre.affichageLV == #liste )
-					menuItem 	affichage_appercus	"Appercus"	checked:( labib.fenetre.affichageLV == #apercus )
-					
--- 					seperator sep09
--- 					
--- 					menuItem 	affichage_recursif	"Recursif"	-- checked:( labib.fenetre.affichageLV == #apercus )
+					menuItem	affichage_liste 		"Liste"			checked:( labib.fenetre.affichageLV == #liste )
+					menuItem 	affichage_appercus	"Appercus"		checked:( labib.fenetre.affichageLV == #apercus )
 				)
-				
 				subMenu  "Trier par" (
-					
-					menuItem	trier_croissant 		"Ordre croissant"			checked:true
+					menuItem	trier_croissant 	"Ordre croissant"			checked:true
 					menuItem	trier_decroissant 	"Ordre décroissant"	
-					
 					seperator sep10
-					
 					menuItem	trier_nom 			"Noms"					checked:true
 					menuItem	trier_date 			"Date"	
 					menuItem	trier_nbrVertex 	"Nombre de vertex"
 					menuItem	trier_nbrImports 	"Nombre d'imports"	
-					
 				)
-				
 				seperator sep04
-				
 				subMenu  "Fenêtres" (
 					menuItem infos 		"Infos" 
 					menuItem apercus 	"Aperçus" 
-					
 				)
-				------- les evenements ------------------------------------------
 				
+				------- les evenements ------------------------------------------				
 				on nouveauDossier 		picked do	labib.nouveauDossier ()		
 				
 				on supprimer 				picked do 	labib.supprimer 	labib.fenetre.selectionElements
@@ -125,10 +99,7 @@ struct menu_struct (
 				
 				seperator sep01
 				menuItem nouveauDossier 	"Nouveau dossier" 
-				menuItem renommer 			"Renommer" 
-				
-				seperator sep02
-				
+				menuItem renommer 			"Renommer"
 				menuItem supprimer 			"Supprimer"
 				
 				seperator sep03
@@ -141,55 +112,55 @@ struct menu_struct (
 				------- les evenements ------------------------------------------
 				on nouveauDossier 			picked do	labib.nouveauDossier ()				
 				on nouvelAsset 				picked do	labib.nouvelAsset ()				
-				on nouvelAssetDossier 	picked do	labib.nouvelAssetDossier ()		
+				on nouvelAssetDossier 		picked do	labib.nouvelAssetDossier ()		
 				on renommer 					picked do	labib.renommer ()	
 				
 				on supprimer 					picked do 	labib.supprimer 	#( labib.fenetre.selectionNoeud )
 				
 			)
 			
-			
-			
-			
 			popUpMenu 	rcMenuDossiers
 		),
 		
-		fn principal = (
-			
-			rcMenu rcPrincipal
-			(
-				---- menu ----
-				subMenu "Edit"	(
-					menuItem m_nouveauDossier 	"Nouveau dossier" 
-					menuItem m_supprimer 			"Supprimer"					
+		fn fenetre = (	
+			rcMenu rcFenetre
+			(	
+				------- le menu ------------------------------------------
+				
+				menuItem titre 			"Titre" 		checked:labib.prefs.fenetre.afficherTitre
+				menuItem menu 			"Menus" 		checked:labib.prefs.fenetre.afficherMenu
+				seperator sep02
+				
+				subMenu "Fenêtres" (
+					menuItem afficherInfos 			"Infos"  				--	checked:( bibliotheque.getInfosOuvert() )
+					menuItem afficherApercus			"Aperçus" 
+					menuItem afficherPreferences 	"Préferences" 
 				)
-				subMenu "Vues" (
-					menuItem m_afficherInfos 	"Infos"  	--	checked:( bibliotheque.getInfosOuvert() )
-					menuItem m_afficherApercus	"Création des aperçus" 
+				seperator sep01
+				menuItem fermer 			"Fermer" 
+				seperator sep03
+				menuItem site 			"www.c-pages.fr" 
+				
+				------- les evenements ------------------------------------------
+				on fermer 		picked do	labib.fenetre.fermer ()
+				
+				on menu 		picked do	(
+					labib.prefs.fenetre.afficherMenu   = not labib.prefs.fenetre.afficherMenu
+					labib.fenetre.fermer	()
+					labib.fenetre.ouvrir 	()
 				)
-				subMenu "Préferences"	(
-					menuItem m_preferences 			"Préferences" 
-					menuItem m_resetPreferences 	"Reinitialiser" 
+				
+				on titre 		picked do	(
+					labib.prefs.fenetre.afficherTitre   = not labib.prefs.fenetre.afficherTitre
+					labib.fenetre.fermer	()
+					labib.fenetre.ouvrir 	()
 				)
-				
-				
-				
-				
-				---- evenements ----
-				on m_nouveauDossier picked do ()
-				on m_supprimer picked do  ()
-				
-				on m_afficherInfos picked do ()
-				on m_afficherApercus picked do ()
-				
-				on m_resetPreferences picked do 
-					if queryBox "Etes-vous sûr de vouloir réinitialiser les préférences de la bibliotheque ?" do
-						 ()				
-				on m_preferences picked do  ()
-				
+				on site 			picked do	labib.ouvrirSiteInternet ()
 			)
-			return rcPrincipal
-		)
-		
+			popUpMenu rcFenetre
+		),
+	---------- evenements ----------------------------
+		on create do 
+			debug "<menu>	creation struture"
 )
 

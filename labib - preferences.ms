@@ -22,8 +22,8 @@
 struct PrefsRollPrincipale_struct (
 	
 	------------ Les membres	----------------------------------------------------------------------------------
-	dossierScript ="",	-- le dossier du script --
-	fichier ="",	-- le fichier des preferences
+	dossierScript,										-- le dossier du script --
+	fichier = dossierScript + "\data\prefs.ini",	-- le fichier des preferences
 	
 	---- les parametres de la fenetre ----	
 	taille 				= [600,900],		---- la taille de la fenetre	---
@@ -34,6 +34,9 @@ struct PrefsRollPrincipale_struct (
 	isOpen 			= false,
 	couleurFond 	= (color 56 56 56),
 	tailleApercus 	= [255, 255 ],
+	
+	afficherMenu 	= false,
+	afficherTitre 	= false,
 	
 
 	---- Couleurs ----
@@ -50,40 +53,23 @@ struct PrefsRollPrincipale_struct (
 	caseVide		=	"-",
 	
 	---- images ----
+	-- apercus --
 	apercuVide 				= dossierScript + "data\img\apVide.jpg",
 	apercuDossier 				= dossierScript + "data\img\apNoeud.jpg",
 	apercuDossierParent 	= dossierScript + "data\img\apNoeudParent.jpg",
+-- 	-- Fond TV --
+-- 	fd_TV 						= dossierScript + "data\img\fd_TV.jpg"
+	
 	
 	---- icones ----
 	ico_btnFermer_R				= dossierScript + "data\ico\ico_fermer_R.jpg", 	-- repos 	--
 	ico_btnFermer_S				= dossierScript + "data\ico\ico_fermer_S.jpg", 	-- survol 	--
-	ico_btnFermer_P				= dossierScript + "data\ico\ico_fermer_P.jpg", 	-- press 	--
-	
-	------------ Les fonctions	----------------------------------------------------------------------------------
-	---- les fonctions	----
-	fn enregistrer = (	
-		setINISetting   fichier		"fenetre"   "tailleX"  				( taille.x 				as string )
-		setINISetting   fichier		"fenetre"   "tailleY"  				( taille.y 				as string )
-		setINISetting   fichier		"fenetre"   "posX"  				( pos.x 					as string )
-		setINISetting   fichier		"fenetre"   "posY"  				( pos.y 					as string )
-		setINISetting   fichier		"fenetre"   "infos"  				( infos 					as string )
-		setINISetting   fichier		"fenetre"   "edition"  				( edition 				as string )
-		setINISetting   fichier		"fenetre"   "accroche"			( accroche				as string )
-		setINISetting   fichier		"fenetre"   "tailleApercusX"  	( tailleApercus.x 		as string )
-		setINISetting   fichier		"fenetre"   "tailleApercusY"  	( tailleApercus.y 		as string )
-	),
-	
-	fn charger = (
-		taille.x		= ( getINISetting   fichier		"fenetre"  	"tailleX"  	)	as integer 
-		taille.y		= ( getINISetting   fichier		"fenetre"   "tailleY"  		)	as integer 
-		pos.x			= ( getINISetting   fichier 		"fenetre"   "posX"  		)	as integer 
-		pos.y			= ( getINISetting   fichier		"fenetre"   "posY"  		)	as integer 
-		infos			= if ( getINISetting   fichier	"fenetre"  	"infos"  		)	== "true" then true else false
-		edition 		= if ( getINISetting   fichier	"fenetre"   "edition"  		)	== "true" then true else false
-		accroche	= if ( getINISetting   fichier	"fenetre"  	"accroche"	)	== "true" then true else false
-	)
+	ico_btnFermer_P				= dossierScript + "data\ico\ico_fermer_P.jpg" 	-- press 	--
 
 )
+
+
+
 
 ------------------------------------------------------------------------------
 ------ Rendus  --------------------------------------------------------------
@@ -107,7 +93,7 @@ struct PrefsApercus_struct (
 	convertToCoronaMats 		= true,
 	
 	-- parametres du moteur de rendu --
-	moteur								= Corona_1_4__hotfix_1(),	
+	moteur							= "Corona_1_4__hotfix_1()",	-- execute ( ( filterString moteur ":")[1] +"()" )
 	taille								= [256,256],	
 	coefDistance					= 1.7,
 	exposition 						= -5,
@@ -137,59 +123,8 @@ struct PrefsApercus_struct (
 	transZDetail					= 0,
 	rotXDetail						= 0,
 	rotYDetail						= -15,
-	rotZDetail						=-45 ,
+	rotZDetail						=-45 
 	
-	------------ Les fonctions	----------------------------------------------------------------------------------
-	fn enregistrer = (
-		
-		---- APERCUS ----
-		setINISetting   fichier		"apercus"   "tailleX"  						( taille.x 						as string )
-		setINISetting   fichier		"apercus"   "tailleY"  						( taille.y 						as string )
-		setINISetting   fichier		"apercus"   "angleVue"					( angleVue						as string )
-		setINISetting   fichier		"apercus"   "angleVueDetail"  			( angleVueDetail 				as string )
-		setINISetting   fichier		"apercus"   "moteur"  					( moteur 						as string )
-		setINISetting   fichier		"apercus"   "noiseLevel"  				( noiseLevel 					as string )
-		setINISetting   fichier		"apercus"   "noiseLevelDetail"			( noiseLevelDetail 			as string )
-		setINISetting   fichier		"apercus"   "denoiseAmount"			( denoiseAmount 				as string )
-		setINISetting   fichier		"apercus"   "denoiseAmountDetail"	( denoiseAmountDetail		as string )
-		setINISetting   fichier		"apercus"   "exposition"  				( exposition 					as string )
-		setINISetting   fichier		"apercus"   "highlightCompress"		( highlightCompress			as string )
-		setINISetting   fichier		"apercus"   "temperatureRendu"		( temperatureRendu			as string )
-		setINISetting   fichier		"apercus"   "contraste"  				( contraste 					as string )
-		setINISetting   fichier		"apercus"   "nom"  						( nom 							as string )
-		setINISetting   fichier		"apercus"   "nomVide"  					( nomVide 						as string )
-		setINISetting   fichier		"apercus"   "nomCalqueImport"		( nomCalqueImport 			as string )
-		setINISetting   fichier		"apercus"   "dossier"  					( dossier 						as string )
-		setINISetting   fichier		"apercus"   "dossierImport"  			( dossierImport 				as string )
-		setINISetting   fichier		"apercus"   "convertToCoronaMats"	( convertToCoronaMats	as string )
-		
-	),
-	
-	fn charger = (
-		
-		---- APERCUS ----
-		taille.x 						= ( getINISetting   fichier		"apercus"   "tailleX"  						)	as integer 
-		taille.y 						= ( getINISetting   fichier		"apercus"   "tailleY"  						)	as integer 
-		angleVue					= ( getINISetting   fichier		"apercus"   "angleVue"					)	as float 
-		angleVueDetail 			= ( getINISetting   fichier		"apercus"   "angleVueDetail"  			)	as float
-		moteur 						= execute ( ( filterString ( getINISetting   fichier		"apercus"   "moteur"  ) ":")[1] +"()" )
-		noiseLevel 					= ( getINISetting   fichier		"apercus"   "noiseLevel"  				)	as float 
-		noiseLevelDetail 			= ( getINISetting   fichier		"apercus"   "noiseLevelDetail"			)	as float 
-		denoiseAmount 			= ( getINISetting   fichier		"apercus"   "denoiseAmount"			)	as float 
-		denoiseAmountDetail		= ( getINISetting   fichier		"apercus"   "denoiseAmountDetail"	)	as float 
-		exposition 					= ( getINISetting   fichier		"apercus"   "exposition"  				)	as float 
-		highlightCompress 		= ( getINISetting   fichier		"apercus"   "highlightCompress"		)	as float 
-		temperatureRendu 		= ( getINISetting   fichier		"apercus"   "temperatureRendu"		)	as float 
-		contraste 					= ( getINISetting   fichier		"apercus"   "contraste"  				)	as float 
-		nom 							= ( getINISetting   fichier		"apercus"   "nom"  						)	
-		nomVide 					= ( getINISetting   fichier		"apercus"   "nomVide"  					)
-		nomCalqueImport 		= ( getINISetting   fichier		"apercus"   "nomCalqueImport"		)
-		dossier 						= ( getINISetting   fichier		"apercus"   "dossier"  					)
-		dossierImport 				= ( getINISetting   fichier		"apercus"   "dossierImport"  			)
-		convertToCoronaMats	= if ( getINISetting   fichier	"apercus"   "convertToCoronaMats"	) == "true" then true else false
-		
-	)
-
 )
 
 
@@ -207,103 +142,121 @@ struct PrefsRollInfos_struct (
 	
 	---- les parametres ----
 	taille 			= [1300,900],		---- la taille de la fenetre	---
-	pos 				= [50,50],			---- la position de la fenetre ---	
-	
-	------------ Les fonctions	----------------------------------------------------------------------------------
-	fn enregistrer =  (
-		setINISetting   fichier		"fenetreInfos"   "tailleX"  	( taille.x 	as string )
-		setINISetting   fichier		"fenetreInfos"   "tailleY"  	( taille.y 	as string )
-		setINISetting   fichier		"fenetreInfos"   "posX"  		( pos.x 		as string )
-		setINISetting   fichier		"fenetreInfos"   "posY"  		( pos.y 		as string )
-	),
-	
-	fn charger = (
-		taille.x	= ( getINISetting   fichier		"fenetreInfos"  	"tailleX"  	)	as integer 
-		taille.y	= ( getINISetting   fichier		"fenetreInfos"   "tailleY"  	)	as integer 
-		pos.x		= ( getINISetting   fichier 		"fenetreInfos"   "posX"  		)	as integer 
-		pos.y		= ( getINISetting   fichier		"fenetreInfos"   "posY"  		)	as integer 
-	)
+	pos 				= [50,50]			---- la position de la fenetre ---	
 
 )
 
-------------------------------------------------------------------------------
--- Les preferences pour la creation de proxies						--
-------------------------------------------------------------------------------
-struct PrefsProxies_struct (
-	
-	------------ Les membres	----------------------------------------------------------------------------------
-	dossierScript ="",	-- le dossier du script --
-	fichier ="",				-- le fichier des preferences
-	
-	---- les parametres ----
-	dossier 							= dossierScript + "data\proxies",
-	
-	------------ Les fonctions	----------------------------------------------------------------------------------
-	fn enregistrer =  (
-		setINISetting   fichier		"Proxies"   		"dossier"  	dossier
-	),
-	
-	fn charger = (
-		dossier		= 	getINISetting   fichier		"Proxies"   "dossier"  	
-	)
-	
-)
+
+
+
+
+
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
------- LES PRÈFÈRENCES ----------------------------------------------------------------------------------------------------------------------------------
+------ LES PRÈFÈRENCES -------------------------------------------------------------------------------------------------------------------------------
 -- le struct principal qui regroupe les differents structs de prÈferences					--------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 struct Preference_struct (
 
-	---- le fichier des preferences	----
-public
-	dossierScript	, 													---- le dossier du script ----
-	fichierPrefs 	= dossierScript + "data\prefs.ini",		---- le fichier des preferences ----
-	fichierArbo		= dossierScript + "data\arbo.ini",		---- le fichier de l'arborescence ----
+		------------ Les membres	----------------------------------------------------------------------------------
+	public
+		dossierScript	, 													---- le dossier du script ----
+		fichierPrefs 	= dossierScript + "data\prefs.ini",		---- le fichier des preferences ----
+		fichierArbo		= dossierScript + "data\arbo.ini",		---- le fichier de l'arborescence ----
+		
+		---- les structs des diferenetes preferences	----
+	public	
+		fenetre 		=  PrefsRollPrincipale_struct 	fichier:fichierPrefs	dossierScript:dossierScript,
+		infos		 	=  PrefsRollInfos_struct 		fichier:fichierPrefs	dossierScript:dossierScript,
+		apercus 		= 	PrefsApercus_struct 		fichier:fichierPrefs	dossierScript:dossierScript,
+		
+		------------ Les fonctions	----------------------------------------------------------------------------------
 	
-	---- les structs des diferenetes preferences	----
-public	
-	fenetre 		=  PrefsRollPrincipale_struct 	fichier:fichierPrefs	dossierScript:dossierScript,
-	fenInfos	 	=  PrefsRollInfos_struct 		fichier:fichierPrefs	dossierScript:dossierScript,
-	apercus 		= 	PrefsApercus_struct 		fichier:fichierPrefs	dossierScript:dossierScript,
-	
-	---- les fonctions	----
-public	
-	fn enregistrer = (
-		fenetre.enregistrer	()
-		fenInfos.enregistrer	()
-		apercus.enregistrer	()
-		proxies.enregistrer	()
-	),
-	fn charger = (
-		---- si existe pas on initialise le fichier ----
-		if not doesFileExist fichier then enregistrer ()
-		---- sinon on charge ----
-		else (
-			fenetre.charger	()
-			fenInfos.charger	()
-			apercus.charger	()
-			proxies.charger	()
--- 			assets.charger	()
+	private
+		fn enregistrerDatas  _datas  _nomDatas	=(
+			
+			local propsNoms 	= getPropNames  _datas
+			
+			for propNom in propsNoms do
+				setINISetting   fichierPrefs		_nomDatas   propNom  	( ( getProperty _datas	 propNom	)	as string )
+		),
+		fn chargerDatas  _datas  _nomDatas	=(
+			
+			local propsNoms 	= getPropNames  _datas
+			
+			for propNom in propsNoms do (
+				local propType 	= classof ( getProperty _datas propNom )
+				local propFichier 	= getINISetting   	fichierPrefs		_nomDatas   propNom 
+				case propType of (
+					Integer:			setProperty _datas 	propNom		( propFichier	as integer )
+					Float:			setProperty _datas 	propNom		( propFichier	as float )
+					BooleanClass:	setProperty _datas 	propNom		( if propFichier == "true" then true else false )
+					Point2:			setProperty _datas 	propNom		( execute propFichier )
+					Defaut:			setProperty _datas 	propNom		propFichier
+				)
+			)		
+			
+		),
+		
+		
+	public	
+		fn enregistrer = (
+			debug "<prefs>	enregistrement"
+			
+			enregistrerDatas  fenetre		"fenetre"
+			enregistrerDatas  apercus		"apercus"
+			enregistrerDatas  infos			"infos"
+			
+		),
+		fn charger = (
+			debug "<prefs>	chargement"
+			
+			---- si existe pas on initialise le fichier ----
+			if not doesFileExist fichierPrefs then (
+				debug "fichier absent, crÈation du fichier"		var:fichierPrefs
+				enregistrer ()
+			---- sinon on charge ----
+			) else (
+				chargerDatas  fenetre		"fenetre"
+				chargerDatas  apercus		"apercus"
+				chargerDatas  infos			"infos"
+			)
+		),
+		fn reset = (
+			
+			fenetre 		=  prefsRollPrincipale	fichier:fichierPrefs	dossierScript:dossierScript
+			fenInfos	 	=  prefsRollInfos 			fichier:fichierPrefs	dossierScript:dossierScript
+			apercus 		= 	prefsApercus 			fichier:fichierPrefs	dossierScript:dossierScript
+	-- 		proxies	 	= 	prefsProxies 			fichier:fichierPrefs	dossierScript:dossierScript
+			
+			enregistrer ()
+		), 
+		fn resetApercus = (
+			apercus 			= 	prefsApercus 		fichier:fichier
+			enregistrer ()
+		),
+		
+		
+		------------ Les evenements	----------------------------------------------------------------------------------
+		on create do (
+			debug "<prefs>	creation structure"
+			charger()
+			
 		)
-	),
-	fn reset = (
 		
-		fenetre 		=  prefsRollPrincipale	fichier:fichierPrefs	dossierScript:dossierScript
-		fenInfos	 	=  prefsRollInfos 			fichier:fichierPrefs	dossierScript:dossierScript
-		apercus 		= 	prefsApercus 			fichier:fichierPrefs	dossierScript:dossierScript
-		proxies	 	= 	prefsProxies 			fichier:fichierPrefs	dossierScript:dossierScript
-		
-		enregistrer ()
-	), 
-	fn resetApercus = (
-		apercus 			= 	prefsApercus 		fichier:fichier
-		enregistrer ()
-	)
-	
 	
 )
+
+
+
+
+
+
+
+
+
+
 
 
 

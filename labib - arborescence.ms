@@ -223,8 +223,8 @@ struct Arborescence_struct (
 			for noeud in _noeuds do 
 				noeud.retirer()
 		),
-	---- Vider l'arborescence de tout ses éléments ----
-		fn vider = (
+	---- initialiser l'arborescence de tout ses éléments ----
+		fn initialiser = (
 			root 					= Noeud_struct()
 			root.nom 			= "Labib"
 			root.nomUnique 	= "ROOT"
@@ -242,7 +242,7 @@ struct Arborescence_struct (
 			for element in _elements do(
 				_noeudDest.ajouterEnfant 	element
 			)
-			ecrireFichier()
+			enregistrer()
 		),
 	
 	
@@ -330,19 +330,34 @@ struct Arborescence_struct (
 				
 				return _nouveauNoeud
 				
-			) else format "		le noeud: '%' n'est pas dans le fichier INI (%)\n" _nom fichier
+			) else (
+				debug "ERREUR:	le noeud n'est pas dans le fichier INI\n" _nom fichier
+				debug "noeud" var:_nom 
+				debug "fichier" var:fichier 
+			)
 		),		
 	public
-		fn ecrireFichier 	= (
+		
+		fn enregistrer 	= (
+			debug "<arbo>	enregistrement"
 			setINISetting   fichier	"params"   "indexUnique"  ( indexUnique as string )
 			ecrireNoeud Root
 		),	
-		fn lireFichier 		= (
-			vider()	
-			indexUnique = ( getINISetting   fichier	"params"   "indexUnique" ) as integer
+		
+		fn charger = (
+			debug "<arbo>	chargement"
 			
-			root = lireNoeud   "ROOT" 	undefined			
-			return _root
+			initialiser()
+			
+			---- si existe pas on initialise le fichier ----
+			if not doesFileExist fichier then enregistrer ()
+			---- sinon on charge ----
+			else (
+				
+				indexUnique = ( getINISetting   fichier	"params"   "indexUnique" ) as integer
+				root = lireNoeud   "ROOT" 	undefined
+			)
+			_root
 		),
 	
 	
@@ -570,7 +585,7 @@ struct Arborescence_struct (
 				false:	qsort 	_elements 	sortParCreation
 				true:		qsort 	__elements 	sortParCreationInv
 			)
--- 			ecrireFichier()
+-- 			enregistrer()
 -- 			afficher()
 		),
 		fn classerNbrImports 	_elements 	ordreInverse:false	 = (
@@ -578,7 +593,7 @@ struct Arborescence_struct (
 				false:	qsort 	_elements 	sortParNbrImports
 				true:		qsort 	_elements 	sortParNbrImportsInv
 			)
--- 			ecrireFichier()
+-- 			enregistrer()
 -- 			afficher()
 		),
 		fn classerVertex 			_elements 	ordreInverse:false	 = (
@@ -586,7 +601,7 @@ struct Arborescence_struct (
 				false:	qsort 	_elements 	sortParVertex
 				true:		qsort 	_elements 	sortParVertexInv
 			)
--- 			ecrireFichier()
+-- 			enregistrer()
 -- 			afficher()
 		),
 		fn classerNoms 			_elements 	ordreInverse:false	 = (
@@ -594,7 +609,7 @@ struct Arborescence_struct (
 				false:	qsort 	_elements 	sortParNom
 				true:		qsort 	_elements 	sortParNomInv
 			)
--- 			ecrireFichier()
+-- 			enregistrer()
 -- 			afficher()
 		),
 	
@@ -647,16 +662,17 @@ struct Arborescence_struct (
 	------------ EVENEMENTS	----------------------------------------------------------------------------------	
 	private
 		on create do (
-			vider ()
+			debug "<arbo>	creation struture"
+			initialiser ()
 			
 			-- on verifie qu'il existe sinon on creer un vierge ------
 			if not doesfileexist fichier then (
 				debug "fichier absent, création du fichier"		var:fichier
-				vider()			
-				ecrireFichier()
+				initialiser()			
+				enregistrer()
 			) 		
 			
-			lireFichier()
+			charger()
 		)
 	
 	

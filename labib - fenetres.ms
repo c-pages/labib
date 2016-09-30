@@ -13,6 +13,47 @@
 ######################################################################################################################## */ 
 	
 
+	rcMenu rcRolloutPrincipal
+	(
+		---- menu ----
+		subMenu "Edit"	(
+			menuItem m_nouveauDossier 		"Nouveau dossier" 
+			menuItem m_supprimer 				"Supprimer"					
+		)
+		subMenu "Vues" (
+			menuItem m_afficherInfos 			"Infos"  		
+			menuItem m_afficherApercus		"Création des aperçus" 
+		)
+		subMenu "Préferences"	(
+			menuItem m_preferences 			"Préferences" 
+			menuItem m_resetPreferences 	"Reinitialiser" 
+		)
+		
+		
+		
+		
+		---- evenements ----
+	/* 	on m_nouveauDossier picked do	
+			bibliotheque.nouveauNoeud()
+		on m_supprimer picked do 
+			bibliotheque.suprimerNoeud()
+		
+		on m_afficherInfos picked do	
+			bibliotheque.ouvrirInfos()
+		on m_afficherApercus picked do	
+			bibliotheque.ouvrirApercus()
+		
+		on m_resetPreferences picked do 
+			if queryBox "Etes-vous sûr de vouloir réinitialiser les préférences de la bibliotheque ?" do
+				bibliotheque.prefs.reset()				
+		on m_preferences picked do 					
+			bibliotheque.ouvrirPreferences() */
+		
+	)
+	
+	
+	
+	
 ------------------------------------------------------------------------------
 ----------	Le rollout principale ------------------------------------------
 ------------------------------------------------------------------------------
@@ -110,12 +151,7 @@ rollout m_rollPrincipal "labib"  (
 																				epaisseur:	ecartUI
 	
 	
-	---- les boutons maxscripts ----
-	-- le titre --
--- 	label					ui_titre					"Labib V0.1"		pos:			[ecartUI, ecartUI/2 - 6 ] \
--- 																				width:		200	\
--- 																				height:		17
-	
+	---- les boutons maxscripts ----	
 	-- le TreeView (TV) arborescence --
 	dotNetControl 	ui_TV 						"TreeView" 		pos:			[ecartUI ,ecartUI]	\	-- [ ecartUI , 	ui_editRecherche.pos.y + ui_editRecherche.height  + ecartUI ]	\
 																				width:		btnVirt_slider_V.width	\
@@ -126,11 +162,13 @@ rollout m_rollPrincipal "labib"  (
 	edittext 			ui_editRecherche 		""	 				pos:			[ ecartUI , 	btnVirt_slider_V.pos.y + btnVirt_slider_V.height   ]  \
 																				width:		btnVirt_slider_V.width \
 																				height:		17		 \
+																				tooltip: 		"Recherche par mots clés" \
 																				fieldWidth:	0		labelOnTop:true 
 	
 	-- la liste des tags --
 	MultiListBox 		ui_lstBoxTags				"" 					pos:			( ui_editRecherche.pos + [0,ui_editRecherche.height  + ecartUISimple ] ) \
 																				width:		btnVirt_slider_V.width \
+																				tooltip: 		"Mots clés" \
 																				height:		( ( tailleRolloutCreation.y - ( ui_editRecherche.pos.y + ui_editRecherche.height +  ecartUI  + ecartUISimple ) ) / 13 ) 
 	
 	-- la ListView (LV) pour le cointenu des noeud (apercus) --
@@ -165,11 +203,20 @@ rollout m_rollPrincipal "labib"  (
 		if classof _elemsArbo != Array
 			do _elemsArbo = #( _elemsArbo )
 		
+		-- on actualise la selection des elements --
 		prt.selectionElements = _elemsArbo
 		
-		for elem in _elemsArbo do (
+		-- on selectionne dans le LV --
+		for i=0 to ui_LV.items.count - 1 do
+			ui_LV.items.item[i].selected=false
+		for elem in _elemsArbo do 
 			( getNoeudLV 	elem ).selected = true
-		)
+		
+		
+		-- scroll jusqu'au elemnt selectionnés --
+		if _elemsArbo[1] != undefined do
+			ui_LV.EnsureVisible( ( getNoeudLV _elemsArbo[1] ).Index )
+		
 	)
 	fn ajouterLV  				_elements		&_elemsAAfficher		&_apercusAAfficher		&_id	=(
 		
@@ -501,25 +548,6 @@ rollout m_rollPrincipal "labib"  (
 		
 		ui_btnFermer.pos			= [ tailleRollout.x - 1 *ecartUI	, 0 ]
 		
-		/*
-		
-	-- le TreeView (TV) arborescence --
-	dotNetControl 	ui_TV 						"TreeView" 		pos:			[ecartUI ,ecartUI]	\	-- [ ecartUI , 	ui_editRecherche.pos.y + ui_editRecherche.height  + ecartUI ]	\
-																				width:		btnVirt_slider_V.width	\
-																				height:		( btnVirt_slider_V.pos.y - ecartUI ) \
-																				enabled:		true
-	
-	-- la recherche des tags --
-	edittext 			ui_editRecherche 		""	 				pos:			[ ecartUI , 	btnVirt_slider_V.pos.y + btnVirt_slider_V.height  + ecartUI ]  \
-																				width:		btnVirt_slider_V.width \
-																				height:		17		 \
-																				fieldWidth:	0		labelOnTop:true 
-	
-	-- la liste des tags --
-	MultiListBox 		ui_lstBoxTags				"" 					pos:			( ui_editRecherche.pos + [0,ui_editRecherche.height  + ecartUI ] ) \
-																				width:		btnVirt_slider_V.width \
-																				height:		( ( tailleRolloutCreation.y - ( ui_editRecherche.pos.y + ui_editRecherche.height + ecartUI ) ) / 13 ) 
-																				*/
 	)	
 	
 	fn bougerFenetre 		_pos		= (		
@@ -529,8 +557,6 @@ rollout m_rollPrincipal "labib"  (
 		--- on stock la taille  ---
 		local tailleRollout = _taille
 		prefs.fenetre.taille = tailleRollout
-		
-		btnVirt_slider_V.pos.y = tailleRollout.y - ( ui_lstBoxTags.height + 2*ecartUI )
 		
 		recomposerFenetre()
 	)
@@ -668,7 +694,7 @@ rollout m_rollPrincipal "labib"  (
 			
 			_noeudArbo.nom 	= _nouveauNom
 			--ecriture du fichier ---
-			arbo.ecrireFichier ()
+			arbo.enregistrer ()
 			
 			actualiserTV ()
 			expandTV  			_noeudArbo			
@@ -689,27 +715,30 @@ rollout m_rollPrincipal "labib"  (
 	fn cliqueTV 			_arg			= (
 		
 		local	noeudTVClique = ui_TV.GetNodeAt (dotNetObject "System.Drawing.Point" _arg.x _arg.y)
-		if noeudTVClique != undifined do (
-			local noeudArbo 		= arbo.getParNomUnique 	noeudTVClique.name
+		
+		
+		case _arg.Button.value__ 	of (
 			
-			case _arg.Button.value__ 	of (
-				-- clique gauche --
-				1048576:	(
-					-- on selectionne le noeud --
-					ouvrirNoeud	 noeudArbo
-				)			
-				-- clique droit --
-				2097152:	(				
-					-- on selectionne le noeud --
-					ouvrirNoeud	 noeudArbo		
-					-- on ouvre le menu contextuel --
-					menu.arbo ()				
-				)
-				-- btn precedant --
-				8388608:	historiqueBouger 1
-				-- btn suivant --
-				16777216:	historiqueBouger -1	
+			-- clique gauche --
+			1048576:	(
+				-- on selectionne le noeud --
+				if noeudTVClique != undifined do
+					ouvrirNoeud	( arbo.getParNomUnique 	noeudTVClique.name )
+			)			
+			-- clique droit --
+			2097152:	(				
+				-- on selectionne le noeud --				
+				if noeudTVClique != undifined do
+					ouvrirNoeud	( arbo.getParNomUnique 	noeudTVClique.name	 )
+				
+				-- on ouvre le menu contextuel --
+				menu.arbo ()				
 			)
+			-- btn precedant --
+			8388608:	historiqueBouger 1
+			-- btn suivant --
+			16777216:	historiqueBouger -1	
+			
 		) -- fin case of arg ---
 	)
 	fn renommerTV 		_noeudArbo	_nouveauNom = (
@@ -718,7 +747,7 @@ rollout m_rollPrincipal "labib"  (
 			
 			_noeudArbo.nom 	= _nouveauNom
 			--ecriture du fichier ---
-			arbo.ecrireFichier ()
+			arbo.enregistrer ()
 			
 			selectionnerTV	_noeudArbo
 		)
@@ -794,14 +823,17 @@ rollout m_rollPrincipal "labib"  (
 	---- les boutons virtuels ----
 	on m_rollPrincipal lbuttondown 	pos 	do sourisClique 		pos 
 	on m_rollPrincipal lbuttonup	 	pos 	do sourisRelache 		pos 
+	on m_rollPrincipal rbuttondown  	pos 	do menu.fenetre ()
 	on m_rollPrincipal mousemove 	pos 	do sourisSeDeplace 	pos 
 	
 	---- TV arbo ----
-	on ui_TV 		mouseUp 			arg 	do  cliqueTV 	arg 	
+	on ui_TV 		mouseDown 		arg 	do  cliqueTV 	arg 	
+-- 	on ui_TV 		mouseUp 			arg 	do  cliqueTV 	arg 	
 	on ui_TV 		AfterLabelEdit		arg 	do  renommerTV	  prt.selectionNoeud		arg.label	--show arg
 	
 	--- LV apercus ----
-	on ui_LV 		mouseUp 			arg 	do  cliqueLV 		arg 
+	on ui_LV 		mouseDown		arg 	do  cliqueLV 		arg 
+-- 	on ui_LV 		mouseUp 			arg 	do  cliqueLV 		arg 
 	on ui_LV 		DoubleClick			arg 	do  dbCliqueLV 	arg 		
 	on ui_LV		MouseWheel 		arg 	do  if keyboard.controlPressed do zoomerLV 	arg.delta
 	on ui_LV 		AfterLabelEdit		arg 	do  renommerLV	  prt.selectionElements[1]		arg.label	--show arg
@@ -854,7 +886,7 @@ struct Fenetre_struct (
 	
 	------------ Les FONCTIONS	----------------------------------------------------------------------------------
 	fn definirAffichage  _nouvelAffichage 	= (
-		affichageLV = _nouvelAffichage
+		affichageLV 	= _nouvelAffichage
 		dialog.chargerAffichageLV  _nouvelAffichage
 	),
 	fn actualiser = (
@@ -865,13 +897,35 @@ struct Fenetre_struct (
 		
 		try destroydialog dialog catch ()
 		
-		createDialog dialog 	style:				#( #style_resizing , #style_minimizebox , #style_maximizebox )  \
-									pos:					prt.prefs.fenetre.pos \
-									width:				prt.prefs.fenetre.taille.x \
-									height:				prt.prefs.fenetre.taille.y \
-									escapeEnable:		false 		 \
-									bgcolor:				prt.prefs.fenetre.col_fenetreFond 	 \
-									fgcolor:				prt.prefs.fenetre.col_fenetreFore 	
+		-- afficher barre titre --
+		local style 
+		if prt.prefs.fenetre.afficherTitre
+			then 	style = #( #style_titlebar /* #style_toolwindow  */ ,    #style_sysmenu, #style_resizing  , #style_minimizebox , #style_maximizebox  ) 
+			else 		style = #( #style_resizing /* , #style_minimizebox , #style_maximizebox */ ) 
+			
+		
+		-- afficher Menus  --
+		if prt.prefs.fenetre.afficherMenu 	
+			then	( 
+				createDialog dialog 	style:				style \
+											menu:				rcRolloutPrincipal \
+											pos:					prt.prefs.fenetre.pos \
+											width:				prt.prefs.fenetre.taille.x \
+											height:				prt.prefs.fenetre.taille.y \
+											escapeEnable:		false 		 \
+											bgcolor:				prt.prefs.fenetre.col_fenetreFond 	 \
+											fgcolor:				prt.prefs.fenetre.col_fenetreFore 	
+			) else	(
+				createDialog dialog 	style:				style \
+											pos:					prt.prefs.fenetre.pos \
+											width:				prt.prefs.fenetre.taille.x \
+											height:				prt.prefs.fenetre.taille.y \
+											escapeEnable:		false 		 \
+											bgcolor:				prt.prefs.fenetre.col_fenetreFond 	 \
+											fgcolor:				prt.prefs.fenetre.col_fenetreFore 	
+			)
+		
+		dialog.ui_btnFermer.visible = not prt.prefs.fenetre.afficherTitre
 		
 		dialog.arbo 		= prt.arbo
 		dialog.prefs 	= prt.prefs
@@ -881,11 +935,19 @@ struct Fenetre_struct (
 		
 	),
 	fn fermer = (
+		
+		-- on sauvegarde les preferences --
+		prt.prefs.enregistrer ()
+		
+		-- et on ferme --
 		try destroydialog dialog catch ()
+		
 	),
 	------------ Les EVENEMENTS	----------------------------------------------------------------------------------
 	on create do (
+		debug "<fenetre>	creation struture"
 		tailleApercus = prt.prefs.fenetre.tailleApercus
+		
 	)
 	
 	
