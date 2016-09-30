@@ -14,6 +14,76 @@
 	
 
 
+------------------------------------------------------------------------------
+------ Rollout ---------------------------------------------------------------
+------------------------------------------------------------------------------
+-- Les preferences pour la fenetre de la bibliotheque				--
+------------------------------------------------------------------------------
+struct PrefsRollPrincipale_struct (
+	
+	------------ Les membres	----------------------------------------------------------------------------------
+	dossierScript ="",	-- le dossier du script --
+	fichier ="",	-- le fichier des preferences
+	
+	---- les parametres de la fenetre ----	
+	taille 				= [600,900],		---- la taille de la fenetre	---
+	pos 				= [50,50],			---- la position de la fenetre ---	
+	infos				=	true,				---- si l'onglet "infos" est ouvert ---
+	edition			=	false,				---- si la fenetre edition est ouverte ---	
+	accroche		=	false,				---- si le mode accroche fenetres est activé --- ( depreciated )
+	isOpen 			= false,
+	couleurFond 	= (color 56 56 56),
+	tailleApercus 	= [255, 255 ],
+	
+
+	---- Couleurs ----
+	-- des rollouts --
+	col_fenetreFond				= color 104  112 131, 	----  ----
+	col_fenetreFore				= color 230  230 230, 	----  ----
+	-- trucs dotnet (LV, TV ) --
+	col_TVLVfond 					= color 160 166 182, 	----  ----
+	col_TVLVfondDossier 		= color 130 136 152, 	----  ----
+	col_TVLVforeDossier 		= color 255 255 255, 	----  ----
+	col_TVLVfondDossierPrt 	= color 190 196 212, 	----  ----
+	col_TVLVfore 					= color 45	42	35, 		----  ----
+
+	caseVide		=	"-",
+	
+	---- images ----
+	apercuVide 				= dossierScript + "data\img\apVide.jpg",
+	apercuDossier 				= dossierScript + "data\img\apNoeud.jpg",
+	apercuDossierParent 	= dossierScript + "data\img\apNoeudParent.jpg",
+	
+	---- icones ----
+	ico_btnFermer_R				= dossierScript + "data\ico\ico_fermer_R.jpg", 	-- repos 	--
+	ico_btnFermer_S				= dossierScript + "data\ico\ico_fermer_S.jpg", 	-- survol 	--
+	ico_btnFermer_P				= dossierScript + "data\ico\ico_fermer_P.jpg", 	-- press 	--
+	
+	------------ Les fonctions	----------------------------------------------------------------------------------
+	---- les fonctions	----
+	fn enregistrer = (	
+		setINISetting   fichier		"fenetre"   "tailleX"  				( taille.x 				as string )
+		setINISetting   fichier		"fenetre"   "tailleY"  				( taille.y 				as string )
+		setINISetting   fichier		"fenetre"   "posX"  				( pos.x 					as string )
+		setINISetting   fichier		"fenetre"   "posY"  				( pos.y 					as string )
+		setINISetting   fichier		"fenetre"   "infos"  				( infos 					as string )
+		setINISetting   fichier		"fenetre"   "edition"  				( edition 				as string )
+		setINISetting   fichier		"fenetre"   "accroche"			( accroche				as string )
+		setINISetting   fichier		"fenetre"   "tailleApercusX"  	( tailleApercus.x 		as string )
+		setINISetting   fichier		"fenetre"   "tailleApercusY"  	( tailleApercus.y 		as string )
+	),
+	
+	fn charger = (
+		taille.x		= ( getINISetting   fichier		"fenetre"  	"tailleX"  	)	as integer 
+		taille.y		= ( getINISetting   fichier		"fenetre"   "tailleY"  		)	as integer 
+		pos.x			= ( getINISetting   fichier 		"fenetre"   "posX"  		)	as integer 
+		pos.y			= ( getINISetting   fichier		"fenetre"   "posY"  		)	as integer 
+		infos			= if ( getINISetting   fichier	"fenetre"  	"infos"  		)	== "true" then true else false
+		edition 		= if ( getINISetting   fichier	"fenetre"   "edition"  		)	== "true" then true else false
+		accroche	= if ( getINISetting   fichier	"fenetre"  	"accroche"	)	== "true" then true else false
+	)
+
+)
 
 ------------------------------------------------------------------------------
 ------ Rendus  --------------------------------------------------------------
@@ -125,64 +195,6 @@ struct PrefsApercus_struct (
 
 
 
-------------------------------------------------------------------------------
------- Rollout ---------------------------------------------------------------
-------------------------------------------------------------------------------
--- Les preferences pour la fenetre de la bibliotheque				--
-------------------------------------------------------------------------------
-struct PrefsRollPrincipale_struct (
-	
-	------------ Les membres	----------------------------------------------------------------------------------
-	dossierScript ="",	-- le dossier du script --
-	fichier ="",	-- le fichier des preferences
-	
-	---- les parametres de la fenetre ----	
-	taille 			= [600,900],		---- la taille de la fenetre	---
-	pos 				= [50,50],			---- la position de la fenetre ---	
-	infos				=	true,				---- si l'onglet "infos" est ouvert ---
-	edition			=	false,				---- si la fenetre edition est ouverte ---	
-	accroche		=	false,				---- si le mode accroche fenetres est activé --- ( depreciated )
-	isOpen 			= false,
-	couleurFond 	= (color 56 56 56),
-	tailleApercus 	= [255, 255 ],
-	
-	caseVide		=	"-",
-	
-	---- images ----
-	apercuVide 				= dossierScript + "data\img\apVide.jpg",
-	apercuDossier 				= dossierScript + "data\img\apNoeud.jpg",
-	apercuDossierParent 	= dossierScript + "data\img\apNoeudParent.jpg",
-	
-	---- icones ----
-	ico_btnFermer_R				= dossierScript + "data\ico\ico_fermer_R.jpg", 	-- repos 	--
-	ico_btnFermer_S				= dossierScript + "data\ico\ico_fermer_S.jpg", 	-- survol 	--
-	ico_btnFermer_P				= dossierScript + "data\ico\ico_fermer_P.jpg", 	-- press 	--
-	
-	------------ Les fonctions	----------------------------------------------------------------------------------
-	---- les fonctions	----
-	fn enregistrer = (	
-		setINISetting   fichier		"fenetre"   "tailleX"  				( taille.x 				as string )
-		setINISetting   fichier		"fenetre"   "tailleY"  				( taille.y 				as string )
-		setINISetting   fichier		"fenetre"   "posX"  				( pos.x 					as string )
-		setINISetting   fichier		"fenetre"   "posY"  				( pos.y 					as string )
-		setINISetting   fichier		"fenetre"   "infos"  				( infos 					as string )
-		setINISetting   fichier		"fenetre"   "edition"  				( edition 				as string )
-		setINISetting   fichier		"fenetre"   "accroche"			( accroche				as string )
-		setINISetting   fichier		"fenetre"   "tailleApercusX"  	( tailleApercus.x 		as string )
-		setINISetting   fichier		"fenetre"   "tailleApercusY"  	( tailleApercus.y 		as string )
-	),
-	
-	fn charger = (
-		taille.x		= ( getINISetting   fichier		"fenetre"  	"tailleX"  	)	as integer 
-		taille.y		= ( getINISetting   fichier		"fenetre"   "tailleY"  		)	as integer 
-		pos.x			= ( getINISetting   fichier 		"fenetre"   "posX"  		)	as integer 
-		pos.y			= ( getINISetting   fichier		"fenetre"   "posY"  		)	as integer 
-		infos			= if ( getINISetting   fichier	"fenetre"  	"infos"  		)	== "true" then true else false
-		edition 		= if ( getINISetting   fichier	"fenetre"   "edition"  		)	== "true" then true else false
-		accroche	= if ( getINISetting   fichier	"fenetre"  	"accroche"	)	== "true" then true else false
-	)
-
-)
 
 ------------------------------------------------------------------------------
 -- Les preferences pour la fenetre des infos							--

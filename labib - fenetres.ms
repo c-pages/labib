@@ -83,20 +83,9 @@ rollout m_rollPrincipal "labib"  (
 	local prefs		---- pointeur vers le struct preferences ----
 	local menu		---- pointeur vers le struct menu ----
 	
-	---- Couleurs ----
-	local col_fondVue 		= color 160 166 182	----  ----
-	
-	local col_fondDossier 	= color 130 136 152	----  ----
--- 	local col_fondDossier 		= color 190 196 212	----  ----
-	local col_foreDossier 		= color 255 255 255	----  ----
-	local col_fondDossierPrt 	= color 190 196 212	----  ----
-	
-	local col_textes 				= color 45	42	35		----  ----
-	local col_image 				= color 36 36 36		----  ----
-		
 	---- geometrie ----
 	local ecartUI			= 20		----  ----
-	local ecartUISimple	= 2		----  ----
+	local ecartUISimple	= 1		----  ----
 	
 	---- TV l'arborescence ----
 	local listeNoeudsTV 		= #()
@@ -123,25 +112,27 @@ rollout m_rollPrincipal "labib"  (
 	
 	---- les boutons maxscripts ----
 	-- le titre --
-	label					ui_titre					"Labib V0.1"		pos:			[ecartUI, ecartUI/2 - 6 ] \
-																				width:		200	\
-																				height:		17
+-- 	label					ui_titre					"Labib V0.1"		pos:			[ecartUI, ecartUI/2 - 6 ] \
+-- 																				width:		200	\
+-- 																				height:		17
+	
+	-- le TreeView (TV) arborescence --
+	dotNetControl 	ui_TV 						"TreeView" 		pos:			[ecartUI ,ecartUI]	\	-- [ ecartUI , 	ui_editRecherche.pos.y + ui_editRecherche.height  + ecartUI ]	\
+																				width:		btnVirt_slider_V.width	\
+																				height:		( btnVirt_slider_V.pos.y - ecartUI ) \
+																				enabled:		true
 	
 	-- la recherche des tags --
-	edittext 			ui_editRecherche 		""	 				pos:			( [ecartUI ,ecartUI] ) \
+	edittext 			ui_editRecherche 		""	 				pos:			[ ecartUI , 	btnVirt_slider_V.pos.y + btnVirt_slider_V.height   ]  \
 																				width:		btnVirt_slider_V.width \
 																				height:		17		 \
 																				fieldWidth:	0		labelOnTop:true 
-	-- le TreeView (TV) arborescence --
-	dotNetControl 	ui_TV 						"TreeView" 		pos:			[ ecartUI , 	ui_editRecherche.pos.y + ui_editRecherche.height  + ecartUI ]	\
-																				width:		btnVirt_slider_V.width	\
-																				height:		( btnVirt_slider_V.pos.y - ( ui_editRecherche.height + 2 * ecartUI ) ) \
-																				enabled:		true
+	
 	-- la liste des tags --
-	MultiListBox 		ui_lstBoxTags				"" 					pos:			( btnVirt_slider_V.pos + [0,btnVirt_slider_V.height  ] ) \
+	MultiListBox 		ui_lstBoxTags				"" 					pos:			( ui_editRecherche.pos + [0,ui_editRecherche.height  + ecartUISimple ] ) \
 																				width:		btnVirt_slider_V.width \
-																				height:		( ( tailleRolloutCreation.y - ( btnVirt_slider_V.pos.y + btnVirt_slider_V.height + ecartUI ) ) / 13 ) 
-																				
+																				height:		( ( tailleRolloutCreation.y - ( ui_editRecherche.pos.y + ui_editRecherche.height +  ecartUI  + ecartUISimple ) ) / 13 ) 
+	
 	-- la ListView (LV) pour le cointenu des noeud (apercus) --
 	dotNetControl 	ui_LV "system.windows.forms.listView" pos:			[ btnVirt_slider_H.pos.x + btnVirt_slider_H.width, ecartUI ] \
 																				width:		( tailleRolloutCreation.x - ( btnVirt_slider_H.pos.x + btnVirt_slider_H.width +  ecartUI ) ) \
@@ -204,6 +195,10 @@ rollout m_rollPrincipal "labib"  (
 					li.text 			= element.nom
 					if element.nomUnique != "RETOUR"		-- si ce n'est pas le noeud dossier parent on rajoute le nombre l'elements enfants--
 						do li.text += "   (" + element.getNbrEnfants() as string + ")"
+					
+					local col_foreDossier 		= prefs.fenetre.col_TVLVforeDossier
+					local col_fondDossier 		= prefs.fenetre.col_TVLVfondDossier
+					local col_fondDossierPrt 	= prefs.fenetre.col_TVLVfondDossierPrt
 					
 					---- couleurs ----
 					li.ForeColor			=	(dotNetClass "System.Drawing.Color").fromARGB 	col_foreDossier.r 		col_foreDossier.g 	col_foreDossier .b
@@ -473,10 +468,10 @@ rollout m_rollPrincipal "labib"  (
 		local tailleRollout = [ m_rollPrincipal.width, m_rollPrincipal.height ]
 		
 		--limitations positions des sliders--
-		local min_H 	= 2* ecartUI
+		local min_H 	= 4* ecartUI
 		local max_H 	= tailleRollout.x - ( 5* ecartUI ) 
-		local min_V 	= 2* ecartUI + ui_editRecherche.height + 20
-		local max_V 	= tailleRollout.y - ( 1* ecartUI )
+		local min_V 	= 4* ecartUI 
+		local max_V 	= tailleRollout.y - ( 5* ecartUI )
 		if btnVirt_slider_H.pos.x  >max_H 	do	btnVirt_slider_H.pos.x = 	max_H
 		if btnVirt_slider_H.pos.x < min_H  	do 	btnVirt_slider_H.pos.x =  	min_H		
 		if btnVirt_slider_V.pos.y > max_V 	do 	btnVirt_slider_V.pos.y = 	max_V	
@@ -489,20 +484,42 @@ rollout m_rollPrincipal "labib"  (
 		btnVirt_Drag.height	= tailleRollout.y
 		
 		---- les autres -----
-		ui_editRecherche.width = btnVirt_slider_V.width
 		
 		ui_TV.width 				= btnVirt_slider_V.width
-		ui_TV.height 				= btnVirt_slider_V.pos.y - ( ui_editRecherche.height + 2 * ecartUI )
+		ui_TV.height 				= btnVirt_slider_V.pos.y - ecartUI
 		
-		ui_lstBoxTags.pos 		= btnVirt_slider_V.pos + [0,btnVirt_slider_V.height  ]
+		ui_editRecherche.pos	= [ ecartUI , 	btnVirt_slider_V.pos.y + btnVirt_slider_V.height  ]
+		ui_editRecherche.width = btnVirt_slider_V.width
+		
+		ui_lstBoxTags.pos 		= ui_editRecherche.pos + [0,ui_editRecherche.height  + ecartUISimple ]
 		ui_lstBoxTags.width 		= btnVirt_slider_V.width
-		ui_lstBoxTags.height		= tailleRollout.y - ( btnVirt_slider_V.pos.y + btnVirt_slider_V.height + ecartUI )
+		ui_lstBoxTags.height		= tailleRollout.y - ( ui_editRecherche.pos.y + ui_editRecherche.height +  ecartUI + ecartUISimple )
 		
 		ui_LV.pos					= [btnVirt_slider_H.pos.x + btnVirt_slider_H.width, ecartUI ]
 		ui_LV.width					= tailleRollout.x - ( btnVirt_slider_H.pos.x + btnVirt_slider_H.width +  ecartUI )
 		ui_LV.height				= tailleRollout.y - 2* ecartUI
 		
-		ui_btnFermer.pos			= [ tailleRollout.x - 1 *ecartUI	, 0 ] 
+		ui_btnFermer.pos			= [ tailleRollout.x - 1 *ecartUI	, 0 ]
+		
+		/*
+		
+	-- le TreeView (TV) arborescence --
+	dotNetControl 	ui_TV 						"TreeView" 		pos:			[ecartUI ,ecartUI]	\	-- [ ecartUI , 	ui_editRecherche.pos.y + ui_editRecherche.height  + ecartUI ]	\
+																				width:		btnVirt_slider_V.width	\
+																				height:		( btnVirt_slider_V.pos.y - ecartUI ) \
+																				enabled:		true
+	
+	-- la recherche des tags --
+	edittext 			ui_editRecherche 		""	 				pos:			[ ecartUI , 	btnVirt_slider_V.pos.y + btnVirt_slider_V.height  + ecartUI ]  \
+																				width:		btnVirt_slider_V.width \
+																				height:		17		 \
+																				fieldWidth:	0		labelOnTop:true 
+	
+	-- la liste des tags --
+	MultiListBox 		ui_lstBoxTags				"" 					pos:			( ui_editRecherche.pos + [0,ui_editRecherche.height  + ecartUI ] ) \
+																				width:		btnVirt_slider_V.width \
+																				height:		( ( tailleRolloutCreation.y - ( ui_editRecherche.pos.y + ui_editRecherche.height + ecartUI ) ) / 13 ) 
+																				*/
 	)	
 	
 	fn bougerFenetre 		_pos		= (		
@@ -537,8 +554,13 @@ rollout m_rollPrincipal "labib"  (
 
 		
 		
+	
+		
 		--- type d'affichage du LV ---
 		chargerAffichageLV	prt.affichageLV
+		
+		local col_fondVue 	= prefs.fenetre.col_TVLVfond
+		local col_textes 		= prefs.fenetre.col_TVLVfore
 		
 		---- la vue liste----
 		ui_LV.borderstyle 			= (dotnetclass "System.Windows.Forms.BorderStyle").None
@@ -843,13 +865,13 @@ struct Fenetre_struct (
 		
 		try destroydialog dialog catch ()
 		
-		createDialog dialog 	style:				#(/* #style_toolwindow, #style_titlebar , #style_toolwindow,#style_sysmenu,  */#style_resizing   , #style_minimizebox, #style_maximizebox/* */)  \
+		createDialog dialog 	style:				#( #style_resizing , #style_minimizebox , #style_maximizebox )  \
 									pos:					prt.prefs.fenetre.pos \
 									width:				prt.prefs.fenetre.taille.x \
 									height:				prt.prefs.fenetre.taille.y \
 									escapeEnable:		false 		 \
-									bgcolor:				(color 104  112 131 ) 	 \
-									fgcolor:				(color 230  230 230 ) 	
+									bgcolor:				prt.prefs.fenetre.col_fenetreFond 	 \
+									fgcolor:				prt.prefs.fenetre.col_fenetreFore 	
 		
 		dialog.arbo 		= prt.arbo
 		dialog.prefs 	= prt.prefs
@@ -869,10 +891,7 @@ struct Fenetre_struct (
 	
 ) -- fin struct fenetre ----
 
-
-
-
-
+	
 
 
 
