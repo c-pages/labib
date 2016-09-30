@@ -75,9 +75,40 @@
 		arbo		= Arborescence_struct 	fichier:prefs.fichierArbo,			---- la gestion de l'arborescenece de la bibliotheque ----	
 		apercu,																					---- la gestion des rendus des apercus ----		
 		edition	= Edition_struct 				prefs:prefs	arbo:arbo,				---- l'edition proprement dite de la bibliotheque (creation d'un asset, import dans la scene ... ) ----
-		menu		= menu_struct ()								---- les menus clique droit ----
+		menu		= menu_struct (),								---- les menus clique droit ----
 		
 		------------ Fonctions		----------------------------------------------------------------------------------
+		fn renommer =(
+			local noeudArboSelec = fenetre.selectionNoeud
+-- 			if noeudArboSelec != undefined do (
+-- 				fenetre.dialog.selectionnerTV		noeudArboSelec.parent
+	-- 			fenetre.dialog.selectionnerLV		#( noeudArboSelec )
+				fenetre.dialog.editerNomTV 	noeudArboSelec
+-- 			)
+		),
+		fn nouveauDossier =(
+			
+			local noeudArboSelec = fenetre.selectionNoeud
+			debug "nouveau dossier"
+			debug "noeudArboSelec" var:( if noeudArboSelec!=undefined then noeudArboSelec.nom else "UndEFIneD")
+			
+			if noeudArboSelec.nomUnique != "RECHERCHE" do	(
+				-- creation de noeud --
+				local	nouveauNoeud  = arbo.creerNoeud  	parent:noeudArboSelec
+				--ecriture du fichier ---
+				arbo.ecrireFichier ()
+				
+				-- actualisation --
+				fenetre.actualiser()
+				fenetre.dialog.selectionnerTV		nouveauNoeud.parent
+				fenetre.dialog.selectionnerLV		#( nouveauNoeud )
+				
+			)
+			
+		),
+		fn nouvelAsset =(),		
+		fn nouvelAssetDossier =(),
+		fn supprimer =()
 		
 		------------ Evenements 	----------------------------------------------------------------------------------
 		

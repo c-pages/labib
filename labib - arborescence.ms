@@ -169,8 +169,8 @@ struct Arborescence_struct (
 	
 	private
 	---- noms uniques ----
-		indexUnique 						= 0,		---- le compteur d'éléments de la biblio pour gerer les nom uniques-----
-		prefixNomUnique_noeud 		= "N",
+		indexUnique 					= 0,		---- le compteur d'éléments de la biblio pour gerer les nom uniques-----
+		prefixNomUnique_noeud 	= "N",
 		prefixNomUnique_element 	= "E",	
 		
 	----  pour Affichage dans listener -----	
@@ -223,7 +223,7 @@ struct Arborescence_struct (
 	---- Vider l'arborescence de tout ses éléments ----
 		fn vider = (
 			root 					= Noeud_struct()
-			root.nom 			= "ROOT"
+			root.nom 			= "Labib"
 			root.nomUnique 	= "ROOT"
 			
 			recherche					= Noeud_struct()
@@ -331,10 +331,13 @@ struct Arborescence_struct (
 		),		
 	public
 		fn ecrireFichier 	= (
+			setINISetting   fichier	"params"   "indexUnique"  ( indexUnique as string )
 			ecrireNoeud Root
 		),	
 		fn lireFichier 		= (
-			vider()			
+			vider()	
+			indexUnique = ( getINISetting   fichier	"params"   "indexUnique" ) as integer
+			
 			root = lireNoeud   "ROOT" 	undefined			
 			return _root
 		),
@@ -362,7 +365,6 @@ struct Arborescence_struct (
 		fn getParNomUnique 	_nomUnique  	noeud:root	= (
 			
 			local result 	= undefined
-			debug "_nomUnique" 	var:_nomUnique
 			
 			-- si c'est recherche --
 			if _nomUnique == "RECHERCHE" then
