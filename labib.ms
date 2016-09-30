@@ -51,8 +51,8 @@
 	
 	
 	----  Le dossier du script  ----
-	nomDossierScript = "labib"
-	dossierScript = getdir #userScripts + "\\" + nomDossierScript + "\\"
+	local nomDossierScript = "labib"
+	local dossierScript = getdir #userScripts + "\\" + nomDossierScript + "\\"
 	
 	-------------------------------------
 	----- les fichiers à inclure -------
@@ -75,40 +75,44 @@
 		arbo		= Arborescence_struct 	fichier:prefs.fichierArbo,			---- la gestion de l'arborescenece de la bibliotheque ----	
 		apercu,																					---- la gestion des rendus des apercus ----		
 		edition	= Edition_struct 				prefs:prefs	arbo:arbo,				---- l'edition proprement dite de la bibliotheque (creation d'un asset, import dans la scene ... ) ----
-		menu		= menu_struct (),								---- les menus clique droit ----
+		menu		= menu_struct (),														---- les menus clique droit ----
 		
 		------------ Fonctions		----------------------------------------------------------------------------------
 		fn renommer =(
+			---- Entrer en mode edition du label du noeud selectionné --
 			local noeudArboSelec = fenetre.selectionNoeud
--- 			if noeudArboSelec != undefined do (
--- 				fenetre.dialog.selectionnerTV		noeudArboSelec.parent
-	-- 			fenetre.dialog.selectionnerLV		#( noeudArboSelec )
-				fenetre.dialog.editerNomTV 	noeudArboSelec
--- 			)
+			fenetre.dialog.editerNomTV 	noeudArboSelec
 		),
-		fn nouveauDossier =(
-			
+		fn nouveauDossier 	=(			
+			-- creation de noeud --
 			local noeudArboSelec = fenetre.selectionNoeud
-			debug "nouveau dossier"
-			debug "noeudArboSelec" var:( if noeudArboSelec!=undefined then noeudArboSelec.nom else "UndEFIneD")
+			local parent
+			if noeudArboSelec.nomUnique == "RECHERCHE" 
+				then parent = arbo.root
+				else	parent = noeudArboSelec
+			local	nouveauNoeud  = arbo.creerNoeud  	parent:parent
 			
-			if noeudArboSelec.nomUnique != "RECHERCHE" do	(
-				-- creation de noeud --
-				local	nouveauNoeud  = arbo.creerNoeud  	parent:noeudArboSelec
-				--ecriture du fichier ---
-				arbo.ecrireFichier ()
-				
-				-- actualisation --
-				fenetre.actualiser()
-				fenetre.dialog.selectionnerTV		nouveauNoeud.parent
-				fenetre.dialog.selectionnerLV		#( nouveauNoeud )
-				
-			)
+			--ecriture du fichier ---
+			arbo.ecrireFichier ()
+			
+			-- actualisation rollout--
+			fenetre.actualiser()
+			fenetre.dialog.selectionnerTV		nouveauNoeud.parent
+			fenetre.dialog.selectionnerLV		#( nouveauNoeud )
 			
 		),
 		fn nouvelAsset =(),		
 		fn nouvelAssetDossier =(),
-		fn supprimer =()
+		fn supprimer _noeudsArbo	=(
+			local parent = _noeudsArbo[1].parent
+			arbo.supprimer _noeudsArbo
+			arbo.ecrireFichier ()
+			
+			fenetre.actualiser ()
+			
+			fenetre.dialog.SelectionnerTV 	parent
+			
+		)
 		
 		------------ Evenements 	----------------------------------------------------------------------------------
 		

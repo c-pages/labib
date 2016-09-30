@@ -106,7 +106,7 @@ struct Noeud_struct (
 	------------ Les membres	----------------------------------------------------------------------------------
 	-- parametre du noeud --
 	public
-		nomUnique 		= "",
+		nomUnique 	= "",
 		nom 				= "nom du noeud",
 		
 		
@@ -163,6 +163,9 @@ struct Arborescence_struct (
 	---- quelques noeuds ----
 		root,				---- le noeud racine de toute la bibliotheque -----
 		recherche,		---- le noeud contenant les resultat en cas de recherche utlisateur -----	
+		retour		=	Noeud_struct	nom:"..." 				\	---- le noeud afficher parmis les élément pour acceder au dossier parent -----	
+												parent:undefined 	\
+												nomUnique:"RETOUR",			
 	
 	---- l'emplacement du fichier ----
 		fichier  ,			---- l'adresse du fichier ini de l'arborescence -----	
@@ -366,10 +369,14 @@ struct Arborescence_struct (
 			
 			local result 	= undefined
 			
-			-- si c'est recherche --
-			if _nomUnique == "RECHERCHE" then
-				result = recherche
-			else	if noeud.nomUnique == _nomUnique	
+			case 	_nomUnique of (
+				
+				"RECHERCHE" : 	result = recherche
+				
+				"RETOUR" : 			result = retour
+				
+				default: (
+					if noeud.nomUnique == _nomUnique	
 						then result =  noeud
 						else	if classOf noeud ==	Noeud_struct do	(		
 							local trouve 	= false
@@ -378,6 +385,9 @@ struct Arborescence_struct (
 									if result != undefined do 	trouve = true
 								)						
 							) -- fin if classof --
+				)
+			)
+			
 			
 			result
 			
@@ -503,7 +513,7 @@ struct Arborescence_struct (
 				default: 0
 			)
 		),
-		fn sortParVertexInv 			elem1  elem2  = (
+		fn sortParVertexInv 		elem1  elem2  = (
 			case of
 			(
 				(elem1.nbrVertex < elem2.nbrVertex): 1
@@ -555,34 +565,34 @@ struct Arborescence_struct (
 			return compareDate elem1  elem2
 		),
 	public
-		fn classerCreation 		_noeud 	ordreInverse:false	 = (
+		fn classerCreation 		_elements 	ordreInverse:false	 = (
 			case ordreInverse of (
-				false:	qsort 	_noeud.enfants 	sortParCreation
-				true:	qsort 	_noeud.enfants 	sortParCreationInv
+				false:	qsort 	_elements 	sortParCreation
+				true:		qsort 	__elements 	sortParCreationInv
 			)
 -- 			ecrireFichier()
 -- 			afficher()
 		),
-		fn classerNbrImports 	_noeud 	ordreInverse:false	 = (
+		fn classerNbrImports 	_elements 	ordreInverse:false	 = (
 			case ordreInverse of (
-				false:	qsort 	_noeud.enfants 	sortParNbrImports
-				true:	qsort 	_noeud.enfants 	sortParNbrImportsInv
+				false:	qsort 	_elements 	sortParNbrImports
+				true:		qsort 	_elements 	sortParNbrImportsInv
 			)
 -- 			ecrireFichier()
 -- 			afficher()
 		),
-		fn classerVertex 			_noeud 	ordreInverse:false	 = (
+		fn classerVertex 			_elements 	ordreInverse:false	 = (
 			case ordreInverse of (
-				false:	qsort 	_noeud.enfants 	sortParVertex
-				true:	qsort 	_noeud.enfants 	sortParVertexInv
+				false:	qsort 	_elements 	sortParVertex
+				true:		qsort 	_elements 	sortParVertexInv
 			)
 -- 			ecrireFichier()
 -- 			afficher()
 		),
-		fn classerNoms 			_noeud 	ordreInverse:false	 = (
+		fn classerNoms 			_elements 	ordreInverse:false	 = (
 			case ordreInverse of (
-				false:	qsort 	_noeud.enfants 	sortParNom
-				true:	qsort 	_noeud.enfants 	sortParNomInv
+				false:	qsort 	_elements 	sortParNom
+				true:		qsort 	_elements 	sortParNomInv
 			)
 -- 			ecrireFichier()
 -- 			afficher()

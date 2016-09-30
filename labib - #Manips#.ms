@@ -1,9 +1,9 @@
 
 
 try labib.fenetre.fermer () catch ()
-/* 
+
 clearlistener ()
- */
+ 
 
 fileIn ("$userScripts\labib\labib.ms" )
 	/* 
@@ -37,6 +37,14 @@ format "\n----------------------------------------------------------------------
 
 
 /* 
+
+--- ouvrir le dossier script --
+ShellLaunch "explorer.exe" @"C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib"
+
+--- ouvrir le fichier arbo --
+ShellLaunch "explorer.exe" @"C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\data\arbo.ini"
+
+
  labib.fenetre.dialog.name
 labib.fenetre.dialog.selectionnerTV  labib.arbo.root
 
@@ -57,7 +65,8 @@ show	 labib.fenetre.dialog.ui_LV.items.item[0]
 labib.fenetre.dialog.ui_LV.items.item[0].text = "tutu"
 labib.fenetre.dialog.ui_LV.items.item[0].BeginEdit ()
 
-showmethods labib.fenetre.dialog.ui_LV
+show			labib.fenetre.dialog.ui_LV
+showmethods 	labib.fenetre.dialog.ui_LV
 
  showmethods	 labib.fenetre.dialog.ui_LV.columns
   show	 labib.fenetre.dialog.ui_TV.nodes.item[1]

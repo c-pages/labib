@@ -137,7 +137,7 @@ struct PrefsRollPrincipale_struct (
 	fichier ="",	-- le fichier des preferences
 	
 	---- les parametres de la fenetre ----	
-	taille 			= [1300,900],		---- la taille de la fenetre	---
+	taille 			= [600,900],		---- la taille de la fenetre	---
 	pos 				= [50,50],			---- la position de la fenetre ---	
 	infos				=	true,				---- si l'onglet "infos" est ouvert ---
 	edition			=	false,				---- si la fenetre edition est ouverte ---	
@@ -147,10 +147,10 @@ struct PrefsRollPrincipale_struct (
 	tailleApercus 	= [255, 255 ],
 	
 	caseVide		=	"-",
--- 	apercuVide 	= "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\laBiblio V1.0\img\apVide.jpg",
--- 	apercuDossier 	= "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\laBiblio V1.0\img\apNoeud.jpg",
-	apercuVide 	= dossierScript + "data\img\apVide.jpg",
-	apercuDossier = dossierScript + "data\img\apNoeud.jpg",
+	
+	apercuVide 				= dossierScript + "data\img\apVide.jpg",
+	apercuDossier 			= dossierScript + "data\img\apNoeud.jpg",
+	apercuDossierParent 	= dossierScript + "data\img\apNoeudParent.jpg",
 	
 	------------ Les fonctions	----------------------------------------------------------------------------------
 	---- les fonctions	----
