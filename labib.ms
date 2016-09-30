@@ -49,6 +49,8 @@
 	
 	
 	
+	---- la structure principale ----
+	global labib
 	
 	----  Le dossier du script  ----
 	local nomDossierScript = "labib"
@@ -131,7 +133,7 @@
 	-----------------------------------------
 	----- Création de la structure principale -------
 	-----------------------------------------
-	global labib = labib_struct ()
+	labib = labib_struct ()
 	
 )
 

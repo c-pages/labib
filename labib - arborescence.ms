@@ -114,7 +114,8 @@ struct Noeud_struct (
 	public
 		parent  			= undefined ,
 		enfants 			= #(),
-		
+		estExpanded	= false,
+	
 	------------ Les fonctions	----------------------------------------------------------------------------------	
 	---- Manipulations Composite ----	
 	public
@@ -255,7 +256,8 @@ struct Arborescence_struct (
 			
 			case classOf _noeud  of (
 				noeud_struct: (
-					setINISetting   fichier	_noeud.nomUnique   "composite"  #branche
+					setINISetting   fichier	_noeud.nomUnique   "composite"  		#branche
+					setINISetting   fichier	_noeud.nomUnique   "estExpanded"  	( estExpanded as string )
 					
 					-- les enfants --
 					_enfants = ""
@@ -316,10 +318,11 @@ struct Arborescence_struct (
 					"branche":(
 						
 						_nom 			= getINISetting   fichier	_nomUnique   "nom"  
+						
 						_enfants 		= filterString 		(getINISetting   fichier	_nomUnique   "enfants" )  ";"	
 						
 						_nouveauNoeud 	= creerNoeud 	nom:_nom   nomUnique:_nomUnique  parent:_parent
-						
+						_nouveauNoeud.estExpanded =  ( if ( getINISetting   fichier	_nomUnique   "estExpanded" )  == "true" then true else false )  
 					
 						for _enfant in _enfants do (
 							lireNoeud   _enfant 		_nouveauNoeud

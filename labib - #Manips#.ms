@@ -1,15 +1,22 @@
 
 
-try labib.fenetre.fermer () catch ()
+-- 
 
--- clearlistener ()
+try labib.fenetre.fermer () catch ()
+-- 
+clearlistener ()
  
 
 fileIn ("$userScripts\labib\labib.ms" )
-	/* 
+labib.fenetre.ouvrir ()
+
+
+/* 
 -- 
-
-
+taille du bureau
+tailleBureau = sysInfo.desktopSize
+tailleBureau.x/4
+shiw sysInfo
 clearlistener ()
 
 labib.arbo.vider ()
@@ -28,7 +35,6 @@ labib.arbo.ecrireFichier ()
 
  */
 
-labib.fenetre.ouvrir ()
 -- labiblio.fenetre.dialog.actualiser()
 
 format "\n---------------------------------------------------------------------------\n\n"
@@ -37,6 +43,9 @@ format "\n----------------------------------------------------------------------
 
 
 /* 
+
+try labib.fenetre.fermer () catch ()
+
 
 --- ouvrir le dossier script --
 ShellLaunch "explorer.exe" @"C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib"
@@ -55,13 +64,13 @@ ShellLaunch "explorer.exe" @"C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 
 --- ouvrir page internet
 DOSCommand  "start \"\" http://c-pages.fr"
 
-
+execute "true"
 labib.prefs.fenetre.pos
 labib.prefs.charger()
 
 
-
-
+ExpandAll
+EnsureVisible
 
 
 labib.prefs.enregistrer ()
@@ -71,7 +80,7 @@ labib.fenetre.dialog.selectionnerTV  labib.arbo.root
 
 labib.fenetre.dialog.ui_btnFermer.opacity = 0
 
-show	 labib.fenetre.dialog.ui_TV.nodes.item[0]
+show	 labib.fenetre.dialog.ui_TV.nodes.item[0].IsExpanded
 
 recherche = labib.arbo.getParNomUnique "RECHERCHE"
 size = (dotnetclass "System.Drawing.Size").empty
@@ -82,6 +91,10 @@ size.empty.Height = 100
 escape
 
 showmethods	labib.fenetre.dialog.ui_LV
+
+showmethods	labib.fenetre.dialog.ui_TV
+showmethods	labib.fenetre.dialog.ui_TV.nodes.item[1]
+show	labib.fenetre.dialog.ui_TV.nodes.item[1]
 
 
 labib.fenetre.dialog.ui_LV.LabelEdit = true

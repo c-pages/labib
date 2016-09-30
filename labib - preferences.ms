@@ -19,7 +19,7 @@
 ------------------------------------------------------------------------------
 -- Les preferences pour la fenetre de la bibliotheque				--
 ------------------------------------------------------------------------------
-struct PrefsRollPrincipale_struct (
+struct prefsFenetre_struct (
 	
 	------------ Les membres	----------------------------------------------------------------------------------
 	dossierScript,										-- le dossier du script --
@@ -28,6 +28,8 @@ struct PrefsRollPrincipale_struct (
 	---- les parametres de la fenetre ----	
 	taille 				= [600,900],		---- la taille de la fenetre	---
 	pos 				= [50,50],			---- la position de la fenetre ---	
+	posSlider_V		= 200,
+	posSlider_H		= 200,
 	infos				=	true,				---- si l'onglet "infos" est ouvert ---
 	edition			=	false,				---- si la fenetre edition est ouverte ---	
 	accroche		=	false,				---- si le mode accroche fenetres est activé --- ( depreciated )
@@ -37,8 +39,10 @@ struct PrefsRollPrincipale_struct (
 	
 	afficherMenu 	= false,
 	afficherTitre 	= false,
-	
+	afficherDossier = true,
 
+	tailleApercusLV = [200,200],		-- taille affiché des apercus dans le LV --
+	
 	---- Couleurs ----
 	-- des rollouts --
 	col_fenetreFond				= color 104  112 131, 	----  ----
@@ -167,9 +171,9 @@ struct Preference_struct (
 		
 		---- les structs des diferenetes preferences	----
 	public	
-		fenetre 		=  PrefsRollPrincipale_struct 	fichier:fichierPrefs	dossierScript:dossierScript,
-		infos		 	=  PrefsRollInfos_struct 		fichier:fichierPrefs	dossierScript:dossierScript,
-		apercus 		= 	PrefsApercus_struct 		fichier:fichierPrefs	dossierScript:dossierScript,
+		fenetre 		=  prefsFenetre_struct 	fichier:fichierPrefs	dossierScript:dossierScript,
+		infos		 	=  PrefsRollInfos_struct 	fichier:fichierPrefs	dossierScript:dossierScript,
+		apercus 		= 	PrefsApercus_struct 	fichier:fichierPrefs	dossierScript:dossierScript,
 		
 		------------ Les fonctions	----------------------------------------------------------------------------------
 	
@@ -188,13 +192,14 @@ struct Preference_struct (
 			for propNom in propsNoms do (
 				local propType 	= classof ( getProperty _datas propNom )
 				local propFichier 	= getINISetting   	fichierPrefs		_nomDatas   propNom 
+				
 				case propType of (
 					Integer:			setProperty _datas 	propNom		( propFichier	as integer )
 					Float:			setProperty _datas 	propNom		( propFichier	as float )
 					BooleanClass:	setProperty _datas 	propNom		( if propFichier == "true" then true else false )
 					Point2:			setProperty _datas 	propNom		( execute propFichier )
 					Defaut:			setProperty _datas 	propNom		propFichier
-				)
+				) 
 			)		
 			
 		),

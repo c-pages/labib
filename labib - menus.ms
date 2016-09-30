@@ -51,8 +51,10 @@ struct menu_struct (
 				)				
 				seperator sep02
 				subMenu  "Affichage" (
-					menuItem	affichage_liste 		"Liste"			checked:( labib.fenetre.affichageLV == #liste )
-					menuItem 	affichage_appercus	"Appercus"		checked:( labib.fenetre.affichageLV == #apercus )
+					menuItem	affichage_liste 		"Liste"						checked:( labib.fenetre.affichageLV == #liste )
+					menuItem 	affichage_appercus	"Appercus"					checked:( labib.fenetre.affichageLV == #apercus )
+					seperator sep20
+					menuItem	afficherDossiers		"Afficher les dossiers"	checked:labib.prefs.fenetre.afficherDossier 
 				)
 				subMenu  "Trier par" (
 					menuItem	trier_croissant 	"Ordre croissant"			checked:true
@@ -76,6 +78,10 @@ struct menu_struct (
 					
 				on affichage_liste 		picked do	labib.fenetre.definirAffichage  #liste
 				on affichage_appercus 	picked do	labib.fenetre.definirAffichage  #apercus
+				on afficherDossiers 		picked do 	(
+					labib.prefs.fenetre.afficherDossier = not labib.prefs.fenetre.afficherDossier
+					labib.fenetre.actualiser ()
+				)
 			
 			)
 			
