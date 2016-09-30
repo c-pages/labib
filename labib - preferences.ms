@@ -148,9 +148,15 @@ struct PrefsRollPrincipale_struct (
 	
 	caseVide		=	"-",
 	
+	---- images ----
 	apercuVide 				= dossierScript + "data\img\apVide.jpg",
-	apercuDossier 			= dossierScript + "data\img\apNoeud.jpg",
+	apercuDossier 				= dossierScript + "data\img\apNoeud.jpg",
 	apercuDossierParent 	= dossierScript + "data\img\apNoeudParent.jpg",
+	
+	---- icones ----
+	ico_btnFermer_R				= dossierScript + "data\ico\ico_fermer_R.jpg", 	-- repos 	--
+	ico_btnFermer_S				= dossierScript + "data\ico\ico_fermer_S.jpg", 	-- survol 	--
+	ico_btnFermer_P				= dossierScript + "data\ico\ico_fermer_P.jpg", 	-- press 	--
 	
 	------------ Les fonctions	----------------------------------------------------------------------------------
 	---- les fonctions	----

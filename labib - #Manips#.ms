@@ -2,7 +2,7 @@
 
 try labib.fenetre.fermer () catch ()
 
-clearlistener ()
+-- clearlistener ()
  
 
 fileIn ("$userScripts\labib\labib.ms" )
@@ -47,6 +47,8 @@ ShellLaunch "explorer.exe" @"C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 
 
  labib.fenetre.dialog.name
 labib.fenetre.dialog.selectionnerTV  labib.arbo.root
+
+labib.fenetre.dialog.ui_btnFermer.opacity = 0
 
 
 recherche = labib.arbo.getParNomUnique "RECHERCHE"

@@ -42,18 +42,48 @@ rollout m_rollPrincipal "labib"  (
 		)
 		
 	)
+	struct btnVirtuelCreux_struct (
+		---- membres ----
+		pos 			= [0,0],
+		width 		= 0,
+		height 		= 0,
+		
+		epaisseur	= 0,
+		
+		pressed 		= false,
+		posPress 	= [0,0],
+		posOrigine 	= [0,0],
+		
+		---- fonctions ----
+		fn bouge 	_decallage = (
+-- 			pos	= posOrigine + _decallage
+		),
+		fn survole _pos =(
+			local result = false
+			-- si on est dans le global --
+			if _pos.x > pos.x	and _pos.x < pos.x + width do
+				if _pos.y > pos.y	and _pos.y < pos.y + height do
+					-- si on est pas dans le creux --
+					if  _pos.x < pos.x + epaisseur	or  _pos.x > pos.x +  width - epaisseur	or  _pos.y < pos.y + epaisseur	or  _pos.y > pos.y + height - epaisseur do
+							result = true
+			result
+		)
+		
+	)
 	
 	
 	
 	------------ MEMBRES	----------------------------------------------------------------------------------
 	local tailleRolloutCreation =  [1200 , 500 ]
 	
+	---- Pointeurs ----
 	local prt		---- pointeur vers le struct fenetre  parent----
 	
 	local arbo		---- pointeur vers le struct arbo ----
 	local prefs		---- pointeur vers le struct preferences ----
 	local menu		---- pointeur vers le struct menu ----
 	
+	---- Couleurs ----
 	local col_fondVue 		= color 160 166 182	----  ----
 	
 	local col_fondDossier 	= color 130 136 152	----  ----
@@ -63,7 +93,8 @@ rollout m_rollPrincipal "labib"  (
 	
 	local col_textes 				= color 45	42	35		----  ----
 	local col_image 				= color 36 36 36		----  ----
-	
+		
+	---- geometrie ----
 	local ecartUI			= 20		----  ----
 	local ecartUISimple	= 2		----  ----
 	
@@ -73,39 +104,50 @@ rollout m_rollPrincipal "labib"  (
 	
 	
 	------------ L'UI	----------------------------------------------------------------------------------		
-	
+	---- les boutons virtuels ----
 	-- Bouton virtuel Slider Horizontal---
-	local 	btnVirt_Slider_H  = btnVirtuel_struct		 		pos:			[200, ecartUI] \
+	local 	btnVirt_slider_H  = btnVirtuel_struct		 		pos:			[200, ecartUI] \
 																				width:		ecartUI	\
 																				height: 		( tailleRolloutCreation.y - 2 *ecartUI )
 																				
 	-- Bouton virtuel Slider Vertical---
-	local 	btnVirt_Slider_V  = btnVirtuel_struct		 		pos:			[ecartUI, tailleRolloutCreation.y - 100 ] \
-																				width:		( btnVirt_Slider_H.pos.x - ecartUI)	\
+	local 	btnVirt_slider_V  = btnVirtuel_struct		 		pos:			[ecartUI, tailleRolloutCreation.y - 100 ] \
+																				width:		( btnVirt_slider_H.pos.x - ecartUI)	\
 																				height: 		ecartUI
-																				
+	-- Bouton virtuel Drag ---
+	local 	btnVirt_Drag  = btnVirtuelCreux_struct 			pos:			[0, 0 ] \
+																				width:		tailleRolloutCreation.x	\
+																				height: 		tailleRolloutCreation.y	\
+																				epaisseur:	ecartUI
+	
+	
+	---- les boutons maxscripts ----
 	-- la recherche des tags --
 	edittext 			ui_editRecherche 		""	 				pos:			( [ecartUI ,ecartUI] ) \
-																				width:		btnVirt_Slider_V.width \
+																				width:		btnVirt_slider_V.width \
 																				height:		17		 \
 																				fieldWidth:	0		labelOnTop:true 
 	-- le TreeView (TV) arborescence --
 	dotNetControl 	ui_TV 						"TreeView" 		pos:			[ ecartUI , 	ui_editRecherche.pos.y + ui_editRecherche.height  + ecartUI ]	\
-																				width:		btnVirt_Slider_V.width	\
-																				height:		( btnVirt_Slider_V.pos.y - ( ui_editRecherche.height + 2 * ecartUI ) ) \
+																				width:		btnVirt_slider_V.width	\
+																				height:		( btnVirt_slider_V.pos.y - ( ui_editRecherche.height + 2 * ecartUI ) ) \
 																				enabled:		true
 	-- la liste des tags --
-	MultiListBox 		ui_lstBoxTags				"" 					pos:			( btnVirt_Slider_V.pos + [0,btnVirt_Slider_V.height  ] ) \
-																				width:		btnVirt_Slider_V.width \
-																				height:		( ( tailleRolloutCreation.y - ( btnVirt_Slider_V.pos.y + btnVirt_Slider_V.height + ecartUI ) ) / 13 ) 
+	MultiListBox 		ui_lstBoxTags				"" 					pos:			( btnVirt_slider_V.pos + [0,btnVirt_slider_V.height  ] ) \
+																				width:		btnVirt_slider_V.width \
+																				height:		( ( tailleRolloutCreation.y - ( btnVirt_slider_V.pos.y + btnVirt_slider_V.height + ecartUI ) ) / 13 ) 
 																				
 	-- la ListView (LV) pour le cointenu des noeud (apercus) --
-	dotNetControl 	ui_LV "system.windows.forms.listView" pos:			[ btnVirt_Slider_H.pos.x + btnVirt_Slider_H.width, ecartUI ] \
-																				width:		( tailleRolloutCreation.x - ( btnVirt_Slider_H.pos.x + btnVirt_Slider_H.width +  ecartUI ) ) \
+	dotNetControl 	ui_LV "system.windows.forms.listView" pos:			[ btnVirt_slider_H.pos.x + btnVirt_slider_H.width, ecartUI ] \
+																				width:		( tailleRolloutCreation.x - ( btnVirt_slider_H.pos.x + btnVirt_slider_H.width +  ecartUI ) ) \
 																				height:		( tailleRolloutCreation.y - 2* ecartUI ) \
 																				border:		false			
-	
-	
+	-- le bouton pour fermer la fenetre --
+	imgTag 			ui_btnFermer					"X"			pos:		[ tailleRolloutCreation.x - 1 *ecartUI	, 0 ] \
+																				width:	ecartUI 	\
+																				height:	ecartUI  \
+																				tooltip: 	"Fermer Labib"
+												
 	
 	------------  FONCTIONS	----------------------------------------------------------------------------------	
 	
@@ -366,7 +408,7 @@ rollout m_rollPrincipal "labib"  (
 			insertItem 		noeudArboCourant 	prt.hist_Noeuds 	1
 		)
 	)
-	
+	-- ouvrir un noeud de l'arbo
 	fn ouvrirNoeud  	_noeudArbo 	enregistrer:true	= (
 		
 		if _noeudArbo != undefined do (
@@ -395,7 +437,7 @@ rollout m_rollPrincipal "labib"  (
 			debug "--apres-- 	selectionNoeud.parent"	var:( try 	prt.selectionNoeud.parent.nom	catch prt.selectionNoeud.parent )
 		)
 	)
-	
+	-- se deplacer dans l'historque ---
 	fn historiqueBouger  _sens =(
 		
 		-- on gere la position  dans l'historique ---
@@ -429,32 +471,34 @@ rollout m_rollPrincipal "labib"  (
 		local max_H 	= tailleRollout.x - ( 5* ecartUI ) 
 		local min_V 	= 2* ecartUI + ui_editRecherche.height + 20
 		local max_V 	= tailleRollout.y - ( 1* ecartUI )
-		if btnVirt_Slider_H.pos.x  >max_H 	do	btnVirt_Slider_H.pos.x = 	max_H
-		if btnVirt_Slider_H.pos.x < min_H  	do 	btnVirt_Slider_H.pos.x =  	min_H		
-		if btnVirt_Slider_V.pos.y > max_V 	do 	btnVirt_Slider_V.pos.y = 	max_V	
-		if btnVirt_Slider_V.pos.y < min_V  	do 	btnVirt_Slider_V.pos.y = 	min_V
+		if btnVirt_slider_H.pos.x  >max_H 	do	btnVirt_slider_H.pos.x = 	max_H
+		if btnVirt_slider_H.pos.x < min_H  	do 	btnVirt_slider_H.pos.x =  	min_H		
+		if btnVirt_slider_V.pos.y > max_V 	do 	btnVirt_slider_V.pos.y = 	max_V	
+		if btnVirt_slider_V.pos.y < min_V  	do 	btnVirt_slider_V.pos.y = 	min_V
 		
-		---- les sliders -----
-		btnVirt_Slider_H.height	= tailleRollout.y - 2* ecartUI		
-		btnVirt_Slider_V.width	= btnVirt_Slider_H.pos.x - ecartUI
-		
+		---- les virtuels -----
+		btnVirt_slider_H.height	= tailleRollout.y - 2* ecartUI		
+		btnVirt_slider_V.width	= btnVirt_slider_H.pos.x - ecartUI
+		btnVirt_Drag.width	= tailleRollout.x
+		btnVirt_Drag.height	= tailleRollout.y
 		
 		---- les autres -----
-		ui_editRecherche.width = btnVirt_Slider_V.width
+		ui_editRecherche.width = btnVirt_slider_V.width
 		
-		ui_TV.width 				= btnVirt_Slider_V.width
-		ui_TV.height 				= btnVirt_Slider_V.pos.y - ( ui_editRecherche.height + 2 * ecartUI )
+		ui_TV.width 				= btnVirt_slider_V.width
+		ui_TV.height 				= btnVirt_slider_V.pos.y - ( ui_editRecherche.height + 2 * ecartUI )
 		
-		ui_lstBoxTags.pos 		= btnVirt_Slider_V.pos + [0,btnVirt_Slider_V.height  ]
-		ui_lstBoxTags.width 		= btnVirt_Slider_V.width
-		ui_lstBoxTags.height		= tailleRollout.y - ( btnVirt_Slider_V.pos.y + btnVirt_Slider_V.height + ecartUI )
+		ui_lstBoxTags.pos 		= btnVirt_slider_V.pos + [0,btnVirt_slider_V.height  ]
+		ui_lstBoxTags.width 		= btnVirt_slider_V.width
+		ui_lstBoxTags.height		= tailleRollout.y - ( btnVirt_slider_V.pos.y + btnVirt_slider_V.height + ecartUI )
 		
-		ui_LV.pos					= [btnVirt_Slider_H.pos.x + btnVirt_Slider_H.width, ecartUI ]
-		ui_LV.width					= tailleRollout.x - ( btnVirt_Slider_H.pos.x + btnVirt_Slider_H.width +  ecartUI )
+		ui_LV.pos					= [btnVirt_slider_H.pos.x + btnVirt_slider_H.width, ecartUI ]
+		ui_LV.width					= tailleRollout.x - ( btnVirt_slider_H.pos.x + btnVirt_slider_H.width +  ecartUI )
 		ui_LV.height				= tailleRollout.y - 2* ecartUI
 		
-		
+		ui_btnFermer.pos			= [ tailleRollout.x - 1 *ecartUI	, 0 ] 
 	)	
+	
 	fn bougerFenetre 		_pos		= (		
 		prefs.fenetre.pos = _pos
 	)
@@ -463,7 +507,7 @@ rollout m_rollPrincipal "labib"  (
 		local tailleRollout = _taille
 		prefs.fenetre.taille = tailleRollout
 		
-		btnVirt_Slider_V.pos.y = tailleRollout.y - ( ui_lstBoxTags.height + 2*ecartUI )
+		btnVirt_slider_V.pos.y = tailleRollout.y - ( ui_lstBoxTags.height + 2*ecartUI )
 		
 		recomposerFenetre()
 	)
@@ -481,15 +525,18 @@ rollout m_rollPrincipal "labib"  (
 		
 	)
 	fn initialiser 							= (
+
+		--- creation des icones ----		
+		ui_btnFermer.bitmap		=	openBitMap prefs.fenetre.ico_btnFermer_R
+
 		
-		ui_LV.Clear()
 		
 		--- type d'affichage du LV ---
 		chargerAffichageLV	prt.affichageLV
 		
 		---- la vue liste----
 		ui_LV.borderstyle 			= (dotnetclass "System.Windows.Forms.BorderStyle").None
-		ui_LV.showitemtooltips 	= true
+		ui_LV.showitemtooltips 		= true
 		ui_LV.gridlines 				= true
 		ui_LV.checkboxes 			= false
 		ui_LV.labeledit 				= true
@@ -504,7 +551,7 @@ rollout m_rollPrincipal "labib"  (
 		ui_TV.borderstyle 			= (dotnetclass "System.Windows.Forms.BorderStyle").None
 		ui_TV.LabelEdit 				= true 
 		ui_TV.allowdrop 				= true
-		ui_TV.HideSelection 		= false
+		ui_TV.HideSelection 			= false
 		ui_TV.BackColor 				= (dotNetClass "System.Drawing.Color").fromARGB  col_fondVue.r 	col_fondVue.g 	col_fondVue .b
 		ui_TV.ForeColor 				= (dotNetClass "System.Drawing.Color").fromARGB  col_textes.r 		col_textes.g 		col_textes.b
 		
@@ -654,41 +701,55 @@ rollout m_rollPrincipal "labib"  (
 	fn sourisSeDeplace 	_pos 	= (		
 		
 		-- gestion curseur souris au survol --		
-		if btnVirt_Slider_H.survole _pos or btnVirt_Slider_V.survole _pos then 
+		if btnVirt_slider_H.survole _pos or btnVirt_slider_V.survole _pos or btnVirt_drag.survole _pos then 
 			setSysCur #move
 		else setArrowCursor ()
 		
+-- 		debug "btnVirt_drag.survole " var:(btnVirt_drag.survole _pos )
 		
-		--- gestion des slider si pressés --
-		if btnVirt_Slider_H.pressed  do (			
-			local ecart = ( _pos.x - btnVirt_Slider_H.posPress.x )
-			btnVirt_Slider_H.bouge [ ecart , 0 ]			
+		--------- les boutons virtuels -------
+		-- sliders --
+		if btnVirt_slider_H.pressed  do (			
+			local ecart = ( _pos.x - btnVirt_slider_H.posPress.x )
+			btnVirt_slider_H.bouge [ ecart , 0 ]			
 			recomposerFenetre()
 		)
-		if btnVirt_Slider_V.pressed  do (			
-			local ecart = ( _pos.y - btnVirt_Slider_V.posPress.y )
-			btnVirt_Slider_V.bouge [ 0 , ecart ]			
+		if btnVirt_slider_V.pressed  do (			
+			local ecart = ( _pos.y - btnVirt_slider_V.posPress.y )
+			btnVirt_slider_V.bouge [ 0 , ecart ]			
 			recomposerFenetre()
+		)
+		-- drag --
+		if btnVirt_drag.pressed  do (			
+			local ecart = ( mouse.pos - btnVirt_drag.posPress )
+			SetDialogPos  m_rollPrincipal	( btnVirt_drag.posOrigine + ecart )
 		)
 		
 	)
 	fn sourisClique			_pos 	= (
 		
 		-- on regarde si on clique sur un bouton virtuel --
-		if btnVirt_Slider_H.survole _pos then (
-			btnVirt_Slider_H.pressed 		= true
-			btnVirt_Slider_H.posPress 		= _pos
-			btnVirt_Slider_H.posOrigine 	= btnVirt_Slider_H.pos
-		)	
-		if btnVirt_Slider_V.survole _pos then (
-			btnVirt_Slider_V.pressed 		= true
-			btnVirt_Slider_V.posPress 		= _pos
-			btnVirt_Slider_V.posOrigine 	= btnVirt_Slider_V.pos
-		)
+		if btnVirt_slider_H.survole _pos then (
+			btnVirt_slider_H.pressed 		= true
+			btnVirt_slider_H.posPress 		= _pos
+			btnVirt_slider_H.posOrigine 	= btnVirt_slider_H.pos
+		)	else
+		if btnVirt_slider_V.survole _pos then (
+			btnVirt_slider_V.pressed 		= true
+			btnVirt_slider_V.posPress 		= _pos
+			btnVirt_slider_V.posOrigine 	= btnVirt_slider_V.pos
+		) else
+		if btnVirt_drag.survole _pos then (
+			btnVirt_drag.pressed 		= true
+			btnVirt_drag.posPress 		= mouse.pos
+			btnVirt_drag.posOrigine 	= GetDialogPos 	m_rollPrincipal
+		) 
+		
 	)
 	fn sourisRelache 		_pos 	= ( 
-		btnVirt_Slider_H.pressed = false	
-		btnVirt_Slider_V.pressed = false	
+		btnVirt_slider_H.pressed = false	
+		btnVirt_slider_V.pressed = false	
+		btnVirt_drag.pressed = false	
 	)
 	
 		
@@ -701,7 +762,7 @@ rollout m_rollPrincipal "labib"  (
 	on m_rollPrincipal	moved 			pos	do bougerFenetre 	pos
 	on m_rollPrincipal	resized 			taille 	do redimFenetre 		taille
 	
-	---- le bouton virtuel ----
+	---- les boutons virtuels ----
 	on m_rollPrincipal lbuttondown 	pos 	do sourisClique 		pos 
 	on m_rollPrincipal lbuttonup	 	pos 	do sourisRelache 		pos 
 	on m_rollPrincipal mousemove 	pos 	do sourisSeDeplace 	pos 
@@ -726,7 +787,14 @@ rollout m_rollPrincipal "labib"  (
 		)
 	)
 	
-	
+	---- bouton fermer -----
+	-- comportement --
+	on 	ui_btnFermer	mouseover 	do ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_S
+	on 	ui_btnFermer	mouseout 	do ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_R
+	on 	ui_btnFermer	mousedown do ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_P
+	on 	ui_btnFermer	mouseup	do ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_S
+	-- action --
+	on 	ui_btnFermer 	click 			do prt.fermer()
 
 )
 
@@ -763,14 +831,16 @@ struct Fenetre_struct (
 	fn actualiser = (
 		dialog.actualiser ()
 	),
-		
+	
 	fn ouvrir = (
 		try destroydialog dialog catch ()
 		createDialog dialog 	style:				#(/* #style_toolwindow, #style_titlebar , */ #style_sysmenu, #style_resizing /* , #style_minimizebox, #style_maximizebox */)  \
 									pos:					prt.prefs.fenetre.pos \
 									width:				prt.prefs.fenetre.taille.x \
 									height:				prt.prefs.fenetre.taille.y \
-									escapeEnable:		false 		/* \
+									escapeEnable:		false 		 \
+									bgcolor:				(color 104  112 131 ) 	 \
+									fgcolor:				(color 104  112 131 ) 	/* \
 									menu:				rcPrincipal */
 		/* 							bgcolor:(color 90  90 90 ) \
 									fgcolor:(color 250  250 220 ) */
