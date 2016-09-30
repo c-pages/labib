@@ -122,6 +122,11 @@ rollout m_rollPrincipal "labib"  (
 	
 	
 	---- les boutons maxscripts ----
+	-- le titre --
+	label					ui_titre					"Labib V0.1"		pos:			[ecartUI, ecartUI/2 - 6 ] \
+																				width:		200	\
+																				height:		17
+	
 	-- la recherche des tags --
 	edittext 			ui_editRecherche 		""	 				pos:			( [ecartUI ,ecartUI] ) \
 																				width:		btnVirt_slider_V.width \
@@ -146,7 +151,8 @@ rollout m_rollPrincipal "labib"  (
 	imgTag 			ui_btnFermer					"X"			pos:		[ tailleRolloutCreation.x - 1 *ecartUI	, 0 ] \
 																				width:	ecartUI 	\
 																				height:	ecartUI  \
-																				tooltip: 	"Fermer Labib"
+																				tooltip: 	"Fermer Labib" \
+																				style:	#bmp_center 
 												
 	
 	------------  FONCTIONS	----------------------------------------------------------------------------------	
@@ -661,26 +667,27 @@ rollout m_rollPrincipal "labib"  (
 	fn cliqueTV 			_arg			= (
 		
 		local	noeudTVClique = ui_TV.GetNodeAt (dotNetObject "System.Drawing.Point" _arg.x _arg.y)
-		local noeudArbo 		= arbo.getParNomUnique 	noeudTVClique.name
-		
-		case _arg.Button.value__ 	of (
-			-- clique gauche --
-			1048576:	(
-				-- on selectionne le noeud --
-				ouvrirNoeud	 noeudArbo
-			)			
-			-- clique droit --
-			2097152:	(				
-				-- on selectionne le noeud --
-				ouvrirNoeud	 noeudArbo		
-				-- on ouvre le menu contextuel --
-				menu.arbo ()				
-			)
-			-- btn precedant --
-			8388608:	historiqueBouger 1
-			-- btn suivant --
-			16777216:	historiqueBouger -1	
+		if noeudTVClique != undifined do (
+			local noeudArbo 		= arbo.getParNomUnique 	noeudTVClique.name
 			
+			case _arg.Button.value__ 	of (
+				-- clique gauche --
+				1048576:	(
+					-- on selectionne le noeud --
+					ouvrirNoeud	 noeudArbo
+				)			
+				-- clique droit --
+				2097152:	(				
+					-- on selectionne le noeud --
+					ouvrirNoeud	 noeudArbo		
+					-- on ouvre le menu contextuel --
+					menu.arbo ()				
+				)
+				-- btn precedant --
+				8388608:	historiqueBouger 1
+				-- btn suivant --
+				16777216:	historiqueBouger -1	
+			)
 		) -- fin case of arg ---
 	)
 	fn renommerTV 		_noeudArbo	_nouveauNom = (
@@ -833,22 +840,23 @@ struct Fenetre_struct (
 	),
 	
 	fn ouvrir = (
+		
 		try destroydialog dialog catch ()
-		createDialog dialog 	style:				#(/* #style_toolwindow, #style_titlebar , */ #style_sysmenu, #style_resizing /* , #style_minimizebox, #style_maximizebox */)  \
+		
+		createDialog dialog 	style:				#(/* #style_toolwindow, #style_titlebar , #style_toolwindow,#style_sysmenu,  */#style_resizing   , #style_minimizebox, #style_maximizebox/* */)  \
 									pos:					prt.prefs.fenetre.pos \
 									width:				prt.prefs.fenetre.taille.x \
 									height:				prt.prefs.fenetre.taille.y \
 									escapeEnable:		false 		 \
 									bgcolor:				(color 104  112 131 ) 	 \
-									fgcolor:				(color 104  112 131 ) 	/* \
-									menu:				rcPrincipal */
-		/* 							bgcolor:(color 90  90 90 ) \
-									fgcolor:(color 250  250 220 ) */
+									fgcolor:				(color 230  230 230 ) 	
+		
 		dialog.arbo 		= prt.arbo
 		dialog.prefs 	= prt.prefs
 		dialog.menu	= prt.menu
 		dialog.prt 		= this
 		dialog.initialiser ()
+		
 	),
 	fn fermer = (
 		try destroydialog dialog catch ()
