@@ -41,11 +41,19 @@ struct prefsFenetre_struct (
 	posBandeau 	= [0,0],	
 	tailleBandeau	= [0,0],		
 	
-	--- mode affichage LV ---
-	affichageLV		=#grandeIcone,
+	accrochage		= true,
 	
+	--- mode affichage LV ---
+	affichageLV		=	#grandeIcone,
+	
+	-- pour les fenetres seondaires --
 	infos				=	false,				---- si l'onglet "infos" est ouvert ---
-	edition			=	false,				---- si la fenetre edition est ouverte ---	
+	apercu			=	false,				----
+	rendu				=	false,				----
+	posInfos			= [0,0],
+	posApercu		= [0,0],
+	posRendu		= [0,0],
+	
 	accroche		=	false,				---- si le mode accroche fenetres est activé --- ( depreciated )
 	isOpen 			= false,
 	couleurFond 	= (color 56 56 56),

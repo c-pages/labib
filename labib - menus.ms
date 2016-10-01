@@ -75,9 +75,10 @@ struct menu_struct (
 				)
 				seperator sep04
 -- 				subMenu  "Fenêtres" (
-					menuItem infos 		"Infos" 			checked:labib.prefs.fenetre.infos
-					menuItem apercus 	"Aperçus" 
--- 				)
+					menuItem infos 		"Infos" 		checked:labib.prefs.fenetre.infos
+					menuItem apercu 	"Aperçu" 	checked:labib.prefs.fenetre.apercu
+					menuItem rendu	 	"Rendu" 		checked:labib.prefs.fenetre.rendu
+				-- 				)
 				
 				------- les evenements ------------------------------------------				
 				on nouveauDossier 			picked do	labib.nouveauDossier ()				
@@ -98,6 +99,8 @@ struct menu_struct (
 				)
 				
 				on infos				picked do	labib.toggleInfos ()
+				on apercu				picked do	labib.toggleApercu ()
+				on rendu				picked do	labib.toggleRendu ()
 			
 			)
 			

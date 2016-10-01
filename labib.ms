@@ -55,7 +55,8 @@
 	include "$userScripts\labib\labib - structs2.ms"		-- les structuressecondaires --
 	
 	include "$userScripts\labib\labib - preferences.ms"
-	include "$userScripts\labib\labib - arborescence.ms"
+	include "$userScripts\labib\labib - arborescence.ms"	
+	include "$userScripts\labib\labib - fenetres secondaires.ms"
 	include "$userScripts\labib\labib - fenetres.ms"
 	include "$userScripts\labib\labib - edition.ms"
 	include "$userScripts\labib\labib - menus.ms"
@@ -69,7 +70,7 @@
 		prefs		= Preference_struct 		dossierScript:dossierScript,		---- les préferences utilisateurs ----
 		fenetre	= Fenetre_struct 			prt:this, 								---- les operations sur la fenetre principale ----
 		arbo		= Arborescence_struct 	fichier:prefs.fichierArbo,			---- la gestion de l'arborescenece de la bibliotheque ----	
-		apercu,																					---- la gestion des rendus des apercus ----		
+		rendu,																					---- la gestion des rendus des apercus ----		
 		edition	= Edition_struct 				prefs:prefs	arbo:arbo,				---- l'edition proprement dite de la bibliotheque (creation d'un asset, import dans la scene ... ) ----
 		menu		= menu_struct (),														---- les menus clique droit ----
 		
@@ -144,6 +145,16 @@
 			if prefs.fenetre.infos 
 				then fenetre.infos.fermer ()
 				else	fenetre.infos.ouvrir ()
+		),
+		fn toggleApercu =(
+			if prefs.fenetre.apercu 
+				then fenetre.apercu.fermer ()
+				else	fenetre.apercu.ouvrir ()
+		),
+		fn toggleRendu =(
+			if prefs.fenetre.rendu 
+				then fenetre.rendu.fermer ()
+				else	fenetre.rendu.ouvrir ()
 		),
 		
 		

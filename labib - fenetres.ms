@@ -13,11 +13,6 @@
 ######################################################################################################################## */ 
 	
 
-	-------------------------------------
-	----- les fichiers à inclure -------
-	-------------------------------------
-	include "$userScripts\labib\labib - infos.ms"
-	
 	
 	
 	
@@ -92,34 +87,7 @@ rollout m_rollPrincipal "labib"  (
 		)
 		
 	)
-	struct uiVCreux_struct (
-		---- membres ----
-		pos 			= [0,0],
-		width 		= 0,
-		height 		= 0,
-		
-		epaisseur	= 0,
-		
-		pressed 		= false,
-		posPress 	= [0,0],
-		posOrigine 	= [0,0],
-		
-		---- fonctions ----
-		fn bouge 	_decallage = (
--- 			pos	= posOrigine + _decallage
-		),
-		fn survole _pos =(
-			local result = false
-			-- si on est dans le global --
-			if _pos.x > pos.x	and _pos.x < pos.x + width do
-				if _pos.y > pos.y	and _pos.y < pos.y + height do
-					-- si on est pas dans le creux --
-					if  _pos.x < pos.x + epaisseur	or  _pos.x > pos.x +  width - epaisseur	or  _pos.y < pos.y + epaisseur	or  _pos.y > pos.y + height - epaisseur do
-							result = true
-			result
-		)
-		
-	)
+
 	
 	
 	
@@ -154,12 +122,7 @@ rollout m_rollPrincipal "labib"  (
 	local 	uiV_slider_V  = uiV_struct		 			pos:			[ecartUI, tailleRolloutCreation.y - 100 ] \
 																				width:		( uiV_slider_H.pos.x )	\
 																				height: 		ecartUI		
-	-- Bouton virtuel Drag ---
-	local 	uiV_Drag  = uiVCreux_struct 				pos:			[0, 0 ] \
-																				width:		tailleRolloutCreation.x	\
-																				height: 		tailleRolloutCreation.y	\
-																				epaisseur:	ecartUI	
-																				
+																			
 	
 	
 	---- les boutons maxscripts ----	
@@ -554,7 +517,7 @@ rollout m_rollPrincipal "labib"  (
 		)
 	)
 	-- ouvrir un noeud de l'arbo
-	fn ouvrirNoeud  	_noeudArbo 	enregistrer:true	= (
+	fn ouvrirNoeudArbo  	_noeudArbo 	enregistrer:true	= (
 		
 		if _noeudArbo != undefined do (
 			
@@ -582,7 +545,7 @@ rollout m_rollPrincipal "labib"  (
 		
 		-- on ouvre le noeud adequate ---
 		local noeudAOuvrir = prt.hist_Noeuds[ prt.hist_pos   ]
-		ouvrirNoeud   noeudAOuvrir	enregistrer:false
+		ouvrirNoeudArbo   noeudAOuvrir	enregistrer:false
 		selectionnerTV 	noeudAOuvrir
 		
 		-- on selectionne le dossier precedant si il est dans la LV --
@@ -615,32 +578,24 @@ rollout m_rollPrincipal "labib"  (
 		---- les virtuels -----
 		uiV_slider_H.height	= tailleRollout.y - 2* ecartUI		
 		uiV_slider_V.width	= uiV_slider_H.pos.x 
-		uiV_Drag.width	= tailleRollout.x
-		uiV_Drag.height	= tailleRollout.y
 		
 		---- les autres -----
 		
-		ui_TV.width 				= uiV_slider_V.width- ecartUI
-		ui_TV.height 				= uiV_slider_V.pos.y - ecartUI
+		ui_TV.width 			= uiV_slider_V.width- ecartUI
+		ui_TV.height 			= uiV_slider_V.pos.y - ecartUI
 		
-		ui_recherche.pos	= [ ecartUI , 	uiV_slider_V.pos.y + uiV_slider_V.height  ]
-		ui_recherche.width = uiV_slider_V.width- ecartUI
+		ui_recherche.pos		= [ ecartUI , 	uiV_slider_V.pos.y + uiV_slider_V.height  ]
+		ui_recherche.width 	= uiV_slider_V.width- ecartUI
 		
+		ui_tags.pos 			= ui_recherche.pos + [0,ui_recherche.height  + ecartUISimple ]
+		ui_tags.width 			= uiV_slider_V.width- ecartUI
+		ui_tags.height			= tailleRollout.y - ( ui_recherche.pos.y + ui_recherche.height +  ecartUI + ecartUISimple )
 		
--- 		local tailleMaxRech = 17
--- 		if ui_recherche.pos.y < tailleRollout.y - ( tailleMaxRech + ecartUI ) 
--- 			then	ui_recherche.height = tailleMaxRech
--- 			else	ui_recherche.height = tailleRollout.y - ( tailleMaxRech + ecartUI  + ui_recherche.pos.y) 
+		ui_LV.pos				= [uiV_slider_H.pos.x + uiV_slider_H.width, ecartUI ]
+		ui_LV.width				= tailleRollout.x - ( uiV_slider_H.pos.x + uiV_slider_H.width +  ecartUI )
+		ui_LV.height			= tailleRollout.y - 2* ecartUI
 		
-		ui_tags.pos 		= ui_recherche.pos + [0,ui_recherche.height  + ecartUISimple ]
-		ui_tags.width 		= uiV_slider_V.width- ecartUI
-		ui_tags.height		= tailleRollout.y - ( ui_recherche.pos.y + ui_recherche.height +  ecartUI + ecartUISimple )
-		
-		ui_LV.pos					= [uiV_slider_H.pos.x + uiV_slider_H.width, ecartUI ]
-		ui_LV.width					= tailleRollout.x - ( uiV_slider_H.pos.x + uiV_slider_H.width +  ecartUI )
-		ui_LV.height				= tailleRollout.y - 2* ecartUI
-		
-		ui_btnFermer.pos			= [ tailleRollout.x - 1 *ecartUI	, 0 ]
+		ui_btnFermer.pos		= [ tailleRollout.x - 1 *ecartUI	, 0 ]
 		
 	)	
 	
@@ -654,11 +609,6 @@ rollout m_rollPrincipal "labib"  (
 	fn redimFenetre 			_taille 	= (
 		debug "redim"
 			
-		--- on stock la taille  ---		
-		/* if prefs.fenetre.bandeau then (
-			posBandeau 	= getDialogPos m_rollPrincipal	
-			tailleBandeau	= [m_rollPrincipal.width, m_rollPrincipal.height ]
-		) else */
 		if not prefs.fenetre.pleinEcran and not prefs.fenetre.bandeau do
 			prefs.fenetre.taille = _taille
 		
@@ -678,26 +628,15 @@ rollout m_rollPrincipal "labib"  (
 	)
 	fn actualiser 							= (
 		
--- 		enregistrerExpand ()
-		
 		actualiserTV ()	
 		actualiserLV ()
 		actualiserSelections ()
 		
 		actualiserTags ()
--- 		chargerExpand ()
 		
 	)
 	fn initialiser 							= (
 
-		
--- 		--- le focus ----		
--- 		listeFocus = #( ui_TV, ui_LV, ui_recherche, ui_tags )
-		
-		---- la couleur des barres ----
-		local bmp_BarresSliders = bitmap 20 20 color:prefs.fenetre.col_fenetreFond
--- 		ui_bmpBarre_V.bitmap = bmp_BarresSliders
--- 		ui_bmpBarre_H.bitmap = bmp_BarresSliders
 		
 		--- position initial des lsiders ---
 		if not prefs.fenetre.sliderFermer_H  then (
@@ -847,7 +786,7 @@ rollout m_rollPrincipal "labib"  (
 					then selectionnerTV  	prt.selectionNoeud.parent
 					else	selectionnerTV 	noeudClique
 				
-				ouvrirNoeud 	noeudClique
+				ouvrirNoeudArbo 	noeudClique
 			)
 		)
 	)
@@ -877,34 +816,31 @@ rollout m_rollPrincipal "labib"  (
 		local NoeudAEditer = getNoeudLV		_noeudArbo
 		NoeudAEditer.BeginEdit()
 	)	
+	
+	
+	
+	fn ouvrirNoeudTV  _noeudTV =(
+		-- on selectionne le noeud --
+		if _noeudTV != undifined do (
+			local noeud = arbo.getParNomUnique 	_noeudTV.name
+			ouvrirNoeudArbo	noeud
+			prt.selectionNoeud 	= noeud
+			actualiserLV ()
+		)
+	)
+	
 	-- TV --
 	fn cliqueTV 			_arg			= (
 		
 		local	noeudTVClique = ui_TV.GetNodeAt (dotNetObject "System.Drawing.Point" _arg.x _arg.y)
 		
-		
 		case _arg.Button.value__ 	of (
 			
 			-- clique gauche --
-			1048576:	(
-				-- on selectionne le noeud --
-				if noeudTVClique != undifined do (
-					local noeud = arbo.getParNomUnique 	noeudTVClique.name
-					ouvrirNoeud	noeud
-					prt.selectionNoeud 	= noeud
-					actualiserLV ()
-				)
-			)			
+			1048576:	ouvrirNoeudTV		noeudTVClique	
 			-- clique droit --
-			2097152:	(				
-				-- on selectionne le noeud --				
-				if noeudTVClique != undifined do (
-					local noeud = arbo.getParNomUnique 	noeudTVClique.name
-					ouvrirNoeud	noeud
-					prt.selectionNoeud 	= noeud
-					actualiserLV ()
-				)
-				
+			2097152: (
+				ouvrirNoeudTV	noeudTVClique				
 				-- on ouvre le menu contextuel --
 				menu.arbo ()				
 			)
@@ -963,36 +899,27 @@ rollout m_rollPrincipal "labib"  (
 	fn sourisSeDeplace 	_pos 	= (
 		
 		-- gestion curseur souris au survol --		
-		if uiV_slider_H.survole _pos or uiV_slider_V.survole _pos /* or uiV_drag.survole _pos */ then 
+		if uiV_slider_H.survole _pos or uiV_slider_V.survole _pos  then 
 			setSysCur #move
 		else setArrowCursor ()
-		
--- 		debug "uiV_drag.survole " var:(uiV_drag.survole _pos )
 		
 		--------- les boutons virtuels -------
 		-- sliders --
 		if not prefs.fenetre.sliderFermer_H and uiV_slider_H.pressed  do (			
 			local ecart = ( _pos.x - uiV_slider_H.posPress.x )
 			uiV_slider_H.bouge [ ecart , 0 ]			
--- 			ui_bmpBarre_H.pos 		= uiV_slider_H.pos
--- 			ui_bmpBarre_H.height 	= uiV_slider_H.height
 			recomposerFenetre()
 			prefs.fenetre.posSlider_H = uiV_slider_H.pos.x
 		)
 		if not prefs.fenetre.sliderFermer_V and uiV_slider_V.pressed  do (			
 			local ecart = ( _pos.y - uiV_slider_V.posPress.y )
 			uiV_slider_V.bouge [ 0 , ecart ]			
--- 			ui_bmpBarre_V.pos 		= uiV_slider_V.pos
--- 			ui_bmpBarre_V.width 	= uiV_slider_H.width
 			recomposerFenetre()
 			prefs.fenetre.posSlider_V = uiV_slider_V.pos.y
 		)
-		-- drag --
--- 		if not prefs.fenetre.pleinEcran  and not prefs.fenetre.bandeau  and uiV_drag.pressed  do (			
--- 			local ecart = ( mouse.screenpos  - uiV_drag.posPress )
--- 			SetDialogPos  m_rollPrincipal	( uiV_drag.posOrigine + ecart )
--- 		)
 	)
+	
+	
 	fn sourisDblClique		_pos 	= (
 		
 		local tailleBureau = sysInfo.desktopSize
@@ -1048,23 +975,14 @@ rollout m_rollPrincipal "labib"  (
 			uiV_slider_H.posPress 		= _pos
 			uiV_slider_H.posOrigine 	= uiV_slider_H.pos
 			survolSlide = true
--- 			ui_bmpBarre_H.visible 	= true
 		)	
 		if uiV_slider_V.survole _pos do (
 			uiV_slider_V.pressed 		= true
 			uiV_slider_V.posPress 		= _pos
 			uiV_slider_V.posOrigine 	= uiV_slider_V.pos
 			survolSlide = true
--- 			ui_bmpBarre_V.visible 	= true
 		) 
 		
--- 		if not survolSlide and uiV_drag.survole 	_pos do (
--- 			
--- 			
--- 			uiV_drag.pressed 		= true
--- 			uiV_drag.posPress 		= mouse.screenpos 
--- 			uiV_drag.posOrigine 		= GetDialogPos 	m_rollPrincipal
--- 		) 
 		
 	)
 	
@@ -1114,7 +1032,8 @@ rollout m_rollPrincipal "labib"  (
 		
 	)
 	
-	fn sourisRelache 		_pos 	= ( 
+	fn sourisRelache 		_pos 	= (
+		
 		if drag.enCours do (
 			
 			local tailleBureau = sysInfo.desktopSize
@@ -1164,10 +1083,6 @@ rollout m_rollPrincipal "labib"  (
 		
 		uiV_slider_H.pressed 	= false	
 		uiV_slider_V.pressed 	= false
--- 		uiV_drag.pressed 		= false	
-		
--- 		ui_bmpBarre_V.visible 	= false
--- 		ui_bmpBarre_H.visible 	= false
 		
 	)
 	
@@ -1192,16 +1107,18 @@ rollout m_rollPrincipal "labib"  (
 	
 	---- les boutons virtuels ----
 	on m_rollPrincipal lbuttondown 	pos 	do (
-		drag.demarrer ()
 		sourisClique 		pos 
+		if  not uiV_slider_H.survole  pos  and not uiV_slider_V.survole  pos  
+			do drag.demarrer ()
 	)
 	on m_rollPrincipal lbuttonup	 	pos 	do (
-		drag.arreter ()
 		sourisRelache 		pos 
+		drag.arreter ()
 	)
 	on m_rollPrincipal mousemove 	pos 	do (
-		drag.suivreSouris ()
 		sourisSeDeplace 	pos 
+		if not prefs.fenetre.pleinEcran and not prefs.fenetre.bandeau do
+			drag.suivreSouris ()
 	)
 	on m_rollPrincipal lbuttondblclk  	pos 	do sourisDblClique 	pos 
 	on m_rollPrincipal rbuttondown  	pos 	do menu.fenetre		 ()
@@ -1274,12 +1191,16 @@ struct Fenetre_struct (
 	
 	------------ Les MEMBRES	----------------------------------------------------------------------------------
 	prt,												---- pointeur vers la biblio ----
-	dialog = m_rollPrincipal,						---- rollout principal ----
-	infos = infos_struct 		prt:prt,
+	dialog 	= m_rollPrincipal,						---- rollout principal ----
 	
 	estOuverte				= false			,
 	selectionNoeud 		= undefined	,	---- le noeud selectionné dans le treeView ----	
 	selectionElements 	= #(),				---- les elements selectionnés dans le listView ----
+	
+	--- les fenetres secondaires
+	infos 		= infos_struct 		prt:prt,
+	apercu	= apercu_struct 		prt:prt,
+	rendu		= rendu_struct 		prt:prt,
 	
 	tailleApercus,									---- la taille en cours des apercus ----
 	
@@ -1344,6 +1265,13 @@ struct Fenetre_struct (
 		dialog.menu	= prt.menu
 		dialog.prt 		= prt.fenetre
 		
+		-- les fenetres secondaires --
+		if prt.prefs.fenetre.infos 	do infos.ouvrir()
+		if prt.prefs.fenetre.apercu do apercu.ouvrir()
+		if prt.prefs.fenetre.rendu 	do rendu.ouvrir()
+
+		
+		
 		-- pour les drags --
 		dialog.drag 		= drag_struct 	fenetre:dialog
 		
@@ -1361,6 +1289,11 @@ struct Fenetre_struct (
 		
 		-- et on ferme --
 		infos.fermer()
+		apercu.fermer()
+		rendu.fermer()
+		
+		prt.prefs.charger ()
+		
 		try destroydialog dialog catch ()
 		
 		estOuverte = false
