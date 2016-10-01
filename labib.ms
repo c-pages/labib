@@ -9,20 +9,13 @@
 ##########################################################################################################################
 
 	todo:
-	-	renommage des assets selectionnés avec possibilité de numerotation auto
-	-	probleme de suppression d'elements qui se retire pas de la biblio ?!?!
-	-	attention menu Edit/suppression : pas claire, ça supprime le dossier, pas element. rendre plus claire
-	-	faire du ménage dans la mise a jour de la listView ( voir si on doit vraiment tout recharger à chaque fois ? )
-	-	listeVue : faire une vue détail ( image, détail, liste )
-	-	Bouton pour cacher/montrer le panneau de gauche (explorateur + mots clés + status barre)
-					-	faire apparaitre les dossiers dans la liseVue pour pouvoir entrer dedans
-					-	faire un bouton pour remonter dans l'arborescence
-	- remplacer le fetch de max par un fetch perso pour pas ecraser le fetch de l'utilisateur
+	-	le placement de la fenetre en bandeau est basé sur mon systeme à deux ecrans (je divise par 2 untruc) a voir comment faire plus universel
 	
 ##########################################################################################################################
 	changelog:
 	*v0.1 - [22/09/2016] -----------------------------------------------------------------------------
 	- Mise en place globale ( mise au propre du travail durant l'été)
+	- Une interface souple et simple
 ########################################################################################################################*/
 
 

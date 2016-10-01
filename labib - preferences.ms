@@ -53,7 +53,7 @@ struct prefsFenetre_struct (
 	afficherTitre 	= false,
 	afficherDossier = true,
 
-	tailleApercusLV = 60,		-- taille affiché des apercus dans le LV --
+	tailleApercusLV = 40,		-- taille affiché des apercus dans le LV --
 	
 	---- Couleurs ----
 	-- des rollouts --
@@ -61,10 +61,14 @@ struct prefsFenetre_struct (
 	col_fenetreFore				= color 230  230 230, 	----  ----
 	-- trucs dotnet (LV, TV ) --
 	col_TVLVfond 					= color 160 166 182, 	----  ----
-	col_TVLVfondDossier 		= color 130 136 152, 	----  ----
-	col_TVLVforeDossier 		= color 255 255 255, 	----  ----
-	col_TVLVfondDossierPrt 	= color 190 196 212, 	----  ----
+	col_TVLVfondDossier 		= color 145 151 167, 	----  ----
+	col_TVLVforeDossier 		= color 237 237 237, 	----  ----
+	col_TVLVfondDossierPrt 	= color 130 136 152, 	----  ----
+-- 	col_TVLVfondDossierPrt 	= col_TVLVfondDossier, 	----  ----
+-- 	col_TVLVfondDossierPrt 	= col_TVLVfondDossier, 	----  ----
 	col_TVLVfore 					= color 45	42	35, 		----  ----
+	
+	col_TVfore 						= color 255	 255	255, 		----  ----
 
 	col_fondRech 					= col_TVLVfondDossierPrt, 		----  ----
 	

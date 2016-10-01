@@ -126,7 +126,7 @@ rollout m_rollPrincipal "labib"  (
 	
 	---- geometrie ----
 	local ecartUI			= 17		----  ----
-	local ecartUISimple	= 5		----  ----
+	local ecartUISimple	= 1		----  ----
 	
 	---- TV l'arborescence ----
 	local listeNoeudsTV 		= #()
@@ -152,26 +152,34 @@ rollout m_rollPrincipal "labib"  (
 	
 	---- les boutons maxscripts ----	
 	-- le TreeView (TV) arborescence --
-	dotNetControl 	ui_TV 						"TreeView" 		pos:			[ecartUI ,ecartUI]	\	-- [ ecartUI , 	ui_editRecherche.pos.y + ui_editRecherche.height  + ecartUI ]	\
+	dotNetControl 	ui_TV 						"TreeView" 		pos:			[ecartUI ,ecartUI]	\	-- [ ecartUI , 	ui_recherche.pos.y + ui_recherche.height  + ecartUI ]	\
 																				width:		btnVirt_slider_V.width	\
-																				height:		0 \
-																				enabled:		true		
+																				height:		0 		
 																				
-	
+	/* 
 	-- la recherche des tags --
-	edittext 			ui_editRecherche 		""	 				pos:			[ ecartUI , 	btnVirt_slider_V.pos.y + btnVirt_slider_V.height   ]  \
+	edittext 			ui_recherche 		""	 				pos:			[ ecartUI , 	btnVirt_slider_V.pos.y + btnVirt_slider_V.height   ]  \
 																				width:		btnVirt_slider_V.width \
 																				height:		17		 \
 																				tooltip: 		"Recherche par mots clés" \
 																				fieldWidth:	0		labelOnTop:true 		\
-																				visible:		false
+																				visible:		false */
+	-- la recherche des tags --
+	dotNetControl 			ui_recherche 		"TextBox"	 	pos:			[ ecartUI , 	btnVirt_slider_V.pos.y + btnVirt_slider_V.height   ]  \
+																				width:		btnVirt_slider_V.width \
+																				height:		17		 \
+																				border:		false
 	
 	-- la liste des tags --
-	MultiListBox 		ui_lstBoxTags				"" 					pos:			( ui_editRecherche.pos + [0,ui_editRecherche.height  + ecartUISimple ] ) \
+	dotNetControl 	ui_lstBoxTags	"system.windows.forms.listView" 	pos:			( ui_recherche.pos + [0,ui_recherche.height  + ecartUISimple ] ) \
 																				width:		btnVirt_slider_V.width  \
-																				height:		( ( tailleRolloutCreation.y - ( ui_editRecherche.pos.y + ui_editRecherche.height +  ecartUI  + ecartUISimple ) ) / 13 ) 		\
+																				height:		( ( tailleRolloutCreation.y - ( ui_recherche.pos.y + ui_recherche.height +  ecartUI  + ecartUISimple ) ) / 13 ) 	
+	/* 
+	MultiListBox 		ui_lstBoxTags				"" 					pos:			( ui_recherche.pos + [0,ui_recherche.height  + ecartUISimple ] ) \
+																				width:		btnVirt_slider_V.width  \
+																				height:		( ( tailleRolloutCreation.y - ( ui_recherche.pos.y + ui_recherche.height +  ecartUI  + ecartUISimple ) ) / 13 ) 		\
 																				visible:		false\
-																				tooltip: 		"Mots clés"
+																				tooltip: 		"Mots clés" */
 	
 	-- la ListView (LV) pour le cointenu des noeud (apercus) --
 	dotNetControl 	ui_LV "system.windows.forms.listView" pos:			[ btnVirt_slider_H.pos.x + btnVirt_slider_H.width, ecartUI ] \
@@ -525,7 +533,7 @@ rollout m_rollPrincipal "labib"  (
 		local max_V 	
 		if prefs.fenetre.sliderFermer_V 
 			then max_V	= tailleRollout.y - ( 1* ecartUI ) 
-			else max_V	= tailleRollout.y - ( 2* ecartUI + ui_editRecherche.height )
+			else max_V	= tailleRollout.y - ( 2* ecartUI + ui_recherche.height )
 		if btnVirt_slider_H.pos.x  >max_H 	do	btnVirt_slider_H.pos.x = 	max_H
 		if btnVirt_slider_H.pos.x < min_H  	do 	btnVirt_slider_H.pos.x =  	min_H		
 		if btnVirt_slider_V.pos.y > max_V 	do 	btnVirt_slider_V.pos.y = 	max_V	
@@ -542,16 +550,16 @@ rollout m_rollPrincipal "labib"  (
 		ui_TV.width 				= btnVirt_slider_V.width- ecartUI
 		ui_TV.height 				= btnVirt_slider_V.pos.y - ecartUI
 		
-		ui_editRecherche.pos	= [ ecartUI , 	btnVirt_slider_V.pos.y + btnVirt_slider_V.height  ]
-		ui_editRecherche.width = btnVirt_slider_V.width- ecartUI
+		ui_recherche.pos	= [ ecartUI , 	btnVirt_slider_V.pos.y + btnVirt_slider_V.height  ]
+		ui_recherche.width = btnVirt_slider_V.width- ecartUI
 -- 		local tailleMaxRech = 17
--- 		if ui_editRecherche.pos.y < tailleRollout.y - ( tailleMaxRech + ecartUI ) 
--- 			then	ui_editRecherche.height = tailleMaxRech
--- 			else	ui_editRecherche.height = tailleRollout.y - ( tailleMaxRech + ecartUI  + ui_editRecherche.pos.y) 
+-- 		if ui_recherche.pos.y < tailleRollout.y - ( tailleMaxRech + ecartUI ) 
+-- 			then	ui_recherche.height = tailleMaxRech
+-- 			else	ui_recherche.height = tailleRollout.y - ( tailleMaxRech + ecartUI  + ui_recherche.pos.y) 
 		
-		ui_lstBoxTags.pos 		= ui_editRecherche.pos + [0,ui_editRecherche.height  + ecartUISimple ]
+		ui_lstBoxTags.pos 		= ui_recherche.pos + [0,ui_recherche.height  + ecartUISimple ]
 		ui_lstBoxTags.width 		= btnVirt_slider_V.width- ecartUI
-		ui_lstBoxTags.height		= tailleRollout.y - ( ui_editRecherche.pos.y + ui_editRecherche.height +  ecartUI + ecartUISimple )
+		ui_lstBoxTags.height		= tailleRollout.y - ( ui_recherche.pos.y + ui_recherche.height +  ecartUI + ecartUISimple )
 		
 		ui_LV.pos					= [btnVirt_slider_H.pos.x + btnVirt_slider_H.width, ecartUI ]
 		ui_LV.width					= tailleRollout.x - ( btnVirt_slider_H.pos.x + btnVirt_slider_H.width +  ecartUI )
@@ -579,7 +587,7 @@ rollout m_rollPrincipal "labib"  (
 		
 		-- on laisse les tags à la meme taille --
 		if not prefs.fenetre.sliderFermer_V 
-			then	btnVirt_slider_V.pos.y = _taille.y - ( ui_editRecherche.height + ecartUISimple +  ui_lstBoxTags.height + 2 * ecartUI )
+			then	btnVirt_slider_V.pos.y = _taille.y - ( ui_recherche.height + ecartUISimple +  ui_lstBoxTags.height + 2 * ecartUI )
 			else 	btnVirt_slider_V.pos.y = _taille.y - ecartUI
 		recomposerFenetre()
 		
@@ -628,7 +636,17 @@ rollout m_rollPrincipal "labib"  (
 		chargerAffichageLV	prt.affichageLV
 		
 		local col_fondVue 	= prefs.fenetre.col_TVLVfond
-		local col_textes 		= prefs.fenetre.col_TVLVfore
+		local col_textes 		= prefs.fenetre.col_TVfore
+		local col_Dossier 	= prefs.fenetre.col_TVLVforeDossier
+		
+		--- textbox ---		
+		ui_recherche.BackColor 		= (dotNetClass "System.Drawing.Color").fromARGB 	col_fondVue.r 		col_fondVue.g 	col_fondVue .b
+		ui_recherche.ForeColor 		= (dotNetClass "System.Drawing.Color").fromARGB 	col_textes.r 		col_textes.g 		col_textes.b
+		ui_recherche.borderstyle 		= (dotnetclass "System.Windows.Forms.BorderStyle").None
+		
+		ui_lstBoxTags.BackColor 			= (dotNetClass "System.Drawing.Color").fromARGB 	col_fondVue.r 		col_fondVue.g 	col_fondVue .b
+		ui_lstBoxTags.ForeColor 			= (dotNetClass "System.Drawing.Color").fromARGB 	col_textes.r 		col_textes.g 		col_textes.b
+		ui_lstBoxTags.borderstyle 			= (dotnetclass "System.Windows.Forms.BorderStyle").None
 		
 		---- la vue liste----
 		ui_LV.borderstyle 			= (dotnetclass "System.Windows.Forms.BorderStyle").None
@@ -662,7 +680,7 @@ rollout m_rollPrincipal "labib"  (
 		
 		
 		--- rendre visible les uis---
-		ui_editRecherche.visible = true
+		ui_recherche.visible = true
 		ui_lstBoxTags.visible = true
 		ui_btnFermer.visible = not prefs.fenetre.afficherTitre
 		
@@ -932,17 +950,21 @@ rollout m_rollPrincipal "labib"  (
 	fn sourisClique			_pos 	= (
 		
 		-- on regarde si on clique sur un bouton virtuel --
+		local survolSlide = false
 		if btnVirt_slider_H.survole _pos do (
 			btnVirt_slider_H.pressed 		= true
 			btnVirt_slider_H.posPress 		= _pos
 			btnVirt_slider_H.posOrigine 	= btnVirt_slider_H.pos
+			survolSlide = true
 		)	
 		if btnVirt_slider_V.survole _pos do (
 			btnVirt_slider_V.pressed 		= true
 			btnVirt_slider_V.posPress 		= _pos
 			btnVirt_slider_V.posOrigine 	= btnVirt_slider_V.pos
+			survolSlide = true
 		) 
-		if btnVirt_drag.survole _pos do (
+		
+		if not survolSlide and btnVirt_drag.survole _pos do (
 			btnVirt_drag.pressed 		= true
 			btnVirt_drag.posPress 		= mouse.screenpos 
 			btnVirt_drag.posOrigine 	= GetDialogPos 	m_rollPrincipal
@@ -954,12 +976,15 @@ rollout m_rollPrincipal "labib"  (
 			
 			local tailleBureau = sysInfo.desktopSize
 			
+			local larg_bandeauH = 117 + 2*ecartUI
+			local larg_bandeauV = 75 + 2*ecartUI
+			
 			---- plaquer la fenetre à gauche --
 			if mouse.screenpos.x == 0 do (
 				prefs.fenetre.bandeau = true
 			-- retour taille et pos normal si plein ecran ou bandeau -- = true
 				SetDialogPos m_rollPrincipal [0,0]
-				m_rollPrincipal.width 	= 150
+				m_rollPrincipal.width 	= larg_bandeauH
 				m_rollPrincipal.height 	= tailleBureau.y - 43
 				
 				
@@ -968,24 +993,26 @@ rollout m_rollPrincipal "labib"  (
 			---- plaquer la fenetre à droite --
 			if mouse.screenpos.x == tailleBureau.x - 1 do (
 				prefs.fenetre.bandeau = true
-				SetDialogPos m_rollPrincipal [tailleBureau.x - 150 - 14 ,0]
-				m_rollPrincipal.width 	= 150
+				SetDialogPos m_rollPrincipal [tailleBureau.x - larg_bandeauH - 14 ,0]
+				m_rollPrincipal.width 	= larg_bandeauH
 				m_rollPrincipal.height 	= tailleBureau.y - 15
 			)
 			
 			---- plaquer la fenetre en haut --
 			if mouse.screenpos.y == 0 do (
 				prefs.fenetre.bandeau = true
-				SetDialogPos m_rollPrincipal [0 ,0]
+				posX = if mouse.screenpos.x <tailleBureau.x /2 then 0 else tailleBureau.x /2
+				SetDialogPos m_rollPrincipal [posX ,0]
 				m_rollPrincipal.width 	= tailleBureau.x /2 - 15
-				m_rollPrincipal.height 	= 118
+				m_rollPrincipal.height 	= larg_bandeauv
 			)
 			---- plaquer la fenetre en bas --
 			if mouse.screenpos.y == tailleBureau.y - 1 do (
 				prefs.fenetre.bandeau = true
-				SetDialogPos m_rollPrincipal [ 0 , tailleBureau.y - 118  - 43 ]
+				posX = if mouse.screenpos.x <tailleBureau.x /2 then 0 else tailleBureau.x /2
+				SetDialogPos m_rollPrincipal [ posX , tailleBureau.y - larg_bandeauv  - 43 ]
 				m_rollPrincipal.width 	= tailleBureau.x /2 - 15
-				m_rollPrincipal.height 	= 118
+				m_rollPrincipal.height 	= larg_bandeauv
 			)
 			--- position bandeau stocké ---
 			prefs.fenetre.posBandeau 	= getDialogPos m_rollPrincipal	
@@ -1045,6 +1072,8 @@ rollout m_rollPrincipal "labib"  (
 				editerNomLV	prt.selectionElements[1]
 		)
 	)
+	
+	on ui_recherche TextChanged	arg 	do  debug "text changed"
 	
 	---- bouton fermer -----
 	-- comportement --

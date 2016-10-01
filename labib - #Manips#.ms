@@ -37,7 +37,7 @@ elem2		=	labib.arbo.creerElement 	nom:"element cuisiniere"	fichier:"fichier 2.po
 
 elem1.nbrVertex =123
 elem2.nbrVertex =456
-labib.arbo.ecrireFichier ()
+labib.arbo.enregistrer ()
 
 
  */
