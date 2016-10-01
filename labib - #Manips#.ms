@@ -2,16 +2,23 @@
 
 -- 
 
-try labib.fenetre.fermer () catch ()
+-- try labib.fenetre.fermer () catch ()
 -- 
 clearlistener ()
  
-
+labib = undefined
 fileIn ("$userScripts\labib\labib.ms" )
 labib.fenetre.ouvrir ()
 
-
 /* 
+SetDialogPos m_rollPrincipal 	[0,0]
+m_rollPrincipal.width = 100
+m_rollPrincipal.height = 100
+createdialog
+
+start = timeStamp()
+end = timeStamp()
+format "Processing took % seconds\n" ((end - start) / 1000.0)
 -- 
 taille du bureau
 tailleBureau = sysInfo.desktopSize

@@ -26,10 +26,16 @@ struct prefsFenetre_struct (
 	fichier = dossierScript + "\data\prefs.ini",	-- le fichier des preferences
 	
 	---- les parametres de la fenetre ----	
-	taille 				= [600,900],		---- la taille de la fenetre	---
+	taille 				= [600,600],		---- la taille de la fenetre	---
 	pos 				= [50,50],			---- la position de la fenetre ---	
-	posSlider_V		= 200,
+	
 	posSlider_H		= 200,
+	posSlider_V		= 450,
+	sliderFermer_V = false,	
+	sliderFermer_H = false,
+	
+	pleinEcran    	= false,
+	
 	infos				=	true,				---- si l'onglet "infos" est ouvert ---
 	edition			=	false,				---- si la fenetre edition est ouverte ---	
 	accroche		=	false,				---- si le mode accroche fenetres est activé --- ( depreciated )
@@ -41,7 +47,7 @@ struct prefsFenetre_struct (
 	afficherTitre 	= false,
 	afficherDossier = true,
 
-	tailleApercusLV = [200,200],		-- taille affiché des apercus dans le LV --
+	tailleApercusLV = 100,		-- taille affiché des apercus dans le LV --
 	
 	---- Couleurs ----
 	-- des rollouts --
@@ -54,6 +60,8 @@ struct prefsFenetre_struct (
 	col_TVLVfondDossierPrt 	= color 190 196 212, 	----  ----
 	col_TVLVfore 					= color 45	42	35, 		----  ----
 
+	col_fondRech 					= col_TVLVfondDossierPrt, 		----  ----
+	
 	caseVide		=	"-",
 	
 	---- images ----

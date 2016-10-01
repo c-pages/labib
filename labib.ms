@@ -49,8 +49,8 @@
 	
 	
 	
-	---- la structure principale ----
-	global labib
+-- 	---- la structure principale ----
+-- 	global labib
 	
 	----  Le dossier du script  ----
 	local nomDossierScript = "labib"
@@ -114,12 +114,17 @@
 			
 			fenetre.dialog.SelectionnerTV 	parent
 			
-		),
-		
-		
+		),		
 		fn ouvrirSiteInternet = (
 			DOSCommand  "start \"\" http://c-pages.fr"
 		),
+		
+		
+		
+		
+		
+		fn ouvrir 	= fenetre.ouvrir(),
+		fn fermer 	= fenetre.fermer(),
 		
 		------------ Evenements 	----------------------------------------------------------------------------------
 		on create do 
