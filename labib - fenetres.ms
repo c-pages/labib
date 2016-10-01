@@ -125,7 +125,7 @@ rollout m_rollPrincipal "labib"  (
 	local menu		---- pointeur vers le struct menu ----
 	
 	---- geometrie ----
-	local ecartUI			= 20		----  ----
+	local ecartUI			= 17		----  ----
 	local ecartUISimple	= 5		----  ----
 	
 	---- TV l'arborescence ----
@@ -522,7 +522,10 @@ rollout m_rollPrincipal "labib"  (
 		local min_H 	= 0* ecartUI
 		local max_H 	= tailleRollout.x - ( 1* ecartUI ) 
 		local min_V 	= 0* ecartUI 
-		local max_V 	= tailleRollout.y - ( 1* ecartUI )
+		local max_V 	
+		if prefs.fenetre.sliderFermer_V 
+			then max_V	= tailleRollout.y - ( 1* ecartUI ) 
+			else max_V	= tailleRollout.y - ( 2* ecartUI + ui_editRecherche.height )
 		if btnVirt_slider_H.pos.x  >max_H 	do	btnVirt_slider_H.pos.x = 	max_H
 		if btnVirt_slider_H.pos.x < min_H  	do 	btnVirt_slider_H.pos.x =  	min_H		
 		if btnVirt_slider_V.pos.y > max_V 	do 	btnVirt_slider_V.pos.y = 	max_V	
@@ -541,10 +544,10 @@ rollout m_rollPrincipal "labib"  (
 		
 		ui_editRecherche.pos	= [ ecartUI , 	btnVirt_slider_V.pos.y + btnVirt_slider_V.height  ]
 		ui_editRecherche.width = btnVirt_slider_V.width- ecartUI
-		local tailleMaxRech = 17
-		if ui_editRecherche.pos.y < tailleRollout.y - ( tailleMaxRech + ecartUI ) 
-			then	ui_editRecherche.height = tailleMaxRech
-			else	ui_editRecherche.height = tailleRollout.y - ( tailleMaxRech + ecartUI  + ui_editRecherche.pos.y) 
+-- 		local tailleMaxRech = 17
+-- 		if ui_editRecherche.pos.y < tailleRollout.y - ( tailleMaxRech + ecartUI ) 
+-- 			then	ui_editRecherche.height = tailleMaxRech
+-- 			else	ui_editRecherche.height = tailleRollout.y - ( tailleMaxRech + ecartUI  + ui_editRecherche.pos.y) 
 		
 		ui_lstBoxTags.pos 		= ui_editRecherche.pos + [0,ui_editRecherche.height  + ecartUISimple ]
 		ui_lstBoxTags.width 		= btnVirt_slider_V.width- ecartUI
@@ -560,34 +563,33 @@ rollout m_rollPrincipal "labib"  (
 	
 	fn bougerFenetre 		_pos		= (	
 		--- on stock la pos  ---		
-		if not prefs.fenetre.pleinEcran do	
+		if not prefs.fenetre.pleinEcran and not prefs.fenetre.bandeau do	
 			prefs.fenetre.pos = _pos
 	)
 	fn redimFenetre 			_taille 	= (
 		debug "redim"
-		/* 
-		if prefs.fenetre.pleinEcran  then (
-				SetDialogPos m_rollPrincipal 	prefs.fenetre.pos
-				m_rollPrincipal.width 	= prefs.fenetre.taille.x
-				m_rollPrincipal.height 	= prefs.fenetre.taille.y
-				prefs.fenetre.pleinEcran = false
-			) */
 			
 		--- on stock la taille  ---		
-		if not prefs.fenetre.pleinEcran do
+		/* if prefs.fenetre.bandeau then (
+			posBandeau 	= getDialogPos m_rollPrincipal	
+			tailleBandeau	= [m_rollPrincipal.width, m_rollPrincipal.height ]
+		) else */
+		if not prefs.fenetre.pleinEcran and not prefs.fenetre.bandeau do
 			prefs.fenetre.taille = _taille
 		
 		-- on laisse les tags à la meme taille --
-		if not prefs.fenetre.sliderFermer_V do
-			btnVirt_slider_V.pos.y = _taille.y - ( ui_editRecherche.height + ecartUISimple +  ui_lstBoxTags.height + 2 * ecartUI )
-		
+		if not prefs.fenetre.sliderFermer_V 
+			then	btnVirt_slider_V.pos.y = _taille.y - ( ui_editRecherche.height + ecartUISimple +  ui_lstBoxTags.height + 2 * ecartUI )
+			else 	btnVirt_slider_V.pos.y = _taille.y - ecartUI
 		recomposerFenetre()
 		
 		
 	)
 	fn actualiserSelections 				= (
 		selectionnerTV	prt.selectionNoeud
-		selectionnerLV	prt.selectionElements
+		selectionnerLV		prt.selectionElements
+		
+		( getNoeudTV prt.selectionNoeud ).expand ()
 	)
 	fn actualiser 							= (
 		
@@ -675,13 +677,13 @@ rollout m_rollPrincipal "labib"  (
 			then delta = 10
 			else  delta = -10
 			
-		local tailleMin 		= 60
+		local tailleMin 		= 40
 		local tailleMax 	= prefs.apercus.taille.x
 		prefs.fenetre.tailleApercusLV += delta
 		
 		if  prefs.fenetre.tailleApercusLV < tailleMin do 
 			prefs.fenetre.tailleApercusLV = tailleMin
-		if prefs.fenetre.tailleApercusLV .x > tailleMax  do 
+		if prefs.fenetre.tailleApercusLV  > tailleMax  do 
 			prefs.fenetre.tailleApercusLV = tailleMax 
 		
 		ui_LV.LargeImageList.imageSize	= dotNetObject "System.Drawing.Size" 	prefs.fenetre.tailleApercusLV 	prefs.fenetre.tailleApercusLV
@@ -875,7 +877,7 @@ rollout m_rollPrincipal "labib"  (
 			prefs.fenetre.posSlider_V = btnVirt_slider_V.pos.y
 		)
 		-- drag --
-		if not prefs.fenetre.pleinEcran and btnVirt_drag.pressed  do (			
+		if not prefs.fenetre.pleinEcran  and not prefs.fenetre.bandeau  and btnVirt_drag.pressed  do (			
 			local ecart = ( mouse.screenpos  - btnVirt_drag.posPress )
 			SetDialogPos  m_rollPrincipal	( btnVirt_drag.posOrigine + ecart )
 		)
@@ -897,11 +899,24 @@ rollout m_rollPrincipal "labib"  (
 			local posAgrandi 		= [0,0]			
 			local tailleAgrandi 	= [ tailleBureau.x / 2 - 15 , tailleBureau.y - 43 ]	
 			debug "pleinEcran" var:prefs.fenetre.pleinEcran
-			if prefs.fenetre.pleinEcran  then (
+			
+			-- retour taille et pos normal si plein ecran ou bandeau --
+			if prefs.fenetre.pleinEcran  or prefs.fenetre.bandeau then (
+				
+				-- on place la fenetre dans le bureau --				
+				if prefs.fenetre.pos.x<0 do prefs.fenetre.pos.x = 0
+				if prefs.fenetre.pos.x>tailleBureau.x - prefs.fenetre.taille.x do prefs.fenetre.pos.x = tailleBureau.x - prefs.fenetre.taille.x 
+				if prefs.fenetre.pos.y<0 do prefs.fenetre.pos.y = 0
+				if prefs.fenetre.pos.y>tailleBureau.y - prefs.fenetre.taille.y do prefs.fenetre.pos.y = tailleBureau.y - prefs.fenetre.taille.y 
+				
 				SetDialogPos m_rollPrincipal 	prefs.fenetre.pos
 				m_rollPrincipal.width 	= prefs.fenetre.taille.x
 				m_rollPrincipal.height 	= prefs.fenetre.taille.y
+				
 				prefs.fenetre.pleinEcran = false
+				prefs.fenetre.bandeau 	= false
+				
+			-- sinon on passe en plein ecran --
 			) else (
 				prefs.fenetre.pleinEcran = true
 				prefs.fenetre.pos 		= getDialogPos m_rollPrincipal		
@@ -910,6 +925,7 @@ rollout m_rollPrincipal "labib"  (
 				m_rollPrincipal.width 	= tailleAgrandi.x
 				m_rollPrincipal.height 	= tailleAgrandi.y
 			)
+			
 		)
 	)
 	
@@ -934,27 +950,50 @@ rollout m_rollPrincipal "labib"  (
 		
 	)
 	fn sourisRelache 		_pos 	= ( 
-		btnVirt_slider_H.pressed = false	
-		btnVirt_slider_V.pressed = false
 		if btnVirt_drag.pressed do (
 			
 			local tailleBureau = sysInfo.desktopSize
 			
 			---- plaquer la fenetre à gauche --
 			if mouse.screenpos.x == 0 do (
+				prefs.fenetre.bandeau = true
+			-- retour taille et pos normal si plein ecran ou bandeau -- = true
 				SetDialogPos m_rollPrincipal [0,0]
-				m_rollPrincipal.width 	= tailleBureau.x / 4
+				m_rollPrincipal.width 	= 150
 				m_rollPrincipal.height 	= tailleBureau.y - 43
+				
+				
 			)
 			
 			---- plaquer la fenetre à droite --
 			if mouse.screenpos.x == tailleBureau.x - 1 do (
-				SetDialogPos m_rollPrincipal [tailleBureau.x * 3/4 - 14 ,0]
-				m_rollPrincipal.width 	= tailleBureau.x / 4
+				prefs.fenetre.bandeau = true
+				SetDialogPos m_rollPrincipal [tailleBureau.x - 150 - 14 ,0]
+				m_rollPrincipal.width 	= 150
 				m_rollPrincipal.height 	= tailleBureau.y - 15
 			)
+			
+			---- plaquer la fenetre en haut --
+			if mouse.screenpos.y == 0 do (
+				prefs.fenetre.bandeau = true
+				SetDialogPos m_rollPrincipal [0 ,0]
+				m_rollPrincipal.width 	= tailleBureau.x /2 - 15
+				m_rollPrincipal.height 	= 118
+			)
+			---- plaquer la fenetre en bas --
+			if mouse.screenpos.y == tailleBureau.y - 1 do (
+				prefs.fenetre.bandeau = true
+				SetDialogPos m_rollPrincipal [ 0 , tailleBureau.y - 118  - 43 ]
+				m_rollPrincipal.width 	= tailleBureau.x /2 - 15
+				m_rollPrincipal.height 	= 118
+			)
+			--- position bandeau stocké ---
+			prefs.fenetre.posBandeau 	= getDialogPos m_rollPrincipal	
+			prefs.fenetre.tailleBandeau	= [m_rollPrincipal.width, m_rollPrincipal.height ]
 		)
-		btnVirt_drag.pressed = false	
+		btnVirt_slider_H.pressed 	= false	
+		btnVirt_slider_V.pressed 	= false
+		btnVirt_drag.pressed 		= false	
 	)
 	
 		
@@ -1063,27 +1102,38 @@ struct Fenetre_struct (
 			then 	style = #( #style_titlebar /* #style_toolwindow  */ ,    #style_sysmenu, #style_resizing  , #style_minimizebox , #style_maximizebox  ) 
 			else 		style = #( #style_resizing /* , #style_minimizebox , #style_maximizebox */ ) 
 		
+		local pos
+		local taille
+		if prt.prefs.fenetre.bandeau then (			
+			pos = prt.prefs.fenetre.posBandeau
+			taille = prt.prefs.fenetre.tailleBandeau
+		) else (
+			pos = prt.prefs.fenetre.pos
+			taille = prt.prefs.fenetre.taille			
+		)
+		debug "pos" var:pos
+		debug "taille" var:taille
 		-- afficher Menus  --
 		if prt.prefs.fenetre.afficherMenu 	
 			then	( 
 				createDialog dialog 	style:				style \
 											menu:				rcRolloutPrincipal \
-											pos:					prt.prefs.fenetre.pos \
-											width:				prt.prefs.fenetre.taille.x \
-											height:				prt.prefs.fenetre.taille.y \
+											pos:					pos \
+											width:				taille.x \
+											height:				taille.y \
 											escapeEnable:		false 		 \
 											bgcolor:				prt.prefs.fenetre.col_fenetreFond 	 \
 											fgcolor:				prt.prefs.fenetre.col_fenetreFore 	
 			) else	(
 				createDialog dialog 	style:				style \
-											pos:					prt.prefs.fenetre.pos \
-											width:				prt.prefs.fenetre.taille.x \
-											height:				prt.prefs.fenetre.taille.y \
+											pos:					pos \
+											width:				taille.x \
+											height:				taille.y \
 											escapeEnable:		false 		 \
 											bgcolor:				prt.prefs.fenetre.col_fenetreFond 	 \
 											fgcolor:				prt.prefs.fenetre.col_fenetreFore 	
 			)
-		
+	
 		-- initialisation de la fenetre --		
 		dialog.arbo 		= prt.arbo
 		dialog.prefs 	= prt.prefs

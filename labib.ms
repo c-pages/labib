@@ -112,6 +112,8 @@
 			
 			fenetre.actualiser ()
 			
+		actualiserSelections ()
+			
 			fenetre.dialog.SelectionnerTV 	parent
 			
 		),		
