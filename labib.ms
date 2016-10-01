@@ -31,7 +31,7 @@
 	global debug, b_DEBUG = true
 	fn debug 	_txt  var:"" = 	(
 		if b_DEBUG do 
-			format "<biblio>	"
+			format "<Labib>	"
 			if var == "" then 
 				format "%\n" ( _txt  )
 			else 
@@ -140,13 +140,9 @@
 		
 		
 		fn toggleInfos =(
-			if prefs.fenetre.infos then (
-				fenetre.infos.fermer ()
-				prefs.fenetre.infos = false
-			) else (
-				fenetre.infos.ouvrir ()
-				prefs.fenetre.infos = true
-			)
+			if prefs.fenetre.infos 
+				then fenetre.infos.fermer ()
+				else	fenetre.infos.ouvrir ()
 		),
 		
 		
@@ -156,7 +152,7 @@
 		
 		------------ Evenements 	----------------------------------------------------------------------------------
 		on create do 
-			debug "<labib>	creation struture"
+			debug "<LABIB>		creation struture"
 		
 	) -- fin struct labib ----
 	

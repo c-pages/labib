@@ -12,7 +12,7 @@
 	
 ######################################################################################################################## */ 
 	
-
+	
 
 ------------------------------------------------------------------------------
 ------ Rollout ---------------------------------------------------------------
@@ -229,7 +229,7 @@ struct Preference_struct (
 		
 	public	
 		fn enregistrer = (
-			debug "<prefs>	enregistrement"
+			debug "<prefs>		enregistrement"
 			
 			enregistrerDatas  fenetre		"fenetre"
 			enregistrerDatas  apercus		"apercus"
@@ -237,7 +237,7 @@ struct Preference_struct (
 			
 		),
 		fn charger = (
-			debug "<prefs>	chargement"
+			debug "<prefs>		chargement"
 			
 			---- si existe pas on initialise le fichier ----
 			if not doesFileExist fichierPrefs then (
@@ -267,7 +267,7 @@ struct Preference_struct (
 		
 		------------ Les evenements	----------------------------------------------------------------------------------
 		on create do (
-			debug "<prefs>	creation structure"
+			debug "<prefs>		creation structure"
 			charger()
 			
 		)

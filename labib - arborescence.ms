@@ -342,13 +342,13 @@ struct Arborescence_struct (
 	public
 		
 		fn enregistrer 	= (
-			debug "<arbo>	enregistrement"
+			debug "<arbo>		enregistrement"
 			setINISetting   fichier	"params"   "indexUnique"  ( indexUnique as string )
 			ecrireNoeud Root
 		),	
 		
 		fn charger = (
-			debug "<arbo>	chargement"
+			debug "<arbo>		chargement"
 			
 			initialiser()
 			
@@ -665,7 +665,7 @@ struct Arborescence_struct (
 	------------ EVENEMENTS	----------------------------------------------------------------------------------	
 	private
 		on create do (
-			debug "<arbo>	creation struture"
+			debug "<arbo>		creation struture"
 			initialiser ()
 			
 			-- on verifie qu'il existe sinon on creer un vierge ------

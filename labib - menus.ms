@@ -74,10 +74,10 @@ struct menu_struct (
 					menuItem	trier_nbrImports 	"Nombre d'imports"	
 				)
 				seperator sep04
-				subMenu  "Fenêtres" (
+-- 				subMenu  "Fenêtres" (
 					menuItem infos 		"Infos" 			checked:labib.prefs.fenetre.infos
 					menuItem apercus 	"Aperçus" 
-				)
+-- 				)
 				
 				------- les evenements ------------------------------------------				
 				on nouveauDossier 			picked do	labib.nouveauDossier ()				
@@ -153,11 +153,11 @@ struct menu_struct (
 				menuItem menu 			"Menus" 		checked:labib.prefs.fenetre.afficherMenu
 				seperator sep02
 				
-				subMenu "Fenêtres" (
-					menuItem afficherInfos 			"Infos"  				--	checked:( bibliotheque.getInfosOuvert() )
+-- 				subMenu "Fenêtres" (
+					menuItem afficherInfos 			"Infos"  				checked:labib.prefs.fenetre.infos
 					menuItem afficherApercus			"Aperçus" 
 					menuItem afficherPreferences 	"Préferences" 
-				)
+-- 				)
 				seperator sep01
 				menuItem fermer 			"Fermer" 
 				seperator sep03
@@ -177,12 +177,17 @@ struct menu_struct (
 					labib.fenetre.fermer	()
 					labib.fenetre.ouvrir 	()
 				)
+				
+				
+				
+				on afficherInfos				picked do	labib.toggleInfos ()
+				
 				on site 			picked do	labib.ouvrirSiteInternet ()
 			)
 			popUpMenu rcFenetre
 		),
 	---------- evenements ----------------------------
 		on create do 
-			debug "<menu>	creation struture"
+			debug "<menu>		creation struture"
 )
 
