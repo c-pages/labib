@@ -41,8 +41,10 @@ struct prefsFenetre_struct (
 	posBandeau 	= [0,0],	
 	tailleBandeau	= [0,0],		
 	
+	--- mode affichage LV ---
+	affichageLV		=#grandeIcone,
 	
-	infos				=	true,				---- si l'onglet "infos" est ouvert ---
+	infos				=	false,				---- si l'onglet "infos" est ouvert ---
 	edition			=	false,				---- si la fenetre edition est ouverte ---	
 	accroche		=	false,				---- si le mode accroche fenetres est activé --- ( depreciated )
 	isOpen 			= false,
@@ -57,12 +59,14 @@ struct prefsFenetre_struct (
 	
 	---- Couleurs ----
 	-- des rollouts --
-	col_fenetreFond				= color 104  112 131, 	----  ----
+	col_fenetreFond				= color 56  95 120, 	----  ----
+-- 	col_fenetreFond				= color 190 196 212, 	----  ----
 	col_fenetreFore				= color 230  230 230, 	----  ----
 	-- trucs dotnet (LV, TV ) --
 	col_TVLVfond 					= color 160 166 182, 	----  ----
-	col_TVLVfondDossier 		= color 145 151 167, 	----  ----
-	col_TVLVforeDossier 		= color 237 237 237, 	----  ----
+	col_TVLVfondDossier 		= color 167 173 189, 	----  ----
+-- 	col_TVLVforeDossier 		= color 217 217 217, 	----  ----
+	col_TVLVforeDossier 		= color 50 50 50, 	----  ----
 	col_TVLVfondDossierPrt 	= color 130 136 152, 	----  ----
 -- 	col_TVLVfondDossierPrt 	= col_TVLVfondDossier, 	----  ----
 -- 	col_TVLVfondDossierPrt 	= col_TVLVfondDossier, 	----  ----
@@ -70,7 +74,7 @@ struct prefsFenetre_struct (
 	
 	col_TVfore 						= color 255	 255	255, 		----  ----
 
-	col_fondRech 					= col_TVLVfondDossierPrt, 		----  ----
+	col_fondRech 					= color 190 196 212, 		----  ----
 	
 	caseVide		=	"-",
 	

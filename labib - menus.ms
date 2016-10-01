@@ -40,7 +40,11 @@ struct menu_struct (
 					menuItem importerProxy 		"Proxy"					
 				)			
 				seperator sep03				
-				menuItem nouveauDossier 		"Nouveau dossier" 				
+				menuItem nouveauDossier 		"Nouveau dossier"
+				subMenu  "Nouvel Asset" (
+					menuItem nouvelAsset 				"Fichier"
+					menuItem nouvelAssetDossier 	"Dossier"
+				)
 				seperator sep01								
 				menuItem Ourvir 						"Ourvir" 
 				menuItem OurvirExplo 				"Ourvir dans l'explorateur" 
@@ -51,8 +55,12 @@ struct menu_struct (
 				)				
 				seperator sep02
 				subMenu  "Affichage" (
-					menuItem	affichage_liste 		"Liste"						checked:( labib.fenetre.affichageLV == #liste )
-					menuItem 	affichage_appercus	"Appercus"					checked:( labib.fenetre.affichageLV == #apercus )
+					menuItem	affichage_details 			"Détails"						checked:( labib.prefs.fenetre.affichageLV == #details )
+					menuItem	affichage_liste 			"Liste"						checked:( labib.prefs.fenetre.affichageLV == #liste )
+					menuItem 	affichage_GrandeIcone	"Grandes icones"			checked:( labib.prefs.fenetre.affichageLV == #grandeIcone )
+					menuItem 	affichage_petitIcone		"Petites icones"			checked:( labib.prefs.fenetre.affichageLV == #petitIcone )
+					menuItem 	affichage_tuile				"Tuile"						checked:( labib.prefs.fenetre.affichageLV == #tuile )
+					
 					seperator sep20
 					menuItem	afficherDossiers		"Afficher les dossiers"	checked:labib.prefs.fenetre.afficherDossier 
 				)
@@ -67,21 +75,29 @@ struct menu_struct (
 				)
 				seperator sep04
 				subMenu  "Fenêtres" (
-					menuItem infos 		"Infos" 
+					menuItem infos 		"Infos" 			checked:labib.prefs.fenetre.infos
 					menuItem apercus 	"Aperçus" 
 				)
 				
 				------- les evenements ------------------------------------------				
-				on nouveauDossier 		picked do	labib.nouveauDossier ()		
+				on nouveauDossier 			picked do	labib.nouveauDossier ()				
+				on nouvelAsset 				picked do	labib.nouvelAsset ()				
+				on nouvelAssetDossier 		picked do	labib.nouvelAssetDossier ()	
 				
 				on supprimer 				picked do 	labib.supprimer 	labib.fenetre.selectionElements
 					
-				on affichage_liste 		picked do	labib.fenetre.definirAffichage  #liste
-				on affichage_appercus 	picked do	labib.fenetre.definirAffichage  #apercus
+				on affichage_details 			picked do	labib.fenetre.definirAffichage  #details
+				on affichage_liste				picked do	labib.fenetre.definirAffichage  #liste
+				on affichage_GrandeIcone		picked do	labib.fenetre.definirAffichage  #grandeIcone
+				on affichage_petitIcone		picked do	labib.fenetre.definirAffichage  #petitIcone
+				on affichage_tuile				picked do	labib.fenetre.definirAffichage  #tuile
+				
 				on afficherDossiers 		picked do 	(
 					labib.prefs.fenetre.afficherDossier = not labib.prefs.fenetre.afficherDossier
 					labib.fenetre.actualiser ()
 				)
+				
+				on infos				picked do	labib.toggleInfos ()
 			
 			)
 			

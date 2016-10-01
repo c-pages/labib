@@ -43,7 +43,7 @@
 	
 	
 -- 	---- la structure principale ----
--- 	global labib
+	global labib
 	
 	----  Le dossier du script  ----
 	local nomDossierScript = "labib"
@@ -96,17 +96,39 @@
 			fenetre.dialog.selectionnerLV		#( nouveauNoeud )
 			
 		),
-		fn nouvelAsset =(),		
+		fn nouvelAsset =(
+			
+			debug "nouvelAsset..."
+			local	fichierSource = 	getOpenFileName  	caption:				"Fichier source du nouvel asset" \
+																		types:				"model (*.max)|*.max|All Files (*.*)|*.*|"	\
+																		historyCategory:	"labib"	/* \
+																		filename:elemSelect[1].fichier  */
+			
+			if 	fichierSource != undefined  do (
+				debug "Importer " var:fichierSource
+				local nouvelElement = arbo.creerElement  	nom:(getFilenameFile	fichierSource) \
+																			parent:fenetre.selectionNoeud  			\
+																			fichier:fichierSource							\
+																			apercu:""	\
+																			tags:""	\
+																			type:#vide	
+				arbo.enregistrer ()
+				fenetre.actualiser ()			
+				fenetre.dialog.SelectionnerLV 	nouvelElement
+				debug "nouvelAsset Créé."
+				
+			)
+			
+		),		
 		fn nouvelAssetDossier =(),
 		fn supprimer _noeudsArbo	=(
+			
 			local parent = _noeudsArbo[1].parent
 			arbo.supprimer _noeudsArbo
 			arbo.enregistrer ()
 			
-			fenetre.actualiser ()
-			
-		actualiserSelections ()
-			
+			fenetre.actualiser ()			
+			fenetre.dialog.actualiserSelections ()			
 			fenetre.dialog.SelectionnerTV 	parent
 			
 		),		
@@ -117,7 +139,18 @@
 		
 		
 		
+		fn toggleInfos =(
+			if prefs.fenetre.infos then (
+				fenetre.infos.fermer ()
+				prefs.fenetre.infos = false
+			) else (
+				fenetre.infos.ouvrir ()
+				prefs.fenetre.infos = true
+			)
+		),
 		
+		
+		--- la fenetre ----
 		fn ouvrir 	= fenetre.ouvrir(),
 		fn fermer 	= fenetre.fermer(),
 		
@@ -133,7 +166,8 @@
 	-----------------------------------------
 	----- Création de la structure principale -------
 	-----------------------------------------
-	labib = labib_struct ()
+	labib_struct ()
+	
 	
 )
 

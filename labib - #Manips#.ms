@@ -6,9 +6,9 @@
 -- 
 clearlistener ()
  
-labib = undefined
-fileIn ("$userScripts\labib\labib.ms" )
-labib.fenetre.ouvrir ()
+-- labib = undefined
+-- fileIn ("$userScripts\labib\labib.ms" )
+-- labib.fenetre.ouvrir ()
 
 /* 
 SetDialogPos m_rollPrincipal 	[0,0]
@@ -39,8 +39,9 @@ elem1.nbrVertex =123
 elem2.nbrVertex =456
 labib.arbo.enregistrer ()
 
-
+labib.fenetre.infos.ouvrir ()
  */
+destroydialog labib.fenetre.infos.dialog
 
 -- labiblio.fenetre.dialog.actualiser()
 
@@ -50,7 +51,7 @@ format "\n----------------------------------------------------------------------
 
 
 /* 
-
+Form.KeyPreview = true <-
 try labib.fenetre.fermer () catch ()
 
 
@@ -79,6 +80,10 @@ labib.prefs.charger()
 ExpandAll
 EnsureVisible
 
+show ( dotnetclass  "System.Windows.Forms.view" )
+ (dotNetClass "system.windows.forms.view").details
+show	 labib.fenetre.dialog.ui_tags
+showmethods	 labib.fenetre.dialog.ui_tags
 
 labib.prefs.enregistrer ()
 
@@ -87,7 +92,11 @@ labib.fenetre.dialog.selectionnerTV  labib.arbo.root
 
 labib.fenetre.dialog.ui_btnFermer.opacity = 0
 
-show	 labib.fenetre.dialog.ui_TV.nodes.item[0].IsExpanded
+showmethods	 labib.fenetre.dialog.ui_recherche
+show	 labib.fenetre.dialog.ui_recherche
+show	 
+labib.fenetre.dialog.ui_recherche.AcceptsTab =true
+labib.fenetre.dialog.ui_recherche.Acceptsescape =true
 
 recherche = labib.arbo.getParNomUnique "RECHERCHE"
 size = (dotnetclass "System.Drawing.Size").empty

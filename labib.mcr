@@ -1,14 +1,18 @@
-macroScript Labib
+
+
+	try labib.fenetre.fermer () catch ()
+	Global 	labib = fileIn "$userScripts\labib\labib.ms" 
+	
+	
+macroScript labib
 category:"#CPages"
 toolTip:""
 (
 	
-	Global 	labib = undefined
-	
 	on execute do 	(
 		
-		if labib == undefined then 
-			fileIn "$userScripts\labib\labib.ms"
+-- 		if labib == undefined then 
+-- 			labib =	
 		
 		if labib.fenetre.estOuverte then	(
 			labib.fermer	()
