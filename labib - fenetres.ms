@@ -60,8 +60,8 @@
 		
 	)
 	
-	
-	
+
+
 	
 ------------------------------------------------------------------------------
 ----------	Le rollout principale ------------------------------------------
@@ -124,7 +124,7 @@ rollout m_rollPrincipal "labib"  (
 	
 	
 	------------ MEMBRES	----------------------------------------------------------------------------------
-
+	local tailleRolloutCreation =  [1200 , 500 ]
 	
 	---- Pointeurs ----
 	local prt		---- pointeur vers le struct fenetre  parent----
@@ -134,28 +134,26 @@ rollout m_rollPrincipal "labib"  (
 	local menu		---- pointeur vers le struct menu ----
 	
 	---- geometrie ----
-	local tailleRolloutCreation =  [1200 , 500 ]
 	local ecartUI			= 19		----  ----
 	local ecartUISimple	= 1		----  ----
 	
 	---- TV l'arborescence ----
 	local listeNoeudsTV 		= #()	---- la liste total de tout les noeud de l'arbo
-	
-	--- les slide ---
-	local slide_H_encours 			= false
-	local slide_V_encours 			= false
-	local slide_H_OrigineSouris 	= [0,0]
-	local slide_H_OrigineSlide 		= [0,0]
-	local slide_V_OrigineSouris  	= [0,0]
-	local slide_V_OrigineSlide 		= [0,0]
-	
-	local bmp_sliders = bitmap 20 20 color:(color 56  95 120 ) gamma: 0.45
 
-
+	local drag
+	
 	------------ L'UI	----------------------------------------------------------------------------------		
 	
-	local posInitialSliders = [200, tailleRolloutCreation.y - 100]
-	
+	---- les boutons virtuels ----
+	-- Bouton virtuel Slider Horizontal---
+	local 	uiV_slider_H  = uiV_struct		 			pos:			[200, ecartUI] \
+																				width:		ecartUI	\
+																				height: 		( tailleRolloutCreation.y - 2 *ecartUI ) 
+																				
+	-- Bouton virtuel Slider Vertical---
+	local 	uiV_slider_V  = uiV_struct		 			pos:			[ecartUI, tailleRolloutCreation.y - 100 ] \
+																				width:		( uiV_slider_H.pos.x )	\
+																				height: 		ecartUI		
 	-- Bouton virtuel Drag ---
 	local 	uiV_Drag  = uiVCreux_struct 				pos:			[0, 0 ] \
 																				width:		tailleRolloutCreation.x	\
@@ -163,58 +161,27 @@ rollout m_rollPrincipal "labib"  (
 																				epaisseur:	ecartUI	
 																				
 	
-	imgTag 	ui_slider_V 							""					pos:			[ecartUI, posInitialSliders.y ]	\
-																				width:		( posInitialSliders.x	- ecartUI ) \
-																				height: 		ecartUI \
-																				visible:		true \
-																				border:		false \
-																				bitmap:	 bmp_sliders  \
-																				style:		#bmp_tile
-																				
-	imgTag 	ui_slider_H	 						""					pos:			[posInitialSliders.x , ecartUI]		\
-																				width:		ecartUI	\
-																				height: 		( ui_slider_V.pos.y - ecartUI ) 	\
-																				visible:		true \
-																				border:		false \
-																				bitmap:	bmp_sliders \
-																				style:		#bmp_tile
-																				
-	imgTag 	ui_slider_HV 						""					pos:			[ ui_slider_H.pos.x, ui_slider_V.pos.y ]		\
-																				width:		ecartUI	\
-																				height: 		ecartUI 	\
-																				visible:		true \
-																				border:		false \
-																				bitmap:	bmp_sliders \
-																				style:		#bmp_tile
-																				
-	imgTag 	ui_slider_H1 						""					pos:			[ ui_slider_H.pos.x, ui_slider_V.pos.y + ecartUI ]		\
-																				width:		ecartUI	\
-																				height: 		( tailleRolloutCreation.y - ( ui_slider_V.pos.y + ecartUI) ) \
-																				visible:		true \
-																				border:		false \
-																				bitmap:	bmp_sliders \
-																				style:		#bmp_tile
 	
 	---- les boutons maxscripts ----	
 	-- le TreeView (TV) arborescence --
 	dotNetControl 	ui_TV 						"TreeView" 		pos:			[ecartUI ,ecartUI]	\	-- [ ecartUI , 	ui_recherche.pos.y + ui_recherche.height  + ecartUI ]	\
-																				width:		ui_slider_V.width	\
+																				width:		uiV_slider_V.width	\
 																				height:		0 		
 																				
 
 	-- la recherche des tags --
-	dotNetControl 			ui_recherche 		"TextBox"	 	pos:			[ ecartUI , 	ui_slider_V.pos.y + ui_slider_V.height   ]  \
-																				width:		ui_slider_V.width \
+	dotNetControl 			ui_recherche 		"TextBox"	 	pos:			[ ecartUI , 	uiV_slider_V.pos.y + uiV_slider_V.height   ]  \
+																				width:		uiV_slider_V.width \
 																				border:		false	\
 																				height:		0 -- 17		 
 	
 	-- la liste des tags --
 	dotNetControl 	ui_tags	"system.windows.forms.listView" 	pos:			( ui_recherche.pos + [0,ui_recherche.height  + ecartUISimple ] ) \
-																				width:		ui_slider_V.width  \
+																				width:		uiV_slider_V.width  \
 																				height:	 0 --	( ( tailleRolloutCreation.y - ( ui_recherche.pos.y + ui_recherche.height +  ecartUI  + ecartUISimple ) ) / 13 ) 	
 	
 	-- la ListView (LV) pour le cointenu des noeud (apercus) --
-	dotNetControl 	ui_LV "system.windows.forms.listView" pos:			[ ui_slider_H.pos.x + ecartUI , ecartUI ] \
+	dotNetControl 	ui_LV "system.windows.forms.listView" pos:			[ uiV_slider_H.pos.x + uiV_slider_H.width, ecartUI ] \
 																				width:		0 \
 																				height:		( tailleRolloutCreation.y - 2* ecartUI ) \
 																				border:		false
@@ -228,8 +195,21 @@ rollout m_rollPrincipal "labib"  (
 																				visible:		false
 												
 	
-	
-																				
+	/* 
+	bitmap 	ui_bmpBarre_V 											pos:			uiV_slider_V.pos	\
+																				width:		uiV_slider_V.width	\
+																				height: 		uiV_slider_V.height \
+																				visible:		false \
+																				border:		false
+-- 																				bitmap:		bmp_BarresSliders	\
+																		
+	bitmap 	ui_bmpBarre_H 											pos:			uiV_slider_H.pos	\
+																				width:		uiV_slider_H.width	\
+																				height: 		uiV_slider_H.height\
+																				visible:		false \
+																				border:		false
+-- 																				bitmap:		bmp_BarresSliders	\
+																				 */
 	------------  FONCTIONS	----------------------------------------------------------------------------------	
 	-----tags ----
 	fn ajouterTags 	_tag 	&tagsAAfficher 	=(
@@ -426,8 +406,6 @@ rollout m_rollPrincipal "labib"  (
 	)	
 	fn changerAffichageLV	_affichage 	= (
 		
-		debug "<fenetre>	changerAffichageLV"
-		
 		prefs.fenetre.affichageLV = _affichage
 		
 		ui_LV.columns.clear ()
@@ -613,7 +591,8 @@ rollout m_rollPrincipal "labib"  (
 		
 	)
 	
-
+	
+	
 	
 	-------- Le rollout --------
 	fn recomposerFenetre 				= (
@@ -628,44 +607,37 @@ rollout m_rollPrincipal "labib"  (
 		if prefs.fenetre.sliderFermer_V 
 			then max_V	= tailleRollout.y - ( 1* ecartUI ) 
 			else max_V	= tailleRollout.y - ( 2* ecartUI + ui_recherche.height )
-		
-		if ui_slider_H.pos.x  >max_H 	do	
-			ui_slider_H.pos.x = 	max_H
-		if ui_slider_H.pos.x < min_H  	do 	
-			ui_slider_H.pos.x =  	min_H		
-		if ui_slider_V.pos.y > max_V 	do 	
-			ui_slider_V.pos.y = 	max_V	
-		if ui_slider_V.pos.y < min_V  	do 	
-			ui_slider_V.pos.y = 	min_V
+		if uiV_slider_H.pos.x  >max_H 	do	uiV_slider_H.pos.x = 	max_H
+		if uiV_slider_H.pos.x < min_H  	do 	uiV_slider_H.pos.x =  	min_H		
+		if uiV_slider_V.pos.y > max_V 	do 	uiV_slider_V.pos.y = 	max_V	
+		if uiV_slider_V.pos.y < min_V  	do 	uiV_slider_V.pos.y = 	min_V
 		
 		---- les virtuels -----
-		ui_slider_H.height		= ui_slider_V.pos.y - 1* ecartUI		
-		ui_slider_V.width			= ui_slider_H.pos.x - 1* ecartUI		
-		
-		ui_slider_HV.pos 			= [ ui_slider_H.pos.x, ui_slider_V.pos.y ]	
-		
-		ui_slider_H1.pos 			=	ui_slider_HV.pos - [ 0 , ecartUI ]
-		ui_slider_H1.height 	= tailleRollout.y - (	ui_slider_H1.pos.y - ecartUI	)
-
-		
-		
+		uiV_slider_H.height	= tailleRollout.y - 2* ecartUI		
+		uiV_slider_V.width	= uiV_slider_H.pos.x 
 		uiV_Drag.width	= tailleRollout.x
 		uiV_Drag.height	= tailleRollout.y
 		
 		---- les autres -----
 		
-		ui_TV.width 				= ui_slider_V.width
-		ui_TV.height 			= ui_slider_V.pos.y - ecartUI
+		ui_TV.width 				= uiV_slider_V.width- ecartUI
+		ui_TV.height 				= uiV_slider_V.pos.y - ecartUI
 		
-		ui_recherche.pos	= [ ecartUI , 	ui_slider_V.pos.y + ui_slider_V.height  ]
-		ui_recherche.width = ui_slider_V.width
-				
+		ui_recherche.pos	= [ ecartUI , 	uiV_slider_V.pos.y + uiV_slider_V.height  ]
+		ui_recherche.width = uiV_slider_V.width- ecartUI
+		
+		
+-- 		local tailleMaxRech = 17
+-- 		if ui_recherche.pos.y < tailleRollout.y - ( tailleMaxRech + ecartUI ) 
+-- 			then	ui_recherche.height = tailleMaxRech
+-- 			else	ui_recherche.height = tailleRollout.y - ( tailleMaxRech + ecartUI  + ui_recherche.pos.y) 
+		
 		ui_tags.pos 		= ui_recherche.pos + [0,ui_recherche.height  + ecartUISimple ]
-		ui_tags.width 		= ui_slider_V.width
+		ui_tags.width 		= uiV_slider_V.width- ecartUI
 		ui_tags.height		= tailleRollout.y - ( ui_recherche.pos.y + ui_recherche.height +  ecartUI + ecartUISimple )
 		
-		ui_LV.pos					= [ui_slider_H.pos.x + ui_slider_H.width, ecartUI ]
-		ui_LV.width					= tailleRollout.x - ( ui_slider_H.pos.x + ui_slider_H.width +  ecartUI )
+		ui_LV.pos					= [uiV_slider_H.pos.x + uiV_slider_H.width, ecartUI ]
+		ui_LV.width					= tailleRollout.x - ( uiV_slider_H.pos.x + uiV_slider_H.width +  ecartUI )
 		ui_LV.height				= tailleRollout.y - 2* ecartUI
 		
 		ui_btnFermer.pos			= [ tailleRollout.x - 1 *ecartUI	, 0 ]
@@ -692,8 +664,8 @@ rollout m_rollPrincipal "labib"  (
 		
 		-- on laisse les tags à la meme taille --
 		if not prefs.fenetre.sliderFermer_V 
-			then	ui_slider_V.pos.y = _taille.y - ( ui_recherche.height + ecartUISimple +  ui_tags.height + 2 * ecartUI )
-			else 	ui_slider_V.pos.y = _taille.y - ecartUI
+			then	uiV_slider_V.pos.y = _taille.y - ( ui_recherche.height + ecartUISimple +  ui_tags.height + 2 * ecartUI )
+			else 	uiV_slider_V.pos.y = _taille.y - ecartUI
 		recomposerFenetre()
 		
 		
@@ -718,33 +690,29 @@ rollout m_rollPrincipal "labib"  (
 	)
 	fn initialiser 							= (
 
-		debug "<fenetre>	initialiser"
+		
 -- 		--- le focus ----		
 -- 		listeFocus = #( ui_TV, ui_LV, ui_recherche, ui_tags )
 		
 		---- la couleur des barres ----
--- 		local bmp_BarresSliders = bitmap 20 20 color:prefs.fenetre.col_fenetreFond
-
-		
-			debug "<fenetre>	ui_slider_H.pos.x " var:ui_slider_H.pos
-			debug "<fenetre>	prefs.fenetre.posSlider_H " var:prefs.fenetre.posSlider_H
+		local bmp_BarresSliders = bitmap 20 20 color:prefs.fenetre.col_fenetreFond
+-- 		ui_bmpBarre_V.bitmap = bmp_BarresSliders
+-- 		ui_bmpBarre_H.bitmap = bmp_BarresSliders
 		
 		--- position initial des lsiders ---
 		if not prefs.fenetre.sliderFermer_H  then (
-			
-			
-			ui_slider_H.pos.x 			= prefs.fenetre.posSlider_H
+			uiV_slider_H.pos.x 			= prefs.fenetre.posSlider_H
 		) else (
-			prefs.fenetre.posSlider_H	 	= ui_slider_H.pos.x 
-			ui_slider_H.pos.x  			= 0
+			prefs.fenetre.posSlider_H	 	= uiV_slider_H.pos.x 
+			uiV_slider_H.pos.x  			= 0
 		)
 		local posMax 			= m_rollPrincipal.height - ecartUI
 		
 		if not prefs.fenetre.sliderFermer_V  then (
-			ui_slider_V.pos.y 			= prefs.fenetre.posSlider_V
+			uiV_slider_V.pos.y 			= prefs.fenetre.posSlider_V
 		) else (
-			prefs.fenetre.posSlider_V 		= ui_slider_V.pos.y 
-			ui_slider_V.pos.y  			= posMax
+			prefs.fenetre.posSlider_V 		= uiV_slider_V.pos.y 
+			uiV_slider_V.pos.y  			= posMax
 		)
 		
 		
@@ -965,11 +933,11 @@ rollout m_rollPrincipal "labib"  (
 	fn toggleSlider_H =(
 		
 			if prefs.fenetre.sliderFermer_H  then (
-				ui_slider_H.pos.x 			= prefs.fenetre.posSlider_H
+				uiV_slider_H.pos.x 			= prefs.fenetre.posSlider_H
 				prefs.fenetre.sliderFermer_H 	= false
 			) else (
-				prefs.fenetre.posSlider_H	 	= ui_slider_H.pos.x 
-				ui_slider_H.pos.x  			= 0
+				prefs.fenetre.posSlider_H	 	= uiV_slider_H.pos.x 
+				uiV_slider_H.pos.x  			= 0
 				prefs.fenetre.sliderFermer_H 	= true
 			)
 			recomposerFenetre ()
@@ -979,87 +947,64 @@ rollout m_rollPrincipal "labib"  (
 			local posMax 			= m_rollPrincipal.height - ecartUI
 			
 			if prefs.fenetre.sliderFermer_V  then (
-				ui_slider_V.pos.y 			= prefs.fenetre.posSlider_V
+				uiV_slider_V.pos.y 			= prefs.fenetre.posSlider_V
 				prefs.fenetre.sliderFermer_V 	= false
 			) else (
-				prefs.fenetre.posSlider_V 		= ui_slider_V.pos.y 
-				ui_slider_V.pos.y  			= posMax
+				prefs.fenetre.posSlider_V 		= uiV_slider_V.pos.y 
+				uiV_slider_V.pos.y  			= posMax
 				prefs.fenetre.sliderFermer_V 	= true
 			)
 			recomposerFenetre ()
 	)
 	
 	
+	
 	-------- souris pour  bouton virtuel ( sliders )  --------
 	fn sourisSeDeplace 	_pos 	= (
 		
-		if slide_H_encours then (
-			local ecart = ( mouse.screenpos .x - slide_H_OrigineSouris.x )
-			ui_slider_H.pos +=  [ ecart , 0 ]			
-			recomposerFenetre()
-			prefs.fenetre.posSlider_H = ui_slider_H.pos.x
-		) else 
-		if slide_V_encours  do (
-			local ecart = ( mouse.screenpos .y - slide_H_OrigineSouris.y )
-			ui_slider_V.pos +=  [ 0 , ecart ]			
-			recomposerFenetre()
-			prefs.fenetre.posSlider_V = ui_slider_V.pos.y
-		)
 		-- gestion curseur souris au survol --		
--- 		if ui_slider_H.survole _pos or ui_slider_V.survole _pos /* or uiV_drag.survole _pos */ then 
--- 			setSysCur #move
--- 		else setArrowCursor ()
+		if uiV_slider_H.survole _pos or uiV_slider_V.survole _pos /* or uiV_drag.survole _pos */ then 
+			setSysCur #move
+		else setArrowCursor ()
 		
 -- 		debug "uiV_drag.survole " var:(uiV_drag.survole _pos )
 		
-		/* --------- les boutons virtuels -------
-		
-		
-		
-	local slide_H_OrigineSouris 	= [0,0]
-	local slide_H_OrigineSlide 		= [0,0]
-	local slide_V_OrigineSouris  	= [0,0]
-	local slide_V_OrigineSlide 		= [0,0]
-		
-		
-		
+		--------- les boutons virtuels -------
 		-- sliders --
-		if not prefs.fenetre.sliderFermer_H and ui_slider_H.pressed  do (			
-			local ecart = ( _pos.x - ui_slider_H.posPress.x )
-			ui_slider_H.bouge [ ecart , 0 ]			
-			ui_bmpBarre_H.pos 		= ui_slider_H.pos
-			ui_bmpBarre_H.height 	= ui_slider_H.height
+		if not prefs.fenetre.sliderFermer_H and uiV_slider_H.pressed  do (			
+			local ecart = ( _pos.x - uiV_slider_H.posPress.x )
+			uiV_slider_H.bouge [ ecart , 0 ]			
+-- 			ui_bmpBarre_H.pos 		= uiV_slider_H.pos
+-- 			ui_bmpBarre_H.height 	= uiV_slider_H.height
 			recomposerFenetre()
-			prefs.fenetre.posSlider_H = ui_slider_H.pos.x
+			prefs.fenetre.posSlider_H = uiV_slider_H.pos.x
 		)
-		if not prefs.fenetre.sliderFermer_V and ui_slider_V.pressed  do (			
-			local ecart = ( _pos.y - ui_slider_V.posPress.y )
-			ui_slider_V.bouge [ 0 , ecart ]			
-			ui_bmpBarre_V.pos 		= ui_slider_V.pos
-			ui_bmpBarre_V.width 	= ui_slider_H.width
+		if not prefs.fenetre.sliderFermer_V and uiV_slider_V.pressed  do (			
+			local ecart = ( _pos.y - uiV_slider_V.posPress.y )
+			uiV_slider_V.bouge [ 0 , ecart ]			
+-- 			ui_bmpBarre_V.pos 		= uiV_slider_V.pos
+-- 			ui_bmpBarre_V.width 	= uiV_slider_H.width
 			recomposerFenetre()
-			prefs.fenetre.posSlider_V = ui_slider_V.pos.y
-		) */
-		
+			prefs.fenetre.posSlider_V = uiV_slider_V.pos.y
+		)
 		-- drag --
-		if not prefs.fenetre.pleinEcran  and not prefs.fenetre.bandeau  and uiV_drag.pressed  do (			
-			local ecart = ( mouse.screenpos  - uiV_drag.posPress )
-			SetDialogPos  m_rollPrincipal	( uiV_drag.posOrigine + ecart )
-		)
+-- 		if not prefs.fenetre.pleinEcran  and not prefs.fenetre.bandeau  and uiV_drag.pressed  do (			
+-- 			local ecart = ( mouse.screenpos  - uiV_drag.posPress )
+-- 			SetDialogPos  m_rollPrincipal	( uiV_drag.posOrigine + ecart )
+-- 		)
 	)
 	fn sourisDblClique		_pos 	= (
 		
 		local tailleBureau = sysInfo.desktopSize
 		debug "sourisDblClique"
-		/* ---- Slider horizontal ----
-		if ui_slider_H.survole _pos  then 
+		---- Slider horizontal ----
+		if uiV_slider_H.survole _pos  then 
 			toggleSlider_H ()
 		---- Slider Vertical ----
-		else if ui_slider_V.survole _pos then 
+		else if uiV_slider_V.survole _pos then 
 			toggleSlider_V ()
 		---- drag ----
-		else  */
-		if uiV_drag.survole _pos do (
+		else  (
 			
 			local rollPos 			= getDialogPos m_rollPrincipal			
 			local posAgrandi 		= [0,0]			
@@ -1098,32 +1043,79 @@ rollout m_rollPrincipal "labib"  (
 		
 		-- on regarde si on clique sur un bouton virtuel --
 		local survolSlide = false
-		/* if ui_slider_H.survole _pos do (
-			ui_slider_H.pressed 		= true
-			ui_slider_H.posPress 		= _pos
-			ui_slider_H.posOrigine 	= ui_slider_H.pos
+		if uiV_slider_H.survole _pos do (
+			uiV_slider_H.pressed 		= true
+			uiV_slider_H.posPress 		= _pos
+			uiV_slider_H.posOrigine 	= uiV_slider_H.pos
 			survolSlide = true
-			ui_bmpBarre_H.visible 	= true
+-- 			ui_bmpBarre_H.visible 	= true
 		)	
-		if ui_slider_V.survole _pos do (
-			ui_slider_V.pressed 		= true
-			ui_slider_V.posPress 		= _pos
-			ui_slider_V.posOrigine 	= ui_slider_V.pos
+		if uiV_slider_V.survole _pos do (
+			uiV_slider_V.pressed 		= true
+			uiV_slider_V.posPress 		= _pos
+			uiV_slider_V.posOrigine 	= uiV_slider_V.pos
 			survolSlide = true
-			ui_bmpBarre_V.visible 	= true
-		)  */
-		
-		if not survolSlide and uiV_drag.survole 	_pos do (
-			
-			
-			uiV_drag.pressed 		= true
-			uiV_drag.posPress 		= mouse.screenpos 
-			uiV_drag.posOrigine 		= GetDialogPos 	m_rollPrincipal
+-- 			ui_bmpBarre_V.visible 	= true
 		) 
 		
+-- 		if not survolSlide and uiV_drag.survole 	_pos do (
+-- 			
+-- 			
+-- 			uiV_drag.pressed 		= true
+-- 			uiV_drag.posPress 		= mouse.screenpos 
+-- 			uiV_drag.posOrigine 		= GetDialogPos 	m_rollPrincipal
+-- 		) 
+		
 	)
+	
+	fn accrocherBandeau =(
+		
+			local tailleBureau = sysInfo.desktopSize
+			
+			local larg_bandeauH = 117 + 2*ecartUI
+			local larg_bandeauV = 75 + 2*ecartUI
+			
+			---- plaquer la fenetre à gauche --
+			if mouse.screenpos.x == 0 do (
+				prefs.fenetre.bandeau = true
+			-- retour taille et pos normal si plein ecran ou bandeau -- = true
+				SetDialogPos m_rollPrincipal [0,0]
+				m_rollPrincipal.width 	= larg_bandeauH
+				m_rollPrincipal.height 	= tailleBureau.y - 43
+			)
+			
+			---- plaquer la fenetre à droite --
+			if mouse.screenpos.x == tailleBureau.x - 1 do (
+				prefs.fenetre.bandeau = true
+				SetDialogPos m_rollPrincipal [tailleBureau.x - larg_bandeauH - 14 ,0]
+				m_rollPrincipal.width 	= larg_bandeauH
+				m_rollPrincipal.height 	= tailleBureau.y - 15
+			)
+			
+			---- plaquer la fenetre en haut --
+			if mouse.screenpos.y == 0 do (
+				prefs.fenetre.bandeau = true
+				posX = if mouse.screenpos.x <tailleBureau.x /2 then 0 else tailleBureau.x /2
+				SetDialogPos m_rollPrincipal [posX ,0]
+				m_rollPrincipal.width 	= tailleBureau.x /2 - 15
+				m_rollPrincipal.height 	= larg_bandeauv
+			)
+			---- plaquer la fenetre en bas --
+			if mouse.screenpos.y == tailleBureau.y - 1 do (
+				prefs.fenetre.bandeau = true
+				posX = if mouse.screenpos.x <tailleBureau.x /2 then 0 else tailleBureau.x /2
+				SetDialogPos m_rollPrincipal [ posX , tailleBureau.y - larg_bandeauv  - 43 ]
+				m_rollPrincipal.width 	= tailleBureau.x /2 - 15
+				m_rollPrincipal.height 	= larg_bandeauv
+			)
+			--- position bandeau stocké ---
+			prefs.fenetre.posBandeau 	= getDialogPos m_rollPrincipal	
+			prefs.fenetre.tailleBandeau	= [m_rollPrincipal.width, m_rollPrincipal.height ]
+		
+	)
+	
 	fn sourisRelache 		_pos 	= ( 
-		if uiV_drag.pressed do (
+		if drag.enCours do (
 			
 			local tailleBureau = sysInfo.desktopSize
 			
@@ -1169,35 +1161,19 @@ rollout m_rollPrincipal "labib"  (
 			prefs.fenetre.posBandeau 	= getDialogPos m_rollPrincipal	
 			prefs.fenetre.tailleBandeau	= [m_rollPrincipal.width, m_rollPrincipal.height ]
 		)
-		/* 
-		ui_slider_H.pressed 	= false	
-		ui_slider_V.pressed 	= false */
-		uiV_drag.pressed 		= false	
 		
+		uiV_slider_H.pressed 	= false	
+		uiV_slider_V.pressed 	= false
+-- 		uiV_drag.pressed 		= false	
+		
+-- 		ui_bmpBarre_V.visible 	= false
+-- 		ui_bmpBarre_H.visible 	= false
 		
 	)
 	
 		
 	
 		
-	fn demarrerSlideV =(
-		debug "start slide V"
-		slide_V_encours = true
-		slide_V_OrigineSouris  	= mouse.screenpos 
-		slide_V_OrigineSlide 		= GetDialogPos 	m_rollPrincipal
-		
-	)
-	fn demarrerSlideH =(
-		debug "start slide H"
-		slide_H_encours = true
-		slide_H_OrigineSouris 	= mouse.screenpos 
-		slide_H_OrigineSlide 		= GetDialogPos 	m_rollPrincipal
-	)
-	fn arreterSlides =(
-		debug "arreter slides"
-		slide_V_encours = false
-		slide_H_encours = false
-	)
 	
 	
 	
@@ -1215,9 +1191,18 @@ rollout m_rollPrincipal "labib"  (
 	)
 	
 	---- les boutons virtuels ----
-	on m_rollPrincipal lbuttondown 	pos 	do sourisClique 		pos 
-	on m_rollPrincipal lbuttonup	 	pos 	do sourisRelache 		pos 
-	on m_rollPrincipal mousemove 	pos 	do sourisSeDeplace 	pos 
+	on m_rollPrincipal lbuttondown 	pos 	do (
+		drag.demarrer ()
+		sourisClique 		pos 
+	)
+	on m_rollPrincipal lbuttonup	 	pos 	do (
+		drag.arreter ()
+		sourisRelache 		pos 
+	)
+	on m_rollPrincipal mousemove 	pos 	do (
+		drag.suivreSouris ()
+		sourisSeDeplace 	pos 
+	)
 	on m_rollPrincipal lbuttondblclk  	pos 	do sourisDblClique 	pos 
 	on m_rollPrincipal rbuttondown  	pos 	do menu.fenetre		 ()
 	
@@ -1267,25 +1252,10 @@ rollout m_rollPrincipal "labib"  (
 	
 	---- bouton fermer -----
 	-- comportement --
-	on 	ui_btnFermer	mouseover 		do	ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_S
-	on 	ui_btnFermer	mouseout 		do 	ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_R
-	on 	ui_btnFermer	mousedown 	do 	ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_P
-	on 	ui_btnFermer	mouseup			do 	ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_S
-	
-	
-	on 	ui_slider_H 		mousedown 	do 	demarrerSlideH ()
-	on 	ui_slider_H1 	mousedown 	do 	demarrerSlideH ()
-	on 	ui_slider_V 		mousedown 	do 	demarrerSlideH ()
-	on 	ui_slider_HV 	mousedown 	do 	( 
-		demarrerSlideH ()
-		demarrerSlideV()
-	)
-	
-	on 	ui_slider_H 		mouseup 		do 	arreterSlides ()
-	on 	ui_slider_HV 	mouseup 		do 	arreterSlides ()
-	on 	ui_slider_H1 	mouseup 		do 	arreterSlides ()
-	on 	ui_slider_V 		mouseup 		do 	arreterSlides ()
-	
+	on 	ui_btnFermer	mouseover 	do ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_S
+	on 	ui_btnFermer	mouseout 	do ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_R
+	on 	ui_btnFermer	mousedown do ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_P
+	on 	ui_btnFermer	mouseup	do ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_S
 	-- action --
 	on 	ui_btnFermer 	click 			do prt.fermer()
 
@@ -1372,12 +1342,14 @@ struct Fenetre_struct (
 		dialog.arbo 		= prt.arbo
 		dialog.prefs 	= prt.prefs
 		dialog.menu	= prt.menu
-		dialog.prt 		= this		
+		dialog.prt 		= prt.fenetre
 		
-		
-		dialog.initialiser ()
+		-- pour les drags --
+		dialog.drag 		= drag_struct 	fenetre:dialog
 		
 		dialog.changerAffichageLV  	prt.prefs.fenetre.affichageLV
+		
+		dialog.initialiser ()
 		
 	),
 	fn fermer = (

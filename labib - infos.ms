@@ -1,18 +1,17 @@
 
+
+
+
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 ----------	Le rollout des infos  ---------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 rollout m_rollInfos "Infos" width:346 height:262
 (
 	------------  MEMBRES	----------------------------------------------------------------------------------
-	local ui_listBtns_infos	= #()
 	local prt
 	
 	-- drag --
-	local drg_enCours 				= false
-	local drg_posOrigineSouris 	= [0,0]
-	local drg_posOrigineFenetre 	= [0,0]
-	
+	local drag
 	
 	------------  UI	----------------------------------------------------------------------------------
 	label ui_lblNom "Nom : " pos:[20,20] width:36 height:17
@@ -53,26 +52,6 @@ rollout m_rollInfos "Infos" width:346 height:262
 	ImgTag ui_btnFermer "X" pos:[326,0] width:20 height:20 toolTip:"Fermer" style:#bmp_center
 	
 	------------  FONCTION	----------------------------------------------------------------------------------
-	fn sourisClique 		pos 	=(
-		debug "clique"
-		-- drag --
-		drg_enCours 				= true
-		drg_posOrigineSouris		= mouse.screenpos 
-		drg_posOrigineFenetre 	= GetDialogPos 	m_rollInfos
-	)
-	fn sourisRelache 		pos  	=(
-		drg_enCours 				= false
-	)
-	fn sourisSeDeplace 	pos  	=(
-		if drg_enCours  do (			
-			local ecart = ( mouse.screenpos  - drg_posOrigineSouris )
-			SetDialogPos  m_rollInfos	( drg_posOrigineFenetre + ecart )
-		)
-	)
-	
-	
-	
-	
 	fn initialiser = (
 		ui_btnFermer.bitmap = openBitMap prt.prefs.fenetre.ico_btnFermer_R
 	)
@@ -81,16 +60,11 @@ rollout m_rollInfos "Infos" width:346 height:262
 	------------  EVENEMENTS	----------------------------------------------------------------------------------
 -- 	on m_rollInfos rbuttondown  	pos 	do menu.fenetre ()
 	
-	on m_rollInfos lbuttondown pos 	do
-		sourisClique 		pos
-	on m_rollInfos lbuttonup pos 	do
-		sourisRelache 		pos
-	on m_rollInfos mouseMove pos 	do
-		sourisSeDeplace 	pos
+	on m_rollInfos lbuttondown	pos 	do	drag.demarrer ()
+	on m_rollInfos lbuttonup 		pos 	do	drag.arreter ()
+	on m_rollInfos mouseMove 	pos 	do	drag.suivreSouris ()
 	
-	
-	
-	on 	ui_btnFermer 	click 			do prt.fenetre.infos.fermer()
+	on ui_btnFermer 	click 			do prt.fenetre.infos.fermer ()
 	
 	
 )
@@ -109,9 +83,10 @@ struct infos_struct (
 									lockWidth:			true										
 -- 									pos:					pos \
 		
+		dialog.drag 	= drag_struct fenetre:dialog
+		dialog.prt 	= prt
 		
-		dialog.prt = prt
-		dialog.initialiser ()
+-- 		dialog.initialiser ()
 	),
 	fn fermer = (
 		prt.prefs.fenetre.infos = false

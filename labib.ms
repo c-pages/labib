@@ -52,6 +52,7 @@
 	-------------------------------------
 	----- les fichiers à inclure -------
 	-------------------------------------
+	include "$userScripts\labib\labib - structs2.ms"		-- les structuressecondaires --
 	
 	include "$userScripts\labib\labib - preferences.ms"
 	include "$userScripts\labib\labib - arborescence.ms"

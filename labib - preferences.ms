@@ -59,9 +59,8 @@ struct prefsFenetre_struct (
 	
 	---- Couleurs ----
 	-- des rollouts --
--- 	col_fenetreFond				= color 76  115 140, 	----  ----
 	col_fenetreFond				= color 56  95 120, 	----  ----
-
+-- 	col_fenetreFond				= color 190 196 212, 	----  ----
 	col_fenetreFore				= color 230  230 230, 	----  ----
 	-- trucs dotnet (LV, TV ) --
 	col_TVLVfond 					= color 160 166 182, 	----  ----
