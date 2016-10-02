@@ -189,24 +189,317 @@ rollout m_rollPrincipal "labib"  (
 		
 	)
 	
-	
-	
-	
+	struct listView_struct (
+			
+			------------ MEMBRES ----------------------------------
+		public
+			-- pointeurs --
+			ui, 				---- le listview a controler --
+			prefs,			---- les prefs de labib ---
+			selection,		---- la selection courante ----
+			
+		private
+			-- pour la creation des items ---
+			m_itemsAAfficher			= #(),
+			m_iconesAAfficher			= #(),
+			m_idImage 						= 0,
+			
+			-- couleurs --
+			m_col_uiFond 				 	= prefs.fenetre.col_TVLVfond,
+			m_col_uiFondRecherche	= prefs.fenetre.col_fondRech,
+			m_taille_icones				= prefs.fenetre.tailleApercusLV,			
+			
+			m_col_foreDossier 			= prefs.fenetre.col_TVLVforeDossier
+			m_col_fondDossier 			= prefs.fenetre.col_TVLVfondDossier
+			m_col_fondDossierPrt 		= prefs.fenetre.col_TVLVfondDossierPrt
+			m_col_TVLVfond 				= prefs.fenetre.col_TVLVfond
+			
+			------------ FONCTIONS ----------------------------------
+		private
+			--- renvois une couleur en format Dotnet ---
+			fn toCouleurDotnet 	_couleur =(
+				(dotNetClass "System.Drawing.Color").fromARGB 	_couleur.r 	_couleur.g 	_couleur.b
+			),
+			--- creer un ensemble d'items ---
+			fn creerItems 		_noeudsA 	= (
+				
+				---- on transforme "_elemsArbo" en array si element unique --
+				if classof _noeudsA != Array
+					do _noeudsA = #( _noeudsA )
+				
+				for noeud  in _noeudsA do (
+					
+					---- le nouvel item ----
+					local nvItem	= dotNetObject "System.Windows.Forms.ListViewItem" 	noeud.nomUnique
+					nvItem.imageIndex 	= m_idImage
+					nvItem.name 			= noeud.nomUnique
+					
+					---- le nouvel icone	 ----
+					local	nvIcone 		= dotNetClass "System.Drawing.Image"
+					
+					--- Vue Détail : la couleur des lignes  --
+					if prefs.fenetre.affichageLV == #Details do (
+						local idPaire = (  m_idImage / 2. - floor ( m_idImage / 2. ) ) == 0 
+						debug "idPaire" var:idPaire
+						local couleurLigne
+						if idPaire
+							then couleurLigne = col_fondDossier
+							else couleurLigne = col_TVLVfond
+						if classof noeud == Noeud_struct do
+							couleurLigne -= [30,30,20] as color
+						
+						nvItem.BackColor		=	toCouleurDotnet	couleurLigne
+					)			
+					
+					-- remplissage en fonction de la classe de l'élément --
+					case classof noeud of (
+						Noeud_struct: (
+							
+							---- affichage du texte----
+							-- le nom de base --
+							nvItem.text 			= noeud.nom
+							-- le nombre l'Elements enfants--
+							if noeud.nomUnique != "RETOUR"	do nvItem.text += "   (" + noeud.getNbrEnfants() as string + ")"
+
+							/* 
+							---- couleurs ----
+		 					nvItem.ForeColor			=	toCouleurDotnet	col_foreDossier
+							
+							---- couleurs ----
+							nvItem.ForeColor			=	toCouleurDotnet	col_foreDossier 
+							if prt.affichageLV == #liste do (
+								if noeud.nomUnique != "RETOUR"
+									then	nvItem.BackColor		=	toCouleurDotnet	col_fondDossier 
+									else	nvItem.BackColor		=	toCouleurDotnet col_fondDossierPrt 
+							) */
+							
+							---- pour la vue liste ----
+							nvItem.subItems.add 	( "" )
+							nvItem.subItems.add 	( "" )
+							nvItem.subItems.add 	( "" )
+							nvItem.subItems.add 	( "" )
+							nvItem.subItems.add 	( "" )
+							nvItem.subItems.add 	( "" )		
+							
+							---- pour la vue image ----
+							if noeud.nomUnique != "RETOUR"	
+								then	m_iconesAAfficher.images.add ( nvIcone.fromFile 	prefs.fenetre.apercuDossier )
+								else	m_iconesAAfficher.images.add ( nvIcone.fromFile 	prefs.fenetre.apercuDossierParent )
+							
+						)
+						Element_struct: (
+							
+							---- affichage du texte----
+							nvItem.text 			= noeud.nom
+							
+							noeud.getNbrVertex ()
+							noeud.getNbrImports ()
+							noeud.getDateDernierImport ()
+							noeud.getDateCreation ()
+							noeud.getAProxy ()
+							noeud.getAVueDetail ()
+							
+							
+							---- pour la vue liste ----
+							nvItem.subItems.add 	( noeud.nbrVertex  as string )
+							nvItem.subItems.add 	( arbo.dateToString 	noeud.dateDernierImport   )
+							nvItem.subItems.add 	( if ( noeud.nbrImports  > 0 ) 		then  noeud.nbrImports as string else prefs.fenetre.caseVide )
+							nvItem.subItems.add 	( if ( doesfileExist noeud.proxy ) 	then "true" else prefs.fenetre.caseVide  )
+							nvItem.subItems.add 	( if ( doesfileExist noeud.detail )  	then "true" else prefs.fenetre.caseVide  )
+							nvItem.subItems.add 	( arbo.dateToString 	noeud.dateCreation   )		
+							
+							---- pour la vue image ----
+							if noeud.apercu != undefined do
+								if doesfileexist noeud.apercu 	then  m_iconesAAfficher.images.add 	( nvIcone.fromFile noeud.apercu )
+																		else 	m_iconesAAfficher.images.add 	( nvIcone.fromFile prefs.fenetre.apercuVide )
+						)
+						
+					) -- fin case classof --
+					
+					-- on ajoute le nouveau noeud à la liste de creation ---
+					append m_itemsAAfficher	 nvItem
+					m_idImage += 1
+				) -- fin for noeud  in _noeudsA 
+				
+			),
+			
+			
+		public
+			-- Acceder à un item du listview  --
+			fn	getItem 			_noeudA = (
+				local	result = undefined
+				for i=0 to  ui_LV.items.count - 1 do (
+					local elemLV  = ui_LV.items.item[i]  
+					if elemLV.name == _noeudA.nomUnique do
+						result = elemLV
+				)
+				result
+			),
+			
+			-- Selectionner item du listview --
+			fn selectionnerItems 	_noeudsA	= (
+				
+				---- on transforme "_noeudsA" en array si noeud unique --
+				if classof _noeudsA != Array	do _noeudsA = #( _elemsArbo )
+				
+				-- on deselectionne tout ----
+				for i=0 to ui_LV.items.count - 1 do
+					ui_LV.items.item[i].selected=false
+				
+				-- on selectionne les nouveau --
+				for noeudA in _noeudsA do (
+					local noeudLV = getItem 	elem
+					if noeudLV != undefined do 
+						noeudLV.selected = true
+				)
+				
+				-- scroll jusqu'au elemnt selectionnés --
+				if _elemsArbo.count >0 do
+					if _elemsArbo[1] != undefined do
+						if getItem	 _elemsArbo[1] != undefined do
+							ui_LV.EnsureVisible( ( getItem	 _elemsArbo[1] ).Index )
+				
+				-- on actualise la selection des elements --
+				selection = _noeudsA
+				
+			),
+			
+			-- Vider l'ui de ses items et vider les tableaux et index ----
+			fn vider = (
+				
+				-- on vide la liste --
+				ui.items.Clear()
+				
+				-- initialiser les membres ---
+				local m_idImage						= 0
+				local	m_itemsAAfficher			= #()
+				local	m_iconesAAfficher 			= dotNetObject "System.Windows.Forms.ImageList"
+				m_iconesAAfficher.imageSize 		= dotNetObject "System.Drawing.Size" 	prefs.fenetre.tailleApercusLV 		prefs.fenetre.tailleApercusLV
+				m_iconesAAfficher.ColorDepth 	= apercusAAfficher.ColorDepth.Depth24Bit
+				
+			),
+			
+			
+			---- Actualiser le listView ----
+			fn afficher  _noeudA = (				
+				
+				-- on nettoie le terrain ---
+				vider ()
+				
+				if _noeudA != undefined then (
+					
+					
+					--- Si on est dans recherche on change la couleur de fond du LV ---------
+					local col_fondVue			
+					if _noeudA.nomUnique == "RECHERCHE"	
+						then	col_fondVue 	= prefs.fenetre.col_fondRech
+						else	col_fondVue 	= prefs.fenetre.col_TVLVfond
+					ui.BackColor 				= toCouleurDotnet 	col_fondVue
+					
+					-- si on affiche les dossiers --
+					if prefs.fenetre.afficherDossier do (
+						
+						---- on remplie avec le dossier parent ("...") si on est pas dans root ni recherche ----
+						if _noeudA.NomUnique != "ROOT" and _noeudA.NomUnique != "RECHERCHE" do 
+							creerItems 	arbo.retour
+						
+						---- on remplie avec les dossier ( les noeuds ) ----
+						creerItems 	( _noeudA.getNoeuds() )
+						
+					)
+					
+					---- on remplie avec les assets ( les elements ) ----
+					creerItems 	( _noeudA.getElements() )
+					
+					--- on remplie la liste LV ----
+					ui.LargeImageList = 	m_iconesAAfficher
+					ui.items.addRange	m_itemsAAfficher
+					
+				)
+			),
+			
+			---changer le mode d'affichage de la liste ( largeicon, list, details..)----
+			fn changerAffichage  	_nouvelAffichage		=(
+				
+				---- on vide les colonnes ----
+				ui.columns.clear ()
+				
+				-- on actualise les prefs --
+				prefs.fenetre.affichageLV = _nouvelAffichage
+				
+				---- on creer le nouvel affiochage ----
+				case _nouvelAffichage  of (
+					#details: (
+						ui.view = (dotNetClass "system.windows.forms.view").details
+						ui.columns.add "Nom" 200
+						ui.columns.add "Verts" 70
+						ui.columns.add "Dernier import" 130
+						ui.columns.add "Nbre d'imports" 70
+						ui.columns.add "Proxy" 70
+						ui.columns.add "Détail" 70
+						ui.columns.add "Création" 130
+						-
+						ui.columns.add "Emplacement" 130
+						ui.columns.add "Tags" 130				
+						ui.columns.add "Lien" 130
+						ui.columns.add "Détail" 70
+						ui.columns.add "Source manquante" 70
+						
+						ui.FullRowSelect = true
+					)
+					#liste: (
+						ui.view = (dotNetClass "system.windows.forms.view").list
+						ui.Columns.add "Nom" 180
+						ui.FullRowSelect = false
+						ui.margin.all = 0
+					)
+					#grandeIcone: (
+						ui.view = (dotNetClass "system.windows.forms.view").LargeIcon
+						ui.Columns.add "Nom" 10
+						ui.FullRowSelect = false
+						ui.margin.all = 0
+					)
+					#petitIcone: (
+						ui.view = (dotNetClass "system.windows.forms.view").SmallIcon
+						ui.Columns.add "Nom" 10
+						ui.FullRowSelect = false
+						ui.margin.all = 0
+					)
+					#tuile: (
+						uiview = (dotNetClass "system.windows.forms.view").Tile
+						ui.Columns.add "Nom" 10
+						ui.FullRowSelect = false
+						ui.margin.all = 0
+					)
+				)
+				
+				---- on actualise le tout ----
+				actualiser ()
+				
+			),
+			
+			fn initialiser =(
+				
+			)
+			
+		
+	)	-	--- fin struct listView ----
+	LV = listView_struct		ui:ui_LV
 	
 	-------- le LV ( les elements  ) --------
 	---- Selectionner un noeud du LV ----
-	fn getNoeudLV			_noeudArbo 	= (
+	fn getNoeudLV			_noeudA 	= (
 		local	result = undefined
 		for i=0 to  ui_LV.items.count - 1 do (
 			local elemLV  = ui_LV.items.item[i]  
-			if elemLV.name == _noeudArbo.nomUnique do
+			if elemLV.name == _noeudA.nomUnique do
 				result = elemLV
 		)
 		result
 	)
 	fn selectionnerLV 		_elemsArbo 	= (		
 		
-		---- on transforme "_elements" en array si element unique --
+		---- on transforme "_elemsArbo" en array si element unique --
 		if classof _elemsArbo != Array
 			do _elemsArbo = #( _elemsArbo )
 		
@@ -427,45 +720,45 @@ rollout m_rollPrincipal "labib"  (
 	
 	
 	-------- le TV (arborescence ) --------
-	fn getNoeudTV		_noeudArbo 	= (
+	fn getNoeudTV		_noeudA 	= (
 		local	result
 		for noeudTV in listeNoeudsTV do 
-				if noeudTV.name == _noeudArbo.nomUnique do 
+				if noeudTV.name == _noeudA.nomUnique do 
 					result = noeudTV
 		result
 	)
-	fn selectionnerTV 	_noeudArbo 	= (
+	fn selectionnerTV 	_noeudA 	= (
 		debug "selectionnerTV"
-		debug "noeud" var:_noeudArbo.nom
+		debug "noeud" var:_noeudA.nom
 		
 		
-		ui_TV.SelectedNode = getNoeudTV		_noeudArbo
+		ui_TV.SelectedNode = getNoeudTV		_noeudA
 		ui_TV.SelectedNode.EnsureVisible()
 		
-		prt.selectionNoeud 	= _noeudArbo
+		prt.selectionNoeud 	= _noeudA
 		
 -- 		if not ui_TV.SelectedNode.isExpanded do	ui_TV.SelectedNode.expand ()
 		
 		actualiserLV ()
 		
 	)
-	fn editerNomTV 		_noeudArbo 	= (
-		local NoeudAEditer = getNoeudTV		_noeudArbo
+	fn editerNomTV 		_noeudA 	= (
+		local NoeudAEditer = getNoeudTV		_noeudA
 		
 		NoeudAEditer.BeginEdit()
 	)
-	fn ajouterTV			_noeudArbo	 _noeudTV 	     =	(
+	fn ajouterTV			_noeudA	 _noeudTV 	     =	(
 		
 		local nouveauNoeudTV 
 		local	listeNoeudsEnfants
 		
 		---- le nouveau noeud de l'arboTV ----
-		nouveauNoeudTV 		= _noeudTV.Nodes.add 		( _noeudArbo.nom + " (" + _noeudArbo.getNbrEnfants() as string + ")" )
-		nouveauNoeudTV.name = _noeudArbo.nomUnique
+		nouveauNoeudTV 		= _noeudTV.Nodes.add 		( _noeudA.nom + " (" + _noeudA.getNbrEnfants() as string + ")" )
+		nouveauNoeudTV.name = _noeudA.nomUnique
 		append listeNoeudsTV 	nouveauNoeudTV
 		
 		---- on ajoute les noeuds enfants ----
-		listeNoeudsEnfants		=	arbo.getNoeuds 	noeud:_noeudArbo
+		listeNoeudsEnfants		=	arbo.getNoeuds 	noeud:_noeudA
 		for enfant in listeNoeudsEnfants do
 			ajouterTV 	enfant  	nouveauNoeudTV
 		
@@ -503,7 +796,7 @@ rollout m_rollPrincipal "labib"  (
 		-- on enregistre si noeud courant est differents --
 		if prt.selectionNoeud != prt.hist_Noeuds[1] do ( 
 			
-			local noeudArboCourant = prt.selectionNoeud
+			local noeudACourant = prt.selectionNoeud
 			
 			--on tronque l'historique a l'emplacement courant
 			while prt.hist_pos > 1 do (
@@ -513,13 +806,13 @@ rollout m_rollPrincipal "labib"  (
 			)
 			
 			-- on ajoute le noeud actuel dans l'historique --
-			insertItem 		noeudArboCourant 	prt.hist_Noeuds 	1
+			insertItem 		noeudACourant 	prt.hist_Noeuds 	1
 		)
 	)
 	-- ouvrir un noeud de l'arbo
-	fn ouvrirNoeudArbo  	_noeudArbo 	enregistrer:true	= (
+	fn ouvrirnoeudA  	_noeudA 	enregistrer:true	= (
 		
-		if _noeudArbo != undefined do (
+		if _noeudA != undefined do (
 			
 			-- Si noeud a ouvrir est different du noeud precedant, on enregistre l'historique --
 			if enregistrer do historiqueEnregistrer  	()
@@ -545,7 +838,7 @@ rollout m_rollPrincipal "labib"  (
 		
 		-- on ouvre le noeud adequate ---
 		local noeudAOuvrir = prt.hist_Noeuds[ prt.hist_pos   ]
-		ouvrirNoeudArbo   noeudAOuvrir	enregistrer:false
+		ouvrirnoeudA   noeudAOuvrir	enregistrer:false
 		selectionnerTV 	noeudAOuvrir
 		
 		-- on selectionne le dossier precedant si il est dans la LV --
@@ -786,16 +1079,16 @@ rollout m_rollPrincipal "labib"  (
 					then selectionnerTV  	prt.selectionNoeud.parent
 					else	selectionnerTV 	noeudClique
 				
-				ouvrirNoeudArbo 	noeudClique
+				ouvrirnoeudA 	noeudClique
 			)
 		)
 	)
-	fn renommerLV 		_noeudArbo	_nouveauNom = (
+	fn renommerLV 	_noeudA	_nouveauNom = (
 		
-		if _nouveauNom != undefined  and  _noeudArbo !=undefined do ( 
+		if _nouveauNom != undefined  and  _noeudA !=undefined do ( 
 			debug "renommer LV"
 			
-			_noeudArbo.nom 	= _nouveauNom
+			_noeudA.nom 	= _nouveauNom
 			--ecriture du fichier ---
 			arbo.enregistrer ()
 			
@@ -803,17 +1096,17 @@ rollout m_rollPrincipal "labib"  (
 			
 			( getNoeudTV prt.selectionNoeud ).expand ()
 			
-			selectionnerTV		_noeudArbo.parent			
-			selectionnerLV		_noeudArbo
+			selectionnerTV		_noeudA.parent			
+			selectionnerLV		_noeudA
 			
 		)
 		
 	)
-	fn editerNomLV 	_noeudArbo = (
-		selectionnerTV	_noeudArbo.parent
-		selectionnerLV 	_noeudArbo
+	fn editerNomLV 	_noeudA = (
+		selectionnerTV	_noeudA.parent
+		selectionnerLV 	_noeudA
 		
-		local NoeudAEditer = getNoeudLV		_noeudArbo
+		local NoeudAEditer = getNoeudLV		_noeudA
 		NoeudAEditer.BeginEdit()
 	)	
 	
@@ -823,7 +1116,7 @@ rollout m_rollPrincipal "labib"  (
 		-- on selectionne le noeud --
 		if _noeudTV != undifined do (
 			local noeud = arbo.getParNomUnique 	_noeudTV.name
-			ouvrirNoeudArbo	noeud
+			ouvrirnoeudA	noeud
 			prt.selectionNoeud 	= noeud
 			actualiserLV ()
 		)
@@ -851,15 +1144,15 @@ rollout m_rollPrincipal "labib"  (
 			
 		) -- fin case of arg ---
 	)
-	fn renommerTV 		_noeudArbo	_nouveauNom = (
+	fn renommerTV 		_noeudA	_nouveauNom = (
 		debug "renommer tv"
-		if _nouveauNom != undefined  and  _noeudArbo !=undefined do ( 
+		if _nouveauNom != undefined  and  _noeudA !=undefined do ( 
 			
-			_noeudArbo.nom 	= _nouveauNom
+			_noeudA.nom 	= _nouveauNom
 			--ecriture du fichier ---
 			arbo.enregistrer ()
 			
-			selectionnerTV	_noeudArbo
+			selectionnerTV	_noeudA
 		)
 		
 	) 
@@ -893,6 +1186,52 @@ rollout m_rollPrincipal "labib"  (
 			recomposerFenetre ()
 	)
 	
+	fn checkAccrocheBandeau =(
+		
+			local tailleBureau = sysInfo.desktopSize
+			
+			local larg_bandeauH = 117 + 2*ecartUI
+			local larg_bandeauV = 75 + 2*ecartUI
+			
+			---- plaquer la fenetre à gauche --
+			if mouse.screenpos.x == 0 do (
+				prefs.fenetre.bandeau = true
+			-- retour taille et pos normal si plein ecran ou bandeau -- = true
+				SetDialogPos m_rollPrincipal [0,0]
+				m_rollPrincipal.width 	= larg_bandeauH
+				m_rollPrincipal.height 	= tailleBureau.y - 43
+			)
+			
+			---- plaquer la fenetre à droite --
+			if mouse.screenpos.x == tailleBureau.x - 1 do (
+				prefs.fenetre.bandeau = true
+				SetDialogPos m_rollPrincipal [tailleBureau.x - larg_bandeauH - 14 ,0]
+				m_rollPrincipal.width 	= larg_bandeauH
+				m_rollPrincipal.height 	= tailleBureau.y - 15
+			)
+			
+			---- plaquer la fenetre en haut --
+			if mouse.screenpos.y == 0 do (
+				prefs.fenetre.bandeau = true
+				posX = if mouse.screenpos.x <tailleBureau.x /2 then 0 else tailleBureau.x /2
+				SetDialogPos m_rollPrincipal [posX ,0]
+				m_rollPrincipal.width 	= tailleBureau.x /2 - 15
+				m_rollPrincipal.height 	= larg_bandeauv
+			)
+			---- plaquer la fenetre en bas --
+			if mouse.screenpos.y == tailleBureau.y - 1 do (
+				prefs.fenetre.bandeau = true
+				posX = if mouse.screenpos.x <tailleBureau.x /2 then 0 else tailleBureau.x /2
+				SetDialogPos m_rollPrincipal [ posX , tailleBureau.y - larg_bandeauv  - 43 ]
+				m_rollPrincipal.width 	= tailleBureau.x /2 - 15
+				m_rollPrincipal.height 	= larg_bandeauv
+			)
+			--- position bandeau stocké ---
+			prefs.fenetre.posBandeau 		= getDialogPos m_rollPrincipal	
+			prefs.fenetre.tailleBandeau	= [m_rollPrincipal.width, m_rollPrincipal.height ]
+		
+	)
+	
 	
 	
 	-------- souris pour  bouton virtuel ( sliders )  --------
@@ -918,8 +1257,6 @@ rollout m_rollPrincipal "labib"  (
 			prefs.fenetre.posSlider_V = uiV_slider_V.pos.y
 		)
 	)
-	
-	
 	fn sourisDblClique		_pos 	= (
 		
 		local tailleBureau = sysInfo.desktopSize
@@ -986,103 +1323,10 @@ rollout m_rollPrincipal "labib"  (
 		
 	)
 	
-	fn accrocherBandeau =(
-		
-			local tailleBureau = sysInfo.desktopSize
-			
-			local larg_bandeauH = 117 + 2*ecartUI
-			local larg_bandeauV = 75 + 2*ecartUI
-			
-			---- plaquer la fenetre à gauche --
-			if mouse.screenpos.x == 0 do (
-				prefs.fenetre.bandeau = true
-			-- retour taille et pos normal si plein ecran ou bandeau -- = true
-				SetDialogPos m_rollPrincipal [0,0]
-				m_rollPrincipal.width 	= larg_bandeauH
-				m_rollPrincipal.height 	= tailleBureau.y - 43
-			)
-			
-			---- plaquer la fenetre à droite --
-			if mouse.screenpos.x == tailleBureau.x - 1 do (
-				prefs.fenetre.bandeau = true
-				SetDialogPos m_rollPrincipal [tailleBureau.x - larg_bandeauH - 14 ,0]
-				m_rollPrincipal.width 	= larg_bandeauH
-				m_rollPrincipal.height 	= tailleBureau.y - 15
-			)
-			
-			---- plaquer la fenetre en haut --
-			if mouse.screenpos.y == 0 do (
-				prefs.fenetre.bandeau = true
-				posX = if mouse.screenpos.x <tailleBureau.x /2 then 0 else tailleBureau.x /2
-				SetDialogPos m_rollPrincipal [posX ,0]
-				m_rollPrincipal.width 	= tailleBureau.x /2 - 15
-				m_rollPrincipal.height 	= larg_bandeauv
-			)
-			---- plaquer la fenetre en bas --
-			if mouse.screenpos.y == tailleBureau.y - 1 do (
-				prefs.fenetre.bandeau = true
-				posX = if mouse.screenpos.x <tailleBureau.x /2 then 0 else tailleBureau.x /2
-				SetDialogPos m_rollPrincipal [ posX , tailleBureau.y - larg_bandeauv  - 43 ]
-				m_rollPrincipal.width 	= tailleBureau.x /2 - 15
-				m_rollPrincipal.height 	= larg_bandeauv
-			)
-			--- position bandeau stocké ---
-			prefs.fenetre.posBandeau 	= getDialogPos m_rollPrincipal	
-			prefs.fenetre.tailleBandeau	= [m_rollPrincipal.width, m_rollPrincipal.height ]
-		
-	)
-	
 	fn sourisRelache 		_pos 	= (
 		
 		if drag.enCours do (
-			
-			local tailleBureau = sysInfo.desktopSize
-			
-			local larg_bandeauH = 117 + 2*ecartUI
-			local larg_bandeauV = 75 + 2*ecartUI
-			
-			---- plaquer la fenetre à gauche --
-			if mouse.screenpos.x == 0 do (
-				prefs.fenetre.bandeau = true
-			-- retour taille et pos normal si plein ecran ou bandeau -- = true
-				SetDialogPos m_rollPrincipal [0,0]
-				m_rollPrincipal.width 	= larg_bandeauH
-				m_rollPrincipal.height 	= tailleBureau.y - 43
-				
-				
-			)
-			
-			---- plaquer la fenetre à droite --
-			if mouse.screenpos.x == tailleBureau.x - 1 do (
-				prefs.fenetre.bandeau = true
-				SetDialogPos m_rollPrincipal [tailleBureau.x - larg_bandeauH - 14 ,0]
-				m_rollPrincipal.width 	= larg_bandeauH
-				m_rollPrincipal.height 	= tailleBureau.y - 15
-			)
-			
-			---- plaquer la fenetre en haut --
-			if mouse.screenpos.y == 0 do (
-				prefs.fenetre.bandeau = true
-				posX = if mouse.screenpos.x <tailleBureau.x /2 then 0 else tailleBureau.x /2
-				SetDialogPos m_rollPrincipal [posX ,0]
-				m_rollPrincipal.width 	= tailleBureau.x /2 - 15
-				m_rollPrincipal.height 	= larg_bandeauv
-			)
-			---- plaquer la fenetre en bas --
-			if mouse.screenpos.y == tailleBureau.y - 1 do (
-				prefs.fenetre.bandeau = true
-				posX = if mouse.screenpos.x <tailleBureau.x /2 then 0 else tailleBureau.x /2
-				SetDialogPos m_rollPrincipal [ posX , tailleBureau.y - larg_bandeauv  - 43 ]
-				m_rollPrincipal.width 	= tailleBureau.x /2 - 15
-				m_rollPrincipal.height 	= larg_bandeauv
-			)
-			--- position bandeau stocké ---
-			prefs.fenetre.posBandeau 	= getDialogPos m_rollPrincipal	
-			prefs.fenetre.tailleBandeau	= [m_rollPrincipal.width, m_rollPrincipal.height ]
-		)
-		
-		uiV_slider_H.pressed 	= false	
-		uiV_slider_V.pressed 	= false
+			checkAccrocheBandeau ()
 		
 	)
 	
@@ -1210,8 +1454,9 @@ struct Fenetre_struct (
 	
 	------------ Les FONCTIONS	----------------------------------------------------------------------------------
 	fn definirAffichage  _nouvelAffichage 	= (
-		affichageLV 	= _nouvelAffichage
+		
 		dialog.changerAffichageLV  _nouvelAffichage
+		
 	),
 	fn actualiser = (
 		dialog.actualiser ()

@@ -183,7 +183,7 @@ struct apercu_struct (
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 ----------	Le rollout des rendus  ---------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
-rollout rollRendu  "Rendu" width:804 height:294
+rollout rollRendu "Rendu" width:377 height:206
 (
 	------------  MEMBRES	----------------------------------------------------------------------------------
 	local prt
@@ -194,78 +194,81 @@ rollout rollRendu  "Rendu" width:804 height:294
 	
 	------------  UI	----------------------------------------------------------------------------------	
 	
-	checkbutton ckb_apercus "Aperçu" pos:[18,17] width:55 height:55
-	checkbutton ckb_detail "Detail" pos:[76,17] width:55 height:55
-	button btn_rendre "Rendre" pos:[302,17] width:206 height:55 toolTip:""
-	button btn_ouvrir "Ouvrir" pos:[161,45] width:138 height:25
-	button btn_defaut "Defaut" pos:[161,17] width:138 height:25
+	checkbutton ckb_apercus "Aperçu" pos:[191,164] width:40 height:22
+	checkbutton ckb_detail "Detail" pos:[234,164] width:40 height:22
+	button btn_rendre "Rendre" pos:[276,164] width:79 height:22 toolTip:""
 	
-	imgtag	 bmp_ap "" pos:[531,17] width:255 height:255
 	
-	spinner spn_angleVue "" pos:[141,100] width:100 height:16 range:[0,1000,0]
-	label lbl_angleVue "Angle de vue:" pos:[26,100] width:113 height:18
-	spinner spn_posX "" pos:[141,128] width:100 height:16 range:[-100000,100000,0]
-	label lbl_posX "X:" pos:[111,128] width:25 height:18
-	label lbl_pos "Translation : " pos:[26,128] width:79 height:18
-	spinner spn_posY "" pos:[141,149] width:100 height:16 range:[-100000,100000,0]
-	label lbl_posY "Y:" pos:[111,149] width:25 height:18
-	spinner spn_posZ "" pos:[141,170] width:100 height:16 range:[-100000,100000,0]
-	label lbl_posZ "Z:" pos:[111,170] width:25 height:18
-	label lbl7 "Rotation:" pos:[26,203] width:79 height:18
-	spinner spn_rotY "" pos:[141,203] width:50 height:16 range:[-360,360,0]
-	label lbl_rotY "Vertic." pos:[95,203] width:35 height:18
-	spinner spn_rotZ "" pos:[141,224] width:50 height:16 range:[-360,360,0]
-	label lbl_rotZ "Horiz." pos:[95,224] width:35 height:18
-	GroupBox grp_cam "Camera" pos:[18,79] width:248 height:193
-	spinner spn_expo "" pos:[404,100] width:100 height:16 range:[-1000,1000,0]
-	label lbl10_expo "Exposition:" pos:[289,100] width:113 height:18
-	spinner spn_highLight "" pos:[404,122] width:100 height:16 range:[-100000,100000,0]
-	label lbl_HLComp "Hightlight comp.:" pos:[289,120] width:104 height:18
-	spinner spn_whiteBalance "" pos:[404,142] width:100 height:16 range:[-100000,100000,0]
-	label lbl13 "White balance:" pos:[289,143] width:100 height:18
-	spinner spn_contraste "" pos:[404,164] width:100 height:16 range:[-100000,100000,0]
-	label lbl_contrast "Contrast:" pos:[289,163] width:107 height:18
-	GroupBox grp_postEffect "Post traitement" pos:[270,79] width:248 height:111
-	spinner spn_noiseLevel "" pos:[404,219] width:100 height:16 range:[-1000,1000,0]
-	label lbl_noiseLevel "Noise level limit:" pos:[289,220] width:113 height:18
-	spinner spn_denoiseAmount "" pos:[404,242] width:100 height:16 range:[-100000,100000,0]
-	label lbl_denoiseAmount "Denoise amount" pos:[289,240] width:104 height:18
-	GroupBox grp_denoise "Denoise" pos:[270,199] width:248 height:73
+	spinner spn_angleVue "" pos:[120,35] width:50 height:16 range:[0,1000,0]
+	label lbl_angleVue "Angle de vue:" pos:[28,35] width:71 height:18
+	spinner spn_posX "" pos:[120,55] width:50 height:16 range:[-100000,100000,0]
+	label lbl_posX "X:" pos:[102,55] width:14 height:18
+	label lbl_pos "Translation : " pos:[28,55] width:65 height:18
+	spinner spn_posY "" pos:[120,75] width:50 height:16 range:[-100000,100000,0]
+	label lbl_posY "Y:" pos:[102,75] width:14 height:18
+	spinner spn_posZ "" pos:[120,95] width:50 height:16 range:[-100000,100000,0]
+	label lbl_posZ "Z:" pos:[102,95] width:11 height:18
+	label lbl7 "Rotation:" pos:[28,113] width:51 height:18
+	spinner spn_rotY "" pos:[120,114] width:50 height:16 range:[-360,360,0]
+	label lbl_rotY "Vertic." pos:[86,113] width:34 height:18
+	spinner spn_rotZ "" pos:[120,134] width:50 height:16 range:[-360,360,0]
+	label lbl_rotZ "Horiz." pos:[86,134] width:30 height:18
+	GroupBox grp_cam "Camera" pos:[19,14] width:166 height:172
+	spinner spn_expo "" pos:[292,35] width:50 height:16 range:[-1000,1000,0]
+	label lbl10_expo "Exposition:" pos:[200,35] width:59 height:18
+	spinner spn_highLight "" pos:[292,54] width:50 height:16 range:[-100000,100000,0]
+	label lbl_HLComp "Hightlight comp.:" pos:[200,54] width:83 height:18
+	spinner spn_whiteBalance "" pos:[292,73] width:50 height:16 range:[-100000,100000,0]
+	label lbl13 "White balance:" pos:[200,73] width:74 height:18
+	spinner spn_contraste "" pos:[292,92] width:50 height:16 range:[-100000,100000,0]
+	label lbl_contrast "Contrast:" pos:[200,92] width:54 height:18
+	GroupBox grp_postEffect "Post traitement" pos:[191,14] width:166 height:144
+	spinner spn_noiseLevel "" pos:[292,111] width:50 height:16 range:[-1000,1000,0]
+	label lbl_noiseLevel "Noise level limit:" pos:[200,111] width:77 height:18
+	spinner spn_denoiseAmount "" pos:[292,130] width:50 height:16 range:[-100000,100000,0]
+	label lbl_denoiseAmount "Denoise amount" pos:[200,130] width:79 height:18
 
-	button btn_rotZ_m45 "-45°" pos:[194,224] width:30 height:20
-	button btn_rotZ_p45 "+45°" pos:[226,224] width:30 height:20
+	button btn_rotZ_m45 "-45°" pos:[113,156] width:27 height:17
+	button btn_rotZ_p45 "+45°" pos:[141,156] width:27 height:17
 	
 	
 	-- le bouton pour fermer la fenetre --
-	ImgTag ui_btnFermer "X" pos:[784,0] width:20 height:20 toolTip:"Fermer" style:#bmp_center
+	ImgTag ui_btnFermer "X" pos:[357,0] width:20 height:20 toolTip:"Fermer" style:#bmp_center
 	
 	------------  FONCTION	----------------------------------------------------------------------------------
 	fn initialiser = (
 		ui_btnFermer.bitmap = openBitMap prt.prefs.fenetre.ico_btnFermer_R
 		
-		bmp_ap.bitmap 			= openBitMap prt.prefs.fenetre.apercuVide
 	)
 	
 	
 	------------  EVENEMENTS	----------------------------------------------------------------------------------
 	
-	on rollRendu moved			pos 	do	prt.prefs.fenetre.posRendu	= pos
 	-- drag --
-	on rollRendu lbuttondown	pos 	do	drag.demarrer ()
-	on rollRendu lbuttonup 		pos 	do	drag.arreter ()
-	on rollRendu mouseMove 	pos 	do	drag.suivreSouris ()
 	
 	---- bouton fermer -----
 	-- comportement --
-	on 	ui_btnFermer	mouseover 		do ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_S
-	on 	ui_btnFermer	mouseout 		do ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_R
-	on 	ui_btnFermer	mousedown 	do ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_P
-	on 	ui_btnFermer	mouseup		do ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_S
 	-- action --
-	on 	ui_btnFermer 	click 			do prt.fenetre.rendu.fermer()
 	
+	on rollRendu moved pos 	do
+		prt.prefs.fenetre.posRendu	= pos
+	on rollRendu lbuttondown pos 	do
+		drag.demarrer ()
+	on rollRendu lbuttonup pos 	do
+		drag.arreter ()
+	on rollRendu mouseMove pos 	do
+		drag.suivreSouris ()
+	on ui_btnFermer mouseover do
+		ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_S
+	on ui_btnFermer mouseout do
+		ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_R
+	on ui_btnFermer mouseDown do
+		ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_P
+	on ui_btnFermer mouseUp do
+		ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_S
+	on ui_btnFermer click do
+		prt.fenetre.rendu.fermer()
 )
-
 struct rendu_struct (
 	prt,
 	dialog = rollRendu ,

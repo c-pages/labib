@@ -75,11 +75,15 @@ struct Element_struct (
 			if classof this == Element_struct do  i+=1
 			return i
 		),
-		fn getNbrEnfants = ( return 0),
-		fn getIndexUnique = ( substring nomUnique 2 -1 as integer ),
+		fn getNbrEnfants 	= ( return 0),	--- n'as pas d'enfants ---
+		fn getIndexUnique 	= ( substring nomUnique 2 -1 as integer ),
+		
+		fn getElements 		=	return #(),	--- n'as pas d'enfants ---
+		fn getNoeuds 			= return #(),		--- n'as pas d'enfants ---
+		
 		
 		---- tags ----
-		fn possedeTag 	_tagAChercher =(
+		fn possedeTag 	_tagAChercher  =(
 			
 			local listeDesTags = filterString  tags 	separateursTags
 			local result = false
@@ -144,8 +148,12 @@ struct Noeud_struct (
 			return i
 		),
 		fn getNbrEnfants 	= ( return compterElements () ),
-		fn getIndexUnique 	= ( substring nomUnique 2 -1 as integer ) 
+		fn getIndexUnique 	= ( substring nomUnique 2 -1 as integer ) ,
 	
+		fn getElements 		= for enfant in enfants with classof enfant == element_struct 	collect enfant,
+		fn getNoeuds 			= for enfant in enfants with classof enfant == Noeud_struct 	collect enfant
+		
+		
 )	-- fin Struct noeud
 
 

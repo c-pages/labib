@@ -88,7 +88,8 @@ struct prefsFenetre_struct (
 	
 	---- images ----
 	-- apercus --
-	apercuVide 				= dossierScript + "data\img\apVide.jpg",
+-- 	apercuVide 				= dossierScript + "data\img\apVide.jpg",
+	apercuVide 				= "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\biblio\apercus\apercu_262.jpg",
 	apercuDossier 				= dossierScript + "data\img\apNoeud.jpg",
 	apercuDossierParent 	= dossierScript + "data\img\apNoeudParent.jpg",
 -- 	-- Fond TV --
