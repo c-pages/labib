@@ -150,8 +150,8 @@ struct Noeud_struct (
 		fn getNbrEnfants 	= ( return compterElements () ),
 		fn getIndexUnique 	= ( substring nomUnique 2 -1 as integer ) ,
 	
-		fn getElements 		= for enfant in enfants with classof enfant == element_struct 	collect enfant,
-		fn getNoeuds 			= for enfant in enfants with classof enfant == Noeud_struct 	collect enfant
+		fn getElements 		= for enfant in enfants where classof enfant == element_struct 	collect enfant,
+		fn getNoeuds 			= for enfant in enfants where classof enfant == Noeud_struct 		collect enfant
 		
 		
 )	-- fin Struct noeud

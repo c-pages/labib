@@ -188,7 +188,7 @@ rollout m_rollPrincipal "labib"  (
 		ui_tags.items.addRange		&tagsAAfficher
 		
 	)
-	
+	/* 
 	struct listView_struct (
 			
 			------------ MEMBRES ----------------------------------
@@ -209,10 +209,10 @@ rollout m_rollPrincipal "labib"  (
 			m_col_uiFondRecherche	= prefs.fenetre.col_fondRech,
 			m_taille_icones				= prefs.fenetre.tailleApercusLV,			
 			
-			m_col_foreDossier 			= prefs.fenetre.col_TVLVforeDossier
-			m_col_fondDossier 			= prefs.fenetre.col_TVLVfondDossier
-			m_col_fondDossierPrt 		= prefs.fenetre.col_TVLVfondDossierPrt
-			m_col_TVLVfond 				= prefs.fenetre.col_TVLVfond
+			m_col_foreDossier 			= prefs.fenetre.col_TVLVforeDossier,
+			m_col_fondDossier 			= prefs.fenetre.col_TVLVfondDossier,
+			m_col_fondDossierPrt 		= prefs.fenetre.col_TVLVfondDossierPrt,
+			m_col_TVLVfond 				= prefs.fenetre.col_TVLVfond,
 			
 			------------ FONCTIONS ----------------------------------
 		private
@@ -261,17 +261,17 @@ rollout m_rollPrincipal "labib"  (
 							-- le nombre l'Elements enfants--
 							if noeud.nomUnique != "RETOUR"	do nvItem.text += "   (" + noeud.getNbrEnfants() as string + ")"
 
-							/* 
-							---- couleurs ----
-		 					nvItem.ForeColor			=	toCouleurDotnet	col_foreDossier
-							
-							---- couleurs ----
-							nvItem.ForeColor			=	toCouleurDotnet	col_foreDossier 
-							if prt.affichageLV == #liste do (
-								if noeud.nomUnique != "RETOUR"
-									then	nvItem.BackColor		=	toCouleurDotnet	col_fondDossier 
-									else	nvItem.BackColor		=	toCouleurDotnet col_fondDossierPrt 
-							) */
+-- 							
+-- 							---- couleurs ----
+-- 		 					nvItem.ForeColor			=	toCouleurDotnet	col_foreDossier
+-- 							
+-- 							---- couleurs ----
+-- 							nvItem.ForeColor			=	toCouleurDotnet	col_foreDossier 
+-- 							if prt.affichageLV == #liste do (
+-- 								if noeud.nomUnique != "RETOUR"
+-- 									then	nvItem.BackColor		=	toCouleurDotnet	col_fondDossier 
+-- 									else	nvItem.BackColor		=	toCouleurDotnet col_fondDossierPrt 
+-- 							)
 							
 							---- pour la vue liste ----
 							nvItem.subItems.add 	( "" )
@@ -483,8 +483,9 @@ rollout m_rollPrincipal "labib"  (
 			)
 			
 		
-	)	-	--- fin struct listView ----
-	LV = listView_struct		ui:ui_LV
+	)	--- fin struct listView ----
+	 */
+-- 	LV = listView_struct		ui:ui_LV
 	
 	-------- le LV ( les elements  ) --------
 	---- Selectionner un noeud du LV ----
@@ -1325,7 +1326,7 @@ rollout m_rollPrincipal "labib"  (
 	
 	fn sourisRelache 		_pos 	= (
 		
-		if drag.enCours do (
+		if drag.enCours do 
 			checkAccrocheBandeau ()
 		
 	)
