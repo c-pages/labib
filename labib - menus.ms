@@ -112,11 +112,11 @@ struct str_menus (
 				
 				on supprimer 						picked do 	labib.supprimer 	( labib.getElementsSelection () ) 
 				
-				on affichage_details 			picked do	labib.fenetre.definirAffichage  #details
-				on affichage_liste				picked do	labib.fenetre.definirAffichage  #liste
-				on affichage_GrandeIcone		picked do	labib.fenetre.definirAffichage  #grandeIcone
-				on affichage_petitIcone		picked do	labib.fenetre.definirAffichage  #petitIcone
-				on affichage_tuile				picked do	labib.fenetre.definirAffichage  #tuile
+				on affichage_details 			picked do	labib.changerAffichage  #details
+				on affichage_liste				picked do	labib.changerAffichage  #liste
+				on affichage_GrandeIcone		picked do	labib.changerAffichage  #grandeIcone
+				on affichage_petitIcone		picked do	labib.changerAffichage  #petitIcone
+				on affichage_tuile				picked do	labib.changerAffichage  #tuile
 				
 				on afficherDossiers 				picked do 	(
 					labib.prefs.fenetre.afficherDossier = not labib.prefs.fenetre.afficherDossier

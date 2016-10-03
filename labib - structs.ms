@@ -554,7 +554,7 @@ struct str_listViewMgr (
 					m_ui.columns.add "Proxy" 70
 					m_ui.columns.add "Détail" 70
 					m_ui.columns.add "Création" 130
-					-
+					
 					m_ui.columns.add "Emplacement" 130
 					m_ui.columns.add "Tags" 130				
 					m_ui.columns.add "Lien" 130

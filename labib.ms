@@ -223,8 +223,9 @@ struct str_labib (
 	),
 	
 	
-	
-	
+	fn  changerAffichage  _nouvelAffichage =(
+		fenetre.m_dialog.m_LV.changerAffichage		 _nouvelAffichage
+	),
 	fn toggleInfos =(
 		if prefs.fenetre.infos 
 			then fenetre.infos.fermer ()

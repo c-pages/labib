@@ -1,6 +1,8 @@
 
 try destroydialog labib.fenetre.m_dialog	catch  ()
 
+Global 	labib = fileIn "$userScripts\labib\labib.ms" 
+labib.ouvrir 	()
 /* 
 
 Global 	labib = fileIn "$userScripts\labib\labib.ms" 
