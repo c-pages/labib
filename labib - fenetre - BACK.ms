@@ -61,119 +61,68 @@
 ------------------------------------------------------------------------------
 ----------	Le rollout principale ------------------------------------------
 ------------------------------------------------------------------------------
-rollout m_rollPrincipal "labib"  (
-	
-	------------ structures	----------------------------------------------------------------------------------
-	struct uiV_struct (
-		---- membres ----
-		pos 			= [0,0],
-		width 		= 0,
-		height 		= 0,
-		
-		pressed 		= false,
-		posPress 	= [0,0],
-		posOrigine 	= [0,0],
-		
-		---- fonctions ----
-		fn bouge _decallage = (
-			pos	= posOrigine + _decallage
-		),
-		fn survole _pos =(
-			local result = false
-			if _pos.x > pos.x	and _pos.x < pos.x + width do
-				if _pos.y > pos.y	and _pos.y < pos.y + height do
-					result = true
-			result
-		)
-		
-	)
-
-	
-	
+rollout roll_fenetrePrincipal "labib"  (
 	
 	------------ MEMBRES	----------------------------------------------------------------------------------
-	local tailleRolloutCreation =  [1200 , 500 ]
 	
 	---- Pointeurs ----
-	local prt		---- pointeur vers le struct fenetre  parent----
-	
+	local prt		---- pointeur vers le struct fenetre  parent----	
 	local arbo		---- pointeur vers le struct arbo ----
 	local prefs		---- pointeur vers le struct preferences ----
 	local menu		---- pointeur vers le struct menu ----
 	
-	---- geometrie ----
+	---- geometrie de l'interface ----
+	local tailleRolloutCreation =  [1200 , 500 ]
 	local ecartUI			= 19		----  ----
 	local ecartUISimple	= 1		----  ----
 	
 	---- TV l'arborescence ----
 	local listeNoeudsTV 		= #()	---- la liste total de tout les noeud de l'arbo
 
-	local drag
 	
 	------------ L'UI	----------------------------------------------------------------------------------		
 	
-	---- les boutons virtuels ----
-	-- Bouton virtuel Slider Horizontal---
-	local 	uiV_slider_H  = uiV_struct		 			pos:			[200, ecartUI] \
-																				width:		ecartUI	\
-																				height: 		( tailleRolloutCreation.y - 2 *ecartUI ) 
-																				
-	-- Bouton virtuel Slider Vertical---
-	local 	uiV_slider_V  = uiV_struct		 			pos:			[ecartUI, tailleRolloutCreation.y - 100 ] \
-																				width:		( uiV_slider_H.pos.x )	\
-																				height: 		ecartUI		
-																			
+	local 	uiV_slider_H  		 		= uiV_struct					pos:		[200, ecartUI] \
+																					width:	ecartUI	\
+																					height: 	( tailleRolloutCreation.y - 2 *ecartUI ) 
+																					
+	local 	uiV_slider_V  	 			= uiV_struct					pos:		[ecartUI, tailleRolloutCreation.y - 100 ] \
+																					width:	( uiV_slider_H.pos.x )	\
+																					height: 	ecartUI
+																					
+	dotNetControl 	ui_TV 			"TreeView"			 			pos:		[ecartUI ,ecartUI]	\
+																					width:	uiV_slider_V.width	\
+																					height:	0 	
+																					
+	dotNetControl 	ui_recherche	"TextBox"	 					pos:		[ ecartUI , 	uiV_slider_V.pos.y + uiV_slider_V.height   ]  \
+																					width:	uiV_slider_V.width \
+																					border:	false	\
+																					height:	0
+																					
+	dotNetControl 	ui_tags	"system.windows.forms.listView"	pos:		( ui_recherche.pos + [0,ui_recherche.height  + ecartUISimple ] ) \
+																					width:	uiV_slider_V.width  \
+																					height:	0
+																					
+	dotNetControl 	ui_LV "system.windows.forms.listView" 	pos:		[ uiV_slider_H.pos.x + uiV_slider_H.width, ecartUI ] \
+																					width:	0 \
+																					height:	( tailleRolloutCreation.y - 2* ecartUI ) \
+																					border:	false
+																					
+	imgTag 			ui_btnFermer	"X"								pos:		[ tailleRolloutCreation.x - 1 *ecartUI	, 0 ] \
+																					width:	ecartUI 	\
+																					height:	ecartUI  \
+																					tooltip: 	"Fermer Labib" \
+																					style:	#bmp_center 		\
+																					visible:	false
 	
+	------------  STRUCTURES	----------------------------------------------------------------------------------	
 	
-	---- les boutons maxscripts ----	
-	-- le TreeView (TV) arborescence --
-	dotNetControl 	ui_TV 						"TreeView" 		pos:			[ecartUI ,ecartUI]	\	-- [ ecartUI , 	ui_recherche.pos.y + ui_recherche.height  + ecartUI ]	\
-																				width:		uiV_slider_V.width	\
-																				height:		0 		
-																				
-
-	-- la recherche des tags --
-	dotNetControl 			ui_recherche 		"TextBox"	 	pos:			[ ecartUI , 	uiV_slider_V.pos.y + uiV_slider_V.height   ]  \
-																				width:		uiV_slider_V.width \
-																				border:		false	\
-																				height:		0 -- 17		 
+	local 	m_drag													---- controleur du drag de la fenetre  ----
+	local		m_LV 		= listView_struct		ui:ui_LV		---- controleur du liste view ----
+	local		m_TV 			---- controleur du tree view ----
 	
-	-- la liste des tags --
-	dotNetControl 	ui_tags	"system.windows.forms.listView" 	pos:			( ui_recherche.pos + [0,ui_recherche.height  + ecartUISimple ] ) \
-																				width:		uiV_slider_V.width  \
-																				height:	 0 --	( ( tailleRolloutCreation.y - ( ui_recherche.pos.y + ui_recherche.height +  ecartUI  + ecartUISimple ) ) / 13 ) 	
-	
-	-- la ListView (LV) pour le cointenu des noeud (apercus) --
-	dotNetControl 	ui_LV "system.windows.forms.listView" pos:			[ uiV_slider_H.pos.x + uiV_slider_H.width, ecartUI ] \
-																				width:		0 \
-																				height:		( tailleRolloutCreation.y - 2* ecartUI ) \
-																				border:		false
-																				
-	-- le bouton pour fermer la fenetre --
-	imgTag 			ui_btnFermer					"X"			pos:		[ tailleRolloutCreation.x - 1 *ecartUI	, 0 ] \
-																				width:	ecartUI 	\
-																				height:	ecartUI  \
-																				tooltip: 	"Fermer Labib" \
-																				style:	#bmp_center 		\
-																				visible:		false
-												
-	
-	/* 
-	bitmap 	ui_bmpBarre_V 											pos:			uiV_slider_V.pos	\
-																				width:		uiV_slider_V.width	\
-																				height: 		uiV_slider_V.height \
-																				visible:		false \
-																				border:		false
--- 																				bitmap:		bmp_BarresSliders	\
-																		
-	bitmap 	ui_bmpBarre_H 											pos:			uiV_slider_H.pos	\
-																				width:		uiV_slider_H.width	\
-																				height: 		uiV_slider_H.height\
-																				visible:		false \
-																				border:		false
--- 																				bitmap:		bmp_BarresSliders	\
-																				 */
 	------------  FONCTIONS	----------------------------------------------------------------------------------	
+	
 	-----tags ----
 	fn ajouterTags 	_tag 	&tagsAAfficher 	=(
 		local li			= dotNetObject "System.Windows.Forms.ListViewItem" 	_tag
@@ -188,304 +137,7 @@ rollout m_rollPrincipal "labib"  (
 		ui_tags.items.addRange		&tagsAAfficher
 		
 	)
-	/* 
-	struct listView_struct (
-			
-			------------ MEMBRES ----------------------------------
-		public
-			-- pointeurs --
-			ui, 				---- le listview a controler --
-			prefs,			---- les prefs de labib ---
-			selection,		---- la selection courante ----
-			
-		private
-			-- pour la creation des items ---
-			m_itemsAAfficher			= #(),
-			m_iconesAAfficher			= #(),
-			m_idImage 						= 0,
-			
-			-- couleurs --
-			m_col_uiFond 				 	= prefs.fenetre.col_TVLVfond,
-			m_col_uiFondRecherche	= prefs.fenetre.col_fondRech,
-			m_taille_icones				= prefs.fenetre.tailleApercusLV,			
-			
-			m_col_foreDossier 			= prefs.fenetre.col_TVLVforeDossier,
-			m_col_fondDossier 			= prefs.fenetre.col_TVLVfondDossier,
-			m_col_fondDossierPrt 		= prefs.fenetre.col_TVLVfondDossierPrt,
-			m_col_TVLVfond 				= prefs.fenetre.col_TVLVfond,
-			
-			------------ FONCTIONS ----------------------------------
-		private
-			--- renvois une couleur en format Dotnet ---
-			fn toCouleurDotnet 	_couleur =(
-				(dotNetClass "System.Drawing.Color").fromARGB 	_couleur.r 	_couleur.g 	_couleur.b
-			),
-			--- creer un ensemble d'items ---
-			fn creerItems 		_noeudsA 	= (
-				
-				---- on transforme "_elemsArbo" en array si element unique --
-				if classof _noeudsA != Array
-					do _noeudsA = #( _noeudsA )
-				
-				for noeud  in _noeudsA do (
-					
-					---- le nouvel item ----
-					local nvItem	= dotNetObject "System.Windows.Forms.ListViewItem" 	noeud.nomUnique
-					nvItem.imageIndex 	= m_idImage
-					nvItem.name 			= noeud.nomUnique
-					
-					---- le nouvel icone	 ----
-					local	nvIcone 		= dotNetClass "System.Drawing.Image"
-					
-					--- Vue Détail : la couleur des lignes  --
-					if prefs.fenetre.affichageLV == #Details do (
-						local idPaire = (  m_idImage / 2. - floor ( m_idImage / 2. ) ) == 0 
-						debug "idPaire" var:idPaire
-						local couleurLigne
-						if idPaire
-							then couleurLigne = col_fondDossier
-							else couleurLigne = col_TVLVfond
-						if classof noeud == Noeud_struct do
-							couleurLigne -= [30,30,20] as color
-						
-						nvItem.BackColor		=	toCouleurDotnet	couleurLigne
-					)			
-					
-					-- remplissage en fonction de la classe de l'élément --
-					case classof noeud of (
-						Noeud_struct: (
-							
-							---- affichage du texte----
-							-- le nom de base --
-							nvItem.text 			= noeud.nom
-							-- le nombre l'Elements enfants--
-							if noeud.nomUnique != "RETOUR"	do nvItem.text += "   (" + noeud.getNbrEnfants() as string + ")"
-
--- 							
--- 							---- couleurs ----
--- 		 					nvItem.ForeColor			=	toCouleurDotnet	col_foreDossier
--- 							
--- 							---- couleurs ----
--- 							nvItem.ForeColor			=	toCouleurDotnet	col_foreDossier 
--- 							if prt.affichageLV == #liste do (
--- 								if noeud.nomUnique != "RETOUR"
--- 									then	nvItem.BackColor		=	toCouleurDotnet	col_fondDossier 
--- 									else	nvItem.BackColor		=	toCouleurDotnet col_fondDossierPrt 
--- 							)
-							
-							---- pour la vue liste ----
-							nvItem.subItems.add 	( "" )
-							nvItem.subItems.add 	( "" )
-							nvItem.subItems.add 	( "" )
-							nvItem.subItems.add 	( "" )
-							nvItem.subItems.add 	( "" )
-							nvItem.subItems.add 	( "" )		
-							
-							---- pour la vue image ----
-							if noeud.nomUnique != "RETOUR"	
-								then	m_iconesAAfficher.images.add ( nvIcone.fromFile 	prefs.fenetre.apercuDossier )
-								else	m_iconesAAfficher.images.add ( nvIcone.fromFile 	prefs.fenetre.apercuDossierParent )
-							
-						)
-						Element_struct: (
-							
-							---- affichage du texte----
-							nvItem.text 			= noeud.nom
-							
-							noeud.getNbrVertex ()
-							noeud.getNbrImports ()
-							noeud.getDateDernierImport ()
-							noeud.getDateCreation ()
-							noeud.getAProxy ()
-							noeud.getAVueDetail ()
-							
-							
-							---- pour la vue liste ----
-							nvItem.subItems.add 	( noeud.nbrVertex  as string )
-							nvItem.subItems.add 	( arbo.dateToString 	noeud.dateDernierImport   )
-							nvItem.subItems.add 	( if ( noeud.nbrImports  > 0 ) 		then  noeud.nbrImports as string else prefs.fenetre.caseVide )
-							nvItem.subItems.add 	( if ( doesfileExist noeud.proxy ) 	then "true" else prefs.fenetre.caseVide  )
-							nvItem.subItems.add 	( if ( doesfileExist noeud.detail )  	then "true" else prefs.fenetre.caseVide  )
-							nvItem.subItems.add 	( arbo.dateToString 	noeud.dateCreation   )		
-							
-							---- pour la vue image ----
-							if noeud.apercu != undefined do
-								if doesfileexist noeud.apercu 	then  m_iconesAAfficher.images.add 	( nvIcone.fromFile noeud.apercu )
-																		else 	m_iconesAAfficher.images.add 	( nvIcone.fromFile prefs.fenetre.apercuVide )
-						)
-						
-					) -- fin case classof --
-					
-					-- on ajoute le nouveau noeud à la liste de creation ---
-					append m_itemsAAfficher	 nvItem
-					m_idImage += 1
-				) -- fin for noeud  in _noeudsA 
-				
-			),
-			
-			
-		public
-			-- Acceder à un item du listview  --
-			fn	getItem 			_noeudA = (
-				local	result = undefined
-				for i=0 to  ui_LV.items.count - 1 do (
-					local elemLV  = ui_LV.items.item[i]  
-					if elemLV.name == _noeudA.nomUnique do
-						result = elemLV
-				)
-				result
-			),
-			
-			-- Selectionner item du listview --
-			fn selectionnerItems 	_noeudsA	= (
-				
-				---- on transforme "_noeudsA" en array si noeud unique --
-				if classof _noeudsA != Array	do _noeudsA = #( _elemsArbo )
-				
-				-- on deselectionne tout ----
-				for i=0 to ui_LV.items.count - 1 do
-					ui_LV.items.item[i].selected=false
-				
-				-- on selectionne les nouveau --
-				for noeudA in _noeudsA do (
-					local noeudLV = getItem 	elem
-					if noeudLV != undefined do 
-						noeudLV.selected = true
-				)
-				
-				-- scroll jusqu'au elemnt selectionnés --
-				if _elemsArbo.count >0 do
-					if _elemsArbo[1] != undefined do
-						if getItem	 _elemsArbo[1] != undefined do
-							ui_LV.EnsureVisible( ( getItem	 _elemsArbo[1] ).Index )
-				
-				-- on actualise la selection des elements --
-				selection = _noeudsA
-				
-			),
-			
-			-- Vider l'ui de ses items et vider les tableaux et index ----
-			fn vider = (
-				
-				-- on vide la liste --
-				ui.items.Clear()
-				
-				-- initialiser les membres ---
-				local m_idImage						= 0
-				local	m_itemsAAfficher			= #()
-				local	m_iconesAAfficher 			= dotNetObject "System.Windows.Forms.ImageList"
-				m_iconesAAfficher.imageSize 		= dotNetObject "System.Drawing.Size" 	prefs.fenetre.tailleApercusLV 		prefs.fenetre.tailleApercusLV
-				m_iconesAAfficher.ColorDepth 	= apercusAAfficher.ColorDepth.Depth24Bit
-				
-			),
-			
-			
-			---- Actualiser le listView ----
-			fn afficher  _noeudA = (				
-				
-				-- on nettoie le terrain ---
-				vider ()
-				
-				if _noeudA != undefined then (
-					
-					
-					--- Si on est dans recherche on change la couleur de fond du LV ---------
-					local col_fondVue			
-					if _noeudA.nomUnique == "RECHERCHE"	
-						then	col_fondVue 	= prefs.fenetre.col_fondRech
-						else	col_fondVue 	= prefs.fenetre.col_TVLVfond
-					ui.BackColor 				= toCouleurDotnet 	col_fondVue
-					
-					-- si on affiche les dossiers --
-					if prefs.fenetre.afficherDossier do (
-						
-						---- on remplie avec le dossier parent ("...") si on est pas dans root ni recherche ----
-						if _noeudA.NomUnique != "ROOT" and _noeudA.NomUnique != "RECHERCHE" do 
-							creerItems 	arbo.retour
-						
-						---- on remplie avec les dossier ( les noeuds ) ----
-						creerItems 	( _noeudA.getNoeuds() )
-						
-					)
-					
-					---- on remplie avec les assets ( les elements ) ----
-					creerItems 	( _noeudA.getElements() )
-					
-					--- on remplie la liste LV ----
-					ui.LargeImageList = 	m_iconesAAfficher
-					ui.items.addRange	m_itemsAAfficher
-					
-				)
-			),
-			
-			---changer le mode d'affichage de la liste ( largeicon, list, details..)----
-			fn changerAffichage  	_nouvelAffichage		=(
-				
-				---- on vide les colonnes ----
-				ui.columns.clear ()
-				
-				-- on actualise les prefs --
-				prefs.fenetre.affichageLV = _nouvelAffichage
-				
-				---- on creer le nouvel affiochage ----
-				case _nouvelAffichage  of (
-					#details: (
-						ui.view = (dotNetClass "system.windows.forms.view").details
-						ui.columns.add "Nom" 200
-						ui.columns.add "Verts" 70
-						ui.columns.add "Dernier import" 130
-						ui.columns.add "Nbre d'imports" 70
-						ui.columns.add "Proxy" 70
-						ui.columns.add "Détail" 70
-						ui.columns.add "Création" 130
-						-
-						ui.columns.add "Emplacement" 130
-						ui.columns.add "Tags" 130				
-						ui.columns.add "Lien" 130
-						ui.columns.add "Détail" 70
-						ui.columns.add "Source manquante" 70
-						
-						ui.FullRowSelect = true
-					)
-					#liste: (
-						ui.view = (dotNetClass "system.windows.forms.view").list
-						ui.Columns.add "Nom" 180
-						ui.FullRowSelect = false
-						ui.margin.all = 0
-					)
-					#grandeIcone: (
-						ui.view = (dotNetClass "system.windows.forms.view").LargeIcon
-						ui.Columns.add "Nom" 10
-						ui.FullRowSelect = false
-						ui.margin.all = 0
-					)
-					#petitIcone: (
-						ui.view = (dotNetClass "system.windows.forms.view").SmallIcon
-						ui.Columns.add "Nom" 10
-						ui.FullRowSelect = false
-						ui.margin.all = 0
-					)
-					#tuile: (
-						uiview = (dotNetClass "system.windows.forms.view").Tile
-						ui.Columns.add "Nom" 10
-						ui.FullRowSelect = false
-						ui.margin.all = 0
-					)
-				)
-				
-				---- on actualise le tout ----
-				actualiser ()
-				
-			),
-			
-			fn initialiser =(
-				
-			)
-			
-		
-	)	--- fin struct listView ----
-	 */
--- 	LV = listView_struct		ui:ui_LV
+	
 	
 	-------- le LV ( les elements  ) --------
 	---- Selectionner un noeud du LV ----
@@ -854,7 +506,7 @@ rollout m_rollPrincipal "labib"  (
 	-------- Le rollout --------
 	fn recomposerFenetre 				= (
 		
-		local tailleRollout = [ m_rollPrincipal.width, m_rollPrincipal.height ]
+		local tailleRollout = [ roll_fenetrePrincipal.width, roll_fenetrePrincipal.height ]
 		
 		--limitations positions des sliders--
 		local min_H 	= 0* ecartUI
@@ -939,7 +591,7 @@ rollout m_rollPrincipal "labib"  (
 			prefs.fenetre.posSlider_H	 	= uiV_slider_H.pos.x 
 			uiV_slider_H.pos.x  			= 0
 		)
-		local posMax 			= m_rollPrincipal.height - ecartUI
+		local posMax 			= roll_fenetrePrincipal.height - ecartUI
 		
 		if not prefs.fenetre.sliderFermer_V  then (
 			uiV_slider_V.pos.y 			= prefs.fenetre.posSlider_V
@@ -1010,7 +662,7 @@ rollout m_rollPrincipal "labib"  (
 		ui_btnFermer.visible = not prefs.fenetre.afficherTitre
 		
 		ui_recherche.height = ecartUI
-		ui_tags.height		= m_rollPrincipal.height  - ( ui_recherche.pos.y + ui_recherche.height +  ecartUI + ecartUISimple )
+		ui_tags.height		= roll_fenetrePrincipal.height  - ( ui_recherche.pos.y + ui_recherche.height +  ecartUI + ecartUISimple )
 	)	
 	
 	
@@ -1174,7 +826,7 @@ rollout m_rollPrincipal "labib"  (
 	)
 	fn toggleSlider_V =(
 		
-			local posMax 			= m_rollPrincipal.height - ecartUI
+			local posMax 			= roll_fenetrePrincipal.height - ecartUI
 			
 			if prefs.fenetre.sliderFermer_V  then (
 				uiV_slider_V.pos.y 			= prefs.fenetre.posSlider_V
@@ -1198,38 +850,38 @@ rollout m_rollPrincipal "labib"  (
 			if mouse.screenpos.x == 0 do (
 				prefs.fenetre.bandeau = true
 			-- retour taille et pos normal si plein ecran ou bandeau -- = true
-				SetDialogPos m_rollPrincipal [0,0]
-				m_rollPrincipal.width 	= larg_bandeauH
-				m_rollPrincipal.height 	= tailleBureau.y - 43
+				SetDialogPos roll_fenetrePrincipal [0,0]
+				roll_fenetrePrincipal.width 	= larg_bandeauH
+				roll_fenetrePrincipal.height 	= tailleBureau.y - 43
 			)
 			
 			---- plaquer la fenetre à droite --
 			if mouse.screenpos.x == tailleBureau.x - 1 do (
 				prefs.fenetre.bandeau = true
-				SetDialogPos m_rollPrincipal [tailleBureau.x - larg_bandeauH - 14 ,0]
-				m_rollPrincipal.width 	= larg_bandeauH
-				m_rollPrincipal.height 	= tailleBureau.y - 15
+				SetDialogPos roll_fenetrePrincipal [tailleBureau.x - larg_bandeauH - 14 ,0]
+				roll_fenetrePrincipal.width 	= larg_bandeauH
+				roll_fenetrePrincipal.height 	= tailleBureau.y - 15
 			)
 			
 			---- plaquer la fenetre en haut --
 			if mouse.screenpos.y == 0 do (
 				prefs.fenetre.bandeau = true
 				posX = if mouse.screenpos.x <tailleBureau.x /2 then 0 else tailleBureau.x /2
-				SetDialogPos m_rollPrincipal [posX ,0]
-				m_rollPrincipal.width 	= tailleBureau.x /2 - 15
-				m_rollPrincipal.height 	= larg_bandeauv
+				SetDialogPos roll_fenetrePrincipal [posX ,0]
+				roll_fenetrePrincipal.width 	= tailleBureau.x /2 - 15
+				roll_fenetrePrincipal.height 	= larg_bandeauv
 			)
 			---- plaquer la fenetre en bas --
 			if mouse.screenpos.y == tailleBureau.y - 1 do (
 				prefs.fenetre.bandeau = true
 				posX = if mouse.screenpos.x <tailleBureau.x /2 then 0 else tailleBureau.x /2
-				SetDialogPos m_rollPrincipal [ posX , tailleBureau.y - larg_bandeauv  - 43 ]
-				m_rollPrincipal.width 	= tailleBureau.x /2 - 15
-				m_rollPrincipal.height 	= larg_bandeauv
+				SetDialogPos roll_fenetrePrincipal [ posX , tailleBureau.y - larg_bandeauv  - 43 ]
+				roll_fenetrePrincipal.width 	= tailleBureau.x /2 - 15
+				roll_fenetrePrincipal.height 	= larg_bandeauv
 			)
 			--- position bandeau stocké ---
-			prefs.fenetre.posBandeau 		= getDialogPos m_rollPrincipal	
-			prefs.fenetre.tailleBandeau	= [m_rollPrincipal.width, m_rollPrincipal.height ]
+			prefs.fenetre.posBandeau 		= getDialogPos roll_fenetrePrincipal	
+			prefs.fenetre.tailleBandeau	= [roll_fenetrePrincipal.width, roll_fenetrePrincipal.height ]
 		
 	)
 	
@@ -1271,7 +923,7 @@ rollout m_rollPrincipal "labib"  (
 		---- drag ----
 		else  (
 			
-			local rollPos 			= getDialogPos m_rollPrincipal			
+			local rollPos 			= getDialogPos roll_fenetrePrincipal			
 			local posAgrandi 		= [0,0]			
 			local tailleAgrandi 	= [ tailleBureau.x / 2 - 15 , tailleBureau.y - 43 ]	
 			debug "pleinEcran" var:prefs.fenetre.pleinEcran
@@ -1285,9 +937,9 @@ rollout m_rollPrincipal "labib"  (
 				if prefs.fenetre.pos.y<0 do prefs.fenetre.pos.y = 0
 				if prefs.fenetre.pos.y>tailleBureau.y - prefs.fenetre.taille.y do prefs.fenetre.pos.y = tailleBureau.y - prefs.fenetre.taille.y 
 				
-				SetDialogPos m_rollPrincipal 	prefs.fenetre.pos
-				m_rollPrincipal.width 	= prefs.fenetre.taille.x
-				m_rollPrincipal.height 	= prefs.fenetre.taille.y
+				SetDialogPos roll_fenetrePrincipal 	prefs.fenetre.pos
+				roll_fenetrePrincipal.width 	= prefs.fenetre.taille.x
+				roll_fenetrePrincipal.height 	= prefs.fenetre.taille.y
 				
 				prefs.fenetre.pleinEcran = false
 				prefs.fenetre.bandeau 	= false
@@ -1295,11 +947,11 @@ rollout m_rollPrincipal "labib"  (
 			-- sinon on passe en plein ecran --
 			) else (
 				prefs.fenetre.pleinEcran = true
-				prefs.fenetre.pos 		= getDialogPos m_rollPrincipal		
-				prefs.fenetre.taille 		= [ m_rollPrincipal.width , m_rollPrincipal.height ]				
-				SetDialogPos m_rollPrincipal 	posAgrandi
-				m_rollPrincipal.width 	= tailleAgrandi.x
-				m_rollPrincipal.height 	= tailleAgrandi.y
+				prefs.fenetre.pos 		= getDialogPos roll_fenetrePrincipal		
+				prefs.fenetre.taille 		= [ roll_fenetrePrincipal.width , roll_fenetrePrincipal.height ]				
+				SetDialogPos roll_fenetrePrincipal 	posAgrandi
+				roll_fenetrePrincipal.width 	= tailleAgrandi.x
+				roll_fenetrePrincipal.height 	= tailleAgrandi.y
 			)
 			
 		)
@@ -1326,7 +978,7 @@ rollout m_rollPrincipal "labib"  (
 	
 	fn sourisRelache 		_pos 	= (
 		
-		if drag.enCours do 
+		if m_drag.enCours do 
 			checkAccrocheBandeau ()
 		
 	)
@@ -1339,11 +991,11 @@ rollout m_rollPrincipal "labib"  (
 	
 	------------  EVENEMENTS	----------------------------------------------------------------------------------
 	---- rollout ----
-	on m_rollPrincipal	open 				do ()
-	on m_rollPrincipal	moved 			pos	do bougerFenetre 	pos
-	on m_rollPrincipal	resized 			taille 	do redimFenetre 		taille
+	on roll_fenetrePrincipal	open 				do ()
+	on roll_fenetrePrincipal	moved 			pos	do bougerFenetre 	pos
+	on roll_fenetrePrincipal	resized 			taille 	do redimFenetre 		taille
 	
-	on m_rollPrincipal close do (
+	on roll_fenetrePrincipal close do (
 		debug "<fenetre>	Fermer Fenetre"
 		
 		prt.estOuverte = false
@@ -1351,22 +1003,22 @@ rollout m_rollPrincipal "labib"  (
 	)
 	
 	---- les boutons virtuels ----
-	on m_rollPrincipal lbuttondown 	pos 	do (
+	on roll_fenetrePrincipal lbuttondown 	pos 	do (
 		sourisClique 		pos 
 		if  not uiV_slider_H.survole  pos  and not uiV_slider_V.survole  pos  
-			do drag.demarrer ()
+			do m_drag.demarrer ()
 	)
-	on m_rollPrincipal lbuttonup	 	pos 	do (
+	on roll_fenetrePrincipal lbuttonup	 	pos 	do (
 		sourisRelache 		pos 
-		drag.arreter ()
+		m_drag.arreter ()
 	)
-	on m_rollPrincipal mousemove 	pos 	do (
+	on roll_fenetrePrincipal mousemove 	pos 	do (
 		sourisSeDeplace 	pos 
 		if not prefs.fenetre.pleinEcran and not prefs.fenetre.bandeau do
-			drag.suivreSouris ()
+			m_drag.suivreSouris ()
 	)
-	on m_rollPrincipal lbuttondblclk  	pos 	do sourisDblClique 	pos 
-	on m_rollPrincipal rbuttondown  	pos 	do menu.fenetre		 ()
+	on roll_fenetrePrincipal lbuttondblclk  	pos 	do sourisDblClique 	pos 
+	on roll_fenetrePrincipal rbuttondown  	pos 	do menu.fenetre		 ()
 	
 	---- TV arbo ----
 	on ui_TV 		mouseDown 		arg 	do  cliqueTV 	arg 	
@@ -1411,13 +1063,19 @@ rollout m_rollPrincipal "labib"  (
 	)
 	
 -- 	on ui_recherche TextChanged	arg 	do  debug "text changed"
-	
+	fn etatBtnFermer	_etat =(
+		case _etat of (
+			#Repos : 	ui_btnFermer.bitmap = openBitmap 	prefs.fenetre.ico_btnFermer_S
+			#Survol : 	ui_btnFermer.bitmap = openBitmap 	prefs.fenetre.ico_btnFermer_R
+			#Press : 	ui_btnFermer.bitmap = openBitmap 	prefs.fenetre.ico_btnFermer_P
+		)
+	)
 	---- bouton fermer -----
 	-- comportement --
-	on 	ui_btnFermer	mouseover 	do ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_S
-	on 	ui_btnFermer	mouseout 	do ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_R
-	on 	ui_btnFermer	mousedown do ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_P
-	on 	ui_btnFermer	mouseup	do ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_S
+	on 	ui_btnFermer	mouseover 	do 	etatBtnFermer #Survol
+	on 	ui_btnFermer	mouseout 	do 	etatBtnFermer #Repos
+	on 	ui_btnFermer	mousedown do 	etatBtnFermer #Press
+	on 	ui_btnFermer	mouseup	do 	etatBtnFermer #Repos
 	-- action --
 	on 	ui_btnFermer 	click 			do prt.fermer()
 
@@ -1432,11 +1090,11 @@ rollout m_rollPrincipal "labib"  (
 ------------------------------------------------------------------------------
 -- la structure gérant les fenetres de la biblio						--
 ------------------------------------------------------------------------------
-struct Fenetre_struct (
+struct str_fenetre (
 	
 	------------ Les MEMBRES	----------------------------------------------------------------------------------
 	prt,												---- pointeur vers la biblio ----
-	dialog 	= m_rollPrincipal,						---- rollout principal ----
+	dialog 	= roll_fenetrePrincipal,					---- rollout principal ----
 	
 	estOuverte				= false			,
 	selectionNoeud 		= undefined	,	---- le noeud selectionné dans le treeView ----	
@@ -1519,7 +1177,7 @@ struct Fenetre_struct (
 		
 		
 		-- pour les drags --
-		dialog.drag 		= drag_struct 	fenetre:dialog
+		dialog.m_drag 		= drag_struct 	fenetre:dialog
 		
 		dialog.changerAffichageLV  	prt.prefs.fenetre.affichageLV
 		

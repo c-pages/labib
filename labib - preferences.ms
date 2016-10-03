@@ -12,34 +12,43 @@
 	
 ######################################################################################################################## */ 
 	
+
+------------------------------------------------------------------------------
+-- Les preferences pour la fenetre des infos							--
+------------------------------------------------------------------------------
+struct str_prefsGenerales (
 	
+		dossierScript	, 						
+		dossierNouvelAsset	= getDir #Scene
+
+)
 
 ------------------------------------------------------------------------------
 ------ Rollout ---------------------------------------------------------------
 ------------------------------------------------------------------------------
 -- Les preferences pour la fenetre de la bibliotheque				--
 ------------------------------------------------------------------------------
-struct prefsFenetre_struct (
+struct str_prefsFenPrincipale (
 	
 	------------ Les membres	----------------------------------------------------------------------------------
-	dossierScript,										-- le dossier du script --
-	fichier = dossierScript + "\data\prefs.ini",	-- le fichier des preferences
+	dossierScript,											-- le dossier du script --
 	
 	---- les parametres de la fenetre ----	
-	taille 				= [578,366],		---- la taille de la fenetre	---
-	pos 				= [50,50],			---- la position de la fenetre ---	
+	fenLabib_estOuvert	= false,
+	fenLabib_pos 			= [50,50],
+	fenLabib_taille 		= [578,366],
 	
 	-- les sliders --
-	posSlider_H		= 173.0,
-	posSlider_V		= 315.0,
-	sliderFermer_V = false,	
-	sliderFermer_H = false,
+	sliderH_pos				= 173.0,
+	sliderH_estRabattu 	= false,
+	sliderV_pos				= 315.0,
+	sliderV_estRabattu 	= false,	
 	
 	-- les modes de la fenetre --
 	pleinEcran    	= false,
 	bandeau    		= false,
-	posBandeau 	= [0,0],	
-	tailleBandeau	= [0,0],		
+	bandeau_pos 	= [0,0],	
+	bandeau_taille	= [0,0],		
 	
 	accrochage		= true,
 	
@@ -55,7 +64,6 @@ struct prefsFenetre_struct (
 	posRendu		= [0,0],
 	
 	accroche		=	false,				---- si le mode accroche fenetres est activé --- ( depreciated )
-	isOpen 			= false,
 	couleurFond 	= (color 56 56 56),
 	tailleApercus 	= [255, 255 ],
 	
@@ -67,29 +75,26 @@ struct prefsFenetre_struct (
 	
 	---- Couleurs ----
 	-- des rollouts --
-	col_fenetreFond				= color 56  95 120, 	----  ----
--- 	col_fenetreFond				= color 190 196 212, 	----  ----
-	col_fenetreFore				= color 230  230 230, 	----  ----
-	-- trucs dotnet (LV, TV ) --
-	col_TVLVfond 					= color 160 166 182, 	----  ----
-	col_TVLVfondDossier 		= color 167 173 189, 	----  ----
--- 	col_TVLVforeDossier 		= color 217 217 217, 	----  ----
-	col_TVLVforeDossier 		= color 50 50 50, 	----  ----
-	col_TVLVfondDossierPrt 	= color 130 136 152, 	----  ----
--- 	col_TVLVfondDossierPrt 	= col_TVLVfondDossier, 	----  ----
--- 	col_TVLVfondDossierPrt 	= col_TVLVfondDossier, 	----  ----
-	col_TVLVfore 					= color 45	42	35, 		----  ----
+	col_fenetreFond			= color 56  95 120, 	----  ----
+	col_fenetreTxt				= color 230  230 230, 	----  ----
 	
-	col_TVfore 						= color 255	 255	255, 		----  ----
+	col_uiFond 					= color 160 166 182, 	----  ----
+	col_uiFondRecherche 	= color 190 196 212, 		----  ----
+	
+	col_fondDossier 			= color 167 173 189, 	----  ----
+	col_fondDossierPrt 		= color 130 136 152, 	----  ----
+	col_txtDossier 			= color 50 50 50, 	----  ----
+	col_txt 						= color 255	 255	255, 		----  ----
+	
+	col_TVLVfore 				= color 45	42	35, 		----  ----
+	
 
-	col_fondRech 					= color 190 196 212, 		----  ----
 	
 	caseVide		=	"-",
 	
 	---- images ----
 	-- apercus --
--- 	apercuVide 				= dossierScript + "data\img\apVide.jpg",
-	apercuVide 				= "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\biblio\apercus\apercu_262.jpg",
+	apercuVide 				= dossierScript + "data\img\apVide.jpg",
 	apercuDossier 				= dossierScript + "data\img\apNoeud.jpg",
 	apercuDossierParent 	= dossierScript + "data\img\apNoeudParent.jpg",
 -- 	-- Fond TV --
@@ -103,7 +108,19 @@ struct prefsFenetre_struct (
 
 )
 
+------------------------------------------------------------------------------
+-- Les preferences pour la fenetre des infos							--
+------------------------------------------------------------------------------
+struct str_prefsFenInfos (
+	
+	------------ Les membres	----------------------------------------------------------------------------------
+	dossierScript ="",	-- le dossier du script --
+	
+	---- les parametres ----
+	taille 			= [1300,900],		---- la taille de la fenetre	---
+	pos 				= [50,50]			---- la position de la fenetre ---	
 
+)
 
 
 ------------------------------------------------------------------------------
@@ -111,13 +128,12 @@ struct prefsFenetre_struct (
 ------------------------------------------------------------------------------
 -- Les preferences actives pour les rendus des  aperçus				--
 ------------------------------------------------------------------------------
-struct PrefsApercus_struct (
+struct str_prefsRendu (
 	
 	------------ Les membres	----------------------------------------------------------------------------------
 	public
 	
-	dossierScript ="",	-- le dossier du script --
-	fichier ="",	-- le fichier des preferences
+	dossierScript 					="",	-- le dossier du script --
 	
 	nomVide 						= "apVide" ,
 	nomCalqueImport 			= "ImportTemp",
@@ -166,21 +182,6 @@ struct PrefsApercus_struct (
 
 
 
-------------------------------------------------------------------------------
--- Les preferences pour la fenetre des infos							--
-------------------------------------------------------------------------------
-struct PrefsRollInfos_struct (
-	
-	------------ Les membres	----------------------------------------------------------------------------------
-	dossierScript ="",	-- le dossier du script --
-	fichier ="",	-- le fichier des preferences
-	
-	---- les parametres ----
-	taille 			= [1300,900],		---- la taille de la fenetre	---
-	pos 				= [50,50]			---- la position de la fenetre ---	
-
-)
-
 
 
 
@@ -192,19 +193,21 @@ struct PrefsRollInfos_struct (
 ------ LES PRéFéRENCES -------------------------------------------------------------------------------------------------------------------------------
 -- le struct principal qui regroupe les differents structs de préferences					--------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
-struct Preference_struct (
+struct str_preferences (
 
 		------------ Les membres	----------------------------------------------------------------------------------
 	public
 		dossierScript	, 													---- le dossier du script ----
-		fichierPrefs 	= dossierScript + "data\prefs.ini",		---- le fichier des preferences ----
-		fichierArbo		= dossierScript + "data\arbo.ini",		---- le fichier de l'arborescence ----
+		fichierPrefs 			= dossierScript + "data\prefs.ini",		---- le fichier des preferences ----
+		fichierArbo				= dossierScript + "data\arbo.ini",		---- le fichier de l'arborescence ----
+	
 		
 		---- les structs des diferenetes preferences	----
 	public	
-		fenetre 		=  prefsFenetre_struct 	fichier:fichierPrefs	dossierScript:dossierScript,
-		infos		 	=  PrefsRollInfos_struct 	fichier:fichierPrefs	dossierScript:dossierScript,
-		apercus 		= 	PrefsApercus_struct 	fichier:fichierPrefs	dossierScript:dossierScript,
+		fenetre 		=  str_prefsFenPrincipale 	dossierScript:dossierScript,
+		infos		 	=  str_prefsFenInfos 		dossierScript:dossierScript,
+		apercus 		= 	str_prefsRendu 			dossierScript:dossierScript,
+		general 		= 	str_prefsGenerales		dossierScript:dossierScript,
 		
 		------------ Les fonctions	----------------------------------------------------------------------------------
 	
@@ -213,8 +216,9 @@ struct Preference_struct (
 			
 			local propsNoms 	= getPropNames  _datas
 			
-			for propNom in propsNoms do
-				setINISetting   fichierPrefs		_nomDatas   propNom  	( ( getProperty _datas	 propNom	)	as string )
+			for propNom in propsNoms do 
+				if propNom != "dossierScript"
+					do setINISetting   fichierPrefs		_nomDatas   propNom  	( ( getProperty _datas	 propNom	)	as string )
 		),
 		fn chargerDatas  _datas  _nomDatas	=(
 			
@@ -276,8 +280,8 @@ struct Preference_struct (
 		
 		------------ Les evenements	----------------------------------------------------------------------------------
 		on create do (
-			debug "<prefs>		creation structure"
 			charger()
+			debug "<prefs>		Structure crée."
 			
 		)
 		

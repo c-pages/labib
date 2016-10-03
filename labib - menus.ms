@@ -19,6 +19,25 @@
 -------declaration (a voir comment pas la faire en global)  ------------------------------------------
 ------------------------------------------------------------- ------------------------------------------
 
+rcMenu rc_fenLabib
+(
+	---- menu ----
+	subMenu "Edit"	(
+		menuItem m_nouveauDossier 	"Nouveau dossier" 
+		menuItem m_supprimer 				"Supprimer"					
+	)
+	subMenu "Vues" (
+		menuItem m_afficherInfos 			"Infos"  		
+		menuItem m_afficherApercus		"Création des aperçus" 
+	)
+	subMenu "Préferences"	(
+		menuItem m_preferences 			"Préferences" 
+		menuItem m_resetPreferences 	"Reinitialiser" 
+	)
+	
+	---- evenements ----
+	
+)
 
 
 
@@ -26,7 +45,7 @@
 -------------------------------------------------------------
 ------- le struct ------------------------------------------
 -------------------------------------------------------------
-struct menu_struct (
+struct str_menus (
 	
 	public 	
 		fn elements = (			
@@ -38,13 +57,19 @@ struct menu_struct (
 					menuItem importerBrut 			"Brut" 			checked:true
 					menuItem importerCollapsed 	"Collapsed" 		
 					menuItem importerProxy 		"Proxy"					
-				)			
+				)
+				
+				seperator sep456			
+				
+				menuItem nouvelAsset 				"Nouvel Asset"
+				menuItem nouvelAssetDossier 	"Nouvel Asset depuis un dossier"
+				
 				seperator sep03				
 				menuItem nouveauDossier 		"Nouveau dossier"
-				subMenu  "Nouvel Asset" (
+			/* 	subMenu  "Nouvel Asset" (
 					menuItem nouvelAsset 				"Fichier"
 					menuItem nouvelAssetDossier 	"Dossier"
-				)
+				) */
 				seperator sep01								
 				menuItem Ourvir 						"Ourvir" 
 				menuItem OurvirExplo 				"Ourvir dans l'explorateur" 
@@ -81,26 +106,26 @@ struct menu_struct (
 				-- 				)
 				
 				------- les evenements ------------------------------------------				
-				on nouveauDossier 			picked do	labib.nouveauDossier ()				
-				on nouvelAsset 				picked do	labib.nouvelAsset ()				
-				on nouvelAssetDossier 		picked do	labib.nouvelAssetDossier ()	
+				on nouveauDossier 				picked do	labib.nouveauDossier ()				
+				on nouvelAsset 					picked do	labib.nouvelAsset ()				
+				on nouvelAssetDossier 			picked do	labib.nouvelAssetDossier ()	
 				
-				on supprimer 				picked do 	labib.supprimer 	labib.fenetre.selectionElements
-					
+				on supprimer 						picked do 	labib.supprimer 	( labib.getElementsSelection () ) 
+				
 				on affichage_details 			picked do	labib.fenetre.definirAffichage  #details
 				on affichage_liste				picked do	labib.fenetre.definirAffichage  #liste
 				on affichage_GrandeIcone		picked do	labib.fenetre.definirAffichage  #grandeIcone
 				on affichage_petitIcone		picked do	labib.fenetre.definirAffichage  #petitIcone
 				on affichage_tuile				picked do	labib.fenetre.definirAffichage  #tuile
 				
-				on afficherDossiers 		picked do 	(
+				on afficherDossiers 				picked do 	(
 					labib.prefs.fenetre.afficherDossier = not labib.prefs.fenetre.afficherDossier
 					labib.fenetre.actualiser ()
 				)
 				
-				on infos				picked do	labib.toggleInfos ()
-				on apercu				picked do	labib.toggleApercu ()
-				on rendu				picked do	labib.toggleRendu ()
+				on infos								picked do	labib.toggleInfos ()
+				on apercu							picked do	labib.toggleApercu ()
+				on rendu							picked do	labib.toggleRendu ()
 			
 			)
 			
@@ -117,14 +142,14 @@ struct menu_struct (
 			rcMenu rcMenuDossiers
 			(
 				------- le menu ------------------------------------------
-				subMenu  "Nouvel Asset" (
-					menuItem nouvelAsset 				"Fichier"
-					menuItem nouvelAssetDossier 	"Dossier"
-				)
+-- 				subMenu  "Nouvel Asset" (
+				menuItem nouvelAsset 				"Nouvel Asset"
+				menuItem nouvelAssetDossier 	"Nouvel Asset depuis un dossier"
+-- 				)
 				
 				seperator sep01
 				menuItem nouveauDossier 	"Nouveau dossier" 
-				menuItem renommer 			"Renommer"
+-- 				menuItem renommer 			"Renommer"
 				menuItem supprimer 			"Supprimer"
 				
 				seperator sep03
@@ -140,7 +165,7 @@ struct menu_struct (
 				on nouvelAssetDossier 		picked do	labib.nouvelAssetDossier ()		
 				on renommer 					picked do	labib.renommer ()	
 				
-				on supprimer 					picked do 	labib.supprimer 	#( labib.fenetre.selectionNoeud )
+				on supprimer 					picked do 	labib.supprimer 	( labib.getDossiercourant () )
 				
 			)
 			
@@ -191,6 +216,6 @@ struct menu_struct (
 		),
 	---------- evenements ----------------------------
 		on create do 
-			debug "<menu>		creation struture"
+			debug "<menu>		Structure crée."
 )
 

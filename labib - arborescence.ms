@@ -20,11 +20,13 @@
 -- 	un élément  est une feuille (composite) 				--
 -- 	peut representer une image, un fichier max ...		--
 --------------------------------------------------------------
-struct Element_struct (
+struct str_element (
 	
 	------------ Les membres	----------------------------------------------------------------------------------
 	---- parametres globaux----
-		separateursTags 		= ",-/.;",								---- characteres servants de séparateurs dans la liste des tags -----
+		m_prt, ---- pointeur vers arbo ---
+	
+	
 	
 	---- parametres de l'element ----
 	public
@@ -46,11 +48,17 @@ struct Element_struct (
 	---- le composite ----
 	public
 		parent 					= undefined,
-		enfants 					= #(),		
+		enfants 					= #(),		-- toujours vide --
 		
 	------------ Les fonctions	----------------------------------------------------------------------------------
 	---- Manipulations Composite ----
 	public
+	
+		
+		----fichier ---
+		fn enregistrer =	m_prt.ecrireNoeud this,
+		fn retirerDuFichier =	m_prt.supprimerNoeud this,
+		
 		fn ajouterEnfant 	_enfant 	= (),
 		fn definirParent 	_parent 	= ( parent = _parent ),
 		fn retirer  			 = (
@@ -70,9 +78,27 @@ struct Element_struct (
 			) else return undefined
 		),
 		
+		fn supprimer  			 = (
+			
+			-- on le supprime dans le parent --
+			if parent != undefined do (
+					debug "on le supprime dans le parent" var:parent.nom
+				local index  = findItem parent.enfants 	this
+				if index != 0 do deleteItem   parent.enfants 	index
+			)
+			
+			--- on le retire du fichier --
+			retirerDuFichier ()
+			
+			--- on suprrime les enfants du chichier ----
+			for enfant in enfants 
+				do enfant.supprimer  ()
+			
+		),
+		
 		fn compterElements = (
 			i=0
-			if classof this == Element_struct do  i+=1
+			if classof this == str_element do  i+=1
 			return i
 		),
 		fn getNbrEnfants 	= ( return 0),	--- n'as pas d'enfants ---
@@ -85,14 +111,23 @@ struct Element_struct (
 		---- tags ----
 		fn possedeTag 	_tagAChercher  =(
 			
-			local listeDesTags = filterString  tags 	separateursTags
+			local listeDesTags = filterString  tags 	m_prt.m_tagsSeparateurs
 			local result = false
 			
 			for tag in listeDesTags while not result do 
 				if tag == _tagAChercher do result = true
 			
 			result
-		)
+		),
+		
+		----- accesseurs -----
+		fn getNbrVertex 				= nbrVertex as string,
+		fn getNbrImports 			= nbrImports as string,
+		fn getDateDernierImport 	= m_prt.dateToString 	dateDernierImport,
+		fn getDateCreation 			= m_prt.dateToString 	dateCreation,
+		fn getAProxy 					= if proxy != undefined then "oui" else "non",
+		fn getAVueDetail 				= if detail != undefined then "oui" else "non"
+		
 		
 		
 )	-- fin Struct Element
@@ -105,13 +140,15 @@ struct Element_struct (
 -- 	un Noeud est une branche (composite) 				--
 -- 	permettant de classer les differents elements 	--
 --------------------------------------------------------------
-struct Noeud_struct (
+struct str_branche (
 	
 	------------ Les membres	----------------------------------------------------------------------------------
-	-- parametre du noeud --
+	-- parametre du branche --
 	public
+		m_prt, ---- pointeur vers arbo ---
+	
 		nomUnique 	= "",
-		nom 				= "nom du noeud",
+		nom 				= "nom du branche",
 		
 		
 	-- le composite --
@@ -123,6 +160,12 @@ struct Noeud_struct (
 	------------ Les fonctions	----------------------------------------------------------------------------------	
 	---- Manipulations Composite ----	
 	public
+	
+		----fichier ---
+		fn enregistrer =	m_prt.ecrireNoeud this,
+		fn retirerDuFichier =	m_prt.supprimerNoeud this,
+	
+	
 		fn ajouterEnfant 		_enfant 	= (
 			append enfants 	_enfant 
 			_enfant.retirer()
@@ -130,15 +173,45 @@ struct Noeud_struct (
 		),		
 		fn definirParent 	_parent 	= ( parent = _parent ),		
 		fn retirer  			 = (
-			if parent != undefined then (
+			
+			if nomUnique != "ROOT" and nomUnique != "RECHERCHE" then (
 				for enfant in enfants do 
 					enfant.retirer()
 				
-				_index  = findItem parent.enfants this
-				if _index != 0 do deleteItem   parent.enfants 	_index
-				parent = undefined
+				-- on le supprime dans le parent --
+				if parent != undefined do (
+					_index  = findItem parent.enfants this
+					if _index != 0 do deleteItem   parent.enfants 	_index
+					parent = undefined
+				)
+				
+				
 				return this
 			) else return undefined
+			
+			
+		),
+		fn supprimer  			 = (
+			
+			if nomUnique != "ROOT" and nomUnique != "RECHERCHE" then (
+				
+				-- on le supprime dans le parent --
+				if parent != undefined do (
+					debug "on le supprime dans le parent" var:parent.nom
+					local index  = findItem parent.enfants this
+					if index != 0 do deleteItem   parent.enfants 	index
+				)
+				
+				--- on le retire du fichier --
+				retirerDuFichier ()
+				
+				--- on suprrime les enfants du chichier ----
+				for enfant in enfants 
+					do enfant.supprimer  ()
+				
+				
+			) 
+			
 		),
 		
 		fn compterElements = (
@@ -150,39 +223,48 @@ struct Noeud_struct (
 		fn getNbrEnfants 	= ( return compterElements () ),
 		fn getIndexUnique 	= ( substring nomUnique 2 -1 as integer ) ,
 	
-		fn getElements 		= for enfant in enfants where classof enfant == element_struct 	collect enfant,
-		fn getNoeuds 			= for enfant in enfants where classof enfant == Noeud_struct 		collect enfant
+		fn getElements 		= for enfant in enfants where classof enfant == str_element 	collect enfant,
+		fn getNoeuds 			= for enfant in enfants where classof enfant == str_branche 		collect enfant,
 		
 		
-)	-- fin Struct noeud
+		----- accesseurs -----
+		fn getNbrVertex 				= "",
+		fn getNbrImports 			= "",
+		fn getDateDernierImport 	= "",
+		fn getDateCreation 			= "",
+		fn getAProxy 					= "",
+		fn getAVueDetail 				= ""
+		
+)	-- fin Struct branche
 
 
 
 --------------------------------------------------------------
 -------  L'ARBORESCENCE -------------------------------
 --------------------------------------------------------------
--- 	permet de gerer les noeuds et elements. 			--
+-- 	permet de gerer les branches et elements. 			--
 -- 	de lire ou ecrire l'arbo dans un fichier INI.		--
 -- 	faire des recherches (tags, nom, fichier... 			--
 --------------------------------------------------------------
-struct Arborescence_struct (
-	
+struct str_arborescence (
+
 	------------ 	MEMBRES	----------------------------------------------------------------------------------	
 	public
 	---- quelques noeuds ----
 		root,				---- le noeud racine de toute la bibliotheque -----
 		recherche,		---- le noeud contenant les resultat en cas de recherche utlisateur -----	
-		retour		=	Noeud_struct	nom:"..." 				\	---- le noeud afficher parmis les élément pour acceder au dossier parent -----	
-												parent:undefined 	\
-												nomUnique:"RETOUR",			
+		retour		=	str_branche	m_prt:			this 		\	---- le noeud afficher parmis les élément pour acceder au dossier parent -----	
+												nom:			"..." 			\
+												parent:		undefined 	\
+												nomUnique:	"RETOUR",			
 	
 	---- l'emplacement du fichier ----
-		fichier  ,			---- l'adresse du fichier ini de l'arborescence -----	
+		fichierArbo  ,			---- l'adresse du fichier ini de l'arborescence -----	
 	
 	private
 	---- noms uniques ----
 		indexUnique 					= 0,		---- le compteur d'éléments de la biblio pour gerer les nom uniques-----
-		prefixNomUnique_noeud 	= "N",
+		prefixNomUnique_branche 	= "N",
 		prefixNomUnique_element 	= "E",	
 		
 	----  pour Affichage dans listener -----	
@@ -191,33 +273,84 @@ struct Arborescence_struct (
 		decallage 	=	"",
 		
 	---- tags ----
-		separateursTags	=	(Element_struct()).separateursTags,
-	
+		m_tagsSeparateurs	=	", -/.;",
+		
 	------------ 	FONCTIONS		----------------------------------------------------------------------------------	
-	-------- GESTION DE L'ARBO --------
+			
 	---- les noms uniques -----
 	private
-		fn creerNomUnique_noeud 	= return prefixNomUnique_noeud 	+ (indexUnique += 1 ) as string,
+		fn creerNomUnique_branche 	= return prefixNomUnique_branche 	+ (indexUnique += 1 ) as string,
 		fn creerNomUnique_element 	= return prefixNomUnique_element + (indexUnique += 1 ) as string,
-	---- Creation des nouveaux élements ou noeuds ----
+			-------- GESTION DU FICHIER INI --------
 	public
-		fn creerNoeud  	nom:"Nouveau noeud" 		parent:root 		nomUnique:( creerNomUnique_noeud () )	=( 			
-			local		nouveauNoeud = Noeud_struct()			
+		fn ecrireNoeud  _noeud 					= (
+			-- param communs --
+			setINISetting   fichierArbo	_noeud.nomUnique   "nom"  _noeud.nom
+			setINISetting   fichierArbo	_noeud.nomUnique   "parent"  ( if _noeud.parent ==undefined then "undefined" else _noeud.parent.nom)
 			
-			---- Remplissage des parameteres du nouveau noeud 	----
+			case classOf _noeud  of (
+				str_branche: (
+					setINISetting   fichierArbo	_noeud.nomUnique   "composite"  		#branche
+					setINISetting   fichierArbo	_noeud.nomUnique   "estExpanded"  	( estExpanded as string )
+					
+					-- les enfants --
+					_enfants = ""
+					for enfant in _noeud.enfants do
+						_enfants += enfant.nomUnique + ";"
+					setINISetting   fichierArbo	_noeud.nomUnique   "enfants"  _enfants
+					
+					-- recusrcivité --
+					for enfant in _noeud.enfants do ecrireNoeud  enfant 
+				)
+				str_element: (
+					setINISetting   fichierArbo	_noeud.nomUnique   "composite"  #feuille
+					
+					setINISetting   fichierArbo	_noeud.nomUnique   "type"  				( _noeud.type		as string	)
+					setINISetting   fichierArbo	_noeud.nomUnique   "fichier"  			( _noeud.fichier		as string	)
+					setINISetting   fichierArbo	_noeud.nomUnique   "apercu"  			( _noeud.apercu	as string	)
+					setINISetting   fichierArbo	_noeud.nomUnique   "detail"  				( _noeud.detail		as string	)
+					setINISetting   fichierArbo	_noeud.nomUnique   "commentaires"  	( _noeud.commentaires		as string	)
+					setINISetting   fichierArbo	_noeud.nomUnique   "tags"  				( _noeud.tags		as string	)
+					setINISetting   fichierArbo	_noeud.nomUnique   "proxy"  				( _noeud.proxy		as string	)					
+					
+					setINISetting   fichierArbo	_noeud.nomUnique   "dateCreation"  			( _noeud.dateCreation as string )
+					setINISetting   fichierArbo	_noeud.nomUnique   "dateDernierImport"  	( _noeud.dateDernierImport as string )
+					setINISetting   fichierArbo	_noeud.nomUnique   "nbrImports"  			( _noeud.nbrImports as string )
+					setINISetting   fichierArbo	_noeud.nomUnique   "nbrVertex"  				( _noeud.nbrVertex as string )
+					
+				)
+			)
+			
+		),
+		
+		fn supprimerNoeud _noeud =(
+			-- on supprime du fichierArbo --
+			delINISetting   fichierArbo	_noeud.nomUnique
+		),
+		
+		
+	-------- GESTION DE L'ARBO --------
+	---- Creation des nouveaux élements ou branches ----
+	public
+		fn creerNoeud  	nom:"Nouvel branche" 	parent:root 	nomUnique:( creerNomUnique_branche () )	=( 			
+			local		nouveauNoeud = str_branche m_prt:this		
+			
+			---- Remplissage des parameteres du nouveau branche 	----
 			if parent != undefined do
 				parent.ajouterEnfant 	 nouveauNoeud
+			
 			nouveauNoeud.nom 			= nom
 			nouveauNoeud.nomUnique	= nomUnique
 			
 			nouveauNoeud			
 		),
-		fn creerElement 	nom:"Nouvel élément" 		parent:root  		nomUnique:( creerNomUnique_element () )	type:#vide		fichier:""		apercu:""	tags:""	=( 
-			local		nouvelElement = Element_struct()
+		fn creerElement 	nom:"Nouvel élément" 	parent:root  	nomUnique:( creerNomUnique_element () )	type:#vide		fichier:""		apercu:""	tags:""	=( 
+			local		nouvelElement = str_element	m_prt:this	
 			
 			---- Remplissage des parameteres du nouvel element----
-			if parent != undefined do
+			if parent != undefined do 
 				parent.ajouterEnfant 	nouvelElement
+			
 			nouvelElement.nom 			= nom
 			nouvelElement.nomUnique	= nomUnique
 			nouvelElement.type 			= type
@@ -227,20 +360,93 @@ struct Arborescence_struct (
 			
 			nouvelElement
 		),	
-	---- Supprimer un element de l'arbo ----
-		fn supprimer  _noeuds = (
-			for noeud in _noeuds do 
-				noeud.retirer()
+		
+		
+	private
+		fn lireNoeud 	_nomUnique 	_parent 	= (
+			debug "lireNoeud"
+			debug "noeud" var:_nomUnique
+			local nouveauNoeud
+			
+			if hasINISetting fichierArbo 	_nomUnique 	then (
+				
+				_composite = getINISetting   fichierArbo	_nomUnique   "composite"
+				case _composite of (
+					"feuille":( 
+						local type 			= getINISetting   fichierArbo	_nomUnique   "type"  
+						local nom 			= getINISetting   fichierArbo	_nomUnique   "nom"  
+						local fichier 		= getINISetting   fichierArbo	_nomUnique   "fichier"  
+						local apercu 		= getINISetting   fichierArbo	_nomUnique   "apercu"				
+						
+						nouveauNoeud = creerElement 	nom:nom  type:type	fichier:fichier  apercu:apercu	nomUnique:_nomUnique parent:_parent
+						
+						nouveauNoeud.commentaires	= getINISetting   fichierArbo	_nomUnique   "commentaires"
+						nouveauNoeud.tags 				= getINISetting   fichierArbo	_nomUnique   "tags"
+						nouveauNoeud.detail 			= getINISetting   fichierArbo	_nomUnique   "detail"
+						nouveauNoeud.proxy 			= getINISetting   fichierArbo	_nomUnique   "proxy"
+						
+						nouveauNoeud.dateCreation 			= execute ( getINISetting   fichierArbo	_nomUnique   "dateCreation" )
+						nouveauNoeud.dateDernierImport 	= execute ( getINISetting   fichierArbo	_nomUnique   "dateDernierImport" )
+						
+						dateTmp = getINISetting   fichierArbo	_nomUnique   "dateDernierImport"
+						
+						debug ""
+						debug ""
+						debug "_nomUnique"  var:_nomUnique
+						debug "fichierArbo"  var:fichierArbo
+						debug "dateDernierImport" var:nouveauNoeud.dateDernierImport
+						debug "dateTmp"  var:dateTmp
+						debug ""
+						debug ""
+						nouveauNoeud.nbrImports 			= ( getINISetting   fichierArbo	_nomUnique   "nbrImports" ) as integer
+						nouveauNoeud.nbrVertex 				= ( getINISetting   fichierArbo	_nomUnique   "nbrVertex" ) as integer
+					
+					)
+					"branche":(
+						
+						local nom 							= getINISetting   fichierArbo	_nomUnique   "nom"  
+						local enfantsNomsUniques 	= filterString 		(getINISetting   fichierArbo	_nomUnique   "enfants" )  ";"	
+						local enfants =#()
+						
+						nouveauNoeud 					= creerNoeud 	nom:nom   nomUnique:_nomUnique  parent:_parent
+						nouveauNoeud.estExpanded 	=  ( if ( getINISetting   fichierArbo	_nomUnique   "estExpanded" )  == "true" then true else false )  
+					
+						for enfantNomUnique in enfantsNomsUniques do 
+							append enfants ( lireNoeud   enfantNomUnique 		nouveauNoeud )
+						
+						nouveauNoeud.enfants = enfants
+						
+					)
+				) -- fin case
+				
+				return nouveauNoeud
+				
+			) else (
+				ecrire "ERREUR:	le noeud n'est pas dans le fichier INI\n"
+				ecrire "noeud" var:_nom 
+				ecrire "fichier" var:fichierArbo 
+			)
+			debug "nouveauNoeud" var:nouveauNoeud
+			
+			nouveauNoeud
+		),	
+		
+	public
+		
+		
+		---- Supprimer un element de l'arbo ----
+		fn supprimer  _noeuds 	= (
+			
+			if classof _noeuds != Array 	do _noeuds =#(_noeuds)
+			
+			for noeud in _noeuds do 	noeud.supprimer()
+			
 		),
+		
 	---- initialiser l'arborescence de tout ses éléments ----
 		fn initialiser = (
-			root 					= Noeud_struct()
-			root.nom 			= "Labib"
-			root.nomUnique 	= "ROOT"
-			
-			recherche					= Noeud_struct()
-			recherche.nom 			= "RECHERCHE"
-			recherche.nomUnique 	= "RECHERCHE"
+			root 			= str_branche 	m_prt:this	nom:"Labib"	nomUnique:"ROOT"			
+			recherche	= str_branche  	m_prt:this	nom:"RECHERCHE"	nomUnique:"RECHERCHE"
 			
 			nbrElements 		= 0
 			nbrNoeuds 			= 0
@@ -255,103 +461,11 @@ struct Arborescence_struct (
 		),
 	
 	
-	-------- GESTION DU FICHIER INI --------
-	private
-		fn ecrireNoeud  _noeud 					= (
-			-- param communs --
-			setINISetting   fichier	_noeud.nomUnique   "nom"  _noeud.nom
-			setINISetting   fichier	_noeud.nomUnique   "parent"  ( if _noeud.parent ==undefined then "undefined" else _noeud.parent.nom)
-			
-			case classOf _noeud  of (
-				noeud_struct: (
-					setINISetting   fichier	_noeud.nomUnique   "composite"  		#branche
-					setINISetting   fichier	_noeud.nomUnique   "estExpanded"  	( estExpanded as string )
-					
-					-- les enfants --
-					_enfants = ""
-					for enfant in _noeud.enfants do
-						_enfants += enfant.nomUnique + ";"
-					setINISetting   fichier	_noeud.nomUnique   "enfants"  _enfants
-					
-					-- recusrcivité --
-					for enfant in _noeud.enfants do ecrireNoeud  enfant 
-				)
-				element_struct: (
-					setINISetting   fichier	_noeud.nomUnique   "composite"  #feuille
-					
-					setINISetting   fichier	_noeud.nomUnique   "type"  				( _noeud.type		as string	)
-					setINISetting   fichier	_noeud.nomUnique   "fichier"  			( _noeud.fichier		as string	)
-					setINISetting   fichier	_noeud.nomUnique   "apercu"  			( _noeud.apercu	as string	)
-					setINISetting   fichier	_noeud.nomUnique   "detail"  				( _noeud.detail		as string	)
-					setINISetting   fichier	_noeud.nomUnique   "commentaires"  	( _noeud.commentaires		as string	)
-					setINISetting   fichier	_noeud.nomUnique   "tags"  				( _noeud.tags		as string	)
-					setINISetting   fichier	_noeud.nomUnique   "proxy"  				( _noeud.proxy		as string	)					
-					
-					setINISetting   fichier	_noeud.nomUnique   "dateCreation"  			( _noeud.dateCreation as string )
-					setINISetting   fichier	_noeud.nomUnique   "dateDernierImport"  	( _noeud.dateDernierImport as string )
-					setINISetting   fichier	_noeud.nomUnique   "nbrImports"  			( _noeud.nbrImports as string )
-					setINISetting   fichier	_noeud.nomUnique   "nbrVertex"  				( _noeud.nbrVertex as string )
-					
-				)
-			)
-			
-		),
-		fn lireNoeud 	_nomUnique 	_parent 	= (
-			
-			local _nouveauNoeud
-			
-			if hasINISetting fichier 	_nomUnique 	then (
-				
-				_composite = getINISetting   fichier	_nomUnique   "composite"
-				case _composite of (
-					"feuille":( 
-						_type 			= getINISetting   fichier	_nomUnique   "type"  
-						_nom 			= getINISetting   fichier	_nomUnique   "nom"  
-						_fichier 			= getINISetting   fichier	_nomUnique   "fichier"  
-						_apercu 		= getINISetting   fichier	_nomUnique   "apercu"				
-						
-						_nouveauNoeud = creerElement 	nom:_nom  type:_type	fichier:_fichier  apercu:_apercu	nomUnique:_nomUnique parent:_parent
-						
-						_nouveauNoeud.commentaires	= getINISetting   fichier	_nomUnique   "commentaires"
-						_nouveauNoeud.tags 				= getINISetting   fichier	_nomUnique   "tags"
-						_nouveauNoeud.detail 				= getINISetting   fichier	_nomUnique   "detail"
-						_nouveauNoeud.proxy 				= getINISetting   fichier	_nomUnique   "proxy"
-						
-						_nouveauNoeud.dateCreation 		= execute ( getINISetting   fichier	_nomUnique   "dateCreation" )
-						_nouveauNoeud.dateDernierImport 	= execute ( getINISetting   fichier	_nomUnique   "dateDernierImport" )
-						_nouveauNoeud.nbrImports 			= ( getINISetting   fichier	_nomUnique   "nbrImports" ) as integer
-						_nouveauNoeud.nbrVertex 			= ( getINISetting   fichier	_nomUnique   "nbrVertex" ) as integer
-					
-					)
-					"branche":(
-						
-						_nom 			= getINISetting   fichier	_nomUnique   "nom"  
-						
-						_enfants 		= filterString 		(getINISetting   fichier	_nomUnique   "enfants" )  ";"	
-						
-						_nouveauNoeud 	= creerNoeud 	nom:_nom   nomUnique:_nomUnique  parent:_parent
-						_nouveauNoeud.estExpanded =  ( if ( getINISetting   fichier	_nomUnique   "estExpanded" )  == "true" then true else false )  
-					
-						for _enfant in _enfants do (
-							lireNoeud   _enfant 		_nouveauNoeud
-						)
-						
-					)
-				) -- fin case
-				
-				return _nouveauNoeud
-				
-			) else (
-				debug "ERREUR:	le noeud n'est pas dans le fichier INI\n" _nom fichier
-				debug "noeud" var:_nom 
-				debug "fichier" var:fichier 
-			)
-		),		
-	public
 		
+	private
 		fn enregistrer 	= (
 			debug "<arbo>		enregistrement"
-			setINISetting   fichier	"params"   "indexUnique"  ( indexUnique as string )
+			setINISetting   fichierArbo	"params"   "indexUnique"  ( indexUnique as string )
 			ecrireNoeud Root
 		),	
 		
@@ -360,12 +474,12 @@ struct Arborescence_struct (
 			
 			initialiser()
 			
-			---- si existe pas on initialise le fichier ----
-			if not doesFileExist fichier then enregistrer ()
+			---- si existe pas on initialise le fichierArbo ----
+			if not doesFileExist fichierArbo then enregistrer ()
 			---- sinon on charge ----
 			else (
 				
-				indexUnique = ( getINISetting   fichier	"params"   "indexUnique" ) as integer
+				indexUnique = ( getINISetting   fichierArbo	"params"   "indexUnique" ) as integer
 				root = lireNoeud   "ROOT" 	undefined
 			)
 			_root
@@ -379,14 +493,14 @@ struct Arborescence_struct (
 			local result 	= undefined
 			
 			case classOf noeud of (
-				Element_struct:	if noeud.fichier == _fichier	do result =  noeud
-				Noeud_struct:		(					
+				str_element:	if noeud.fichier == _fichier	do result =  noeud
+				str_branche:		(					
 					local trouve 	= false
 					for enfant in noeud.enfants while not trouve	do (	
 							result =  getParFichier 	_fichier	 	noeud:enfant
 							if result != undefined do 	trouve = true
 						)						
-					) -- fin case Noeud_struct ---					
+					) -- fin case str_branche ---					
 			) -- fin case of --
 			
 			result
@@ -404,7 +518,7 @@ struct Arborescence_struct (
 				default: (
 					if noeud.nomUnique == _nomUnique	
 						then result =  noeud
-						else	if classOf noeud ==	Noeud_struct do	(		
+						else	if classOf noeud ==	str_branche do	(		
 							local trouve 	= false
 							for enfant in noeud.enfants while not trouve	do (
 									result =  getParNomUnique 	_nomUnique	 	noeud:enfant
@@ -426,11 +540,11 @@ struct Arborescence_struct (
 			local result = #()
 			
 			case classOf noeud of (
-				Element_struct:	if noeud.nom == _nom			do (
+				str_element:	if noeud.nom == _nom			do (
 											debug "## TROUVE ###"
 											append	result 	noeud
 										)
-				Noeud_struct:		for enfant in noeud.enfants 	do result +=  getParNom 	_nom	 noeud:enfant 
+				str_branche:		for enfant in noeud.enfants 	do result +=  getParNom 	_nom	 noeud:enfant 
 			)
 			
 			result
@@ -441,9 +555,9 @@ struct Arborescence_struct (
 			local elements = #()
 			
 			case classOf noeud of (
-				Element_struct:	() --- append 	elements 	noeud
-				Noeud_struct:		(
-					elements += for enfant in noeud.enfants where classof enfant == Element_struct collect  enfant
+				str_element:	() --- append 	elements 	noeud
+				str_branche:		(
+					elements += for enfant in noeud.enfants where classof enfant == str_element collect  enfant
 					if recursif do for enfant in noeud.enfants do  elements += 	getNoeuds 	noeud:enfant	recursif:true
 				)
 			)
@@ -457,9 +571,9 @@ struct Arborescence_struct (
 			local elements = #()
 			
 			case classOf noeud of (
-				Element_struct:	() --- append 	elements 	noeud
-				Noeud_struct:		(
-					elements += for enfant in noeud.enfants where classof enfant == Noeud_struct collect  enfant
+				str_element:	() --- append 	elements 	noeud
+				str_branche:		(
+					elements += for enfant in noeud.enfants where classof enfant == str_branche collect  enfant
 					if recursif do for enfant in noeud.enfants do  elements += 	getNoeuds 	noeud:enfant	recursif:true
 				)
 			)
@@ -480,7 +594,7 @@ struct Arborescence_struct (
 		fn chercherTags 	_tagsAChercher	noeud:root  =	(
 			
 			local	elemsResult 		= #()			
-			local	tagsAChercher 	= filterString	_tagsAChercher 	separateursTags
+			local	tagsAChercher 	= filterString	_tagsAChercher 	m_tagsSeparateurs
 			local	elementsTotal 	= getElements 	recursif:true
 			
 			for tagAChercher in tagsAChercher do
@@ -496,12 +610,12 @@ struct Arborescence_struct (
 			
 			local result 	= #()
 			case classOf noeud of (
-				Element_struct:(
-					local listTagsDuNoeud = filterString 	noeud.tags 	separateursTags
+				str_element:(
+					local listTagsDuNoeud = filterString 	noeud.tags 	m_tagsSeparateurs
 					for tag in listTagsDuNoeud do 
 						appendifunique 	result 	tag
 				)
-				Noeud_struct:
+				str_branche:
 					for enfant in noeud.enfants do (
 						tags 	= getTags		noeud:enfant			
 						for tag in tags do
@@ -578,12 +692,12 @@ struct Arborescence_struct (
 			0
 		),
 		fn sortParCreation 			elem1  elem2 = (
-			/* case of
-			(
-				(elem1.nom < elem2.nom): -1
-				(elem1.nom > elem2.nom): 1
-				default: 0
-			) */
+-- 			case of
+-- 			(
+-- 				(elem1.nom < elem2.nom): -1
+-- 				(elem1.nom > elem2.nom): 1
+-- 				default: 0
+-- 			) 
 			return compareDate elem1  elem2
 		),
 		fn sortParCreationInv 		elem1  elem2 = (
@@ -628,24 +742,26 @@ struct Arborescence_struct (
 	-------- manipulations diverses --------
 	public
 		fn dateToString 	_date = (
-			local result 
-			
-			zeroJour 	= if _date[4] <10 then  "0"  else ""
-			zeroMois 	= if _date[2] <10 then  "0"  else ""
-			zeroH 		= if _date[5] <10 then  "0"  else ""
-			zeroM 		= if _date[6] <10 then  "0"  else ""
-			zeroS 		= if _date[7] <10 then  "0"  else ""
-			if _date[4] != 0 then 
-				result = zeroJour + _date[4] as string + "/"  + zeroMois + _date[2] as string+ "/"  + _date[1] as string + "  "  + zeroH + _date[5] as string + ":"  + zeroM  + _date[6] as string + ":"  +zeroS + _date[7] as string 
-			else 
-				result = ""
-			
+			if _date != undefined then (
+				local result 
+				
+				zeroJour 	= if _date[4] <10 then  "0"  else ""
+				zeroMois 	= if _date[2] <10 then  "0"  else ""
+				zeroH 		= if _date[5] <10 then  "0"  else ""
+				zeroM 		= if _date[6] <10 then  "0"  else ""
+				zeroS 		= if _date[7] <10 then  "0"  else ""
+				if _date[4] != 0 then 
+					result = zeroJour + _date[4] as string + "/"  + zeroMois + _date[2] as string+ "/"  + _date[1] as string + "  "  + zeroH + _date[5] as string + ":"  + zeroM  + _date[6] as string + ":"  +zeroS + _date[7] as string 
+				else 
+					result = ""
+				
+			) else result = ""
 			result
 		),
 	
 	
 	-------- AFFICHAGE de l'arbo dans le listener --------
-	private
+	public
 		fn afficherNoeud 	_noeud = (
 			decallage =""
 			for i = 0 to indent do
@@ -653,7 +769,7 @@ struct Arborescence_struct (
 			
 			format "%> nom: %\n" 			decallage	_noeud.nom
 			format "%  nomUnique: %\n" 	decallage	_noeud.nomUnique		
-			format "%  parent: %\n" 			decallage	(_noeud.parent as string)	
+			format "%  parent: %\n" 		decallage	(_noeud.parent as string)	
 			format "%  enfants: %\n" 		decallage	(_noeud.enfants as string)			
 			
 			for enfant in _noeud.enfants do (
@@ -662,7 +778,7 @@ struct Arborescence_struct (
 				indent -= 1
 			)
 		),
-	public		
+			
 		fn afficher = (
 			format "\n----- Arborescence --------------\n"
 			afficherNoeud root
@@ -673,19 +789,19 @@ struct Arborescence_struct (
 	------------ EVENEMENTS	----------------------------------------------------------------------------------	
 	private
 		on create do (
-			debug "<arbo>		creation struture"
 			initialiser ()
 			
 			-- on verifie qu'il existe sinon on creer un vierge ------
-			if not doesfileexist fichier then (
-				debug "fichier absent, création du fichier"		var:fichier
+			if not doesfileexist fichierArbo then (
+				debug "fichier absent, création du fichier"		var:fichierArbo
 				initialiser()			
 				enregistrer()
 			) 		
 			
 			charger()
+			debug "<arbo>		Structure crée."
 		)
-	
+	 
 	
 )	-- fin Struct Arborescence
 

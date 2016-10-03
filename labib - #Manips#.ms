@@ -54,6 +54,17 @@ format "\n----------------------------------------------------------------------
 Form.KeyPreview = true <-
 try labib.fenetre.fermer () catch ()
 
+ #### LV ####
+
+showmethods	labib.fenetre.dialog.ui_LV
+show			labib.fenetre.dialog.ui_LV
+
+showmethods	labib.fenetre.dialog.ui_LV.items
+show			labib.fenetre.dialog.ui_LV.items
+
+showmethods	labib.fenetre.dialog.ui_LV.items.item[0]
+show			labib.fenetre.dialog.ui_LV.items.item[0]
+destroydialog labib.fenetre.m_dialog
 
 --- ouvrir le dossier script --
 ShellLaunch "explorer.exe" @"C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib"

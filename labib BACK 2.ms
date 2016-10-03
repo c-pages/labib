@@ -14,9 +14,6 @@
 
 	todo:
 	-	le placement de la fenetre en bandeau est basé sur mon systeme à deux ecrans (je divise par 2 untruc) a voir comment faire plus universel
-	-	surveiller un dossier facon winamp pou mise a jour auto de la base 
-		( par exemple: 	- à l'ouverture on scane les dossiers, et on ajoute en auto les nouveaux assets sans faire de preview (comme ca c'est rapide)
-							- on a la possibilité dans un menu de selecctioner les assets sans previews (qui sont afficher de "RECHERCHE") )
 	
 ##########################################################################################################################
 	changelog:
@@ -28,29 +25,16 @@
 
 
 ------ DEBUG	------------------------------------------------------------------------------------------------------------------------------------
-global 	debug
-DEBUG_MODE = true
+global 	debug, 	b_DEBUG = true	
 fn debug 	_txt  var:"" = 	(
-	if DEBUG_MODE   do (
-		format "<DEBUG>	"
+	if b_DEBUG do 
+		format "<Labib>	"
 		if var == "" then 
 			format "%\n" ( _txt  )
 		else 
 			format "	- % : %\n" _txt   ( var  as string )
-	)
 )		
 ------ DEBUG	------------------------------------------------------------------------------------------------------------------------------------
-
------ output ------------------------------
-fn ecrire 	_txt  var:"" = 	(
-	
-	format "<Labib>	"
-	if var == "" then 
-		format "%\n" ( _txt  )
-	else 
-		format "	- % : %\n" _txt   ( var  as string )
-)		
------ output ------------------------------
 
 
 ----  Le dossier du script  ----
@@ -59,16 +43,29 @@ dossierScript 		-- en fonction de monMax --
 
 --------------------------------------
 ----- les fichiers à inclure --------
+-- en fonction de monMax		--
 --------------------------------------
-dossierScript = getdir #userScripts + "\\" + nomDossierScript + "\\"
+	---- pour mon max 2017 ----
+	dossierScript = "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\\" + nomDossierScript + "\\"
 
-include "$userScripts\labib\labib - structs.ms"
-include "$userScripts\labib\labib - preferences.ms"
-include "$userScripts\labib\labib - menus.ms"		
-include "$userScripts\labib\labib - arborescence.ms"	
+	include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - structs.ms"			
+	include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - preferences.ms"
+	-- 	include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - arborescence.ms"	
+	-- 	include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - fenetres secondaires.ms"
+	include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - fenetre.ms"
+	-- 	include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - edition.ms"
+	-- 	include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - menus.ms"
+
+-- 		---- pour tous ----
+-- 		dossierScript = getdir #userScripts + "\\" + nomDossierScript + "\\"
+-- 		
+-- 		include "$userScripts\labib\labib - structs.ms"
+-- 		include "$userScripts\labib\labib - preferences.ms"
+-- 	 	include "$userScripts\labib\labib - arborescence.ms"	
 -- 	 	include "$userScripts\labib\labib - fenetres secondaires.ms"
-include "$userScripts\labib\labib - fenetre.ms"
--- 	 	include "$userScripts\labib\labib - edition.ms"	
+-- 		include "$userScripts\labib\labib - fenetre.ms"
+-- 	 	include "$userScripts\labib\labib - edition.ms"
+-- 	 	include "$userScripts\labib\labib - menus.ms"			
 
 -----------------------------------------
 ----- La structure principale -------
@@ -76,146 +73,71 @@ include "$userScripts\labib\labib - fenetre.ms"
 struct str_labib (
 	
 	------------ Les structures	----------------------------------------------------------------------------------
-	prefs		= str_preferences 	dossierScript:dossierScript,		---- les préferences utilisateurs ----
-	arbo		= str_arborescence 	fichierArbo:prefs.fichierArbo,			---- la gestion de l'arborescenece de la bibliotheque ----	
-	menus	= str_menus (),													---- les menus clique droit ----
-	fenetre	= str_fenLabib			m_labib:this, 							---- les operations sur la fenetre principale ----
+	prefs		= str_preferences 			dossierScript:dossierScript,		---- les préferences utilisateurs ----
+	fenetre	= str_fenLabib	()			--	m_labib:this, 						---- les operations sur la fenetre principale ----
+-- 		arbo		= Arborescence_struct 	fichier:prefs.fichierArbo,			---- la gestion de l'arborescenece de la bibliotheque ----	
 -- 		rendu,																					---- la gestion des rendus des apercus ----		
 -- 		edition	= Edition_struct 				prefs:prefs		arbo:arbo,			---- l'edition proprement dite de la bibliotheque (creation d'un asset, import dans la scene ... ) ----
-	
-	
-	chrono = str_chrono (),
+-- 		menu		= menu_struct (),														---- les menus clique droit ----
 	
 	------------ Fonctions		----------------------------------------------------------------------------------
-
-	public
-	
-	fn getDossierCourant = (
-		fenetre.m_dialog.m_TV.m_selection
+	/* fn renommer =(
+		---- Entrer en mode edition du label du noeud selectionné --
+		local noeudArboSelec = fenetre.selectionNoeud
+		fenetre.dialog.editerNomTV 	noeudArboSelec
 	),
-	fn getElementsSelection = (
-		fenetre.m_dialog.m_LV.m_selection
-	),
-	
-	--- actions generales ---
-	fn nouveauDossier 	=(
-		
+	fn nouveauDossier 	=(			
 		-- creation de noeud --
-		local noeudArboSelec = getDossierCourant ()
+		local noeudArboSelec = fenetre.selectionNoeud
 		local parent
 		if noeudArboSelec.nomUnique == "RECHERCHE" 
-			then	parent = arbo.root
+			then parent = arbo.root
 			else	parent = noeudArboSelec
 		local	nouveauNoeud  = arbo.creerNoeud  	parent:parent
 		
+		--ecriture du fichier ---
+		arbo.enregistrer ()
+		
 		-- actualisation rollout--
-		fenetre.actualiser()		
-		fenetre.selectionnerTV		nouveauNoeud.parent
-		fenetre.selectionnerLV		nouveauNoeud
-		fenetre.editerNom			nouveauNoeud
-		
-		--- ecrire sur le fichier ---
-		nouveauNoeud.enregistrer ()
-		parent.enregistrer ()
-		
-		--- sortie Listener --
-		ecrire "Noeud renommé."
+		fenetre.actualiser()
+		fenetre.dialog.selectionnerTV		nouveauNoeud.parent
+		fenetre.dialog.selectionnerLV		#( nouveauNoeud )
 		
 	),
 	fn nouvelAsset =(
 		
-		--- sortie Listener --
-		chrono.demarrer ()
-		
-		---- fenetre de pointage de fichier ----
+		debug "nouvelAsset..."
 		local	fichierSource = 	getOpenFileName  	caption:				"Fichier source du nouvel asset" \
 																	types:				"model (*.max)|*.max|All Files (*.*)|*.*|"	\
-																	historyCategory:	"labib"	\
-																	filename:			( prefs.general.dossierNouvelAsset +"\\" )
+																	historyCategory:	"labib"	
+-- 																		filename:elemSelect[1].fichier  
 		
 		if 	fichierSource != undefined  do (
-			
 			debug "Importer " var:fichierSource
-			
-			---- creation du nouveau noeud ----
 			local nouvelElement = arbo.creerElement  	nom:(getFilenameFile	fichierSource) \
-																		parent:(  getDossierCourant () )   		\
+																		parent:fenetre.selectionNoeud  			\
 																		fichier:fichierSource							\
 																		apercu:""	\
 																		tags:""	\
 																		type:#vide	
-			
-			--- ecrire sur le fichier ---
-			nouvelElement.enregistrer ()
-			nouvelElement.parent.enregistrer ()
-			
-			---- actualise l4UI ----
+			arbo.enregistrer ()
 			fenetre.actualiser ()			
-			fenetre.selectionnerLV 	nouvelElement 
-			
+			fenetre.dialog.SelectionnerLV 	nouvelElement
 			debug "nouvelAsset Créé."
 			
-			--- sortie Listener --
-			ecrire ( "Asset créé: " + nouvelElement.nom )
-			chrono.ecrireDuree ()
-			
 		)
+		
 	),		
-	fn nouvelAssetDossier =(
-		
-		local	dossierSource = 	getSavePath	caption:	"Fichier source du nouvel asset" \
-															initialDir:	prefs.general.dossierNouvelAsset
-		
-		if dossierSource != undefined do (
-			
-			ecrire "Créer asset depuis dossier ..."
-			
-			chrono.demarrer ()
-			
-			debug "Creer asset"
-			
-			local fichiersMax = getFiles ( dossierSource + "\\*.max" )
-			local nouveauxElements = #()
-			
-			for fichierSource in fichiersMax do (
-				
-				local nouvelElement = arbo.creerElement  	nom:(getFilenameFile	fichierSource) \
-																			parent:(  getDossierCourant () )   		\
-																			fichier:fichierSource							\
-																			apercu:""	\
-																			tags:""		\
-																			type:#vide
-				debug "nom" var:nouvelElement.nom
-				
-				nouvelElement.enregistrer ()
-				append nouveauxElements nouvelElement
-			)
-			
-			(  getDossierCourant () ).enregistrer ()
-			
-			fenetre.actualiser ()			
-			fenetre.selectionnerLV 	nouveauxElements
-			
-			debug "nouvelAsset Créé."
-			
-			--- maj des prefs ---
-			prefs.general.dossierNouvelAsset = dossierSource
-		)
-		ecrire ( "Dossier importer : " +  nouveauxElements.count as string + " assets crées." )
-		chrono.ecrireDuree ()
-		
-	),
+	fn nouvelAssetDossier =(),
 	fn supprimer _noeudsArbo	=(
 		
-		if classof _noeudsArbo != Array 
-			do _noeudsArbo = #(_noeudsArbo)
-		
 		local parent = _noeudsArbo[1].parent
-		arbo.supprimer 	_noeudsArbo
--- 		arbo.enregistrer ()
+		arbo.supprimer _noeudsArbo
+		arbo.enregistrer ()
 		
-		fenetre.actualiser()		
-		fenetre.selectionnerTV		parent
+		fenetre.actualiser ()			
+		fenetre.dialog.actualiserSelections ()			
+		fenetre.dialog.SelectionnerTV 	parent
 		
 	),		
 	fn ouvrirSiteInternet = (
@@ -240,16 +162,16 @@ struct str_labib (
 			then fenetre.rendu.fermer ()
 			else	fenetre.rendu.ouvrir ()
 	),
-	
+	 */
 	
 	--- la fenetre ----
-	fn ouvrir 		= fenetre.ouvrir(),
-	fn fermer 		= fenetre.fermer(),
+-- 	fn ouvrir 		= fenetre.ouvrir(),
+-- 	fn fermer 		= fenetre.fermer(),
 	fn estOuvert  	= prefs.fenetre.fenLabib_estOuvert, 
 	
 	------------ Evenements 	----------------------------------------------------------------------------------
 	on create do 
-		ecrire "Structure Labib crée."
+		debug "<LABIB>		creation struture"
 	
 ) -- fin struct labib ----
 
