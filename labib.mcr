@@ -1,15 +1,20 @@
 
-
 try destroydialog labib.fenetre.m_dialog	catch  ()
-Global 	labib = fileIn "$userScripts\labib\labib.ms" 
-	
 
+/* 
+
+Global 	labib = fileIn "$userScripts\labib\labib.ms" 
+labib.ouvrir 	()
+	
+ */
+ 
+ 
 macroScript labib
 category:"#CPages"
 toolTip:""
 (
 	
--- 	Global 	labib = fileIn "$userScripts\labib\labib.ms" 
+	Global 	labib = fileIn "$userScripts\labib\labib.ms" 
 	
 	on execute do 	
 		if ( labib.estOuvert () )	

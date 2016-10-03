@@ -29,7 +29,7 @@
 
 ------ DEBUG	------------------------------------------------------------------------------------------------------------------------------------
 global 	debug
-DEBUG_MODE = true
+DEBUG_MODE = false
 fn debug 	_txt  var:"" = 	(
 	if DEBUG_MODE   do (
 		format "<DEBUG>	"
