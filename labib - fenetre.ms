@@ -41,46 +41,50 @@ rollout roll_labib  "Labib" width:296 height:296
 	local m_ecartUI			= 19		----  ----
 	local m_ecartUISimple	= 1		----  ----	
 	
+	---- drag ----
+	local dragFlag = false
+	local dragDropEffect=dotNetClass "System.Windows.Forms.DragDropEffects"
+	
 	------------  UI	----------------------------------------------------------------------------------
 	local 	ui_slider_H  		 	= 	str_btnVirtuel					pos:		[200, m_ecartUI] \
-																					width:	m_ecartUI	\
-																					height: 	( m_tailleRolloutCreation.y - 2 *m_ecartUI ) 
+																							width:	m_ecartUI	\
+																							height: 	( m_tailleRolloutCreation.y - 2 *m_ecartUI ) 
 																					
 	local 	ui_slider_V  	 		= 	str_btnVirtuel					pos:		[m_ecartUI, m_tailleRolloutCreation.y - 100 ] \
-																					width:	( ui_slider_H.pos.x )	\
-																					height: 	m_ecartUI
+																							width:	( ui_slider_H.pos.x )	\
+																							height: 	m_ecartUI
 																					
-	dotNetControl 	ui_TV 			"TreeView"			 			pos:		[m_ecartUI ,m_ecartUI]	\
-																					width:	ui_slider_V.width	\
-																					height:	0 	
+	dotNetControl ui_TV 				"TreeView"			 			pos:		[m_ecartUI ,m_ecartUI]	\
+																							width:	ui_slider_V.width	\
+																							height:	0 	
 																					
-	dotNetControl 	ui_recherche	"TextBox"	 					pos:		[ m_ecartUI , 	ui_slider_V.pos.y + ui_slider_V.height   ]  \
-																					width:	ui_slider_V.width \
-																					border:	false	\
-																					height:	0
+	dotNetControl ui_recherche		"TextBox"	 						pos:		[ m_ecartUI , 	ui_slider_V.pos.y + ui_slider_V.height   ]  \
+																							width:	ui_slider_V.width \
+																							border:	false	\
+																							height:	0
 																					
-	dotNetControl 	ui_tags	"system.windows.forms.listView"	pos:		( ui_recherche.pos + [0,ui_recherche.height  + m_ecartUISimple ] ) \
-																					width:	ui_slider_V.width  \
-																					height:	0
+	dotNetControl ui_tags	"system.windows.forms.listView"	pos:		( ui_recherche.pos + [0,ui_recherche.height  + m_ecartUISimple ] ) \
+																							width:	ui_slider_V.width  \
+																							height:	0
 																					
-	dotNetControl 	ui_LV "system.windows.forms.listView" 	pos:		[ ui_slider_H.pos.x + ui_slider_H.width, m_ecartUI ] \
-																					width:	0 \
-																					height:	( m_tailleRolloutCreation.y - 2* m_ecartUI ) \
-																					border:	false
+	dotNetControl ui_LV 	"system.windows.forms.listView"	pos:		[ ui_slider_H.pos.x + ui_slider_H.width, m_ecartUI ] \
+																							width:	0 \
+																							height:	( m_tailleRolloutCreation.y - 2* m_ecartUI ) \
+																							border:	false
 																					
-	imgTag 			ui_btnFermer	"X"								pos:		[ m_tailleRolloutCreation.x - 1 *m_ecartUI	, 0 ] \
-																					width:	m_ecartUI 	\
-																					height:	m_ecartUI  \
-																					tooltip: 	"Fermer Labib" \
-																					style:	#bmp_center /* 	\
-																					visible:	false */
+	imgTag 			ui_btnFermer	"X"									pos:		[ m_tailleRolloutCreation.x - 1 *m_ecartUI	, 0 ] \
+																							width:	m_ecartUI 	\
+																							height:	m_ecartUI  \
+																							tooltip: 	"Fermer Labib" \
+																							style:	#bmp_center /* 	\
+																							visible:	false */
 	
 	------------  Structures	----------------------------------------------------------------------------------	
-	local 	m_drag		---- controleur du drag de la fenetre  ----
-	local		m_LV 		---- controleur du liste view ----
-	local		m_TV 		---- controleur du tree view ----
-	local 	m_hist		---- controleur de l'historique ----
-	local 	m_menus	---- controleur des menus ----
+	local 	m_drag		---- manager du drag de la fenetre  ----
+	local		m_LV 			---- manager du liste view ----
+	local		m_TV 			---- manager du tree view ----
+	local 	m_hist			---- manager de l'historique ----
+	local 	m_menus		---- manager des menus ----
 	
 	------------  Fonctions	----------------------------------------------------------------------------------
 	---- la fenetre ----
@@ -138,6 +142,79 @@ rollout roll_labib  "Labib" width:296 height:296
 		--- on retaille la fenetre --
 		fen_recomposer()
 		
+	)
+	
+	fn actualiser 	= (
+		---- on garde la selection ----
+		local selecTV_BACK = m_TV.m_selection
+		local selecLV_BACK 	= m_LV.m_selection
+		
+		---- on actualise  ----
+		m_TV.actualiser 	()
+		m_LV.afficher		selecTV_BACK
+		
+		---- on reselectionne ----
+		m_TV.selectionner selecTV_BACK
+		m_LV.selectionner selecLV_BACK
+		
+	)
+	fn initialiser 	= (
+		
+		---- initialiser les membres ------------
+		-- pointeurs --
+		m_prefs 		= m_prt.m_prefs
+		m_arbo 		= m_prt.m_labib.arbo
+		m_menus 	= m_prt.m_labib.menus
+		-- managers --
+		m_drag 		= str_drag	 			fenetre:roll_labib
+		m_hist 			= str_historique 		m_prt:roll_labib
+		-- ui --
+		m_LV 			= str_listViewMgr		m_rollout:roll_labib	m_ui:ui_LV
+		m_TV 			= str_treeViewMgr	m_rollout:roll_labib	m_ui:ui_TV
+		
+		---- l'UI ------------
+		-- icones --
+		ui_btnFermer.bitmap = m_prt.m_icos_fermer[1]
+		
+		--- Sliders---		
+		if m_prefs.fenetre.sliderH_estRabattu  
+			then	ui_slider_H.pos.x 	= 0 
+			else 	ui_slider_H.pos.x  	= m_prefs.fenetre.sliderH_pos		
+		if m_prefs.fenetre.sliderV_estRabattu  
+			then	ui_slider_V.pos.y 	= roll_labib.height - m_ecartUI
+			else 	ui_slider_V.pos.y 	= m_prefs.fenetre.sliderV_pos
+		
+		--- type d'affichage du LV ---
+		m_LV.changerAffichage		m_prefs.fenetre.affichageLV
+		
+		local col_fondVue 	= m_prefs.fenetre.col_uiFond
+		local col_textes 		= m_prefs.fenetre.col_txt
+		
+		--- textbox ---		
+		ui_recherche.BackColor 	= (dotNetClass "System.Drawing.Color").fromARGB 	col_fondVue.r 		col_fondVue.g 	col_fondVue .b
+		ui_recherche.ForeColor 	= (dotNetClass "System.Drawing.Color").fromARGB 	col_textes.r 		col_textes.g 		col_textes.b
+		ui_recherche.borderstyle 	= (dotnetclass "System.Windows.Forms.BorderStyle").None
+		ui_recherche.AcceptsTab 	= true
+		
+		---- tags ----
+		ui_tags.BackColor 			= (dotNetClass "System.Drawing.Color").fromARGB 	col_fondVue.r 		col_fondVue.g 	col_fondVue .b
+		ui_tags.ForeColor 			= (dotNetClass "System.Drawing.Color").fromARGB 	col_textes.r 		col_textes.g 		col_textes.b
+		ui_tags.borderstyle 			= (dotnetclass "System.Windows.Forms.BorderStyle").None
+		ui_tags.view 					= (dotNetClass "system.windows.forms.view").List
+		ui_tags.checkboxes 			= true
+		ui_tags.labeledit 				= false
+		ui_tags.Columns.add "" 1000
+		
+		---- les dotnets ---
+		m_LV.initialiser ()
+		m_TV.initialiser ()
+		
+		--- historique ----
+		m_hist.enregistrer  m_arbo.root
+		
+		---- la fenetre	----
+		fen_recomposer ()
+		actualiser ()
 	)
 	
 	
@@ -250,97 +327,10 @@ rollout roll_labib  "Labib" width:296 height:296
 	)
 	
 	
-	fn ouvrirBranche  _noeudA 	enregistrer:true 	=(
-		
-		if _noeudA != undifined do (
-			
-			-- ouvrir la branche --
-			m_TV.m_selection = _noeudA
-			m_LV.afficher 	_noeudA
-			
-			-- Si noeud a ouvrir est different du noeud precedant, on enregistre l'historique --
-			if enregistrer do m_hist.enregistrer  _noeudA
-			
-			-- on selectionne le dossier precedant si il est dans la LV --
-			if m_hist.m_pile.count > 1 do
-				if m_hist.m_pile[ 1 ] == m_hist.m_pile[ 2 ].parent do
-					m_LV. selectionner	m_hist.m_pile[ 2 ] 
-				
-		)
-	)
-	fn actualiser 			= (
-		---- on garde la selection ----
-		local selecTV_BACK = m_TV.m_selection
-		local selecLV_BACK 	= m_LV.m_selection
-		
-		---- on actualise  ----
-		m_TV.actualiser 	()
-		m_LV.afficher		selecTV_BACK
-		
-		---- on reselectionne ----
-		m_TV.selectionner selecTV_BACK
-		m_LV.selectionner selecLV_BACK
-		
-	)
-	fn initialiser = (
-		
-		---- initialiser les membres ------------
-		m_prefs 		= m_prt.m_prefs
-		m_arbo 		= m_prt.m_labib.arbo
-		m_menus 	= m_prt.m_labib.menus
-		m_drag 		= str_drag	 			fenetre:roll_labib
-		m_hist 		= str_historique 		m_prt:roll_labib
-		m_LV 		= str_listViewMgr		m_ui:ui_LV			m_prefs:m_prefs  m_arbo:m_arbo
-		m_TV 		= str_treeViewMgr	m_ui:ui_TV			m_prefs:m_prefs  m_arbo:m_arbo
-		
-		---- l'UI ------------
-		-- icones --
-		ui_btnFermer.bitmap = m_prt.m_icos_fermer[1]
-		
-		--- Sliders---		
-		if m_prefs.fenetre.sliderH_estRabattu  
-			then	ui_slider_H.pos.x 	= 0 
-			else 	ui_slider_H.pos.x  	= m_prefs.fenetre.sliderH_pos		
-		if m_prefs.fenetre.sliderV_estRabattu  
-			then	ui_slider_V.pos.y 	= roll_labib.height - m_ecartUI
-			else 	ui_slider_V.pos.y 	= m_prefs.fenetre.sliderV_pos
-		
-		--- type d'affichage du LV ---
-		m_LV.changerAffichage		m_prefs.fenetre.affichageLV
-		
-		local col_fondVue 	= m_prefs.fenetre.col_uiFond
-		local col_textes 		= m_prefs.fenetre.col_txt
-		
-		--- textbox ---		
-		ui_recherche.BackColor 	= (dotNetClass "System.Drawing.Color").fromARGB 	col_fondVue.r 		col_fondVue.g 	col_fondVue .b
-		ui_recherche.ForeColor 		= (dotNetClass "System.Drawing.Color").fromARGB 	col_textes.r 		col_textes.g 		col_textes.b
-		ui_recherche.borderstyle 	= (dotnetclass "System.Windows.Forms.BorderStyle").None
-		ui_recherche.AcceptsTab 	= true
-		
-		---- tags ----
-		ui_tags.BackColor 			= (dotNetClass "System.Drawing.Color").fromARGB 	col_fondVue.r 		col_fondVue.g 	col_fondVue .b
-		ui_tags.ForeColor 			= (dotNetClass "System.Drawing.Color").fromARGB 	col_textes.r 		col_textes.g 		col_textes.b
-		ui_tags.borderstyle 			= (dotnetclass "System.Windows.Forms.BorderStyle").None
-		ui_tags.view 					= (dotNetClass "system.windows.forms.view").List
-		ui_tags.checkboxes 			= true
-		ui_tags.labeledit 				= false
-		ui_tags.Columns.add "" 1000
-		
-		---- les dotnets ---
-		m_LV.initialiser ()
-		m_TV.initialiser ()
-		
-		--- historique ----
-		m_hist.enregistrer  m_arbo.root
-		
-		---- la fenetre	----
-		fen_recomposer ()
-		actualiser ()
-	)
-	
-	
 	---- la souris ----
 	fn souris_bouge 		_pos =(
+		
+-- 		debug "souris_out" var:( souris_out () )
 		
 		-- le curseur souris  --		
 		if ui_slider_H.survole _pos or ui_slider_V.survole _pos  
@@ -420,69 +410,8 @@ rollout roll_labib  "Labib" width:296 height:296
 	
 	
 	
-	--- les uis ---
-	fn cliqueTV 			_arg			= (
-	
-		local	noeudTVClique = ui_TV.GetNodeAt (dotNetObject "System.Drawing.Point" _arg.x _arg.y)
-		
-		case 	_arg.Button.value__ 	of (	
-			-- clique gauche --
-			1048576:		(
-				if noeudTVClique != undefined do
-					ouvrirBranche	( m_arbo.getParNomUnique  noeudTVClique.name )
-			)
-			 -- clique droit --
-			2097152:		(
-				debug "cliqueTV Droit"
-				-- si on a cliquer un dossier, on actualise --
-				if noeudTVClique != undefined do (
-					local noeudAClique = m_arbo.getParNomUnique  noeudTVClique.name
-					debug "noeudAClique" var:noeudAClique.nom
-					m_TV.selectionner  	noeudAClique
-					ouvrirBranche			noeudAClique
-				)
-				-- on ouvre le menu contextuel --
-				m_menus.arbo ()
-				
-			)
-			-- btn precedant --
-			8388608:	m_hist.seDeplacer 1
-			-- btn suivant --
-			16777216:	m_hist.seDeplacer -1	
-			
-		) -- fin case of arg ---
-	)
-	fn cliqueLV 			_arg 			= (
-		
-		case _arg.Button.value__ of (
-			-- clique gauche --
-			1048576:	m_LV.actualiserSelection () 
-			-- clique droit --
-			2097152:	m_menus.elements ()
-			-- btn precedant --
-			8388608:	m_hist.seDeplacer 1
-			-- btn suivant --
-			16777216:	m_hist.seDeplacer -1	
-		) -- fin case of arg ---
-		
-	)
-	fn dbCliqueLV 		_arg 			= (
-		
-		local noeudClique = m_LV.m_selection[1]
-		
-		case classOf noeudClique of (
-			str_element: 	debug "IMPORTATION" var:noeudClique.nom 
-			str_branche:		(
-				--- soit c'est le dossier  parent--
-				if noeudClique.nomUnique == "RETOUR" 
-					then m_TV.selectionner  	m_TV.m_selection.parent
-					else	m_TV.selectionner 	noeudClique
-				
-				ouvrirBranche 	  	m_TV.m_selection
-			)
-		)
-	)
-	fn etatBtnFermer		_etat =(
+	---- boutons ----
+	fn etatBtnFermer		_etat 	=(
 		case _etat of (
 			#Repos : 	ui_btnFermer.bitmap = openBitmap 	m_prefs.fenetre.ico_btnFermer_S
 			#Survol : 	ui_btnFermer.bitmap = openBitmap 	m_prefs.fenetre.ico_btnFermer_R
@@ -491,45 +420,187 @@ rollout roll_labib  "Labib" width:296 height:296
 	)
 	
 	
+	----
+	fn ouvrirBranche  _noeudA 	enregistrer:true 	=(
+		
+		debug "ouvrirBranche"
+		
+		debug "_noeudA" var:_noeudA
+		if _noeudA != undifined do (
+			
+			-- ouvrir la branche --
+			m_TV.m_selection = _noeudA
+			m_LV.afficher 	_noeudA
+			
+			-- Si noeud a ouvrir est different du noeud precedant, on enregistre l'historique --
+			if enregistrer do m_hist.enregistrer  _noeudA
+			
+			-- on selectionne le dossier precedant si il est dans la LV --
+			if m_hist.m_pile.count > 1 do
+				if m_hist.m_pile[ 1 ] == m_hist.m_pile[ 2 ].parent do
+					m_LV. selectionner	m_hist.m_pile[ 2 ] 
+				
+		)
+	)
+	fn importer = (
+		debug "Importation dans la scene"
+		debug "noeuds importés" var:( for n in m_LV.m_selection collect n.nom )
+	)
+	fn deplacer _noeudsA 	_noeudDest	=(
+		
+	)
 	
 	
+	
+	/* 
+	fn bougeboiboite _pos =(
+		
+		debug "boiteTest" var:boiteTest
+		boiteTest.pos = _pos
+		
+	)
+	
+	fn fct_suivreSourisImport	msg ir obj faceNum shift ctrl alt 	 =(
+		
+		case msg of
+		(
+			#mouseabort: return 0
+			#freeMove: ()
+			#mousePoint: (
+				debug "#mousePoint" var:("Pos ("+mouse.pos.x as string +", "+ mouse.pos.y as string + ")")
+				delete boiteTest
+				importer ()
+		return 0
+			)
+			#mouseMove: (
+				
+				debug "ir" var:ir
+				bougeboiboite  ir.pos
+				
+				
+				
+				
+				)
+		)
+				#continue
+	)
 
-	
+	fn activeTackSouris = 	(
+		boiteTest = box lengthsegs:1 widthsegs:1 heightsegs:1 length:20 width:40 height:10 
+		
+		mouseTrack trackCallback:fct_suivreSourisImport
+		
+	)
+	*/
 	
 	------------  Evenements	----------------------------------------------------------------------------------
-	---- Fenetre -----
-	on roll_labib moved					_pos 	do	fen_bouger  			_pos
-	on roll_labib resized					_val 	do	fen_redimensionner  _val
+	--------- Fenetre ----------
+	on roll_labib moved					_pos 	do	fen_bouger  				_pos
+	on roll_labib resized					_val 		do	fen_redimensionner  _val
 	
-	---- Drag ----
+	--------- Drag ---------
 	on roll_labib mouseMove 			_pos 	do	souris_bouge 		_pos
 	on roll_labib rbuttondown 			_pos 	do	souris_Dpress		_pos
 	on roll_labib lbuttondown			_pos 	do	souris_Gpress		_pos
 	on roll_labib lbuttonup 				_pos 	do	souris_Grelache	_pos
 	on roll_labib lbuttondblclk 			_pos 	do	souris_dblClique	_pos
 	
-	---- Bouton fermer -----
+	--------- Bouton fermer ----------
 	on ui_btnFermer	mouseover 				do 	etatBtnFermer #Survol
 	on ui_btnFermer	mouseout 				do 	etatBtnFermer #Repos
-	on ui_btnFermer	mousedown 			do 	etatBtnFermer #Press
-	on ui_btnFermer	mouseup				do 	etatBtnFermer #Repos
-	on ui_btnFermer 	click 						do 	m_prt.fermer ()
+	on ui_btnFermer	mousedown 				do 	etatBtnFermer #Press
+	on ui_btnFermer	mouseup					do 	etatBtnFermer #Repos
+	on ui_btnFermer 	click 							do 	m_prt.fermer 	()
 	
-	--- le treeView ----	
-	on ui_TV 		mouseDown 		_arg 	do  	cliqueTV				_arg
-	on ui_TV 		AfterLabelEdit		_arg 	do  	(
+	--------- le treeView ---------
+	on ui_TV 	mouseDown 			_arg 	do  	m_tv.clq_down  				_arg
+	on ui_TV 	mouseUp 	_sender 	_arg 	do 	m_TV.clq_up 					_arg 
+	
+	on ui_TV 	DragOver 	_sender	_arg	 	do	m_TV.drag_checkSurvol  	_arg
+	on ui_TV 	DragDrop 					_arg 	do	m_TV.drag_recevoir 			_arg
+	on ui_TV 	ItemDrag 					_arg 	do	m_TV.drag_demarrer 		_arg
+	
+	on ui_TV 	AfterLabelEdit			_arg 	do  	(
 		m_TV.renommer	_arg.label
 		m_LV.afficher		m_TV.m_selection
-	) 
+	)	
 	
+	
+	
+
+
+	--------- le listView ---------
+	on ui_LV		MouseWheel 			_arg 	do  	if keyboard.controlPressed do m_LV.zoomer 	_arg.delta
+	on ui_LV 		DoubleClick			_arg 	do  	m_LV.clq_double 	_arg 	
+	
+	on ui_LV itemDrag sender _arg do (		
+		ui_LV.doDragDrop 		_arg.item 		dragDropEffect.Move		
+		dragFlag = true		
+	)
+	on ui_LV mouseUp sender _arg do ( 
+		if not dragFlag do
+			m_LV.clq_up 	_arg 
+		
+		dragFlag = false
+		
+	)
+	
+	on ui_LV 	mouseDown 			_arg 	do  	m_LV.clq_down				_arg
+	on ui_LV lostFocus sender args do /* if dragFlag == true do	 */			(
+		importer ()
+	)	
+	
+	on ui_LV 		DragOver 	_sender	_arg 	do	m_LV.drag_checkSurvol  _arg
+				
+	/* 
 	---- le liste view----
-	on ui_LV 		mouseUp			_arg 	do  	cliqueLV 	_arg 
+	on ui_LV 	mouseDown 			_arg 	do  	cliqueLV				_arg
+-- 	on ui_LV 		mouseUp				_arg 	do  	cliqueLV 	_arg 
 	on ui_LV 		DoubleClick			_arg 	do  	dbCliqueLV 	_arg 		
-	on ui_LV		MouseWheel 		_arg 	do  	if keyboard.controlPressed do m_LV.zoomer 	_arg.delta
-	on ui_LV 		AfterLabelEdit		_arg 	do  	(
+	on ui_LV		MouseWheel 			_arg 	do  	if keyboard.controlPressed do m_LV.zoomer 	_arg.delta
+	on ui_LV 		AfterLabelEdit			_arg 	do  	(
 		m_LV.renommer	_arg.label
 		actualiser ()
 	)
+	on ui_LV 		DragOver 	_sender	_arg 	do	checkDragDrop  _arg
+	on ui_LV 		DragDrop 				_arg 	do	debug "LV Drop"
+	on ui_LV 		ItemDrag 		_arg 	do	(	
+		debug "ItemDrag"
+		ui_LV.doDragDrop 		_arg.item 		dragDropEffect.Move
+-- 		activeTackSouris ()
+		
+		dragFlag = true 
+	
+	)
+	
+	
+				on ui_LV mouseUp sender _arg do (
+					dragFlag = false
+					cliqueLV 	_arg 
+				)
+	
+	on ui_LV 	lostFocus sender _arg do (
+		debug "ui_LV 	lostFocus "
+		debug "sender " var:sender
+-- 		local theFilePath = sender.SelectedItems.Item[0].tag.value --the filepath for the dropped item
+-- 		debug "theFilePath " var:theFilePath
+						
+		--place the max-string into a dotnet-string-array
+		local dropfilePath = dotnetobject "System.String[]" 1 --this isn't a string, but an array of strings with one member
+		dropfilePath.setvalue theFilePath 0
+		debug "dropfilePath " var:dropfilePath
+		
+		--feed the string into a special dataObject
+		local dataObj = dotnetobject "DataObject" ((dotnetclass "DataFormats").filedrop) dropfilePath 
+		sender.dodragdrop dataobj ((dotnetclass "DragDropEffects").Copy) 
+		debug "dataObj " var:dataObj
+	)
+	 */
+	
+		
+-- 		local pos=ui_arborescence.PointToClient 	ui_arborescence.MousePosition
+-- 		
+-- 		checkDragDrop pos arg
 	
 ) -- fin rollout
 

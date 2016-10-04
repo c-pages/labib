@@ -17,6 +17,9 @@
 	-	surveiller un dossier facon winamp pou mise a jour auto de la base 
 		( par exemple: 	- à l'ouverture on scane les dossiers, et on ajoute en auto les nouveaux assets sans faire de preview (comme ca c'est rapide)
 							- on a la possibilité dans un menu de selecctioner les assets sans previews (qui sont afficher de "RECHERCHE") )
+	-	version du moteur du fichier a stocker dans 	str_element
+	- 	importer-remplacer instances
+	-	checker si materiaux deja dans secene à l'import, pour utiliser celle de la scene, ecraser celle de la scene, ou renommer celle de l'import ( comme un merge classique en fait, a voir ...)
 	
 ##########################################################################################################################
 	changelog:
@@ -29,7 +32,9 @@
 
 ------ DEBUG	------------------------------------------------------------------------------------------------------------------------------------
 global 	debug
-DEBUG_MODE = false
+
+	DEBUG_MODE = true
+
 fn debug 	_txt  var:"" = 	(
 	if DEBUG_MODE   do (
 		format "<DEBUG>	"
@@ -62,8 +67,12 @@ dossierScript 		-- en fonction de monMax --
 --------------------------------------
 dossierScript = getdir #userScripts + "\\" + nomDossierScript + "\\"
 
-include "$userScripts\labib\labib - structs.ms"
 include "$userScripts\labib\labib - preferences.ms"
+
+include "$userScripts\labib\labib - Mgr - TreeView.ms"
+include "$userScripts\labib\labib - Mgr - ListView.ms"
+include "$userScripts\labib\labib - Mgr - Divers.ms"
+
 include "$userScripts\labib\labib - menus.ms"		
 include "$userScripts\labib\labib - arborescence.ms"	
 -- 	 	include "$userScripts\labib\labib - fenetres secondaires.ms"

@@ -125,8 +125,8 @@ struct str_element (
 		fn getNbrImports 			= nbrImports as string,
 		fn getDateDernierImport 	= m_prt.dateToString 	dateDernierImport,
 		fn getDateCreation 			= m_prt.dateToString 	dateCreation,
-		fn getAProxy 					= if proxy != undefined then "oui" else "non",
-		fn getAVueDetail 				= if detail != undefined then "oui" else "non"
+		fn getAProxy 					= if doesfileExist proxy then "oui" else "non",
+		fn getAVueDetail 				= if doesfileExist detail then "oui" else "non"
 		
 		
 		
@@ -332,7 +332,7 @@ struct str_arborescence (
 	-------- GESTION DE L'ARBO --------
 	---- Creation des nouveaux élements ou branches ----
 	public
-		fn creerNoeud  	nom:"Nouvel branche" 	parent:root 	nomUnique:( creerNomUnique_branche () )	=( 			
+		fn creerNoeud  	nom:"Nouvelle branche" 	parent:root 	nomUnique:( creerNomUnique_branche () )	=( 			
 			local		nouveauNoeud = str_branche m_prt:this		
 			
 			---- Remplissage des parameteres du nouveau branche 	----
@@ -364,8 +364,7 @@ struct str_arborescence (
 		
 	private
 		fn lireNoeud 	_nomUnique 	_parent 	= (
-			debug "lireNoeud"
-			debug "noeud" var:_nomUnique
+			
 			local nouveauNoeud
 			
 			if hasINISetting fichierArbo 	_nomUnique 	then (
@@ -390,14 +389,6 @@ struct str_arborescence (
 						
 						dateTmp = getINISetting   fichierArbo	_nomUnique   "dateDernierImport"
 						
-						debug ""
-						debug ""
-						debug "_nomUnique"  var:_nomUnique
-						debug "fichierArbo"  var:fichierArbo
-						debug "dateDernierImport" var:nouveauNoeud.dateDernierImport
-						debug "dateTmp"  var:dateTmp
-						debug ""
-						debug ""
 						nouveauNoeud.nbrImports 			= ( getINISetting   fichierArbo	_nomUnique   "nbrImports" ) as integer
 						nouveauNoeud.nbrVertex 				= ( getINISetting   fichierArbo	_nomUnique   "nbrVertex" ) as integer
 					
@@ -753,9 +744,9 @@ struct str_arborescence (
 				if _date[4] != 0 then 
 					result = zeroJour + _date[4] as string + "/"  + zeroMois + _date[2] as string+ "/"  + _date[1] as string + "  "  + zeroH + _date[5] as string + ":"  + zeroM  + _date[6] as string + ":"  +zeroS + _date[7] as string 
 				else 
-					result = ""
+					result = "-"
 				
-			) else result = ""
+			) else result = "-"
 			result
 		),
 	
