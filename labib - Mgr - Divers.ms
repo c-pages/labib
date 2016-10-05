@@ -27,6 +27,7 @@
 
 
 
+
 ------------------------------------------------------------------------------
 ----------	chrono						--------------------------
 ------------------------------------------------------------------------------
@@ -50,6 +51,8 @@ struct str_chrono (
 struct str_historique (
 	
 		m_prt,
+		m_TV = m_prt.m_TV,
+		m_LV = m_prt.m_LV,
 		m_pos =1,
 		m_pile = #(),
 	
@@ -85,12 +88,20 @@ struct str_historique (
 			
 			-- on ouvre le noeud adequate ---
 			local noeudAOuvrir = m_pile[ m_pos   ]
-			m_prt.ouvrirBranche   noeudAOuvrir	enregistrer:false
-			m_prt.m_TV.selectionner 	noeudAOuvrir
+			m_TV.ouvrir   			noeudAOuvrir 	historique:false
+			m_TV.selectionner 	noeudAOuvrir
 			
 			-- on selectionne le dossier precedant si il est dans la LV --
 			if m_pile[ m_pos ] == m_pile[ hist_posBack ].parent do
-				m_prt.m_LV.selectionner 	m_pile[ hist_posBack ] 
+				m_LV.selectionner 	m_pile[ hist_posBack ] 
+			
+		),
+		fn  checkSelection =(
+			
+			-- on selectionne le dossier precedant si il est dans la LV --
+			if m_pile.count > 1 do
+				if m_pile[ 1 ] == m_pile[ 2 ].parent do
+					m_LV. selectionner		m_pile[ 2 ]
 			
 		)
 	
@@ -106,7 +117,7 @@ struct str_historique (
 ------------------------------------------------------------------------------
 struct str_drag (
 	
-	fenetre, 
+	m_prt, 
 	
 	posOrigineSouris 		= [0,0],
 	posOrigineFenetre 	= [0,0],
@@ -115,7 +126,7 @@ struct str_drag (
 	fn demarrer 	=(
 		enCours 				= true
 		posOrigineSouris		= mouse.screenpos 
-		posOrigineFenetre 	= GetDialogPos 	fenetre
+		posOrigineFenetre 	= GetDialogPos 	m_prt
 	),
 	fn arreter  	=(
 		enCours 				= false
@@ -123,7 +134,7 @@ struct str_drag (
 	fn suivreSouris 	 	=(
 		if enCours  do (			
 			local ecart = ( mouse.screenpos  - posOrigineSouris )
-			SetDialogPos  fenetre	( posOrigineFenetre + ecart )
+			SetDialogPos  m_prt	( posOrigineFenetre + ecart )
 		)
 	)
 	

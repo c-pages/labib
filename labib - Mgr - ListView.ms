@@ -36,10 +36,11 @@ struct str_listViewMgr (
 		------------ MEMBRES ----------------------------------
 	public
 		---- pointeurs (à donner en param a la creation) ----
-		m_rollout,										---- le parent, le rollout ---- ( a initialiser ) ----
+		m_prt,										---- le parent, le rollout ---- ( a initialiser ) ----
 		m_ui, 										---- le listview a controler -- ( a initialiser ) ----
-		m_prefs	=	m_rollout.m_prefs,	---- les m_prefs de labib ---
-		m_arbo	=	m_rollout.m_arbo,
+		m_TV,
+		m_prefs	=	m_prt.m_prefs,	---- les m_prefs de labib ---
+		m_arbo	=	m_prt.m_arbo,
 	
 		m_selection,		---- la m_selection courante ----
 		m_brancheCourante ,
@@ -71,18 +72,12 @@ struct str_listViewMgr (
 		
 	public
 	
-		---- Outils ----
-		fn toCouleurDotnet 	_couleur =(
-			(dotNetClass "System.Drawing.Color").fromARGB 	_couleur.r 	_couleur.g 	_couleur.b
-		),
-		
 		
 		---- Gestion de la liste ----
 		fn creerItems 		_noeudsA 	= (
 			
 			---- on transforme "_elemsArbo" en array si element unique --
-			if classof _noeudsA != Array
-				do _noeudsA = #( _noeudsA )
+			toArray 	&_noeudsA
 			
 			for noeud  in _noeudsA do (
 				
@@ -175,12 +170,23 @@ struct str_listViewMgr (
 			)
 			result
 		),
+		
+		fn getNoeudA_at 	_x  _y 	=(
+			local noeudClique
+			local	noeudTVClique = m_ui.GetItemAt  _x  _y 
+			
+			if noeudTVClique != undefined then
+				noeudClique = m_arbo.getParNomUnique  noeudTVClique.name
+			
+			noeudClique
+		),
+		
 		fn selectionner 	_noeudsA	= (
 			
 			debug "<m_LV> selectionner"
 			
 			---- on transforme "_noeudsA" en array si noeud unique --
-			if classof _noeudsA != Array	do _noeudsA = #( _noeudsA )
+			toArray 	&_noeudsA
 			
 			debug "_noeudsA" var:( for n in _noeudsA where n != undefined collect n.nom )
 			-- si _noeudsA est valide --
@@ -214,71 +220,13 @@ struct str_listViewMgr (
 			m_ui.items.Clear()
 			
 			-- initialiser les membres ---
-			m_idImage						= 0
-			m_itemsAAfficher				= #()
-			m_iconesAAfficher 			= dotNetObject "System.Windows.Forms.ImageList"
+			m_idImage								= 0
+			m_itemsAAfficher						= #()
+			m_iconesAAfficher 					= dotNetObject "System.Windows.Forms.ImageList"
 			m_iconesAAfficher.imageSize 		= dotNetObject "System.Drawing.Size" 	m_prefs.fenetre.tailleApercusLV 		m_prefs.fenetre.tailleApercusLV
 			m_iconesAAfficher.ColorDepth 	= m_iconesAAfficher.ColorDepth.Depth24Bit
+			m_selection 							= undefined
 			
-		),
-		fn afficher  _noeudA = (				
-			debug "<m_LV> afficher"
-			debug "_noeudA" var:_noeudA.nom
-			
-			-- on nettoie le terrain ---
-			vider ()
-			
-			if _noeudA != undefined then (
-				
-				--- on actualise la branceh courante --
-				m_brancheCourante = _noeudA
-				
-				--- Si on est dans recherche on change la couleur de fond du LV ---------
-				local col_fondVue			
-				if _noeudA.nomUnique == "RECHERCHE"	
-					then	col_fondVue 	= m_col_uiFondRecherche
-					else	col_fondVue 	= m_col_uiFond
-				m_ui.BackColor 				= toCouleurDotnet 	col_fondVue
-				
-				-- si on affiche les dossiers --
-				if m_prefs.fenetre.afficherDossier do (
-					
-					---- on remplie avec le dossier parent ("...") si on est pas dans root ni recherche ----
-					if _noeudA.NomUnique != "ROOT" and _noeudA.NomUnique != "RECHERCHE" do 
-						creerItems 	m_arbo.retour
-					
-					---- on remplie avec les dossier ( les noeuds ) ----
-					creerItems 	( _noeudA.getNoeuds() )
-					
-				)
-				---- on actualise le btn retour --
-				m_arbo.retour.parent = _noeudA.parent
-				
-				---- on remplie avec les assets ( les elements ) ----
-				creerItems 	( _noeudA.getElements() )
-				
-				--- on remplie la liste LV ----
-				m_ui.LargeImageList = 	m_iconesAAfficher
-				m_ui.items.addRange		m_itemsAAfficher
-				
-			)
-			
-		),
-		fn actualiserSelection 	noeud: =(
-		
-			debug "<m_LV> actualiserSelection"
-			m_selection 	= #()
-			for i = 0 to m_ui.SelectedItems.count - 1 do (
-				
--- 				debug "SelectedItems" 	 var:( m_ui.SelectedItems.item[i].name )
-				elem = 	m_arbo.getParNomUnique 	 m_ui.SelectedItems.item[i].name
-				
-				if elem != undefined do 
-					append 	m_selection 		elem
-				
--- 				debug "m_selection" var:(for n in m_selection collect n.nom)
-			)
--- 				debug "SelectedItems" 	 var:( if m_ui.SelectedItems.item[i] != undefined then m_ui.SelectedItems.item[i].name else undefined )
 		),
 		fn editerNom 	_noeudA = (
 			local noeudAEditer = getItem		_noeudA
@@ -286,19 +234,82 @@ struct str_listViewMgr (
 		),
 		fn renommer 			_nouveauNom  =(
 			debug "<m_LV>	renommer"
-			local noeudA = m_arbo.getParNomUnique 	m_selection[1].nomUnique
-			if _nouveauNom != undefined  and  noeudA !=undefined do ( 
+			local noeudARenommer = m_selection[1]
+			if _nouveauNom != undefined  and  noeudARenommer !=undefined do ( 
 				
-				noeudA.nom 	= _nouveauNom
+				noeudARenommer.nom 	= _nouveauNom
+				
 				--ecriture du fichier ---
-				noeudA.enregistrer ()
+				noeudARenommer.enregistrer ()
 				
-				debug "noeudA" var:noeudA.nom
-				debug "m_brancheCourante" var:m_brancheCourante
 				
 			)
 			
+			m_prt.actualiser ()
+			
 		),
+		fn getDossierCourant =(
+			m_TV.m_selection
+		),
+		fn actualiser  = (				
+			debug "<m_LV> actualiser"
+			
+			-- on nettoie le terrain ---
+			vider ()
+			
+			--- on actualise la branche courante --
+			m_brancheCourante = getDossierCourant ()
+			if m_brancheCourante != undefined then (
+				
+				debug "m_brancheCourante" var:m_brancheCourante.nom
+				debug "m_brancheCourante enfants" var:m_brancheCourante.enfants param:#nom
+				
+				--- la couleur de fond du LV ---------
+				local col_fondVue			
+				if m_brancheCourante.nomUnique == "RECHERCHE"	
+					then	col_fondVue 	= m_col_uiFondRecherche
+					else	col_fondVue 	= m_col_uiFond
+				m_ui.BackColor 				= toCouleurDotnet 	col_fondVue
+				
+				-- Affichage des dossiers --
+				if m_prefs.fenetre.afficherDossier do (	
+					
+					----  retour ----
+					if m_brancheCourante.NomUnique != "ROOT" and m_brancheCourante.NomUnique != "RECHERCHE" do  (
+						creerItems 	m_arbo.retour
+						m_arbo.retour.parent = m_brancheCourante.parent
+					)
+					
+					---- Les dossiers enfants ----
+					creerItems 	( m_brancheCourante.getNoeuds() )
+				)
+				
+				---- les elements enfants----
+				creerItems 	( m_brancheCourante.getElements() )
+				
+				--- on remplie la liste LV ----
+				m_ui.LargeImageList = 	m_iconesAAfficher
+				m_ui.items.addRange		m_itemsAAfficher
+				
+				---- on selectionne ----
+				selectionner	m_selection
+				
+			) else debug "dossier" var:dossier
+			
+		),
+		fn actualiserSelection 	noeud: =(
+		
+			m_selection 	= #()
+			for i = 0 to m_ui.SelectedItems.count - 1 do (
+				-- on ajoute chaque noeud a la slection --
+				elem = 	m_arbo.getParNomUnique 	 m_ui.SelectedItems.item[i].name
+				if elem != undefined do 
+					append 	m_selection 		elem
+				
+			)
+		),
+		
+		
 		
 		
 		---- La vue ----
@@ -322,8 +333,7 @@ struct str_listViewMgr (
 			
 			m_ui.LargeImageList.imageSize	= dotNetObject "System.Drawing.Size" 	m_prefs.fenetre.tailleApercusLV 		m_prefs.fenetre.tailleApercusLV
 			
-			afficher 	m_brancheCourante
-			selectionner		m_selection
+			actualiser ()
 			
 		),
 		fn changerAffichage  	_nouvelAffichage		=(
@@ -383,6 +393,8 @@ struct str_listViewMgr (
 		),
 		
 		
+		
+		
 		---- dragAndDrop ---
 		fn drag_checkSurvol	 _arg = (
 			
@@ -398,47 +410,69 @@ struct str_listViewMgr (
 		fn drag_demarrer 	_arg =(
 			debug "<LV>	drag_demarrer"
 			
+			m_prt.dragNoeuds = m_selection
+			
 			--- demarrage du drag ----
 			m_ui.doDragDrop 		_arg.item 		m_dragDropEffect.Move	
 			
 		),
 		fn drag_recevoir 	_arg =(
-			debug "<LV>	drag_recevoir"
 			
+			local posDrop	= m_ui.PointToClient 	m_ui.MousePosition
+			local noeudDest = getNoeudA_at 	posDrop.x 	posDrop.y
+			
+			if noeudDest != undefined do (
+				
+				---- si depose dans "retour" ---
+				if noeudDest.nomUnique == "RETOUR" 
+					do noeudDest = noeudDest.parent
+				
+				---- deplacement des noeuds ---
+				m_arbo.deplacer 	m_prt.dragNoeuds	noeudDest 
+				m_prt.dragNoeuds = #()
+				
+				--- on refait les listes et trees ---
+				m_prt.actualiser ()
+				
+			)
 		),
+		
+		
 		
 		
 		---- Souris ----
 		fn clq_down		_arg	 	= (
+			
+			--- actualiser la selection ----
 			local	noeudLVClique = m_ui.GetItemAt  _arg.x _arg.y
-			
-			debug "ui_LV.selectedItems" var:m_ui.selectedItems.count
-			debug "cliqueLVDown"
-			
 			if m_ui.selectedItems.count <2 do
 				if noeudLVClique != undefined do ( 
 					noeudA = m_arbo.getParNomUnique  noeudLVClique.name
 					if noeudA != undefined do 
 						m_selection = #(noeudA)
 				)
-			
 		),
 		fn clq_up 			_arg 			= (
-			local	noeudLVClique = m_ui.GetItemAt  _arg.x _arg.y
-			
-			debug "cliqueLV"
-			
-			case _arg.button of (
-				(m_btnsDotNet.Left): 			actualiserSelection ()
-				(m_btnsDotNet.Middle): 		()
-				(m_btnsDotNet.None): 			()
-				(m_btnsDotNet.Right): 			(
-					actualiserSelection () 
-					m_rollout.m_menus.elements ()
+			if not m_prt.dragFlag do (
+				
+				local	noeudLVClique = m_ui.GetItemAt  _arg.x _arg.y
+				
+				debug "clique up LV"
+				
+				case _arg.button of (
+					(m_btnsDotNet.Left): 			actualiserSelection ()
+					(m_btnsDotNet.Middle): 		()
+					(m_btnsDotNet.None): 		()
+					(m_btnsDotNet.Right): 		(
+						actualiserSelection () 
+						m_prt.m_menus.elements ()
+					)
+					(m_btnsDotNet.XButton1): 	m_prt.m_hist.seDeplacer 1
+					(m_btnsDotNet.XButton2):	m_prt.m_hist.seDeplacer -1
 				)
-				(m_btnsDotNet.XButton1): 	m_rollout.m_hist.seDeplacer 1
-				(m_btnsDotNet.XButton2):		m_rollout.m_hist.seDeplacer -1
 			)
+-- 			debug "m_selection" var:m_selection
+			m_prt.dragFlag = false
 			
 		),
 		fn clq_double		_arg 			= (
@@ -446,15 +480,15 @@ struct str_listViewMgr (
 			local noeudClique = m_selection[1]
 			
 			case classOf noeudClique of (
-				str_element: 	debug "IMPORTATION" var:noeudClique.nom 
+				str_element: 	m_prt.importer_scene 	noeudClique
 				str_branche:		(
-					--- soit c'est le dossier  parent--
 					local noeudCible 
+					--- retour ? --					
 					if noeudClique.nomUnique == "RETOUR" 
 						then noeudCible =  noeudClique.parent
 						else	noeudCible =  noeudClique
-					selectionner							noeudCible
-					m_rollout.ouvrirBranche 	  	noeudCible
+					-- ouverture --
+					m_TV.ouvrir		noeudCible
 					
 				)
 			)
@@ -493,6 +527,17 @@ struct str_listViewMgr (
 		)
 	
 )	--- fin struct listView ----
+
+
+
+
+
+
+
+
+
+
+
 
 
 

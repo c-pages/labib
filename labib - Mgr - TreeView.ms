@@ -35,10 +35,10 @@ struct str_treeViewMgr (
 		------------ MEMBRES ----------------------------------
 	public
 		---- pointeurs (à donner en param a la creation) ----
-		m_rollout,										---- le parent, le rollout ---- ( a initialiser ) ----
+		m_prt,										---- le parent, le rollout ---- ( a initialiser ) ----
 		m_ui, 										---- le listview a controler -- ( a initialiser ) ----
-		m_prefs	=	m_rollout.m_prefs,	---- les m_prefs de labib ---
-		m_arbo	=	m_rollout.m_arbo,
+		m_prefs	=	m_prt.m_prefs,	---- les m_prefs de labib ---
+		m_arbo	=	m_prt.m_arbo,
 	
 		
 		m_selection = m_arbo.root,		---- la m_selection courante ----
@@ -57,18 +57,11 @@ struct str_treeViewMgr (
 		---- drag -----
 		m_dragDropEffect=dotNetClass "System.Windows.Forms.DragDropEffects" ,
 		
-		---- lcliques ----
-		m_noeudLV_clqDown,
+		---- cliques ----		
 		m_btnsDotNet = dotNetClass "System.Windows.Forms.MouseButtons",
 		
 		------------ FONCTIONS ----------------------------------
 	public	
-		
-		---- Outils ----
-		fn toCouleurDotnet 	_couleur =(
-			(dotNetClass "System.Drawing.Color").fromARGB 	_couleur.r 	_couleur.g 	_couleur.b
-		),
-		
 		
 		---- Gestion de la liste ----
 		fn creerItem 		_noeudA 	_noeudParentTV = (
@@ -94,6 +87,15 @@ struct str_treeViewMgr (
 					result = noeudTV
 			result
 		),
+		fn getNoeudA_at 	_x  _y 	=(
+			local noeudClique
+			local	noeudTVClique = m_ui.GetNodeAt (dotNetObject "System.Drawing.Point" _x  _y )
+			
+			if noeudTVClique != undefined then
+				noeudClique = m_arbo.getParNomUnique  noeudTVClique.name
+			
+			noeudClique
+		),
 		fn selectionner	 	_noeudA	= (			
 			
 			debug "<m_TV> selectionner"
@@ -107,6 +109,7 @@ struct str_treeViewMgr (
 		),
 		fn vider = (
 			m_ui.Nodes.Clear()
+			m_selection = undefined
 			m_noeudsTV_total = #()
 		),
 		fn actualiser  = (				
@@ -116,7 +119,7 @@ struct str_treeViewMgr (
 			-- on vide la liste --
 			vider ()
 			
-			-- ajout du premier element de l'arborescence--		
+			-- on recréer l'arborescence--		
 			creerItem 		m_arbo.root  		m_ui
 			
 			-- ajout du noeud recherches --
@@ -126,8 +129,14 @@ struct str_treeViewMgr (
 				do ajouterTV 	enfant  	noeudTVRech	
 			append m_noeudsTV_total 	noeudTVRech
 			
-			if m_selection != undefined 
-				do (getItem	m_selection ).expand ()
+			--  la selection --
+			if m_selection == undefined 	do m_selection = m_arbo.root
+			local ItemSelec = getItem	m_selection 
+			m_ui.SelectedNode = ItemSelec	
+			ItemSelec.expand ()	
+			
+			debug "m_selection" var:m_selection param:#nom
+			debug "m_selection.enfants" var:m_selection.enfants param:#nom
 			
 		),
 		fn renommer 			_nouveauNom  =(
@@ -163,6 +172,7 @@ struct str_treeViewMgr (
 		),
 		fn drag_demarrer 	_arg =(
 			debug "<TV>	drag_demarrer"
+			m_prt.dragNoeuds = #( m_selection )
 -- 			show _arg.item
 			if _arg.item != undefined do debug "_arg.item" var:_arg.item.name
 			debug "<TV>	_arg.item"
@@ -173,80 +183,71 @@ struct str_treeViewMgr (
 		),
 		fn drag_recevoir 	_arg =(
 			debug "<TV>	drag_recevoir"
+			local posDrop	= m_ui.PointToClient 	m_ui.MousePosition
+			local noeud = getNoeudA_at 	posDrop.x 	posDrop.y
+			
+			debug "deplacer" var:m_prt.dragNoeuds  param:#nom
+			debug "dans"  var:noeud	param:#nom
+			
+			
+			m_prt.dragNoeuds = #(  )
 			
 		),
 	
-		---- Souris ----
-		fn clique _arg =(
-			local	noeudTVClique = m_ui.GetNodeAt (dotNetObject "System.Drawing.Point" _arg.x _arg.y)
+		
+		fn ouvrir _noeudA 	historique:true		=(
 			
-			case _arg.button of (
-				(m_btnsDotNet.Left): 	if noeudTVClique != undefined
-														do m_rollout.ouvrirBranche	( m_arbo.getParNomUnique  noeudTVClique.name )
-				(m_btnsDotNet.Middle): 	()
-				(m_btnsDotNet.None): 	()
-				(m_btnsDotNet.Right): 	(
-					if noeudTVClique != undefined do (
-						local noeudAClique = m_arbo.getParNomUnique  noeudTVClique.name
-						debug "noeudAClique" var:noeudAClique.nom
+			debug "ouvrir noeud"
+			debug "_noeudA" var:_noeudA	param:#nom
+			if _noeudA != undefined then (
+				
+				-- si nouveau noeud --
+				if _noeudA != m_selection do (
+					
+					---- on actualise la selection ---					
+					m_selection = _noeudA
+					
+					---- on actualise la ListView  ---					
+					m_prt.m_lv.actualiser ()
+					
+					---- historique ---
+					if historique do m_prt.m_hist.enregistrer  m_selection
 						
-						selectionner  	noeudAClique
-						
-						m_rollout.ouvrirBranche	noeudAClique
-					)
 				)
-				(m_btnsDotNet.XButton1): 	m_rollout.m_hist.seDeplacer 	1
-				(m_btnsDotNet.XButton2):		m_rollout.m_hist.seDeplacer 	-1
-			) -- fin case _arg.button 
-			
-		),		
+			)
+		),
+		
+		---- Souris ----
 		fn clq_down 			_arg			= (
 			
-			local	noeudTVClique = m_ui.GetNodeAt (dotNetObject "System.Drawing.Point" _arg.x _arg.y)
+			local	noeudAClique = getNoeudA_at  _arg.x _arg.y 
 			
 			case _arg.button of (
-				(m_btnsDotNet.Left): 	(
-					if noeudTVClique != undefined then (
-						m_rollout.ouvrirBranche	( m_arbo.getParNomUnique  noeudTVClique.name )
-						m_noeudLV_clqDown = noeudTVClique
-					) else (
-						m_noeudLV_clqDown = undefined
-					)
-				)
+				(m_btnsDotNet.Left): 		ouvrir 	noeudAClique
 				(m_btnsDotNet.Middle): 	()
 				(m_btnsDotNet.None): 	()
 				(m_btnsDotNet.Right): 	(
-					if noeudTVClique != undefined do (
-						local noeudAClique = m_arbo.getParNomUnique  noeudTVClique.name
-						debug "noeudAClique" var:noeudAClique.nom
-						
-						selectionner  	noeudAClique
-						
-						m_rollout.ouvrirBranche	noeudAClique
-					)
+					-- ouvrir noeud --
+					ouvrir 			noeudAClique
+					selectionner	noeudAClique
+					-- menus --
+					m_prt.m_menus.arbo 	()
 				)
-				(m_btnsDotNet.XButton1): 	m_rollout.m_hist.seDeplacer 	1
-				(m_btnsDotNet.XButton2):		m_rollout.m_hist.seDeplacer 	-1
+				(m_btnsDotNet.XButton1): 	m_prt.m_hist.seDeplacer 	1
+				(m_btnsDotNet.XButton2):	m_prt.m_hist.seDeplacer 	-1
 			) -- fin case _arg.button 
 		),
 		fn clq_up 			_arg			= (
 			
+			local	noeudAClique = getNoeudA_at  _arg.x _arg.y 
+			
 			case _arg.button of (
-				(m_btnsDotNet.Left): 		()
-				(m_btnsDotNet.Middle): 	()
-				(m_btnsDotNet.None): 	()
-				(m_btnsDotNet.Right): 	(
-					if noeudTVClique != undefined do (
-						local noeudAClique = m_arbo.getParNomUnique  noeudTVClique.name
-						debug "noeudAClique" var:noeudAClique.nom
-						
-						selectionner  	noeudAClique
-						
-						m_rollout.ouvrirBranche	noeudAClique
-					)
-				)
-				(m_btnsDotNet.XButton1): 	m_rollout.m_hist.seDeplacer 	1
-				(m_btnsDotNet.XButton2):		m_rollout.m_hist.seDeplacer 	-1
+				(m_btnsDotNet.Left): 			()
+				(m_btnsDotNet.Middle): 		()
+				(m_btnsDotNet.None): 		()
+				(m_btnsDotNet.Right): 		ouvrir 	noeudAClique
+				(m_btnsDotNet.XButton1): 	m_prt.m_hist.seDeplacer 	1
+				(m_btnsDotNet.XButton2):	m_prt.m_hist.seDeplacer 	-1
 			) -- fin case _arg.button 
 			
 		),

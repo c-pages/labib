@@ -30,33 +30,6 @@
 
 
 
------- DEBUG	------------------------------------------------------------------------------------------------------------------------------------
-global 	debug
-
-	DEBUG_MODE = true
-
-fn debug 	_txt  var:"" = 	(
-	if DEBUG_MODE   do (
-		format "<DEBUG>	"
-		if var == "" then 
-			format "%\n" ( _txt  )
-		else 
-			format "	- % : %\n" _txt   ( var  as string )
-	)
-)		
------- DEBUG	------------------------------------------------------------------------------------------------------------------------------------
-
------ output ------------------------------
-fn ecrire 	_txt  var:"" = 	(
-	
-	format "<Labib>	"
-	if var == "" then 
-		format "%\n" ( _txt  )
-	else 
-		format "	- % : %\n" _txt   ( var  as string )
-)		
------ output ------------------------------
-
 
 ----  Le dossier du script  ----
 nomDossierScript = "labib"
@@ -66,6 +39,9 @@ dossierScript 		-- en fonction de monMax --
 ----- les fichiers à inclure --------
 --------------------------------------
 dossierScript = getdir #userScripts + "\\" + nomDossierScript + "\\"
+
+include "$userScripts\labib\labib - output.ms"
+include "$userScripts\labib\labib - Outils divers.ms"
 
 include "$userScripts\labib\labib - preferences.ms"
 
@@ -128,7 +104,7 @@ struct str_labib (
 		parent.enregistrer ()
 		
 		--- sortie Listener --
-		ecrire "Noeud renommé."
+		ecrire "Branche créée."
 		
 	),
 	fn nouvelAsset =(
@@ -159,7 +135,7 @@ struct str_labib (
 			nouvelElement.parent.enregistrer ()
 			
 			---- actualise l4UI ----
-			fenetre.actualiser ()			
+			fenetre.actualiser ()
 			fenetre.selectionnerLV 	nouvelElement 
 			
 			debug "nouvelAsset Créé."

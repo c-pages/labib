@@ -57,7 +57,9 @@ rollout roll_fenetreType  "fenetreType" width:296 height:296
 		)
 	)
 	---- Initialisation de la fenetre  -----
-	fn initialiser = (		
+	fn initialiser = (	
+		-- le drag --
+		m_drag 		= str_drag 	m_prt:roll_fenetreType
 		-- le bouton fermer --
 		ui_btnFermer.bitmap = m_prt.m_icos_fermer[1]	
 	)
@@ -110,7 +112,6 @@ struct str_fenetreType (
 											pos:					m_prefs.fenetre.fenetreType_pos	  */
 			
 			---- initialisation de la fenetre ----
-			m_dialog.m_drag 		= str_drag fenetre:m_dialog
 			m_dialog.m_prefs 	= m_prefs
 			m_dialog.m_prt	 	= this
 			m_dialog.initialiser ()

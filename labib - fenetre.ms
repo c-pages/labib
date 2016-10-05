@@ -43,7 +43,7 @@ rollout roll_labib  "Labib" width:296 height:296
 	
 	---- drag ----
 	local dragFlag = false
-	local dragDropEffect=dotNetClass "System.Windows.Forms.DragDropEffects"
+	local dragNoeuds =#()	-- les noeuds draggés ----
 	
 	------------  UI	----------------------------------------------------------------------------------
 	local 	ui_slider_H  		 	= 	str_btnVirtuel					pos:		[200, m_ecartUI] \
@@ -144,18 +144,15 @@ rollout roll_labib  "Labib" width:296 height:296
 		
 	)
 	
+	fn viderListes = (
+		m_TV.vider ()
+		m_LV.vider ()
+	)
 	fn actualiser 	= (
-		---- on garde la selection ----
-		local selecTV_BACK = m_TV.m_selection
-		local selecLV_BACK 	= m_LV.m_selection
 		
 		---- on actualise  ----
 		m_TV.actualiser 	()
-		m_LV.afficher		selecTV_BACK
-		
-		---- on reselectionne ----
-		m_TV.selectionner selecTV_BACK
-		m_LV.selectionner selecLV_BACK
+		m_LV.actualiser	()
 		
 	)
 	fn initialiser 	= (
@@ -166,11 +163,12 @@ rollout roll_labib  "Labib" width:296 height:296
 		m_arbo 		= m_prt.m_labib.arbo
 		m_menus 	= m_prt.m_labib.menus
 		-- managers --
-		m_drag 		= str_drag	 			fenetre:roll_labib
+		m_drag 		= str_drag	 			m_prt:roll_labib
 		m_hist 			= str_historique 		m_prt:roll_labib
 		-- ui --
-		m_LV 			= str_listViewMgr		m_rollout:roll_labib	m_ui:ui_LV
-		m_TV 			= str_treeViewMgr	m_rollout:roll_labib	m_ui:ui_TV
+		m_LV 			= str_listViewMgr		m_prt:roll_labib	m_ui:ui_LV
+		m_TV 			= str_treeViewMgr	m_prt:roll_labib	m_ui:ui_TV
+		m_LV.m_TV 	=	m_TV  -- sinon ca boucle a l'init --
 		
 		---- l'UI ------------
 		-- icones --
@@ -420,32 +418,17 @@ rollout roll_labib  "Labib" width:296 height:296
 	)
 	
 	
-	----
-	fn ouvrirBranche  _noeudA 	enregistrer:true 	=(
-		
-		debug "ouvrirBranche"
-		
-		debug "_noeudA" var:_noeudA
-		if _noeudA != undifined do (
-			
-			-- ouvrir la branche --
-			m_TV.m_selection = _noeudA
-			m_LV.afficher 	_noeudA
-			
-			-- Si noeud a ouvrir est different du noeud precedant, on enregistre l'historique --
-			if enregistrer do m_hist.enregistrer  _noeudA
-			
-			-- on selectionne le dossier precedant si il est dans la LV --
-			if m_hist.m_pile.count > 1 do
-				if m_hist.m_pile[ 1 ] == m_hist.m_pile[ 2 ].parent do
-					m_LV. selectionner	m_hist.m_pile[ 2 ] 
-				
-		)
-	)
-	fn importer = (
+	fn importerViewport = (
 		debug "Importation dans la scene"
 		debug "noeuds importés" var:( for n in m_LV.m_selection collect n.nom )
 	)
+	fn importer_scene 	_noeudsA = (
+		toArray 	&_noeudsA
+		
+		debug "IMPORTATION" 
+		debug "_noeudsA"	var:_noeudsA param:#nom
+	)
+	
 	fn deplacer _noeudsA 	_noeudDest	=(
 		
 	)
@@ -525,32 +508,19 @@ rollout roll_labib  "Labib" width:296 height:296
 		m_LV.afficher		m_TV.m_selection
 	)	
 	
-	
-	
-
-
 	--------- le listView ---------
-	on ui_LV		MouseWheel 			_arg 	do  	if keyboard.controlPressed do m_LV.zoomer 	_arg.delta
-	on ui_LV 		DoubleClick			_arg 	do  	m_LV.clq_double 	_arg 	
-	
-	on ui_LV itemDrag sender _arg do (		
-		ui_LV.doDragDrop 		_arg.item 		dragDropEffect.Move		
-		dragFlag = true		
-	)
-	on ui_LV mouseUp sender _arg do ( 
-		if not dragFlag do
-			m_LV.clq_up 	_arg 
-		
-		dragFlag = false
-		
-	)
-	
 	on ui_LV 	mouseDown 			_arg 	do  	m_LV.clq_down				_arg
-	on ui_LV lostFocus sender args do /* if dragFlag == true do	 */			(
-		importer ()
-	)	
+	on ui_LV 	mouseUp 	_sender	_arg 	do 	m_LV.clq_up 					_arg 
+	on ui_LV	MouseWheel 			_arg 	do  	if keyboard.controlPressed do m_LV.zoomer 	_arg.delta
+	on ui_LV 	DoubleClick				_arg 	do  	m_LV.clq_double 				_arg 	
 	
-	on ui_LV 		DragOver 	_sender	_arg 	do	m_LV.drag_checkSurvol  _arg
+	on ui_LV 	DragOver 	_sender	_arg 	do	m_LV.drag_checkSurvol  	_arg
+	on ui_LV 	DragDrop 				_arg 	do	m_LV.drag_recevoir 			_arg
+	on ui_LV 	itemDrag 	_sender 	_arg 	do 	m_LV.drag_demarrer 		_arg 	
+	on ui_LV 	lostFocus 	_sender 	_arg 	do  	if dragFlag == true do	importerViewport ()
+	
+	on ui_LV 	AfterLabelEdit			_arg 	do  	m_LV.renommer				_arg.label
+	
 				
 	/* 
 	---- le liste view----
@@ -696,8 +666,8 @@ struct str_fenLabib (
 			
 			---- maj des preferences ----	
 -- 			if not silence do (
-				m_prefs.fenetre.fenLabib_estOuvert 	= false
-				m_prefs.fenetre.fenLabib_pos				= getdialogpos m_dialog
+			m_prefs.fenetre.fenLabib_estOuvert 	= false
+			m_prefs.fenetre.fenLabib_pos				= getdialogpos m_dialog
 -- 			)
 			
 			-- on ferme les fenetres secondaires --
@@ -717,9 +687,9 @@ struct str_fenLabib (
 		),
 		
 		---- passerelles ---
-		fn selectionnerTV		_noeudA 	= m_dialog.m_TV.selectionner 	_noeudA,
+		fn selectionnerTV		_noeudA 		= m_dialog.m_TV.selectionner 	_noeudA,
 		fn selectionnerLV		_noeudsA 	= m_dialog.m_LV.selectionner 	_noeudsA,
-		fn actualiser 							= m_dialog.actualiser (),
+		fn actualiser 									= m_dialog.actualiser (),
 		fn editerNom 			_noeudA		= m_dialog.m_LV.editerNom 		_noeudA,
 		------------  Evenements	----------------------------------------------------------------------------------
 		on create do (

@@ -26,8 +26,6 @@ struct str_element (
 	---- parametres globaux----
 		m_prt, ---- pointeur vers arbo ---
 	
-	
-	
 	---- parametres de l'element ----
 	public
 		nomUnique 				= "",										---- NomUnique de l'élément, ne doit jamais y avoir 2 element avec le mm nomUnique !!! ---
@@ -322,13 +320,12 @@ struct str_arborescence (
 			)
 			
 		),
-		
 		fn supprimerNoeud _noeud =(
 			-- on supprime du fichierArbo --
 			delINISetting   fichierArbo	_noeud.nomUnique
 		),
-		
-		
+
+	
 	-------- GESTION DE L'ARBO --------
 	---- Creation des nouveaux élements ou branches ----
 	public
@@ -360,8 +357,8 @@ struct str_arborescence (
 			
 			nouvelElement
 		),	
-		
-		
+	
+	
 	private
 		fn lireNoeud 	_nomUnique 	_parent 	= (
 			
@@ -423,12 +420,9 @@ struct str_arborescence (
 		),	
 		
 	public
-		
-		
-		---- Supprimer un element de l'arbo ----
+		---- Supprimer des elements de l'arbo ----
 		fn supprimer  _noeuds 	= (
-			
-			if classof _noeuds != Array 	do _noeuds =#(_noeuds)
+			toArray 	&_noeuds
 			
 			for noeud in _noeuds do 	noeud.supprimer()
 			
@@ -436,30 +430,35 @@ struct str_arborescence (
 		
 	---- initialiser l'arborescence de tout ses éléments ----
 		fn initialiser = (
-			root 			= str_branche 	m_prt:this	nom:"Labib"	nomUnique:"ROOT"			
-			recherche	= str_branche  	m_prt:this	nom:"RECHERCHE"	nomUnique:"RECHERCHE"
 			
-			nbrElements 		= 0
-			nbrNoeuds 			= 0
-			indexUnique 		= 0
+			root 				= str_branche 	m_prt:this	nom:"Labib"	nomUnique:"ROOT"			
+			recherche		= str_branche  	m_prt:this	nom:"RECHERCHE"	nomUnique:"RECHERCHE"
+			
+			indexUnique 	= 0
+			
 		),
-	---- deplacer un noeud dans l'arbo ----
-		fn deplacer 	_elements	_noeudDest = (
-			for element in _elements do(
-				_noeudDest.ajouterEnfant 	element
-			)
-			enregistrer()
-		),
-	
-	
 		
-	private
+	---- deplacer un noeud dans l'arbo ----
+		fn deplacer 	_noeudsADeplacer	_noeudDest = (
+			
+			toArray 	&_noeudsADeplacer
+			
+			local neoudParentDepart = _noeudsADeplacer[1]
+			
+			for noeudADeplacer in _noeudsADeplacer do (
+				_noeudDest.ajouterEnfant 	noeudADeplacer
+				noeudADeplacer.enregistrer ()
+			)
+			_noeudDest.enregistrer ()
+		),
+	
+	
+	public
 		fn enregistrer 	= (
 			debug "<arbo>		enregistrement"
 			setINISetting   fichierArbo	"params"   "indexUnique"  ( indexUnique as string )
 			ecrireNoeud Root
 		),	
-		
 		fn charger = (
 			debug "<arbo>		chargement"
 			
@@ -540,7 +539,7 @@ struct str_arborescence (
 			
 			result
 		),
-	---- Recuperer tout les elements ----
+	---- Recuperer tout les elements d'un neud----
 		fn getElements 	noeud:root 	recursif:false	= (
 	
 			local elements = #()
@@ -556,7 +555,7 @@ struct str_arborescence (
 			elements
 			
 		),	
-	---- Recuperer tout les noeuds ----
+	---- Recuperer tout les noeuds d'un neud ----
 		fn getNoeuds 	noeud:root 	recursif:false	= (
 	
 			local elements = #()
@@ -596,7 +595,6 @@ struct str_arborescence (
 			elemsResult
 		),
 	---- acceder aux tags ----
-	public
 		fn getTags  noeud:root = (
 			
 			local result 	= #()
@@ -729,27 +727,7 @@ struct str_arborescence (
 -- 			afficher()
 		),
 	
-	
-	-------- manipulations diverses --------
-	public
-		fn dateToString 	_date = (
-			if _date != undefined then (
-				local result 
-				
-				zeroJour 	= if _date[4] <10 then  "0"  else ""
-				zeroMois 	= if _date[2] <10 then  "0"  else ""
-				zeroH 		= if _date[5] <10 then  "0"  else ""
-				zeroM 		= if _date[6] <10 then  "0"  else ""
-				zeroS 		= if _date[7] <10 then  "0"  else ""
-				if _date[4] != 0 then 
-					result = zeroJour + _date[4] as string + "/"  + zeroMois + _date[2] as string+ "/"  + _date[1] as string + "  "  + zeroH + _date[5] as string + ":"  + zeroM  + _date[6] as string + ":"  +zeroS + _date[7] as string 
-				else 
-					result = "-"
-				
-			) else result = "-"
-			result
-		),
-	
+		
 	
 	-------- AFFICHAGE de l'arbo dans le listener --------
 	public
@@ -769,7 +747,6 @@ struct str_arborescence (
 				indent -= 1
 			)
 		),
-			
 		fn afficher = (
 			format "\n----- Arborescence --------------\n"
 			afficherNoeud root
@@ -787,10 +764,11 @@ struct str_arborescence (
 				debug "fichier absent, création du fichier"		var:fichierArbo
 				initialiser()			
 				enregistrer()
-			) 		
+			)
 			
 			charger()
 			debug "<arbo>		Structure crée."
+			
 		)
 	 
 	

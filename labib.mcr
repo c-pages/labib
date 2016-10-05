@@ -1,5 +1,5 @@
-
-try destroydialog labib.fenetre.m_dialog	catch  ()
+clearListener ()
+try ( 	labib.fermer ()	) catch  ()
 
 Global 	labib = fileIn "$userScripts\labib\labib.ms" 
 labib.ouvrir 	()
@@ -20,13 +20,18 @@ toolTip:""
 	
 	on execute do 	
 		if ( labib.estOuvert () )	
-			then		labib.fermer	()
+			then	labib.fermer	()
 			else 	labib.ouvrir 	()
 	
 	on isChecked return try ( labib.estOuvert () )  catch	( false )	
 	
 )
 /*
+
+
+debug "test" var:labib.arbo.root.enfants 	param:#nom
+
+ShellLaunch "explorer.exe" @"C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\data\"
 
 
  #### Arbo ####
@@ -38,6 +43,18 @@ mouseTrack [on:<node>] [prompt:<message_string>] [snap:#2D|#3D] [trackCallback:f
 
 
 
+labib.arbo.initialiser ()
+labib.fenetre.m_dialog.viderListes ()
+labib.fenetre.actualiser ()
+labib.arbo.root.enregistrer ()
+debug 	"" var:labib.arbo.root.enfants	 param:#nom
+
+
+labib.fenetre.m_dialog.m_LV.m_brancheCourante.enfants.count
+
+
+
+
  #### LV ####
 show 				labib.fenetre.m_dialog.ui_LV
 showmethods		labib.fenetre.m_dialog.ui_LV
@@ -46,13 +63,62 @@ labib.fenetre.m_dialog.m_LV.m_selection
 
 
 
- #### DOCK ####
-cui.RegisterDialogBar 		labib.fenetre.m_dialog
-cui.DockDialogBar			labib.fenetre.m_dialog		#cui_dock_left
+ #### DOCKing ####
+cui.RegisterDialogBar 		labib.fenetre.m_dialog		style:#(	#cui_handles, #cui_dock_left )
+cui.DockDialogBar			labib.fenetre.m_dialog		#cui_dock_right -- #cui_dock_top -- #cui_dock_left
 
 cui.UnRegisterDialogBar 	labib.fenetre.m_dialog
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
