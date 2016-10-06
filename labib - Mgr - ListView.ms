@@ -33,6 +33,20 @@
 --------------------------------------------------------------------------------
 struct str_listViewMgr (
 		
+	------------ DEBUG	----------------------------------------------------------------------------------
+
+		m_debug = false,
+		m_dbgPrefix ="LV",
+		fn debug 	_txt  var:	 param:    =(
+			if m_debug do ::debug 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+		),
+	----------------------------------------------------------------------------------------------------------
+	
+		
+		
+		
+		
+		
 		------------ MEMBRES ----------------------------------
 	public
 		---- pointeurs (à donner en param a la creation) ----
@@ -192,8 +206,8 @@ struct str_listViewMgr (
 		---- divers ----
 		fn selectionner 	_noeudsA	= (
 			
-			debug "<LV> selectionner"
-			debug "<LV> _noeudsA" var:_noeudsA	 param:#nom
+			debug "selectionner"
+			debug "_noeudsA" var:_noeudsA	 param:#nom
 			
 			---- on transforme "_noeudsA" en array si noeud unique --
 			toArray 	&_noeudsA
@@ -224,7 +238,7 @@ struct str_listViewMgr (
 					)
 			)
 			
-			debug "<LV> (selection fin) m_edit.getSelection" var:(m_edit.getSelection () )	 param:#nom
+			debug "(selection fin) m_edit.getSelection" var:(m_edit.getSelection () )	 param:#nom
 		),
 		fn vider = (
 			
@@ -252,14 +266,14 @@ struct str_listViewMgr (
 			)
 		),
 		fn actualiser  = (	
-			debug "<LV> actualiser"
+			debug "actualiser"
 			
 			-- on nettoie le terrain ---
 			vider ()
 			
 			--- on actualise la branche courante --
 			m_brancheCourante = getDossierCourant ()
-			debug "<LV> m_brancheCourante" var:m_brancheCourante	 param:#nom
+			debug "m_brancheCourante" var:m_brancheCourante	 param:#nom
 			if m_brancheCourante != undefined then (
 				
 				--- la couleur de fond du LV ---------
@@ -309,8 +323,8 @@ struct str_listViewMgr (
 			
 		),
 		fn afficher	_noeudAOuvrir	  = (	
-			debug "<LV> afficher"
-			debug "<LV> _noeudAOuvrir Dbt" var:_noeudAOuvrir	 param:#nom
+			debug "afficher"
+			debug "_noeudAOuvrir Dbt" var:_noeudAOuvrir	 param:#nom
 			
 			--- on actualise la branche courante --
 			if _noeudAOuvrir != undefined then (
@@ -364,17 +378,17 @@ struct str_listViewMgr (
 		),
 		fn renommer 		_arg	  =(
 			
-			debug "<LV> renommer Dbt" var:m_selection	 param:#nom
+			debug "renommer Dbt" var:m_selection	 param:#nom
 			
 			local nouveauNom 	= _arg.label
 			local itemSelec 		= m_ui.items.item[_arg.item]
 	 		local noeudARenommer = getNoeud 	itemSelec			
 			m_selection = #(noeudARenommer)
 			
-			debug "<LV> nouveauNom" var:nouveauNom
-			debug "<LV> itemSelect" var:itemSelec	 param:#name
+			debug "nouveauNom" var:nouveauNom
+			debug "itemSelect" var:itemSelec	 param:#name
 			
-			debug "<LV> noeudARenommer" var:noeudARenommer param:#nomUnique		
+			debug "noeudARenommer" var:noeudARenommer param:#nomUnique		
 			
 			if nouveauNom != undefined  and  noeudARenommer !=undefined do ( 
 				
@@ -388,7 +402,7 @@ struct str_listViewMgr (
 				selectionner noeudARenommer
 				
 			)
-			debug "<LV> renommer Fin" var:m_selection	 param:#nom
+			debug "renommer Fin" var:m_selection	 param:#nom
 			
 		),
 		
@@ -501,39 +515,39 @@ struct str_listViewMgr (
 		
 			local posDrop	= m_ui.PointToClient 	m_ui.MousePosition
 			local noeudDest = getNoeudA_at 	posDrop.x 	posDrop.y
-			
-			---- si dépose dans "retour" ---
-			if noeudDest.nomUnique == "RETOUR" 
-				do noeudDest = noeudDest.parent
-			
-			---- deplacement des noeuds ---
-			drag_finaliser 	noeudDest
-
+			if noeudDest != undefined do (
+				---- si dépose dans "retour" ---
+				if noeudDest.nomUnique == "RETOUR" 
+					do noeudDest = noeudDest.parent
+				
+				---- deplacement des noeuds ---
+				m_edit.drag_finaliser 	noeudDest
+			)
 		),
 		
 		
 		---- Souris ----
 		fn clq_down		_arg	 	= (
-			debug "<LV> clq_down"
+			debug "clq_down"
 			
 			--- actualiser la selection ----
 			local	noeudLVClique = m_ui.GetItemAt  _arg.x _arg.y
-			debug "<LV> (clq_down) noeudLVClique" var:( noeudLVClique )	 param:#name
+			debug "(clq_down) noeudLVClique" var:( noeudLVClique )	 param:#name
 			
 			if m_ui.selectedItems.count <2 do
 				if noeudLVClique != undefined do ( 
 					noeudAClique = m_arbo.getParNomUnique  noeudLVClique.name
-			debug "<LV> (clq_down) noeudAClique" var:( noeudAClique )	 param:#nomUnique
+			debug "(clq_down) noeudAClique" var:( noeudAClique )	 param:#nomUnique
 					if noeudAClique != undefined do 
 						m_edit.setSelection	noeudAClique
 				)
 				
-			debug "<LV> (clq_down) m_edit.getSelection" var:( m_edit.getSelection () )	 param:#nom
+			debug "(clq_down) m_edit.getSelection" var:( m_edit.getSelection () )	 param:#nom
 				
 		),
 		fn clq_up 			_arg 			= (
-			debug "<LV> clq_up"
-			debug "<LV> (clq_up) m_edit.getSelection" var:( m_edit.getSelection () )	 param:#nom
+			debug "clq_up"
+			debug "(clq_up) m_edit.getSelection" var:( m_edit.getSelection () )	 param:#nom
 			if not m_edit.dragEnCours () do (
 				
 				local	noeudLVClique = m_ui.GetItemAt  _arg.x _arg.y
@@ -554,10 +568,10 @@ struct str_listViewMgr (
 -- 			debug "m_selection" var:m_selection
 -- 			m_prt.dragFlag = false
 			
-			debug "<LV> (clq_up fin) m_edit.getSelection" var:( m_edit.getSelection () )	 param:#nom
+			debug "(clq_up fin) m_edit.getSelection" var:( m_edit.getSelection () )	 param:#nom
 		),
 		fn clq_double		_arg 			= (
-			debug "<LV> clq_double"
+			debug "clq_double"
 			
 			local noeudClique = (m_edit.getSelection ())[1]
 			

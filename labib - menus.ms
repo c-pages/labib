@@ -47,6 +47,15 @@ rcMenu rc_fenLabib
 -------------------------------------------------------------
 struct str_menus (
 	
+	------------ DEBUG	----------------------------------------------------------------------------------
+	private
+		m_debug = false,
+		fn debug 	_txt  var:	 param:    =(
+			if m_debug do ::debug 	_txt  var:var	 param:param
+		),
+	----------------------------------------------------------------------------------------------------------
+	
+	
 	public 	
 		fn elements = (			
 			rcMenu rcMenuElements

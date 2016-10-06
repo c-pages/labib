@@ -22,12 +22,22 @@
 --------------------------------------------------------------
 struct str_element (
 	
+	------------ DEBUG	----------------------------------------------------------------------------------
+	private
+		m_debug = false,
+		m_dbgPrefix ="element",
+		fn debug 	_txt  var:	 param:    =(
+			if m_debug do ::debug 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+		),
+	----------------------------------------------------------------------------------------------------------
+	
+	
 	------------ Les membres	----------------------------------------------------------------------------------
+	public
 	---- parametres globaux----
 		m_prt, ---- pointeur vers arbo ---
 	
 	---- parametres de l'element ----
-	public
 		nomUnique 				= "",										---- NomUnique de l'élément, ne doit jamais y avoir 2 element avec le mm nomUnique !!! ---
 		nom 						= "nom",								---- le nom affiché de l'élément ---
 		type						= "",										---- le type d'asset ( #vide, #model, #material, #map ) ----
@@ -130,6 +140,16 @@ struct str_element (
 -- 	permettant de classer les differents elements 	--
 --------------------------------------------------------------
 struct str_branche (
+	
+	------------ DEBUG	----------------------------------------------------------------------------------
+
+		m_debug = false,
+		m_dbgPrefix ="branche",
+		fn debug 	_txt  var:	 param:    =(
+			if m_debug do ::debug 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+		),
+	----------------------------------------------------------------------------------------------------------
+	
 	
 	------------ Les membres	----------------------------------------------------------------------------------
 	-- parametre du branche --
@@ -240,6 +260,16 @@ struct str_branche (
 --------------------------------------------------------------
 struct str_arborescence (
 
+	------------ DEBUG	----------------------------------------------------------------------------------
+
+		m_debug = false,
+		m_dbgPrefix ="arbo",
+		fn debug 	_txt  var:	 param:    =(
+			if m_debug do ::debug 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+		),
+	----------------------------------------------------------------------------------------------------------
+	
+	
 	------------ 	MEMBRES	----------------------------------------------------------------------------------	
 	public
 	---- quelques noeuds ----
@@ -338,7 +368,7 @@ struct str_arborescence (
 			delINISetting   fichierArbo	_noeud.nomUnique
 		),
 		fn fichier_ouvrir =	ShellLaunch "explorer.exe" @"C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\data\arbo.ini"	,
-		fn fichier_supprimer =deleteFile fichierArbo,
+
 
 	
 	-------- GESTION DE L'ARBO --------
@@ -360,7 +390,7 @@ struct str_arborescence (
 			nouveauNoeud			
 		),
 		fn creerElement 	nom:"Nouvel élément" 	parent:root  	nomUnique:( creerNomUnique_element () )	type:#vide		fichier:""		apercu:""	tags:""	=( 
-			local		nouvelElement = str_element	m_prt:this	
+			local		nouvelElement = str_element		m_prt:this	
 			
 			---- Remplissage des parameteres du nouvel element----
 			if parent != undefined do 
@@ -476,12 +506,12 @@ struct str_arborescence (
 	
 	public
 		fn enregistrer 	= (
-			debug "<arbo>		enregistrement"
+			debug "enregistrement"
 			enregistrer_indexUnique ()
 			fichier_ecrireNoeud Root
 		),	
 		fn charger = (
-			debug "<arbo>		chargement"
+			debug "chargement"
 			
 			initialiser()
 			
@@ -495,7 +525,10 @@ struct str_arborescence (
 			)
 			_root
 		),
-	
+		fn fichier_supprimer = (
+			deleteFile fichierArbo
+			initialiser ()
+		),
 	
 	-------- ACCEDER AUX NOEUDS --------		
 	public
@@ -792,7 +825,7 @@ struct str_arborescence (
 			)
 			
 			charger()
-			debug "<arbo>		Structure crée."
+			debug "Structure crée."
 			
 		)
 	 

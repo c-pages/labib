@@ -60,13 +60,25 @@ include "$userScripts\labib\labib - edition.ms"
 -----------------------------------------
 struct str_labib (
 	
+	
+		------------ DEBUG	----------------------------------------------------------------------------------
+
+		m_debug = false,
+		m_dbgPrefix ="LABIB",
+		fn debug 	_txt  var:	 param:    =(
+			if m_debug do ::debug 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+		),
+	----------------------------------------------------------------------------------------------------------
+	
+		
+		
 	------------ Les structures	----------------------------------------------------------------------------------
 	public
 	
 		prefs		= str_preferences 	dossierScript:dossierScript,		---- les préferences utilisateurs ----
 		arbo		= str_arborescence 	fichierArbo:prefs.fichierArbo,		---- la gestion de l'arborescenece de la bibliotheque ----	
 		menus	= str_menus (),													---- les menus RCMenu ----
-		fenetre	= str_fenLabib			m_labib:this, 						---- le manager de la fenetre principale (en post car boucle infernale avec edit sinon ) ----
+		fenetre	= str_fenLabib			m_labib:this, 							---- le manager de la fenetre principale (en post car boucle infernale avec edit sinon ) ----
 		edit 		= str_edition 			m_labib:this,							---- les commandes utilisateurs,  l'edition proprement dite de la bibliotheque (creation d'un asset, import dans la scene ... ) ----
 
  		rendu,																			---- la gestion des rendus des apercus ----		
@@ -79,6 +91,8 @@ struct str_labib (
 		fn nouvelAsset_dossier 		=	edit.nouvelAsset_dossier (),
 		fn supprimer 	_noeudsArbo	=	edit.supprimer	_noeudsArbo,
 		
+		fn creerDossier	_nom 	parent:arbo.root	=	edit.creerDossier	nom:_nom 	parent:parent,
+		
 	--- Fenetre ----	
 	public
 		fn ouvrir 		= (			
@@ -90,9 +104,10 @@ struct str_labib (
 	
 	------------ Evenements 	----------------------------------------------------------------------------------
 	on create do (
-		--- initialiser le manager de fenetre ----	
-			edit.initialiser ()		
+		--- initialiser ----	
+		edit.initialiser ()		
 		ecrire "Structure Labib crée."		
+		debug "Structure crée."	
 	)
 	
 ) -- fin struct labib ----

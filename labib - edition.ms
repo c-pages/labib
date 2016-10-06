@@ -22,9 +22,21 @@
 ----------------------------------------------------------
 struct str_edition (
 
-	------------ Les membres	----------------------------------------------------------------------------------
+	------------ DEBUG	----------------------------------------------------------------------------------
+
+		m_debug = true,
+		m_dbgPrefix ="edit",
+		fn debug 	_txt  var:	 param:    =(
+			if m_debug do ::debug 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+		),
+	----------------------------------------------------------------------------------------------------------
 	
-	
+		
+		
+		
+		
+		
+	------------ Les membres	----------------------------------------------------------------------------------	
 	---- pointeurs ----
 	public 
 		m_labib,																				---- la structure principale ---	
@@ -104,16 +116,19 @@ struct str_edition (
 	public
 		--- Fonctions generales ---
 		fn initialiser =(
+			debug "initaliser"
 			--- historique ----			
 			m_hist.m_TV = m_TV
 			m_hist.m_LV = m_LV
 			
 			m_hist.enregistrer  m_arbo.root
+			
+			m_fenetre.initialiser ()
 		),		
 		fn ouvrir		_noeudAOuvrir 	enregistrer_historique:true		=(
 			
-			debug "<\nedit> ouvrir	---------------------------------------"
-			debug "<edit> (ouvrir) _noeudAOuvrir Dbt" var:_noeudAOuvrir	 param:#nomUnique
+			debug "ouvrir	---------------------------------------"
+			debug "_noeudAOuvrir" var:_noeudAOuvrir	 param:#nomUnique
 			
 			if _noeudAOuvrir != undefined then (
 				
@@ -137,6 +152,7 @@ struct str_edition (
 -- 					do selectionner _noeudA
 				
 				
+				
 			)
 			debug "<edit> (ouvrir) m_dossier Fin" var:m_dossier	 param:#nomUnique
 			debug "<edit> fin : ouvrir\n"
@@ -145,6 +161,14 @@ struct str_edition (
 		--- Actions utilisateur ----
 		fn renommer _noeud	_nvNom =(
 			
+		),
+		fn creerDossier 	nom:"Nouveau dossier" 	parent: 	=(
+			
+			if parent == unsupplied do parent = m_arbo.root
+			
+			local nvDossier = m_arbo.creerNoeud  nom:nom\
+																parent:parent   
+			nvDossier
 		),
 		fn nouveauDossier 	=(
 			debug "\n<edit> nouveauDossier	---------------------------------------"
@@ -159,7 +183,7 @@ struct str_edition (
 			setDossier parent
 			
 			---- creation du noeud	----
-			local	nouveauNoeud  = m_arbo.creerNoeud  	parent:parent
+			local	nouveauNoeud  = creerDossier  	parent:parent
 			
 			debug "<edit> nouveauNoeud" var:nouveauNoeud param:#nomUnique
 			

@@ -32,6 +32,20 @@
 --------------------------------------------------------------------------------
 struct str_treeViewMgr (
 		
+	------------ DEBUG	----------------------------------------------------------------------------------
+
+		m_debug = false,
+		m_dbgPrefix ="TV",
+		fn debug 	_txt  var:	 param:    =(
+			if m_debug do ::debug 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+		),
+	----------------------------------------------------------------------------------------------------------
+	
+		
+		
+		
+		
+		
 		------------ MEMBRES ----------------------------------
 	public
 		---- pointeurs (à donner en param a la creation) ----
@@ -103,8 +117,8 @@ struct str_treeViewMgr (
 		),
 		fn selectionner	 	_noeudA	= (			
 			
-			debug "<TV> selectionner"
-			debug "<TV> _noeudA" var:_noeudA	 param:#nom
+			debug "selectionner"
+			debug "_noeudA" var:_noeudA	 param:#nom
 			
 			if _noeudA !=undefined do (
 				
@@ -114,21 +128,35 @@ struct str_treeViewMgr (
 				---- on selectionne les items ----
 				m_ui.SelectedNode 	= getItem		_noeudA
 				m_ui.SelectedNode.EnsureVisible()
-				m_ui.SelectedNode.expand ()
+				
+-- 				---- expand ?!?!? ----
+-- 				if not m_ui.SelectedNode.IsExpanded
+-- 					do m_ui.SelectedNode.expand ()
 				
 				
 				
 			)
 			
-			debug "<TV> m_edit.getDossier " var:(m_edit.getDossier () )	 param:#nom
+			debug "m_edit.getDossier " var:(m_edit.getDossier () )	 param:#nom
 		),
+		
+		fn expand	 	_noeudA	= (	
+			if _noeudA !=undefined do (
+				---- on selectionne les items ----
+				item 	= getItem		_noeudA
+				if not item.IsExpanded do item.expand ()
+			)
+		),
+		
+		
+		
 		fn vider = (
 			m_ui.Nodes.Clear()
 			m_noeudsTV_total = #()
 		),
 		fn actualiser  = (				
 			
-			debug "<TV> actualiser"
+			debug "actualiser"
 			
 			-- on vide la liste --
 			vider ()
@@ -185,7 +213,7 @@ struct str_treeViewMgr (
 			) 			
 		),
 		fn drag_demarrer 	_arg =(
-			debug "<TV>	drag_demarrer"
+			debug "drag_demarrer"
 			if _arg.item != undefined do (
 				
 				m_edit.drag_demarrer 	( getNoeud _arg.item )
@@ -195,12 +223,12 @@ struct str_treeViewMgr (
 			)
 		),
 		fn drag_recevoir 	_arg =(
-			debug "<TV>	drag_recevoir"
+			debug "drag_recevoir"
 			
 			local posDrop	= m_ui.PointToClient 	m_ui.MousePosition
 			local noeudDest = getNoeudA_at 	posDrop.x 	posDrop.y
 			
-			drag_finaliser 	noeudDest
+			m_edit.drag_finaliser 	noeudDest
 			
 		),
 	
@@ -230,10 +258,10 @@ struct str_treeViewMgr (
 			local	noeudAClique = getNoeudA_at  _arg.x _arg.y 
 			
 			case _arg.button of (
-				(m_btnsDotNet.Left): 		()
+				(m_btnsDotNet.Left): 		() -- expand 	noeudAClique
 				(m_btnsDotNet.Middle): 	()
 				(m_btnsDotNet.None): 		()
-				(m_btnsDotNet.Right): 		() --ouvrir 	noeudAClique
+				(m_btnsDotNet.Right): 		() -- expand 	noeudAClique
 				(m_btnsDotNet.XButton1): 	m_edit.m_hist.seDeplacer 	1
 				(m_btnsDotNet.XButton2):	m_edit.m_hist.seDeplacer 	-1
 			) -- fin case _arg.button 

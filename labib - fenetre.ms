@@ -29,6 +29,16 @@
 rollout roll_labib  "Labib" width:296 height:296
 (
 
+	------------ DEBUG	----------------------------------------------------------------------------------
+
+		local	m_debug = false
+		local	m_dbgPrefix ="roll_labib"
+		fn debug 	_txt  var:	 param:    =(
+			if m_debug do ::debug 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+		)
+	----------------------------------------------------------------------------------------------------------
+	
+	
 	------------  Membres	----------------------------------------------------------------------------------
 	---- Pointeurs ----
 	local m_prt			---- pointeur vers la structure de controle parent ----
@@ -144,7 +154,7 @@ rollout roll_labib  "Labib" width:296 height:296
 		m_LV.vider ()
 	)
 	fn actualiser 	= (
-		debug "<fenetre>	actualiser"
+		debug "actualiser"
 -- 		local m_selcTV_Back = ui_TV.SelectedNode
 -- 		local m_selcLV_Back = m_LV.m_selection
 		
@@ -219,8 +229,6 @@ rollout roll_labib  "Labib" width:296 height:296
 		---- la fenetre	----
 		fen_recomposer ()
 		
-		---- selection initiale ----
-		m_TV.selectionner 	m_arbo.root
 		
 	)
 	
@@ -593,6 +601,19 @@ rollout roll_labib  "Labib" width:296 height:296
 ----------	Structure								 -------------------------
 ------------------------------------------------------------------------------
 struct str_fenLabib (
+
+	------------ DEBUG	----------------------------------------------------------------------------------
+
+		m_debug = true,
+		m_dbgPrefix ="fenetre",
+		fn debug 	_txt  var:	 param:    =(
+			if m_debug do ::debug 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+		),
+	----------------------------------------------------------------------------------------------------------
+		
+		
+		
+		
 		------------  Membres	----------------------------------------------------------------------------------
 	public
 		---- pointeurs ----
@@ -694,10 +715,16 @@ struct str_fenLabib (
 			---- maj des preferences ----	
 			m_prefs.fenetre.fenLabib_estOuvert = true
 			
+			
+			---- Ouvrir dossier initiale ----
+			local	dossierInitial = m_labib.arbo.root
+			m_edit.ouvrir 	dossierInitial
+			m_dialog.m_tv.expand 	dossierInitial
+			
 		),
 		fn fermer  silence:false =(		---- silence : fermer sans modifier l'état des preferences ---
 			
-			debug "<fenetre str> fermeture"
+			debug "fermeture"
 			
 			---- maj des preferences ----	
 -- 			if not silence do (
@@ -723,6 +750,7 @@ struct str_fenLabib (
 		
 		
 		fn initialiser = (
+			debug "initialiser"
 			m_dialog.m_prt = this
 			m_edit		= m_labib.edit
 			
@@ -737,7 +765,7 @@ struct str_fenLabib (
 		
 		------------  Evenements	----------------------------------------------------------------------------------
 		on create do (
-			debug "<fenetre>	Structure crée."
+			debug "Structure crée."
 			
 		) 
 		

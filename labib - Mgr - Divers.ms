@@ -48,6 +48,17 @@ struct str_chrono (
 ----------	Historique						--------------------------
 ------------------------------------------------------------------------------
 struct str_historique (
+	
+	------------ DEBUG	----------------------------------------------------------------------------------
+
+		m_debug = false,
+		m_dbgPrefix ="hist",
+		fn debug 	_txt  var:	 param:    =(
+			if m_debug do ::debug 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+		),
+	----------------------------------------------------------------------------------------------------------
+	
+	
 	public
 	---- pointeurs ----
 		m_dialog,
@@ -81,13 +92,13 @@ struct str_historique (
 				-- on ajoute le noeud actuel dans l'historique --
 				insertItem 		noeudACourant 	m_pile 	1
 			)
-			debug "<Historique>" var:m_pile	param:#nomUnique
+			debug "" var:m_pile	param:#nomUnique
 		),
 		-- se deplacer dans l'historque ---
 		fn seDeplacer  _sens =(
 			
-			debug "<Historique>" var:m_pile	param:#nomUnique
-			debug "<Historique pos>" var:m_pile[m_pos]	param:#nomUnique
+			debug "pile" var:m_pile	param:#nomUnique
+			debug "pos" var:m_pile[m_pos]	param:#nomUnique
 			
 			-- on gere la position  dans l'historique ---
 			local posMax =  m_pile.count 

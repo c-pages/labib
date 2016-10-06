@@ -2,10 +2,12 @@
 ------ OUTPUTS	------------------------------------------------------------------------------------------------------------------------------------
 
 
-fn remplirTexte  _txt  var:	 param:   = (
+fn remplirTexte  _txt  var:	 param:  prefix: = (
 	
 	local result =""
 	global dbg_elemTmp
+	if prefix != unsupplied and prefix != undefined do 
+		result += "<" + prefix + ">"
 	if var != unsupplied then (
 		
 		result += "	- " + _txt +  " : "	
@@ -39,7 +41,7 @@ fn remplirTexte  _txt  var:	 param:   = (
 global debug
 DEBUG_MODE = true
 
-fn debug 	_txt  var:	 param:    = 	(
+fn debug 	_txt  var:	 param:    prefix: = 	(
 	if DEBUG_MODE   do (
 		local txtFinal = "<DEBUG>	"
 		
@@ -50,12 +52,13 @@ fn debug 	_txt  var:	 param:    = 	(
 )		
 ----- output ------------------------------
 fn ecrire 		_txt  var:	 param:   = 	(
-	local txtFinal = "<Labib>	"
-	
-	txtFinal += remplirTexte  _txt  var:var	 param:param
-	
-	format "%\n"	txtFinal
-	
+	if not DEBUG_MODE do (
+		local txtFinal = "<Labib>	"
+		
+		txtFinal += remplirTexte  _txt  var:var	 param:param	prefix:prefix
+		
+		format "%\n"	txtFinal
+	)
 )
 
 ------ OUTPUT	------------------------------------------------------------------------------------------------------------------------------------
