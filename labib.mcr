@@ -42,9 +42,13 @@ labib.arbo.root.enfants[2].enfants[1].enfants[1].dateCreation
 mouseTrack [on:<node>] [prompt:<message_string>] [snap:#2D|#3D] [trackCallback:fn|#(fn,arg)]
 
 
+labib.edit.ouvrir 	labib.arbo.root.enfants[1]
+
 labib.arbo.fichier_supprimer ()
 labib.arbo.fichier_ouvrir ()
 labib.arbo.enregistrer ()
+labib.arbo.afficher()
+
 
 labib.arbo.initialiser ()
 labib.fenetre.m_dialog.viderListes ()

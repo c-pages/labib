@@ -28,106 +28,160 @@ struct str_edition (
 	---- pointeurs ----
 	public 
 		m_labib,																				---- la structure principale ---	
+		m_TV 		/* = m_fenetre.m_dialog.m_TV */,									---- le treeview ---
+		m_LV 		/* = m_fenetre.m_dialog.m_LV */,									---- le listview ---
 	private
 		m_prefs		= m_labib.prefs,													---- les preferences ---
 		m_arbo		= m_labib.arbo,													---- l'arborescence ---
 		m_fenetre	= m_labib.fenetre,												---- la fenetre ---
-		m_TV 		= m_fenetre.m_dialog.m_TV,									---- le treeview ---
-		m_LV 		= m_fenetre.m_dialog.m_LV,									---- le listview ---
 		
 	---- position dans la bib et selection -----
 		m_dossier,																			---- Selectionné dans le treeview, et enfants affichés dans le listview ----
-		m_selection,																		---- Elements selectionés dans le listview ----
+		m_selection =#(),																---- Elements selectionés dans le listview ----
 		
 	--- managers ----
-		m_chrono 	= str_chrono (),													---- manager pour chronometrer les operations ----		
-		m_hist 		= str_historique 		m_dialog:m_fenetre.m_dialog,		---- manager de l'historique ----
+		m_chrono 	= str_chrono (),													---- manager pour chronometrer les operations ----
+	public
+		m_hist 		= str_historique 		m_dialog:m_fenetre.m_dialog \	---- manager de l'historique ----
+													m_edit:this,	
 		
+	private
+	---- drag ----
+		m_dragFlag 		= false,
+		m_dragNoeuds 	=#(),	-- les noeuds draggés ----
+	
 	------------ Les fonctions	----------------------------------------------------------------------------------	
 	public
-		---- accesseurs / mutateurs ----
-		fn getDossier 		= m_dossier,
-		fn getSelection 	= m_selection,
+		---- Fonctionnement ----
+		-- Dossier --
+		fn getDossier 						= (
+			if m_dossier == undefined do m_dossier = m_arbo.root
+				m_dossier
+		),
+		fn setDossier		_noeudA		= ( 
+			if _noeudA != m_dossier do (				
+				m_dossier = _noeudA 
+				m_tv.selectionner _noeudA
+			)
+			
+		),
 		
-		fn setDossier		_noeudA		= ( m_dossier = _noeudA ),
-		fn setSelection	_noeudsA	= ( m_selection  = _noeudsA ),
+		-- Selection --
+		fn getSelection 					= m_selection,		
+		fn addSelection 	_noeudA		= if _noeudA != undefined do append m_selection _noeudA,		
+		fn setSelection	_noeudsA	= (
+			if _noeudA != undefined do   (
+				toArray  &_noeudsA
+				for noeudA in _noeudsA do
+					if noeudA != undefined do append m_selection noeudA
+				
+			)
+		),
+		fn selectionEstVide				= ( m_selection.count == 0  ),
+		fn viderSelection					= ( m_selection  = #() ),
 		
+		---- drag ----
+		fn drag_demarrer 	_noeudsA =(
+			m_dragFlag = true
+			m_dragNoeuds = toArray 	&_noeudsA
+		),
+		fn drag_finaliser 		_noeudADest =(
+			
+			debug "<edit> drag_finaliser	---------------------------------------"
+			debug "<edit> deplacer" var:m_dragNoeuds param:#nomUnique
+			debug "<edit> dans" var:_noeudADest param:#nomUnique
+			
+			m_dragFlag = false
+			
+			-- on vide la liste des drag --
+			m_dragNoeuds = #()
+			debug "<edit> fin : drag_finaliser\n"
+		),
+		fn dragEnCours 		=(
+			m_dragFlag
+		),
 		
 	public
+		--- Fonctions generales ---
 		fn initialiser =(
-			--- historique ----
+			--- historique ----			
+			m_hist.m_TV = m_TV
+			m_hist.m_LV = m_LV
+			
 			m_hist.enregistrer  m_arbo.root
-			---- fenetre ----
-			m_fenetre.initialiser ()
-		),
-		--- actions generales ---
-		fn ouvrir		_noeudA 	=(
+		),		
+		fn ouvrir		_noeudAOuvrir 	enregistrer_historique:true		=(
 			
-			debug "<edit> ouvrir"
-			debug "<edit> (ouvrir) _noeudA Dbt" var:_noeudA	 param:#nomUnqiue
+			debug "<\nedit> ouvrir	---------------------------------------"
+			debug "<edit> (ouvrir) _noeudAOuvrir Dbt" var:_noeudAOuvrir	 param:#nomUnique
 			
-			if _noeudA != undefined then (
+			if _noeudAOuvrir != undefined then (
 				
 				-- si differnet du dossier courant--
-				if _noeudA != m_dossier do (
+				if _noeudAOuvrir != m_dossier do (
 					
 					---- on actualise la selection ---					
-					setDossier	_noeudA
+					setDossier	_noeudAOuvrir
+					viderSelection ()
 					
 					---- on affiche la ListView  ---					
-					m_lv.afficher  _noeudA
-					
--- 					---- on actualise la ListView  ---					
--- 					m_lv.actualiser ()
+					m_LV.afficher  _noeudAOuvrir
 					
 					---- historique ---
-					if historique do m_hist.enregistrer  	_noeudA
+					if enregistrer_historique do m_hist.enregistrer  	_noeudAOuvrir
 					
 				)
 				
 -- 				---- si selection TV different de noeudA ----
--- 				if getItem _noeudA != m_ui.selectedNode
+-- 				if getItem _noeudAOuvrir != m_ui.selectedNode
 -- 					do selectionner _noeudA
 				
 				
 			)
-			debug "<edit> (ouvrir) m_dossier Fin" var:m_dossier	 param:#nomUnqiue
+			debug "<edit> (ouvrir) m_dossier Fin" var:m_dossier	 param:#nomUnique
+			debug "<edit> fin : ouvrir\n"
+		),
+		
+		--- Actions utilisateur ----
+		fn renommer _noeud	_nvNom =(
+			
 		),
 		fn nouveauDossier 	=(
+			debug "\n<edit> nouveauDossier	---------------------------------------"
+			debug "<edit> m_dossier" var:m_dossier param:#nomUnique
 			
-			-- creation de noeud --
-			local noeudArboSelec 	= getDossierCourant ()
-			debug "NOEUDARBOSELEC" var:noeudArboSelec		param:#nomUnique
-			local selectBack 			= noeudArboSelec
-			debug "SELECTBACK" var:selectBack		param:#nomUnique
-			local parent
-			
-			---- on gere recherche ----
-			if noeudArboSelec.nomUnique == "RECHERCHE" 
+			---- parent en fonction de recherche ----
+			local parent 
+			if m_dossier.nomUnique == "RECHERCHE" 
 				then	parent = arbo.root
-				else	parent = noeudArboSelec
+				else	parent = m_dossier
+			
+			setDossier parent
 			
 			---- creation du noeud	----
 			local	nouveauNoeud  = m_arbo.creerNoeud  	parent:parent
 			
-			debug "NOUVEAU NOEUD" var:nouveauNoeud		param:#nomUnique
+			debug "<edit> nouveauNoeud" var:nouveauNoeud param:#nomUnique
 			
+			---- on reécrit les listes ----
 			m_fenetre.actualiser()
-			m_fenetre.m_dialog.m_TV.ouvrir		nouveauNoeud.parent
-			-- actualisation rollout--
--- 			m_fenetre.actualiser()
--- 			m_fenetre.selectionnerLV		nouveauNoeud
+			ouvrir 	m_dossier
+-- 			m_TV.selectionner 
+			
+			---- on edit le nom du dossier ----
 			m_fenetre.editerNom			nouveauNoeud
 			
 			--- ecrire sur le fichier ---
-			nouveauNoeud.enregistrer ()
-			parent.enregistrer ()
+-- 			nouveauNoeud.enregistrer ()
+-- 			parent.enregistrer ()
 			
 			--- sortie Listener --
 			ecrire "Branche créée."
+			debug "<edit> fin : nouveauDossier\n"
 			
 		),
 		fn nouvelAsset =(
+			debug "\n<edit> nouvelAsset	---------------------------------------"
 			
 			--- sortie Listener --
 			m_chrono.demarrer ()
@@ -144,29 +198,26 @@ struct str_edition (
 				
 				---- creation du nouveau noeud ----
 				local nouvelElement = m_arbo.creerElement  nom:(getFilenameFile	fichierSource) \
-																			parent:(  getDossierCourant () )   		\
+																			parent:(  getDossier () )   		\
 																			fichier:fichierSource							\
 																			apercu:""	\
 																			tags:""	\
 																			type:#vide	
 				
-				--- ecrire sur le fichier ---
-				nouvelElement.enregistrer ()
-				nouvelElement.parent.enregistrer ()
-				
-				---- actualise l4UI ----
+				---- actualise l'UI ----
 				m_fenetre.actualiser ()
-				m_fenetre.selectionnerLV 	nouvelElement 
-				
-				debug "nouvelAsset Créé."
+				m_LV.selectionner 	nouvelElement 
 				
 				--- sortie Listener --
 				ecrire ( "Asset créé: " + nouvelElement.nom )
 				m_chrono.ecrireDuree ()
 				
 			)
+			debug "<edit> fin : nouvelAsset\n"
 		),		
-		fn nouvelAssetDossier =(
+		fn nouvelAsset_dossier =(
+			
+			debug "\n<edit> nouvelAsset_dossier	---------------------------------------"
 			
 			local	dossierSource = 	getSavePath	caption:	"Fichier source du nouvel asset" \
 																initialDir:	m_prefs.general.dossierNouvelAsset
@@ -185,18 +236,17 @@ struct str_edition (
 				for fichierSource in fichiersMax do (
 					
 					local nouvelElement = m_arbo.creerElement  nom:(getFilenameFile	fichierSource) \
-																				parent:(  getDossierCourant () )   		\
+																				parent:(  getDossier () )   		\
 																				fichier:fichierSource							\
 																				apercu:""	\
 																				tags:""		\
 																				type:#vide
 					debug "nom" var:nouvelElement.nom
 					
-					nouvelElement.enregistrer ()
 					append nouveauxElements nouvelElement
 				)
 				
-				(  getDossierCourant () ).enregistrer ()
+				(  getDossier () ).enregistrer ()
 				
 				m_fenetre.actualiser ()			
 				m_fenetre.selectionnerLV 	nouveauxElements
@@ -209,6 +259,7 @@ struct str_edition (
 			ecrire ( "Dossier importer : " +  nouveauxElements.count as string + " assets crées." )
 			m_chrono.ecrireDuree ()
 			
+			debug "<edit> fin : nouvelAsset_dossier\n"
 		),
 		fn supprimer 	_noeudsArbo	=(
 			--- pour selectionner le parent a la fin ---

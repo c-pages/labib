@@ -156,9 +156,12 @@ struct str_branche (
 	
 	
 		fn ajouterEnfant 		_enfant 	= (
+			
 			append enfants 	_enfant 
 			_enfant.retirer()
 			_enfant.definirParent ( this )
+			
+			enregistrer ()
 		),		
 		fn definirParent 	_parent 	= ( parent = _parent ),		
 		fn retirer  			 = (
@@ -268,8 +271,23 @@ struct str_arborescence (
 	
 	---- les noms uniques -----
 	private
-		fn creerNomUnique_branche 	= return prefixNomUnique_branche 	+ (indexUnique += 1 ) as string,
-		fn creerNomUnique_element 	= return prefixNomUnique_element + (indexUnique += 1 ) as string,
+		fn charger_indexUnique =(
+			indexUnique = ( getINISetting   fichierArbo	"params"   "indexUnique" ) as integer
+		),
+		fn enregistrer_indexUnique =(
+			setINISetting   fichierArbo	"params"   "indexUnique"  ( indexUnique as string )
+		),
+		fn creerNomUnique_branche 	= (
+			indexUnique += 1 
+			enregistrer_indexUnique ()
+			return prefixNomUnique_branche 	+ indexUnique as string
+		),
+			
+		fn creerNomUnique_element 	= (
+			indexUnique += 1 
+			enregistrer_indexUnique ()
+			return prefixNomUnique_element 	+  indexUnique  as string
+		),
 			-------- GESTION DU FICHIER INI --------
 	public
 		fn fichier_ecrireNoeud  _noeud 					= (
@@ -330,11 +348,14 @@ struct str_arborescence (
 			local		nouveauNoeud = str_branche m_prt:this		
 			
 			---- Remplissage des parameteres du nouveau branche 	----
-			if parent != undefined do
-				parent.ajouterEnfant 	 nouveauNoeud
-			
 			nouveauNoeud.nom 			= nom
 			nouveauNoeud.nomUnique	= nomUnique
+			if parent != undefined do 
+				parent.ajouterEnfant 	 nouveauNoeud
+			
+			--- enregistrement ---
+			nouveauNoeud.enregistrer ()
+			
 			
 			nouveauNoeud			
 		),
@@ -343,14 +364,16 @@ struct str_arborescence (
 			
 			---- Remplissage des parameteres du nouvel element----
 			if parent != undefined do 
-				parent.ajouterEnfant 	nouvelElement
-			
+				parent.ajouterEnfant 	nouvelElement			
 			nouvelElement.nom 			= nom
 			nouvelElement.nomUnique	= nomUnique
 			nouvelElement.type 			= type
 			nouvelElement.fichier		= fichier
 			nouvelElement.apercu		= apercu
 			nouvelElement.tags			= tags
+			
+			--- enregistrement ---
+			nouvelElement.enregistrer ()
 			
 			nouvelElement
 		),	
@@ -454,7 +477,7 @@ struct str_arborescence (
 	public
 		fn enregistrer 	= (
 			debug "<arbo>		enregistrement"
-			setINISetting   fichierArbo	"params"   "indexUnique"  ( indexUnique as string )
+			enregistrer_indexUnique ()
 			fichier_ecrireNoeud Root
 		),	
 		fn charger = (
@@ -466,8 +489,8 @@ struct str_arborescence (
 			if not doesFileExist fichierArbo then enregistrer ()
 			---- sinon on charge ----
 			else (
+				charger_indexUnique ()
 				
-				indexUnique = ( getINISetting   fichierArbo	"params"   "indexUnique" ) as integer
 				root = fichier_lireNoeud   "ROOT" 	undefined
 			)
 			_root

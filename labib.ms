@@ -76,13 +76,12 @@ struct str_labib (
 	public
 		fn nouveauDossier 				=	edit.nouveauDossier	(),
 		fn nouvelAsset 					=	edit.nouvelAsset	(),
-		fn nouvelAssetDossier 			=	edit.nouvelAssetDossier	(),
+		fn nouvelAsset_dossier 		=	edit.nouvelAsset_dossier (),
 		fn supprimer 	_noeudsArbo	=	edit.supprimer	_noeudsArbo,
 		
 	--- Fenetre ----	
 	public
 		fn ouvrir 		= (			
-			edit.initialiser ()			
 			fenetre.ouvrir()
 		),
 			
@@ -91,9 +90,8 @@ struct str_labib (
 	
 	------------ Evenements 	----------------------------------------------------------------------------------
 	on create do (
-		--- initialiser le manager de fenetre ----
-		-- (en post car boucle infernale avec edit sinon ) --
--- 		fenetre.m_labib = this 			
+		--- initialiser le manager de fenetre ----	
+			edit.initialiser ()		
 		ecrire "Structure Labib crée."		
 	)
 	

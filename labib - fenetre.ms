@@ -41,10 +41,6 @@ rollout roll_labib  "Labib" width:296 height:296
 	local m_ecartUI			= 19		----  ----
 	local m_ecartUISimple	= 1		----  ----	
 	
-	---- drag ----
-	local dragFlag = false
-	local dragNoeuds =#()	-- les noeuds draggés ----
-	
 	------------  UI	----------------------------------------------------------------------------------
 	local 	ui_slider_H  		 	= 	str_btnVirtuel					pos:		[200, m_ecartUI] \
 																							width:	m_ecartUI	\
@@ -149,17 +145,17 @@ rollout roll_labib  "Labib" width:296 height:296
 	)
 	fn actualiser 	= (
 		debug "<fenetre>	actualiser"
-		local m_selcTV_Back = ui_TV.SelectedNode
-		local m_selcLV_Back = m_LV.m_selection
+-- 		local m_selcTV_Back = ui_TV.SelectedNode
+-- 		local m_selcLV_Back = m_LV.m_selection
 		
-		debug "<fenetre>	m_selcTV_Back" var:m_selcTV_Back	param:#name
-		debug "<fenetre>	m_selcLV_Back" var:m_selcLV_Back param:#nomUnique
+-- 		debug "<fenetre>	m_selcTV_Back" var:m_selcTV_Back	param:#name
+-- 		debug "<fenetre>	m_selcLV_Back" var:m_selcLV_Back param:#nomUnique
 		---- on actualise  ----
 		m_TV.actualiser 	()
 		m_LV.actualiser	()
 		
-		ui_TV.SelectedNode 	= 	m_selcTV_Back
-		m_LV.selectionner			m_selcLV_Back
+-- 		ui_TV.SelectedNode 	= 	m_selcTV_Back
+-- 		m_LV.selectionner			m_selcLV_Back
 		
 	)
 	fn initialiser 	= (
@@ -175,7 +171,12 @@ rollout roll_labib  "Labib" width:296 height:296
 		-- ui --
 		m_LV 			= str_listViewMgr		m_prt:roll_labib	m_ui:ui_LV
 	 	m_TV 			= str_treeViewMgr	m_prt:roll_labib	m_ui:ui_TV
-		m_LV.m_TV 	=	m_TV  -- sinon ca boucle a l'init --
+		m_LV.m_TV 	=	m_TV  -- sinon ca boucle a l'init avec la creation du m_TV--
+		
+		--- actualiser les memebres "fenetre" d'edition ----
+		m_prt.m_labib.edit.m_TV 		= m_TV									---- le treeview ---
+		m_prt.m_labib.edit.m_LV 		= m_LV									---- le listview ---
+		
 		
 		---- l'UI ------------
 		-- icones --
@@ -213,10 +214,14 @@ rollout roll_labib  "Labib" width:296 height:296
 		---- les dotnets ---
 		m_LV.initialiser ()
 		m_TV.initialiser ()
+		actualiser () ---- Creation des listes TV et LV ----
 		
 		---- la fenetre	----
 		fen_recomposer ()
-		actualiser ()
+		
+		---- selection initiale ----
+		m_TV.selectionner 	m_arbo.root
+		
 	)
 	
 	--- interactions dans la fenetre
@@ -679,7 +684,6 @@ struct str_fenLabib (
 			
 			---- initialisation de la fenetre ----
 			m_dialog.m_prt	 	= this
-			
 			m_dialog.initialiser ()
 			
 			-- les fenetres secondaires --
@@ -688,7 +692,8 @@ struct str_fenLabib (
 -- 			if m_prefs.fenetre.rendu 	do rendu.ouvrir()
 				
 			---- maj des preferences ----	
-			m_prefs.fenetre.fenLabib_estOuvert = true			
+			m_prefs.fenetre.fenLabib_estOuvert = true
+			
 		),
 		fn fermer  silence:false =(		---- silence : fermer sans modifier l'état des preferences ---
 			

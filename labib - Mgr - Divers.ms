@@ -27,7 +27,6 @@
 
 
 
-
 ------------------------------------------------------------------------------
 ----------	chrono						--------------------------
 ------------------------------------------------------------------------------
@@ -49,13 +48,22 @@ struct str_chrono (
 ----------	Historique						--------------------------
 ------------------------------------------------------------------------------
 struct str_historique (
-	
+	public
+	---- pointeurs ----
 		m_dialog,
-		m_TV = m_dialog.m_TV,
-		m_LV = m_dialog.m_LV,
+		m_edit,
+	
+		m_TV,
+		m_LV,
+	
+	private
 		m_pos =1,
 		m_pile = #(),
+		
 	
+	
+		
+	public
 		fn enregistrer 	 _noeudAEnregistrer	=(
 			
 			-- on enregistre si noeud courant est differents --
@@ -73,9 +81,13 @@ struct str_historique (
 				-- on ajoute le noeud actuel dans l'historique --
 				insertItem 		noeudACourant 	m_pile 	1
 			)
+			debug "<Historique>" var:m_pile	param:#nomUnique
 		),
 		-- se deplacer dans l'historque ---
 		fn seDeplacer  _sens =(
+			
+			debug "<Historique>" var:m_pile	param:#nomUnique
+			debug "<Historique pos>" var:m_pile[m_pos]	param:#nomUnique
 			
 			-- on gere la position  dans l'historique ---
 			local posMax =  m_pile.count 
@@ -88,12 +100,12 @@ struct str_historique (
 			
 			-- on ouvre le noeud adequate ---
 			local noeudAOuvrir = m_pile[ m_pos   ]
-			m_TV.ouvrir   			noeudAOuvrir 	historique:false
-			m_TV.selectionner 	noeudAOuvrir
+			m_edit.ouvrir   			noeudAOuvrir 	enregistrer_historique:false
+-- 			m_TV.selectionner 	noeudAOuvrir
 			
-			-- on selectionne le dossier precedant si il est dans la LV --
-			if m_pile[ m_pos ] == m_pile[ hist_posBack ].parent do
-				m_LV.selectionner 	m_pile[ hist_posBack ] 
+-- 			-- on selectionne le dossier precedant si il est dans la LV --
+-- 			if m_pile[ m_pos ] == m_pile[ hist_posBack ].parent do
+-- 				m_LV.selectionner 	m_pile[ hist_posBack ]
 			
 		),
 		fn  checkSelection =(
@@ -101,7 +113,7 @@ struct str_historique (
 			-- on selectionne le dossier precedant si il est dans la LV --
 			if m_pile.count > 1 do
 				if m_pile[ 1 ] == m_pile[ 2 ].parent do
-					m_LV. selectionner		m_pile[ 2 ]
+					m_LV.selectionner		m_pile[ 2 ]
 			
 		)
 	

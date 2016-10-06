@@ -42,7 +42,6 @@ struct str_treeViewMgr (
 		m_arbo	=	m_prt.m_arbo,
 		m_edit	=	m_prt.m_prt.m_labib.edit,
 		
-		m_selection = m_arbo.root,					---- la m_selection courante ----
 	private
 		m_noeudsTV_total		= #(),
 		m_selectionTVBack ,
@@ -63,6 +62,27 @@ struct str_treeViewMgr (
 		
 		------------ FONCTIONS ----------------------------------
 	public	
+		----accesseurs ----
+		fn	getNoeud 			_item = (
+			m_arbo.getParNomUnique _item.name
+		),
+		fn	getItem 			_noeudA = (
+			local	result = undefined
+			for noeudTV in m_noeudsTV_total do 
+				if noeudTV.name == _noeudA.nomUnique do 
+					result = noeudTV
+			result
+		),
+		fn getNoeudA_at 	_x  _y 	=(
+			local noeudClique
+			local	noeudTVClique = m_ui.GetNodeAt (dotNetObject "System.Drawing.Point" _x  _y )
+			
+			if noeudTVClique != undefined then
+				noeudClique = m_arbo.getParNomUnique  noeudTVClique.name
+			
+			noeudClique
+		),
+		
 		
 		---- Gestion de la liste ----
 		fn creerItem 		_noeudA 	_noeudParentTV = (
@@ -81,46 +101,34 @@ struct str_treeViewMgr (
 				creerItem 	enfant  	nouveauNoeudTV
 		
 		),
-		fn	getItem 			_noeudA = (
-			local	result = undefined
-			for noeudTV in m_noeudsTV_total do 
-				if noeudTV.name == _noeudA.nomUnique do 
-					result = noeudTV
-			result
-		),
-		fn getNoeudA_at 	_x  _y 	=(
-			local noeudClique
-			local	noeudTVClique = m_ui.GetNodeAt (dotNetObject "System.Drawing.Point" _x  _y )
-			
-			if noeudTVClique != undefined then
-				noeudClique = m_arbo.getParNomUnique  noeudTVClique.name
-			
-			noeudClique
-		),
 		fn selectionner	 	_noeudA	= (			
 			
 			debug "<TV> selectionner"
-			debug "<TV> selectionner Dbt" var:m_selection	 param:#nom
+			debug "<TV> _noeudA" var:_noeudA	 param:#nom
+			
 			if _noeudA !=undefined do (
-				m_ui.SelectedNode 	= getItem		_noeudA
-				m_ui.SelectedNode.EnsureVisible()			
-				m_selection 			= _noeudA
 				
+				---- on actualise Edit ----
+				m_edit.setDossier 		_noeudA
+				
+				---- on selectionne les items ----
+				m_ui.SelectedNode 	= getItem		_noeudA
+				m_ui.SelectedNode.EnsureVisible()
 				m_ui.SelectedNode.expand ()
+				
+				
+				
 			)
-			debug "<TV> selectionner Fin" var:m_selection	 param:#nom
+			
+			debug "<TV> m_edit.getDossier " var:(m_edit.getDossier () )	 param:#nom
 		),
 		fn vider = (
 			m_ui.Nodes.Clear()
-			m_selection = undefined
 			m_noeudsTV_total = #()
 		),
 		fn actualiser  = (				
 			
 			debug "<TV> actualiser"
-			debug "<TV> actualiser Dbt" 	var:m_selection	 param:#nom
-			
-			local selecBack = m_selection
 			
 			-- on vide la liste --
 			vider ()
@@ -135,21 +143,15 @@ struct str_treeViewMgr (
 				do ajouterTV 	enfant  	noeudTVRech	
 			append m_noeudsTV_total 	noeudTVRech
 			
-			debug "m_selection -1-" var:m_selection param:#nom
-			
 			--  la selection --
-			if selecBack == undefined 	
-				then m_selection = m_arbo.root
-				else m_selection = selecBack
-			local ItemSelec = getItem	m_selection 
-			m_ui.SelectedNode = ItemSelec	
-			ItemSelec.expand ()	
+			local dossierCourant 	= m_edit.getDossier ()	
+			selectionner dossierCourant
+			/* local itemSelec 			= getItem	dossierCourant
+			m_ui.SelectedNode 		= itemSelec
+			itemSelec.expand ()	 */
 			
-			debug "m_selection" var:m_selection param:#nom
-			debug "m_selection.enfants" var:m_selection.enfants param:#nom
-			
-			debug "<TV> actualiser fin" var:m_selection	 param:#nom
 		),
+		/* 
 		fn renommer 			_nouveauNom  =(
 			debug "renommer tv"
 			debug "m_selection tv" var:m_selection
@@ -163,35 +165,7 @@ struct str_treeViewMgr (
 				selectionner	m_selection.parent
 			)
 		),
-		fn ouvrir _noeudA 	historique:true		=(
-			
-			debug "<TV> ouvrir noeud"
-	/* 		debug "<TV> ouvrir Dbt" var:m_selection	 param:#nom
-			if _noeudA != undefined then (
-				
-				-- si nouveau noeud --
-				if _noeudA != m_selection do (
-					
-					---- on actualise la selection ---					
-					m_selection = _noeudA
-					
-					---- on actualise la ListView  ---					
-					m_prt.m_lv.actualiser ()
-					
-					---- historique ---
-					if historique do m_prt.m_hist.enregistrer  m_selection
-					
-				)
-				
-				---- si selection TV different de noeudA ----
-				if getItem _noeudA != m_ui.selectedNode
-					do selectionner _noeudA
-				
-				
-			)
-			debug "<TV> ouvrir Fin" var:m_selection	 param:#nom */
-		),
-		
+		 */
 		
 		
 		---- dragAndDrop ---
@@ -212,25 +186,21 @@ struct str_treeViewMgr (
 		),
 		fn drag_demarrer 	_arg =(
 			debug "<TV>	drag_demarrer"
-			m_prt.dragNoeuds = #( m_selection )
--- 			show _arg.item
-			if _arg.item != undefined do debug "_arg.item" var:_arg.item.name
-			debug "<TV>	_arg.item"
-			
-			--- demarrage du drag ----
-			m_ui.doDragDrop 		_arg.item 		m_dragDropEffect.Move	
-			
+			if _arg.item != undefined do (
+				
+				m_edit.drag_demarrer 	( getNoeud _arg.item )
+				
+				--- dotnet drag ----
+				m_ui.doDragDrop 		_arg.item 		m_dragDropEffect.Move	
+			)
 		),
 		fn drag_recevoir 	_arg =(
 			debug "<TV>	drag_recevoir"
+			
 			local posDrop	= m_ui.PointToClient 	m_ui.MousePosition
-			local noeud = getNoeudA_at 	posDrop.x 	posDrop.y
+			local noeudDest = getNoeudA_at 	posDrop.x 	posDrop.y
 			
-			debug "deplacer" var:m_prt.dragNoeuds  param:#nom
-			debug "dans"  var:noeud	param:#nom
-			
-			
-			m_prt.dragNoeuds = #(  )
+			drag_finaliser 	noeudDest
 			
 		),
 	
@@ -264,8 +234,8 @@ struct str_treeViewMgr (
 				(m_btnsDotNet.Middle): 	()
 				(m_btnsDotNet.None): 		()
 				(m_btnsDotNet.Right): 		() --ouvrir 	noeudAClique
-				(m_btnsDotNet.XButton1): 	m_prt.m_hist.seDeplacer 	1
-				(m_btnsDotNet.XButton2):	m_prt.m_hist.seDeplacer 	-1
+				(m_btnsDotNet.XButton1): 	m_edit.m_hist.seDeplacer 	1
+				(m_btnsDotNet.XButton2):	m_edit.m_hist.seDeplacer 	-1
 			) -- fin case _arg.button 
 			
 		),
@@ -290,6 +260,7 @@ struct str_treeViewMgr (
 			m_ui.BackColor 				= toCouleurDotnet	m_col_uiFond
 			m_ui.ForeColor 				= toCouleurDotnet   m_col_txt
 			m_ui.DrawMode 				= (dotnetclass "TreeViewDrawMode.OwnerDrawText")
+			
 		)
 		
 )	--- fin struct treeView ----

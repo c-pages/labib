@@ -108,7 +108,7 @@ struct str_menus (
 				------- les evenements ------------------------------------------				
 				on nouveauDossier 				picked do	labib.nouveauDossier ()				
 				on nouvelAsset 					picked do	labib.nouvelAsset ()				
-				on nouvelAssetDossier 			picked do	labib.nouvelAssetDossier ()	
+				on nouvelAssetDossier 			picked do	labib.nouvelAsset_dossier ()	
 				
 				on supprimer 						picked do 	labib.supprimer 	( labib.getElementsSelection () ) 
 				
@@ -162,7 +162,7 @@ struct str_menus (
 				------- les evenements ------------------------------------------
 				on nouveauDossier 			picked do	labib.nouveauDossier ()				
 				on nouvelAsset 				picked do	labib.nouvelAsset ()				
-				on nouvelAssetDossier 		picked do	labib.nouvelAssetDossier ()		
+				on nouvelAssetDossier 		picked do	labib.nouvelAsset_dossier ()		
 				on renommer 					picked do	labib.renommer ()	
 				
 				on supprimer 					picked do 	labib.supprimer 	( labib.getDossiercourant () )

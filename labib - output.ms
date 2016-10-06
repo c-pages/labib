@@ -15,12 +15,13 @@ fn remplirTexte  _txt  var:	 param:   = (
 			if param != unsupplied then (
 				result += "(" + var.count as string + ")  "
 				for i = 1 to var.count do (
+					if var[i]	 != undefined then (
 					dbg_elemTmp	= var[i]					
 					
 					result +=  ( execute ("dbg_elemTmp." + param ) ) as string 
 					
 					if i != var.count	do result += ", "
-					
+					) else result += "undefined"
 				)
 			) else 	result += var as string
 		) else 
