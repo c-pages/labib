@@ -30,11 +30,10 @@ rollout roll_labib  "Labib" width:296 height:296
 (
 
 	------------ DEBUG	----------------------------------------------------------------------------------
-
 		local	m_debug = false
 		local	m_dbgPrefix ="roll_labib"
 		fn debug 	_txt  var:	 param:    =(
-			if m_debug do ::debug 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
 		)
 	----------------------------------------------------------------------------------------------------------
 	
@@ -607,7 +606,7 @@ struct str_fenLabib (
 		m_debug = true,
 		m_dbgPrefix ="fenetre",
 		fn debug 	_txt  var:	 param:    =(
-			if m_debug do ::debug 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
 		),
 	----------------------------------------------------------------------------------------------------------
 		
@@ -659,7 +658,7 @@ struct str_fenLabib (
 		---- fenetre ----		
 		fn ouvrir = (			
 			
-			debug "<fenetre str> ouverture"
+			debug "ouverture"
 			
 			local style 
 			local pos

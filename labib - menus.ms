@@ -51,7 +51,7 @@ struct str_menus (
 	private
 		m_debug = false,
 		fn debug 	_txt  var:	 param:    =(
-			if m_debug do ::debug 	_txt  var:var	 param:param
+			if m_debug do ::debuger 	_txt  var:var	 param:param
 		),
 	----------------------------------------------------------------------------------------------------------
 	

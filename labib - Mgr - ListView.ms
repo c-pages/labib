@@ -35,10 +35,10 @@ struct str_listViewMgr (
 		
 	------------ DEBUG	----------------------------------------------------------------------------------
 
-		m_debug = false,
+		m_debug = true,
 		m_dbgPrefix ="LV",
 		fn debug 	_txt  var:	 param:    =(
-			if m_debug do ::debug 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
 		),
 	----------------------------------------------------------------------------------------------------------
 	
@@ -201,7 +201,9 @@ struct str_listViewMgr (
 		fn getDossierCourant 			=(
 			m_edit.getDossier()
 		),
-		
+		fn getSelection =(
+			m_edit.getSelection ()
+		),
 		
 		---- divers ----
 		fn selectionner 	_noeudsA	= (
@@ -253,7 +255,7 @@ struct str_listViewMgr (
 			m_iconesAAfficher.ColorDepth 	= m_iconesAAfficher.ColorDepth.Depth24Bit
 			
 		),
-		fn actualiserSelection 	noeud: =(
+		fn actualiserSelection 	=(
 		
 			m_edit.viderSelection ()
 			
@@ -264,6 +266,7 @@ struct str_listViewMgr (
 					m_edit.addSelection 		elem
 				
 			)
+			debug "selection" var:(m_edit.getSelection ()) param:#nom
 		),
 		fn actualiser  = (	
 			debug "actualiser"
@@ -501,9 +504,10 @@ struct str_listViewMgr (
 			) 		
 		),	
 		fn drag_demarrer 	_arg =(
-			debug "<LV>	drag_demarrer"
+			debug "drag_demarrer"
 			
-			m_edit.drag_demarrer 	( getNoeud _arg.item )
+			debug "(drag_demarrer) getSelection" var:( m_edit.getSelection () )	 param:#nom
+			m_edit.drag_demarrer 	( m_edit.getSelection() )
 			
 			--- demarrage du drag ----
 			m_ui.doDragDrop 		_arg.item 		m_dragDropEffect.Move	
@@ -511,7 +515,7 @@ struct str_listViewMgr (
 		),
 		fn drag_recevoir 	_arg =(
 			
-			debug "<LV>	drag_recevoir"
+			debug "drag_recevoir"
 		
 			local posDrop	= m_ui.PointToClient 	m_ui.MousePosition
 			local noeudDest = getNoeudA_at 	posDrop.x 	posDrop.y
@@ -534,27 +538,42 @@ struct str_listViewMgr (
 			local	noeudLVClique = m_ui.GetItemAt  _arg.x _arg.y
 			debug "(clq_down) noeudLVClique" var:( noeudLVClique )	 param:#name
 			
-			if m_ui.selectedItems.count <2 do
+			--- un seul element selectionné
+			if m_ui.selectedItems.count <=1 then (
+				debug "un seul elemnt selec"
 				if noeudLVClique != undefined do ( 
 					noeudAClique = m_arbo.getParNomUnique  noeudLVClique.name
-			debug "(clq_down) noeudAClique" var:( noeudAClique )	 param:#nomUnique
+					
+					debug "(clq_down) noeudAClique" var:( noeudAClique )	 param:#nomUnique
+					
 					if noeudAClique != undefined do 
 						m_edit.setSelection	noeudAClique
+				debug "(clq_down) getSelection -1- " var:( m_edit.getSelection () )	 param:#nom
+					
 				)
-				
-			debug "(clq_down) m_edit.getSelection" var:( m_edit.getSelection () )	 param:#nom
-				
+			) else if m_ui.selectedItems.count > 1 do (
+				debug "plusieurs elemnts selec"
+				m_edit.viderSelection ()
+				for  i =0 to m_ui.selectedItems.count-1 do (
+					itemSelec = m_ui.selectedItems.item[i]
+					m_edit.addSelection 	( getNoeud itemSelec )
+				)
+			)
+			
+			
+			debug "(clq_down) getSelection" var:( m_edit.getSelection () )	 param:#nom
+			
 		),
 		fn clq_up 			_arg 			= (
 			debug "clq_up"
 			debug "(clq_up) m_edit.getSelection" var:( m_edit.getSelection () )	 param:#nom
+			
 			if not m_edit.dragEnCours () do (
 				
-				local	noeudLVClique = m_ui.GetItemAt  _arg.x _arg.y
-				
+				local	noeudLVClique = m_ui.GetItemAt  _arg.x _arg.y				
 				
 				case _arg.button of (
-					(m_btnsDotNet.Left): 			actualiserSelection ()
+					(m_btnsDotNet.Left): 		if not m_edit.dragEnCours ()	do	actualiserSelection ()
 					(m_btnsDotNet.Middle): 		()
 					(m_btnsDotNet.None): 		()
 					(m_btnsDotNet.Right): 		(

@@ -27,7 +27,7 @@ struct str_element (
 		m_debug = false,
 		m_dbgPrefix ="element",
 		fn debug 	_txt  var:	 param:    =(
-			if m_debug do ::debug 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
 		),
 	----------------------------------------------------------------------------------------------------------
 	
@@ -146,7 +146,7 @@ struct str_branche (
 		m_debug = false,
 		m_dbgPrefix ="branche",
 		fn debug 	_txt  var:	 param:    =(
-			if m_debug do ::debug 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
 		),
 	----------------------------------------------------------------------------------------------------------
 	
@@ -181,7 +181,6 @@ struct str_branche (
 			_enfant.retirer()
 			_enfant.definirParent ( this )
 			
-			enregistrer ()
 		),		
 		fn definirParent 	_parent 	= ( parent = _parent ),		
 		fn retirer  			 = (
@@ -261,11 +260,10 @@ struct str_branche (
 struct str_arborescence (
 
 	------------ DEBUG	----------------------------------------------------------------------------------
-
 		m_debug = false,
 		m_dbgPrefix ="arbo",
 		fn debug 	_txt  var:	 param:    =(
-			if m_debug do ::debug 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
 		),
 	----------------------------------------------------------------------------------------------------------
 	
@@ -334,6 +332,7 @@ struct str_arborescence (
 					_enfants = ""
 					for enfant in _noeud.enfants do
 						_enfants += enfant.nomUnique + ";"
+					
 					setINISetting   fichierArbo	_noeud.nomUnique   "enfants"  _enfants
 					
 					-- recusrcivité --
@@ -374,22 +373,34 @@ struct str_arborescence (
 	-------- GESTION DE L'ARBO --------
 	---- Creation des nouveaux élements ou branches ----
 	public
-		fn creerNoeud  	nom:"Nouvelle branche" 	parent:root 	nomUnique:( creerNomUnique_branche () )	=( 			
+		fn creerNoeud  	nom:"Nouvelle branche" 	\
+								parent:root 	\
+								nomUnique:( creerNomUnique_branche () )	\
+								enregistrer:true	=( 			
+									
 			local		nouveauNoeud = str_branche m_prt:this		
 			
 			---- Remplissage des parameteres du nouveau branche 	----
 			nouveauNoeud.nom 			= nom
 			nouveauNoeud.nomUnique	= nomUnique
-			if parent != undefined do 
+			if parent != undefined do (
 				parent.ajouterEnfant 	 nouveauNoeud
+				if enregistrer do parent.enregistrer ()
+			)
 			
 			--- enregistrement ---
-			nouveauNoeud.enregistrer ()
-			
+			if enregistrer do nouveauNoeud.enregistrer ()
 			
 			nouveauNoeud			
 		),
-		fn creerElement 	nom:"Nouvel élément" 	parent:root  	nomUnique:( creerNomUnique_element () )	type:#vide		fichier:""		apercu:""	tags:""	=( 
+		fn creerElement 	nom:"Nouvel élément" 	\
+								parent:root  	\
+								nomUnique:( creerNomUnique_element () )	\
+								type:#vide		\
+								fichier:""		\
+								apercu:""	\
+								tags:""	\
+								enregistrer:true	=( 
 			local		nouvelElement = str_element		m_prt:this	
 			
 			---- Remplissage des parameteres du nouvel element----
@@ -401,9 +412,9 @@ struct str_arborescence (
 			nouvelElement.fichier		= fichier
 			nouvelElement.apercu		= apercu
 			nouvelElement.tags			= tags
-			
-			--- enregistrement ---
-			nouvelElement.enregistrer ()
+						
+			--- enregistrement ---			
+			if enregistrer do nouvelElement.enregistrer ()
 			
 			nouvelElement
 		),	
@@ -433,7 +444,7 @@ struct str_arborescence (
 						local fichier 		= getINISetting   fichierArbo	_nomUnique   "fichier"  
 						local apercu 		= getINISetting   fichierArbo	_nomUnique   "apercu"				
 						
-						nouveauNoeud = creerElement 	nom:nom  type:type	fichier:fichier  apercu:apercu	nomUnique:_nomUnique parent:_parent
+						nouveauNoeud = creerElement 	nom:nom  type:type	fichier:fichier  apercu:apercu	nomUnique:_nomUnique parent:_parent	enregistrer:false
 						
 						nouveauNoeud.commentaires	= getINISetting   fichierArbo	_nomUnique   "commentaires"
 						nouveauNoeud.tags 				= getINISetting   fichierArbo	_nomUnique   "tags"
@@ -455,7 +466,7 @@ struct str_arborescence (
 						local enfantsNomsUniques 	= filterString 		(getINISetting   fichierArbo	_nomUnique   "enfants" )  ";"	
 						local enfants =#()
 						
-						nouveauNoeud 					= creerNoeud 	nom:nom   nomUnique:_nomUnique  parent:_parent
+						nouveauNoeud 					= creerNoeud 	nom:nom   nomUnique:_nomUnique  parent:_parent	enregistrer:false
 						nouveauNoeud.estExpanded 	=  ( if ( getINISetting   fichierArbo	_nomUnique   "estExpanded" )  == "true" then true else false )  
 					
 						for enfantNomUnique in enfantsNomsUniques do 
@@ -489,18 +500,20 @@ struct str_arborescence (
 			
 		),
 		
+	public
 	---- deplacer un noeud dans l'arbo ----
 		fn deplacer 	_noeudsADeplacer	_noeudDest = (
 			
 			toArray 	&_noeudsADeplacer
 			
-			local neoudParentDepart = _noeudsADeplacer[1]
+			local noeudParentDepart = _noeudsADeplacer[1].parent
 			
 			for noeudADeplacer in _noeudsADeplacer do (
 				_noeudDest.ajouterEnfant 	noeudADeplacer
 				noeudADeplacer.enregistrer ()
 			)
 			_noeudDest.enregistrer ()
+			noeudParentDepart.enregistrer ()
 		),
 	
 	

@@ -27,7 +27,7 @@ struct str_edition (
 		m_debug = true,
 		m_dbgPrefix ="edit",
 		fn debug 	_txt  var:	 param:    =(
-			if m_debug do ::debug 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
 		),
 	----------------------------------------------------------------------------------------------------------
 	
@@ -71,6 +71,7 @@ struct str_edition (
 				m_dossier
 		),
 		fn setDossier		_noeudA		= ( 
+			debug "setDossier" var:_noeudA param:#nomUnique
 			if _noeudA != m_dossier do (				
 				m_dossier = _noeudA 
 				m_tv.selectionner _noeudA
@@ -79,39 +80,28 @@ struct str_edition (
 		),
 		
 		-- Selection --
+		fn viderSelection					= ( m_selection  = #() ),
 		fn getSelection 					= m_selection,		
 		fn addSelection 	_noeudA		= if _noeudA != undefined do append m_selection _noeudA,		
 		fn setSelection	_noeudsA	= (
-			if _noeudA != undefined do   (
-				toArray  &_noeudsA
+			toArray  &_noeudsA
+			debug "setSelection"
+			debug "_noeudsA" var:_noeudsA param:#nomUnique
+			
+			
+			if _noeudsA != undefined do   (
+				viderSelection ()
+				
 				for noeudA in _noeudsA do
 					if noeudA != undefined do append m_selection noeudA
 				
 			)
+			debug "(setSelection) _noeudsA" var:m_selection param:#nomUnique
 		),
 		fn selectionEstVide				= ( m_selection.count == 0  ),
-		fn viderSelection					= ( m_selection  = #() ),
 		
-		---- drag ----
-		fn drag_demarrer 	_noeudsA =(
-			m_dragFlag = true
-			m_dragNoeuds = toArray 	&_noeudsA
-		),
-		fn drag_finaliser 		_noeudADest =(
-			
-			debug "<edit> drag_finaliser	---------------------------------------"
-			debug "<edit> deplacer" var:m_dragNoeuds param:#nomUnique
-			debug "<edit> dans" var:_noeudADest param:#nomUnique
-			
-			m_dragFlag = false
-			
-			-- on vide la liste des drag --
-			m_dragNoeuds = #()
-			debug "<edit> fin : drag_finaliser\n"
-		),
-		fn dragEnCours 		=(
-			m_dragFlag
-		),
+		
+		
 		
 	public
 		--- Fonctions generales ---
@@ -154,11 +144,18 @@ struct str_edition (
 				
 				
 			)
-			debug "<edit> (ouvrir) m_dossier Fin" var:m_dossier	 param:#nomUnique
-			debug "<edit> fin : ouvrir\n"
+			debug "(ouvrir) m_dossier Fin" var:m_dossier	 param:#nomUnique
+			debug "fin : ouvrir\n"
 		),
 		
 		--- Actions utilisateur ----
+		fn deplacer _noeudsA _dossierDest =(
+			
+			m_arbo.deplacer	_noeudsA 	_dossierDest 
+			
+			m_fenetre.m_dialog.actualiser ()
+			
+		),
 		fn renommer _noeud	_nvNom =(
 			
 		),
@@ -171,8 +168,8 @@ struct str_edition (
 			nvDossier
 		),
 		fn nouveauDossier 	=(
-			debug "\n<edit> nouveauDossier	---------------------------------------"
-			debug "<edit> m_dossier" var:m_dossier param:#nomUnique
+			debug "\nnouveauDossier	---------------------------------------"
+			debug "m_dossier" var:m_dossier param:#nomUnique
 			
 			---- parent en fonction de recherche ----
 			local parent 
@@ -185,7 +182,7 @@ struct str_edition (
 			---- creation du noeud	----
 			local	nouveauNoeud  = creerDossier  	parent:parent
 			
-			debug "<edit> nouveauNoeud" var:nouveauNoeud param:#nomUnique
+			debug "nouveauNoeud" var:nouveauNoeud param:#nomUnique
 			
 			---- on reécrit les listes ----
 			m_fenetre.actualiser()
@@ -201,11 +198,11 @@ struct str_edition (
 			
 			--- sortie Listener --
 			ecrire "Branche créée."
-			debug "<edit> fin : nouveauDossier\n"
+			debug "fin : nouveauDossier\n"
 			
 		),
 		fn nouvelAsset =(
-			debug "\n<edit> nouvelAsset	---------------------------------------"
+			debug "\nnouvelAsset	---------------------------------------"
 			
 			--- sortie Listener --
 			m_chrono.demarrer ()
@@ -237,11 +234,11 @@ struct str_edition (
 				m_chrono.ecrireDuree ()
 				
 			)
-			debug "<edit> fin : nouvelAsset\n"
+			debug "fin : nouvelAsset\n"
 		),		
 		fn nouvelAsset_dossier =(
 			
-			debug "\n<edit> nouvelAsset_dossier	---------------------------------------"
+			debug "\nnouvelAsset_dossier	---------------------------------------"
 			
 			local	dossierSource = 	getSavePath	caption:	"Fichier source du nouvel asset" \
 																initialDir:	m_prefs.general.dossierNouvelAsset
@@ -283,7 +280,7 @@ struct str_edition (
 			ecrire ( "Dossier importer : " +  nouveauxElements.count as string + " assets crées." )
 			m_chrono.ecrireDuree ()
 			
-			debug "<edit> fin : nouvelAsset_dossier\n"
+			debug "fin : nouvelAsset_dossier\n"
 		),
 		fn supprimer 	_noeudsArbo	=(
 			--- pour selectionner le parent a la fin ---
@@ -296,8 +293,41 @@ struct str_edition (
 			m_fenetre.actualiser()		
 			m_fenetre.selectionnerTV		parent
 			
-		)
+		),
 	
+		
+		
+		
+		
+		---- drag ----
+		fn drag_demarrer 	_noeudsA =(
+			m_dragFlag = true
+			toArray 	&_noeudsA
+			m_dragNoeuds = _noeudsA
+			debug "drag_demarrer	---------------------------------------"
+			debug "deplacer" var:m_dragNoeuds param:#nomUnique
+		),
+		fn drag_finaliser 		_noeudADest =(
+			
+			debug "drag_finaliser	---------------------------------------"
+			debug "deplacer" var:m_dragNoeuds param:#nomUnique
+			debug "dans" var:_noeudADest param:#nomUnique
+			
+			deplacer m_dragNoeuds _noeudADest
+			
+			m_dragFlag = false
+			
+			-- on vide la liste des drag --
+			m_dragNoeuds = #()
+			debug "fin : drag_finaliser\n"
+		),
+		fn dragEnCours 		=(
+			m_dragFlag
+		)
+		
+		
+		
+		
 	/* 
 		-- Supprimer les fichiers non utilisés par la bibliotheques (images et proxy inutilisés) --
 		fn nettoyer  = (

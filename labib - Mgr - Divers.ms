@@ -54,7 +54,7 @@ struct str_historique (
 		m_debug = false,
 		m_dbgPrefix ="hist",
 		fn debug 	_txt  var:	 param:    =(
-			if m_debug do ::debug 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
 		),
 	----------------------------------------------------------------------------------------------------------
 	

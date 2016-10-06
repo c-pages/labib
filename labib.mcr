@@ -2,6 +2,7 @@ clearListener ()
 try ( 	labib.fermer ()	) catch  ()
 
 Global 	labib = fileIn "$userScripts\labib\labib.ms" 
+ format "\n\n"
 labib.ouvrir 	()
 /* 
 
@@ -9,7 +10,6 @@ labib.ouvrir 	()
 	labib.ouvrir 	()
 	
  */
- 
  
 macroScript Labib
 category:"#CPages"
@@ -54,8 +54,8 @@ tmp_perso = labib.creerDossier  "Personnages"
 	tmp_hom = labib.creerDossier  "Hommes" 	parent:tmp_perso
 	tmp_fem = labib.creerDossier  "Femmes" 	parent:tmp_perso
 	tmp_enf = labib.creerDossier  "efnats" 	parent:tmp_perso
-labib.fenetre.actualiser ()
 labib.ouvrir ()
+-- labib.fenetre.actualiser ()
 
 
 
@@ -106,6 +106,7 @@ showmethods		labib.fenetre.m_dialog.ui_LV
 
 labib.fenetre.m_dialog.m_LV.m_selection
 
+labib.fenetre.m_dialog.ui_LV.selectedItems.item[1].name
 
 
  #### DOCKing ####

@@ -7,7 +7,10 @@ fn remplirTexte  _txt  var:	 param:  prefix: = (
 	local result =""
 	global dbg_elemTmp
 	if prefix != unsupplied and prefix != undefined do 
-		result += "<" + prefix + ">"
+		result += "<" + prefix + ">	"
+-- 		if prefix.count < 10 do result += "	"
+		if prefix.count < 6 do result += "	"
+		if prefix.count < 2 do result += "	"
 	if var != unsupplied then (
 		
 		result += "	- " + _txt +  " : "	
@@ -41,11 +44,11 @@ fn remplirTexte  _txt  var:	 param:  prefix: = (
 global debug
 DEBUG_MODE = true
 
-fn debug 	_txt  var:	 param:    prefix: = 	(
+fn debuger 	_txt  var:	 param:    prefix: = 	(
 	if DEBUG_MODE   do (
 		local txtFinal = "<DEBUG>	"
 		
-		txtFinal += remplirTexte  _txt  var:var	 param:param
+		txtFinal += remplirTexte  _txt  var:var	 param:param 	prefix:prefix
 		
 		format "%\n"	txtFinal
 	)
