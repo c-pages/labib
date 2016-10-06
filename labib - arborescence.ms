@@ -54,8 +54,8 @@ struct str_element (
 	
 		
 		----fichier ---
-		fn enregistrer =	m_prt.ecrireNoeud this,
-		fn retirerDuFichier =	m_prt.supprimerNoeud this,
+		fn enregistrer =	m_prt.fichier_ecrireNoeud this,
+		fn retirerDuFichier =	m_prt.fichier_supprimerNoeud this,
 		
 		fn ajouterEnfant 	_enfant 	= (),
 		fn definirParent 	_parent 	= ( parent = _parent ),
@@ -76,21 +76,12 @@ struct str_element (
 			) else return undefined
 		),
 		
-		fn supprimer  			 = (
+		fn supprimer  	_noeudsArbo		 = (
 			
-			-- on le supprime dans le parent --
-			if parent != undefined do (
-					debug "on le supprime dans le parent" var:parent.nom
-				local index  = findItem parent.enfants 	this
-				if index != 0 do deleteItem   parent.enfants 	index
-			)
+			toArray &_noeudsArbo		
 			
-			--- on le retire du fichier --
-			retirerDuFichier ()
-			
-			--- on suprrime les enfants du chichier ----
-			for enfant in enfants 
-				do enfant.supprimer  ()
+			for noeud in _noeudsArbo
+				do noeud.supprimer 	()
 			
 		),
 		
@@ -121,8 +112,8 @@ struct str_element (
 		----- accesseurs -----
 		fn getNbrVertex 				= nbrVertex as string,
 		fn getNbrImports 			= nbrImports as string,
-		fn getDateDernierImport 	= m_prt.dateToString 	dateDernierImport,
-		fn getDateCreation 			= m_prt.dateToString 	dateCreation,
+		fn getDateDernierImport 	= dateToString 	dateDernierImport,
+		fn getDateCreation 			= dateToString 	dateCreation,
 		fn getAProxy 					= if doesfileExist proxy then "oui" else "non",
 		fn getAVueDetail 				= if doesfileExist detail then "oui" else "non"
 		
@@ -160,8 +151,8 @@ struct str_branche (
 	public
 	
 		----fichier ---
-		fn enregistrer =	m_prt.ecrireNoeud this,
-		fn retirerDuFichier =	m_prt.supprimerNoeud this,
+		fn enregistrer =	m_prt.fichier_ecrireNoeud this,
+		fn retirerDuFichier =	m_prt.fichier_supprimerNoeud this,
 	
 	
 		fn ajouterEnfant 		_enfant 	= (
@@ -274,17 +265,17 @@ struct str_arborescence (
 		m_tagsSeparateurs	=	", -/.;",
 		
 	------------ 	FONCTIONS		----------------------------------------------------------------------------------	
-			
+	
 	---- les noms uniques -----
 	private
 		fn creerNomUnique_branche 	= return prefixNomUnique_branche 	+ (indexUnique += 1 ) as string,
 		fn creerNomUnique_element 	= return prefixNomUnique_element + (indexUnique += 1 ) as string,
 			-------- GESTION DU FICHIER INI --------
 	public
-		fn ecrireNoeud  _noeud 					= (
+		fn fichier_ecrireNoeud  _noeud 					= (
 			-- param communs --
 			setINISetting   fichierArbo	_noeud.nomUnique   "nom"  _noeud.nom
-			setINISetting   fichierArbo	_noeud.nomUnique   "parent"  ( if _noeud.parent ==undefined then "undefined" else _noeud.parent.nom)
+			setINISetting   fichierArbo	_noeud.nomUnique   "parent"  ( if _noeud.parent ==undefined then "undefined" else _noeud.parent.nomUnique)
 			
 			case classOf _noeud  of (
 				str_branche: (
@@ -298,7 +289,7 @@ struct str_arborescence (
 					setINISetting   fichierArbo	_noeud.nomUnique   "enfants"  _enfants
 					
 					-- recusrcivité --
-					for enfant in _noeud.enfants do ecrireNoeud  enfant 
+					for enfant in _noeud.enfants do fichier_ecrireNoeud  enfant 
 				)
 				str_element: (
 					setINISetting   fichierArbo	_noeud.nomUnique   "composite"  #feuille
@@ -320,10 +311,16 @@ struct str_arborescence (
 			)
 			
 		),
-		fn supprimerNoeud _noeud =(
+		fn fichier_supprimerNoeud _noeud =(
 			-- on supprime du fichierArbo --
 			delINISetting   fichierArbo	_noeud.nomUnique
 		),
+		fn fichier_supprimerNoeud _noeud =(
+			-- on supprime du fichierArbo --
+			delINISetting   fichierArbo	_noeud.nomUnique
+		),
+		fn fichier_ouvrir =	ShellLaunch "explorer.exe" @"C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\data\arbo.ini"	,
+		fn fichier_supprimer =deleteFile fichierArbo,
 
 	
 	-------- GESTION DE L'ARBO --------
@@ -359,8 +356,17 @@ struct str_arborescence (
 		),	
 	
 	
+		---- Supprimer des elements de l'arbo ----
+		fn supprimer  _noeuds 	= (
+			toArray 	&_noeuds
+			
+			for noeud in _noeuds do 	noeud.supprimer()
+			
+		),
+		
+		
 	private
-		fn lireNoeud 	_nomUnique 	_parent 	= (
+		fn fichier_lireNoeud 	_nomUnique 	_parent 	= (
 			
 			local nouveauNoeud
 			
@@ -400,7 +406,7 @@ struct str_arborescence (
 						nouveauNoeud.estExpanded 	=  ( if ( getINISetting   fichierArbo	_nomUnique   "estExpanded" )  == "true" then true else false )  
 					
 						for enfantNomUnique in enfantsNomsUniques do 
-							append enfants ( lireNoeud   enfantNomUnique 		nouveauNoeud )
+							append enfants ( fichier_lireNoeud   enfantNomUnique 		nouveauNoeud )
 						
 						nouveauNoeud.enfants = enfants
 						
@@ -419,14 +425,6 @@ struct str_arborescence (
 			nouveauNoeud
 		),	
 		
-	public
-		---- Supprimer des elements de l'arbo ----
-		fn supprimer  _noeuds 	= (
-			toArray 	&_noeuds
-			
-			for noeud in _noeuds do 	noeud.supprimer()
-			
-		),
 		
 	---- initialiser l'arborescence de tout ses éléments ----
 		fn initialiser = (
@@ -457,7 +455,7 @@ struct str_arborescence (
 		fn enregistrer 	= (
 			debug "<arbo>		enregistrement"
 			setINISetting   fichierArbo	"params"   "indexUnique"  ( indexUnique as string )
-			ecrireNoeud Root
+			fichier_ecrireNoeud Root
 		),	
 		fn charger = (
 			debug "<arbo>		chargement"
@@ -470,7 +468,7 @@ struct str_arborescence (
 			else (
 				
 				indexUnique = ( getINISetting   fichierArbo	"params"   "indexUnique" ) as integer
-				root = lireNoeud   "ROOT" 	undefined
+				root = fichier_lireNoeud   "ROOT" 	undefined
 			)
 			_root
 		),
@@ -478,7 +476,7 @@ struct str_arborescence (
 	
 	-------- ACCEDER AUX NOEUDS --------		
 	public
-		fn getParFichier 			_fichier  		noeud:root	= (
+		fn getParFichier 			_fichier  		noeud:root		= (
 			
 			local result 	= undefined
 			
@@ -495,7 +493,7 @@ struct str_arborescence (
 			
 			result
 		),
-		fn getParNomUnique 	_nomUnique  	noeud:root	= (
+		fn getParNomUnique 	_nomUnique  	noeud:root		= (
 			
 			local result 	= undefined
 			
@@ -556,7 +554,7 @@ struct str_arborescence (
 			
 		),	
 	---- Recuperer tout les noeuds d'un neud ----
-		fn getNoeuds 	noeud:root 	recursif:false	= (
+		fn getNoeuds 		noeud:root 	recursif:false	= (
 	
 			local elements = #()
 			
@@ -572,7 +570,7 @@ struct str_arborescence (
 			
 		),	
 	---- Savoir si un fichier est deja present dans l'arbo	----
-		fn dejaPresent  		_fichier 	= (
+		fn dejaPresent  	_fichier 	= (
 			if  getParFichier 	_fichier != undefined 	then 	true 
 																	else 		false
 		),
@@ -634,7 +632,7 @@ struct str_arborescence (
 				default: 0
 			)
 		),
-		fn sortParVertex 				elem1  elem2  = (
+		fn sortParVertex 				elem1  elem2 = (
 			case of
 			(
 				(elem1.nbrVertex < elem2.nbrVertex): -1
@@ -642,7 +640,7 @@ struct str_arborescence (
 				default: 0
 			)
 		),
-		fn sortParVertexInv 		elem1  elem2  = (
+		fn sortParVertexInv 			elem1  elem2 = (
 			case of
 			(
 				(elem1.nbrVertex < elem2.nbrVertex): 1
@@ -690,9 +688,13 @@ struct str_arborescence (
 			return compareDate elem1  elem2
 		),
 		fn sortParCreationInv 		elem1  elem2 = (
-			
 			return compareDate elem1  elem2
 		),
+		
+		
+		
+		
+		
 	public
 		fn classerCreation 		_elements 	ordreInverse:false	 = (
 			case ordreInverse of (

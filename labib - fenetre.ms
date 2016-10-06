@@ -83,7 +83,6 @@ rollout roll_labib  "Labib" width:296 height:296
 	local 	m_drag		---- manager du drag de la fenetre  ----
 	local		m_LV 			---- manager du liste view ----
 	local		m_TV 			---- manager du tree view ----
-	local 	m_hist			---- manager de l'historique ----
 	local 	m_menus		---- manager des menus ----
 	
 	------------  Fonctions	----------------------------------------------------------------------------------
@@ -149,25 +148,33 @@ rollout roll_labib  "Labib" width:296 height:296
 		m_LV.vider ()
 	)
 	fn actualiser 	= (
+		debug "<fenetre>	actualiser"
+		local m_selcTV_Back = ui_TV.SelectedNode
+		local m_selcLV_Back = m_LV.m_selection
 		
+		debug "<fenetre>	m_selcTV_Back" var:m_selcTV_Back	param:#name
+		debug "<fenetre>	m_selcLV_Back" var:m_selcLV_Back param:#nomUnique
 		---- on actualise  ----
 		m_TV.actualiser 	()
 		m_LV.actualiser	()
+		
+		ui_TV.SelectedNode 	= 	m_selcTV_Back
+		m_LV.selectionner			m_selcLV_Back
 		
 	)
 	fn initialiser 	= (
 		
 		---- initialiser les membres ------------
 		-- pointeurs --
-		m_prefs 		= m_prt.m_prefs
-		m_arbo 		= m_prt.m_labib.arbo
-		m_menus 	= m_prt.m_labib.menus
+		m_prefs 			= m_prt.m_prefs
+		m_arbo 			= m_prt.m_labib.arbo
+		m_menus 		= m_prt.m_labib.menus
 		-- managers --
-		m_drag 		= str_drag	 			m_prt:roll_labib
-		m_hist 			= str_historique 		m_prt:roll_labib
+		m_drag 			= str_drag	 			m_prt:roll_labib
+		
 		-- ui --
 		m_LV 			= str_listViewMgr		m_prt:roll_labib	m_ui:ui_LV
-		m_TV 			= str_treeViewMgr	m_prt:roll_labib	m_ui:ui_TV
+	 	m_TV 			= str_treeViewMgr	m_prt:roll_labib	m_ui:ui_TV
 		m_LV.m_TV 	=	m_TV  -- sinon ca boucle a l'init --
 		
 		---- l'UI ------------
@@ -190,7 +197,7 @@ rollout roll_labib  "Labib" width:296 height:296
 		
 		--- textbox ---		
 		ui_recherche.BackColor 	= (dotNetClass "System.Drawing.Color").fromARGB 	col_fondVue.r 		col_fondVue.g 	col_fondVue .b
-		ui_recherche.ForeColor 	= (dotNetClass "System.Drawing.Color").fromARGB 	col_textes.r 		col_textes.g 		col_textes.b
+		ui_recherche.ForeColor 		= (dotNetClass "System.Drawing.Color").fromARGB 	col_textes.r 		col_textes.g 		col_textes.b
 		ui_recherche.borderstyle 	= (dotnetclass "System.Windows.Forms.BorderStyle").None
 		ui_recherche.AcceptsTab 	= true
 		
@@ -207,17 +214,13 @@ rollout roll_labib  "Labib" width:296 height:296
 		m_LV.initialiser ()
 		m_TV.initialiser ()
 		
-		--- historique ----
-		m_hist.enregistrer  m_arbo.root
-		
 		---- la fenetre	----
 		fen_recomposer ()
 		actualiser ()
 	)
 	
-	
 	--- interactions dans la fenetre
-	fn togglePleinEcran =(
+	fn togglePleinEcran 	=(
 		
 		local tailleBureau 	= sysInfo.desktopSize
 		local posAgrandi 		= [0,0]			
@@ -255,7 +258,7 @@ rollout roll_labib  "Labib" width:296 height:296
 		)
 		
 	)
-	fn toggleSlider_H =(		
+	fn toggleSlider_H 	=(		
 		debug "toggleSlider_H"
 		if m_prefs.fenetre.sliderH_estRabattu  then (
 			ui_slider_H.pos.x 							= m_prefs.fenetre.sliderH_pos
@@ -268,7 +271,7 @@ rollout roll_labib  "Labib" width:296 height:296
 		debug "sliderH_pos" var:m_prefs.fenetre.sliderH_pos
 		fen_recomposer ()
 	)
-	fn toggleSlider_V =(			
+	fn toggleSlider_V 	=(			
 		if m_prefs.fenetre.sliderV_estRabattu  then (
 			ui_slider_V.pos.y 						= m_prefs.fenetre.sliderV_pos
 			m_prefs.fenetre.sliderV_estRabattu 	= false
@@ -279,7 +282,7 @@ rollout roll_labib  "Labib" width:296 height:296
 		)
 		fen_recomposer ()
 	)
-	fn checkBandeau =(
+	fn checkBandeau 	=(
 	
 		local tailleBureau 		= sysInfo.desktopSize		
 		local larg_bandeauH 	= 117 + 2*m_ecartUI
@@ -323,8 +326,7 @@ rollout roll_labib  "Labib" width:296 height:296
 		m_prefs.fenetre.bandeau_taille	= [roll_labib.width, roll_labib.height ]
 		
 	)
-	
-	
+		
 	---- la souris ----
 	fn souris_bouge 		_pos =(
 		
@@ -362,7 +364,8 @@ rollout roll_labib  "Labib" width:296 height:296
 		)
 		
 	)
-	fn souris_Dpress 		_pos =(		
+	fn souris_Dpress 		_pos =(	
+		
 	)
 	fn souris_Gpress 		_pos =(
 		
@@ -393,7 +396,7 @@ rollout roll_labib  "Labib" width:296 height:296
 		ui_slider_H.pressed = false		
 		ui_slider_V.pressed = false
 	)
-	fn souris_dblClique  _pos =(
+	fn souris_dblClique  	_pos =(
 		
 		local tailleBureau = sysInfo.desktopSize
 		
@@ -405,9 +408,7 @@ rollout roll_labib  "Labib" width:296 height:296
 		else  togglePleinEcran ()			
 		
 	)
-	
-	
-	
+		
 	---- boutons ----
 	fn etatBtnFermer		_etat 	=(
 		case _etat of (
@@ -418,17 +419,16 @@ rollout roll_labib  "Labib" width:296 height:296
 	)
 	
 	
-	fn importerViewport = (
+	fn importerViewport 							= (
 		debug "Importation dans la scene"
 		debug "noeuds importés" var:( for n in m_LV.m_selection collect n.nom )
 	)
-	fn importer_scene 	_noeudsA = (
+	fn importer_scene 		_noeudsA 		= (
 		toArray 	&_noeudsA
 		
 		debug "IMPORTATION" 
 		debug "_noeudsA"	var:_noeudsA param:#nom
 	)
-	
 	fn deplacer _noeudsA 	_noeudDest	=(
 		
 	)
@@ -479,7 +479,7 @@ rollout roll_labib  "Labib" width:296 height:296
 	------------  Evenements	----------------------------------------------------------------------------------
 	--------- Fenetre ----------
 	on roll_labib moved					_pos 	do	fen_bouger  				_pos
-	on roll_labib resized					_val 		do	fen_redimensionner  _val
+	on roll_labib resized					_val 	do	fen_redimensionner  _val
 	
 	--------- Drag ---------
 	on roll_labib mouseMove 			_pos 	do	souris_bouge 		_pos
@@ -494,7 +494,7 @@ rollout roll_labib  "Labib" width:296 height:296
 	on ui_btnFermer	mousedown 				do 	etatBtnFermer #Press
 	on ui_btnFermer	mouseup					do 	etatBtnFermer #Repos
 	on ui_btnFermer 	click 							do 	m_prt.fermer 	()
-	
+
 	--------- le treeView ---------
 	on ui_TV 	mouseDown 			_arg 	do  	m_tv.clq_down  				_arg
 	on ui_TV 	mouseUp 	_sender 	_arg 	do 	m_TV.clq_up 					_arg 
@@ -515,14 +515,15 @@ rollout roll_labib  "Labib" width:296 height:296
 	on ui_LV 	DoubleClick				_arg 	do  	m_LV.clq_double 				_arg 	
 	
 	on ui_LV 	DragOver 	_sender	_arg 	do	m_LV.drag_checkSurvol  	_arg
-	on ui_LV 	DragDrop 				_arg 	do	m_LV.drag_recevoir 			_arg
+	on ui_LV 	DragDrop 					_arg 	do	m_LV.drag_recevoir 			_arg
 	on ui_LV 	itemDrag 	_sender 	_arg 	do 	m_LV.drag_demarrer 		_arg 	
 	on ui_LV 	lostFocus 	_sender 	_arg 	do  	if dragFlag == true do	importerViewport ()
 	
-	on ui_LV 	AfterLabelEdit			_arg 	do  	m_LV.renommer				_arg.label
+	on ui_LV 	AfterLabelEdit			_arg 	do  	m_LV.renommer				_arg
+	on ui_LV 	KeyDown 					_arg 	do  	m_LV.key_down				_arg.KeyCode
 	
 				
-	/* 
+	/*
 	---- le liste view----
 	on ui_LV 	mouseDown 			_arg 	do  	cliqueLV				_arg
 -- 	on ui_LV 		mouseUp				_arg 	do  	cliqueLV 	_arg 
@@ -587,21 +588,49 @@ rollout roll_labib  "Labib" width:296 height:296
 ----------	Structure								 -------------------------
 ------------------------------------------------------------------------------
 struct str_fenLabib (
-	
 		------------  Membres	----------------------------------------------------------------------------------
 	public
 		---- pointeurs ----
-		m_labib	,										---- pointeur vers la structure principale ----
-		m_prefs		= m_labib.prefs			,		---- pointeur vers les preferences ----
+		m_labib	,								---- pointeur vers la structure principale ----
+	
 		m_dialog 	= roll_labib ,			---- le rollout ----
-		
-		m_icos_fermer= #( 			---- les images pour les icones du bouton de fermeture ----		
+	private
+		m_prefs		= m_labib.prefs ,		---- pointeur vers les preferences ----
+		m_edit		,							---- pointeur vers les preferences ----
+		m_icos_fermer= #( 					---- les images pour les icones du bouton de fermeture ----		
 									openBitMap m_prefs.fenetre.ico_btnFermer_R ,		-- Repos ----
 									openBitMap m_prefs.fenetre.ico_btnFermer_S ,		-- Survol ----
 									openBitMap m_prefs.fenetre.ico_btnFermer_P 		-- Pressé ----
-								), 
-		
+								),
+								
+		---- structures des fenetres secondaires ---
+		m_fen_infos,
+		m_fen_apercu,
+		m_fen_rendu,
+
 		------------  Fonctions	----------------------------------------------------------------------------------
+	public
+		---- fenetres secondaires ----
+		fn toggleInfos =(
+			if m_prefs.fenetre.infos 
+				then m_fen_infos.fermer ()
+				else	m_fen_infos.ouvrir ()
+		),
+		fn toggleApercu =(
+			if prefs.fenetre.m_fen_apercu 
+				then fenetre.m_fen_apercu.fermer ()
+				else	fenetre.m_fen_apercu.ouvrir ()
+		),
+		fn toggleRendu =(
+			if prefs.fenetre.m_fen_rendu 
+				then fenetre.m_fen_rendu.fermer ()
+				else	fenetre.m_fen_rendu.ouvrir ()
+		),
+		
+		---- affichage ----
+		fn	changerAffichage  _nvlAffichage =	fenetre.m_dialog.m_LV.changerAffichage		 _nvlAffichage,
+
+		---- fenetre ----		
 		fn ouvrir = (			
 			
 			debug "<fenetre str> ouverture"
@@ -615,8 +644,8 @@ struct str_fenLabib (
 			
 			-- afficher barre titre ou pas --
 			if m_prefs.fenetre.afficherTitre
-				then 	style = #( #style_titlebar /* #style_toolwindow  */ ,    #style_sysmenu, #style_resizing  , #style_minimizebox , #style_maximizebox  ) 
-				else 	style = #( #style_resizing /* , #style_minimizebox , #style_maximizebox */ ) 
+				then 	style = #( #style_titlebar  ,    #style_sysmenu, #style_resizing  , #style_minimizebox , #style_maximizebox  ) 
+				else 	style = #( #style_resizing ) 
 			
 			-- la position, si est en bandeau ou pas --
 			if m_prefs.fenetre.bandeau then (			
@@ -627,7 +656,7 @@ struct str_fenLabib (
 				taille = m_prefs.fenetre.fenLabib_taille			
 			)
 			
-			-- on ouvre en fonction del'option d'affichage des menus  --
+			-- on ouvre en fonction de l'option d'affichage des menus  --
 			if m_prefs.fenetre.afficherMenu 	
 				then	( 
 					createDialog m_dialog 	style:					style \
@@ -650,6 +679,7 @@ struct str_fenLabib (
 			
 			---- initialisation de la fenetre ----
 			m_dialog.m_prt	 	= this
+			
 			m_dialog.initialiser ()
 			
 			-- les fenetres secondaires --
@@ -686,17 +716,26 @@ struct str_fenLabib (
 			
 		),
 		
-		---- passerelles ---
-		fn selectionnerTV		_noeudA 		= m_dialog.m_TV.selectionner 	_noeudA,
+		
+		fn initialiser = (
+			m_dialog.m_prt = this
+			m_edit		= m_labib.edit
+			
+		),
+		
+		---- fctsen passerelles ---
+		fn selectionnerTV		_noeudA 	= m_dialog.m_TV.selectionner 	_noeudA,
 		fn selectionnerLV		_noeudsA 	= m_dialog.m_LV.selectionner 	_noeudsA,
-		fn actualiser 									= m_dialog.actualiser (),
+		fn actualiser 							= m_dialog.actualiser (),
 		fn editerNom 			_noeudA		= m_dialog.m_LV.editerNom 		_noeudA,
+			
+		
 		------------  Evenements	----------------------------------------------------------------------------------
 		on create do (
 			debug "<fenetre>	Structure crée."
 			
-		)
-			
+		) 
+		
 ) --- fin struct
 
 

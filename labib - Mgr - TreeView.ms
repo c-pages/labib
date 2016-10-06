@@ -35,13 +35,14 @@ struct str_treeViewMgr (
 		------------ MEMBRES ----------------------------------
 	public
 		---- pointeurs (à donner en param a la creation) ----
-		m_prt,										---- le parent, le rollout ---- ( a initialiser ) ----
-		m_ui, 										---- le listview a controler -- ( a initialiser ) ----
-		m_prefs	=	m_prt.m_prefs,	---- les m_prefs de labib ---
+		m_prt,										---- le parent, le rollout ---- ( a initialiser ) ----	
+		m_ui, 										---- le treeView a controler -- ( a initialiser ) ----
+		m_TV,	
+		m_prefs	=	m_prt.m_prefs,			---- les m_prefs de labib ---
 		m_arbo	=	m_prt.m_arbo,
-	
+		m_edit	=	m_prt.m_prt.m_labib.edit,
 		
-		m_selection = m_arbo.root,		---- la m_selection courante ----
+		m_selection = m_arbo.root,					---- la m_selection courante ----
 	private
 		m_noeudsTV_total		= #(),
 		m_selectionTVBack ,
@@ -98,14 +99,16 @@ struct str_treeViewMgr (
 		),
 		fn selectionner	 	_noeudA	= (			
 			
-			debug "<m_TV> selectionner"
-			debug "_noeudA" var:_noeudA.nom
-			m_ui.SelectedNode = getItem		_noeudA
-			m_ui.SelectedNode.EnsureVisible()			
-			m_selection 	= _noeudA
-			
-			m_ui.SelectedNode.expand ()
-			
+			debug "<TV> selectionner"
+			debug "<TV> selectionner Dbt" var:m_selection	 param:#nom
+			if _noeudA !=undefined do (
+				m_ui.SelectedNode 	= getItem		_noeudA
+				m_ui.SelectedNode.EnsureVisible()			
+				m_selection 			= _noeudA
+				
+				m_ui.SelectedNode.expand ()
+			)
+			debug "<TV> selectionner Fin" var:m_selection	 param:#nom
 		),
 		fn vider = (
 			m_ui.Nodes.Clear()
@@ -114,7 +117,10 @@ struct str_treeViewMgr (
 		),
 		fn actualiser  = (				
 			
-			debug "<m_TV> actualiser"
+			debug "<TV> actualiser"
+			debug "<TV> actualiser Dbt" 	var:m_selection	 param:#nom
+			
+			local selecBack = m_selection
 			
 			-- on vide la liste --
 			vider ()
@@ -129,8 +135,12 @@ struct str_treeViewMgr (
 				do ajouterTV 	enfant  	noeudTVRech	
 			append m_noeudsTV_total 	noeudTVRech
 			
+			debug "m_selection -1-" var:m_selection param:#nom
+			
 			--  la selection --
-			if m_selection == undefined 	do m_selection = m_arbo.root
+			if selecBack == undefined 	
+				then m_selection = m_arbo.root
+				else m_selection = selecBack
 			local ItemSelec = getItem	m_selection 
 			m_ui.SelectedNode = ItemSelec	
 			ItemSelec.expand ()	
@@ -138,6 +148,7 @@ struct str_treeViewMgr (
 			debug "m_selection" var:m_selection param:#nom
 			debug "m_selection.enfants" var:m_selection.enfants param:#nom
 			
+			debug "<TV> actualiser fin" var:m_selection	 param:#nom
 		),
 		fn renommer 			_nouveauNom  =(
 			debug "renommer tv"
@@ -152,6 +163,35 @@ struct str_treeViewMgr (
 				selectionner	m_selection.parent
 			)
 		),
+		fn ouvrir _noeudA 	historique:true		=(
+			
+			debug "<TV> ouvrir noeud"
+	/* 		debug "<TV> ouvrir Dbt" var:m_selection	 param:#nom
+			if _noeudA != undefined then (
+				
+				-- si nouveau noeud --
+				if _noeudA != m_selection do (
+					
+					---- on actualise la selection ---					
+					m_selection = _noeudA
+					
+					---- on actualise la ListView  ---					
+					m_prt.m_lv.actualiser ()
+					
+					---- historique ---
+					if historique do m_prt.m_hist.enregistrer  m_selection
+					
+				)
+				
+				---- si selection TV different de noeudA ----
+				if getItem _noeudA != m_ui.selectedNode
+					do selectionner _noeudA
+				
+				
+			)
+			debug "<TV> ouvrir Fin" var:m_selection	 param:#nom */
+		),
+		
 		
 		
 		---- dragAndDrop ---
@@ -195,41 +235,19 @@ struct str_treeViewMgr (
 		),
 	
 		
-		fn ouvrir _noeudA 	historique:true		=(
-			
-			debug "ouvrir noeud"
-			debug "_noeudA" var:_noeudA	param:#nom
-			if _noeudA != undefined then (
-				
-				-- si nouveau noeud --
-				if _noeudA != m_selection do (
-					
-					---- on actualise la selection ---					
-					m_selection = _noeudA
-					
-					---- on actualise la ListView  ---					
-					m_prt.m_lv.actualiser ()
-					
-					---- historique ---
-					if historique do m_prt.m_hist.enregistrer  m_selection
-						
-				)
-			)
-		),
-		
 		---- Souris ----
 		fn clq_down 			_arg			= (
 			
 			local	noeudAClique = getNoeudA_at  _arg.x _arg.y 
 			
 			case _arg.button of (
-				(m_btnsDotNet.Left): 		ouvrir 	noeudAClique
+				(m_btnsDotNet.Left): 		m_edit.ouvrir 	noeudAClique
 				(m_btnsDotNet.Middle): 	()
 				(m_btnsDotNet.None): 	()
 				(m_btnsDotNet.Right): 	(
 					-- ouvrir noeud --
-					ouvrir 			noeudAClique
-					selectionner	noeudAClique
+					m_edit.ouvrir 			noeudAClique
+-- 					selectionner	noeudAClique
 					-- menus --
 					m_prt.m_menus.arbo 	()
 				)
@@ -242,10 +260,10 @@ struct str_treeViewMgr (
 			local	noeudAClique = getNoeudA_at  _arg.x _arg.y 
 			
 			case _arg.button of (
-				(m_btnsDotNet.Left): 			()
-				(m_btnsDotNet.Middle): 		()
+				(m_btnsDotNet.Left): 		()
+				(m_btnsDotNet.Middle): 	()
 				(m_btnsDotNet.None): 		()
-				(m_btnsDotNet.Right): 		ouvrir 	noeudAClique
+				(m_btnsDotNet.Right): 		() --ouvrir 	noeudAClique
 				(m_btnsDotNet.XButton1): 	m_prt.m_hist.seDeplacer 	1
 				(m_btnsDotNet.XButton2):	m_prt.m_hist.seDeplacer 	-1
 			) -- fin case _arg.button 

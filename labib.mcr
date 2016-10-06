@@ -42,6 +42,9 @@ labib.arbo.root.enfants[2].enfants[1].enfants[1].dateCreation
 mouseTrack [on:<node>] [prompt:<message_string>] [snap:#2D|#3D] [trackCallback:fn|#(fn,arg)]
 
 
+labib.arbo.fichier_supprimer ()
+labib.arbo.fichier_ouvrir ()
+labib.arbo.enregistrer ()
 
 labib.arbo.initialiser ()
 labib.fenetre.m_dialog.viderListes ()
@@ -52,7 +55,7 @@ debug 	"" var:labib.arbo.root.enfants	 param:#nom
 
 labib.fenetre.m_dialog.m_LV.m_brancheCourante.enfants.count
 
-
+labib.arbo.fichier_ouvrir()
 
 
  #### LV ####

@@ -50,9 +50,9 @@ struct str_chrono (
 ------------------------------------------------------------------------------
 struct str_historique (
 	
-		m_prt,
-		m_TV = m_prt.m_TV,
-		m_LV = m_prt.m_LV,
+		m_dialog,
+		m_TV = m_dialog.m_TV,
+		m_LV = m_dialog.m_LV,
 		m_pos =1,
 		m_pile = #(),
 	
