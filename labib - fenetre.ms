@@ -30,11 +30,11 @@ rollout roll_labib  "Labib" width:296 height:296
 (
 
 	------------ DEBUG	----------------------------------------------------------------------------------
-		local	m_debug = false
-		local	m_dbgPrefix ="roll_labib"
-		fn debug 	_txt  var:	 param:    =(
-			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
-		)
+	local	m_debug = false
+	local	m_dbgPrefix ="roll_labib"
+	fn debug 	_txt  var:	 param:    =(
+		if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+	)
 	----------------------------------------------------------------------------------------------------------
 	
 	
@@ -44,6 +44,7 @@ rollout roll_labib  "Labib" width:296 height:296
 	local m_prefs		---- pointeur vers les preferences "Fenetre"de labib ----	
 	local m_arbo		---- pointeur vers le struct arbo ----
 	local m_menu		---- pointeur vers le struct menu ----
+	local m_edit		---- pointeur vers le struct edit ----
 	
 	---- geometrie de l'interface ----
 	local m_tailleRolloutCreation =  [1200 , 500 ]
@@ -174,6 +175,8 @@ rollout roll_labib  "Labib" width:296 height:296
 		m_prefs 			= m_prt.m_prefs
 		m_arbo 			= m_prt.m_labib.arbo
 		m_menus 		= m_prt.m_labib.menus
+		m_edit	 		= m_prt.m_labib.edit
+		
 		-- managers --
 		m_drag 			= str_drag	 			m_prt:roll_labib
 		
@@ -182,10 +185,7 @@ rollout roll_labib  "Labib" width:296 height:296
 	 	m_TV 			= str_treeViewMgr	m_prt:roll_labib	m_ui:ui_TV
 		m_LV.m_TV 	=	m_TV  -- sinon ca boucle a l'init avec la creation du m_TV--
 		
-		--- actualiser les memebres "fenetre" d'edition ----
-		m_prt.m_labib.edit.m_TV 		= m_TV									---- le treeview ---
-		m_prt.m_labib.edit.m_LV 		= m_LV									---- le listview ---
-		
+		m_edit.majPointeursFenetre ()
 		
 		---- l'UI ------------
 		-- icones --

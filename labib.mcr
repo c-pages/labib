@@ -1,11 +1,11 @@
-clearListener ()
-try ( 	labib.fermer ()	) catch  ()
+-- clearListener ()
+-- try ( 	labib.fermer ()	) catch  ()
 
-Global 	labib = fileIn "$userScripts\labib\labib.ms" 
- format "\n\n"
--- labib.ouvrir 	()
+-- Global 	labib = fileIn "$userScripts\labib\labib.ms" 
+--  format "\n\n"
+
 /* 
-
+labib.ouvrir 	()
 	Global 	labib = fileIn "$userScripts\labib\labib.ms" 
 	labib.ouvrir 	()
 	
@@ -15,14 +15,15 @@ macroScript Labib
 category:"#CPages"
 toolTip:""
 (
--- 	if labib == undefined do
-		Global 	labib = fileIn "$userScripts\labib\labib.ms" 
 	
-	on execute do 	
+	Global 	labib  = fileIn "$userScripts\labib\labib.ms" 
+	
+	on execute do 	(
+		
 		if ( labib.estOuvert () )	
 			then	labib.fermer	()
 			else 	labib.ouvrir 	()
-	
+	)
 	on isChecked return try ( labib.estOuvert () )  catch	( false )	
 	
 )

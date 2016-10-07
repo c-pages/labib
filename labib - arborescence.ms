@@ -582,15 +582,8 @@ struct str_arborescence (
 			
 			for noeudADeplacer in _noeudsADeplacer do (
 				
-				noeudADeplacer.afficher recursif:false
-				format"--- 1 -----\n"
 				_noeudDest.ajouterEnfant 	noeudADeplacer
--- 				noeudADeplacer.definirParent   _noeudDest
-				
-				noeudADeplacer.afficher recursif:false
-				format"--- 2 -----\n"
 				noeudADeplacer.enregistrer ()
-				noeudADeplacer.afficher recursif:false
 			)
 			_noeudDest.enregistrer ()
 			noeudParentDepart.enregistrer ()

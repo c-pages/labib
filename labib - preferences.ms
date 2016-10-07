@@ -195,11 +195,11 @@ struct str_prefsRendu (
 struct str_preferences (
 
 	------------ DEBUG	----------------------------------------------------------------------------------
-
-		m_debug = false,
+-- 		m_debug = false,
+		m_debug = true,
 		m_dbgPrefix ="prefs",
 		fn debug 	_txt  var:	 param:    =(
-			if m_debug do ::debug 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
 		),
 	----------------------------------------------------------------------------------------------------------
 	
@@ -251,7 +251,7 @@ struct str_preferences (
 		
 	public	
 		fn enregistrer = (
-			debug "<prefs>		enregistrement"
+			debug "enregistrement"
 			
 			enregistrerDatas  fenetre		"fenetre"
 			enregistrerDatas  apercus		"apercus"
@@ -259,7 +259,7 @@ struct str_preferences (
 			
 		),
 		fn charger = (
-			debug "<prefs>		chargement"
+			debug "chargement"
 			
 			---- si existe pas on initialise le fichier ----
 			if not doesFileExist fichierPrefs then (
@@ -290,7 +290,7 @@ struct str_preferences (
 		------------ Les evenements	----------------------------------------------------------------------------------
 		on create do (
 			charger()
-			debug "<prefs>		Structure crée."
+			debug "Structure crée."
 			
 		)
 		

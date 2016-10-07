@@ -34,8 +34,8 @@
 struct str_listViewMgr (
 		
 	------------ DEBUG	----------------------------------------------------------------------------------
-		m_debug = false,
--- 		m_debug = true,
+-- 		m_debug = false,
+		m_debug = true,
 		m_dbgPrefix ="LV",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
@@ -96,7 +96,7 @@ struct str_listViewMgr (
 				
 				
 				---- le nouvel item ----
-				local nvItem				= dotNetObject "System.Windows.Forms.ListViewItem" 	noeud.nomUnique
+				local nvItem			= dotNetObject "System.Windows.Forms.ListViewItem" 	noeud.nomUnique
 				nvItem.imageIndex 	= m_idImage
 				nvItem.name 			= noeud.nomUnique
 				
@@ -314,8 +314,8 @@ struct str_listViewMgr (
 			
 		),
 		fn ouvrir 	_noeudA 			=(
+			debug "ouvrir"
 			local noeudCible 
-			
 			--- retour ? --					
 			if _noeudA.nomUnique == "RETOUR" 
 				then noeudCible =  	_noeudA.parent
@@ -323,6 +323,7 @@ struct str_listViewMgr (
 			
 			-- ouverture --
 			m_edit.ouvrir		noeudCible
+			debug "noeudCible" var:noeudCible
 			
 		),
 		fn afficher	_noeudAOuvrir	  = (	
@@ -593,10 +594,16 @@ struct str_listViewMgr (
 			debug "clq_double"
 			
 			local noeudClique = (m_edit.getSelection ())[1]
+			debug "noeudClique" var:noeudClique param:#nom
+			debug "classOf noeudClique" var: ( classOf noeudClique )
 			
 			case classOf noeudClique of (
 				str_element: 	m_prt.importer_scene 	noeudClique
-				str_branche:	ouvrir		noeudClique
+				str_branche:	(
+					debug "PAR LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+					ouvrir		noeudClique
+					
+				)
 			)
 		),
 		

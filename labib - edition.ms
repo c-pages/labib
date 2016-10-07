@@ -23,8 +23,8 @@
 struct str_edition (
 
 	------------ DEBUG	----------------------------------------------------------------------------------
--- 		m_debug = true,
-		m_debug = false,
+		m_debug = true,
+-- 		m_debug = false,
 		m_dbgPrefix ="edit",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
@@ -45,7 +45,7 @@ struct str_edition (
 	private
 		m_prefs		= m_labib.prefs,													---- les preferences ---
 		m_arbo		= m_labib.arbo,													---- l'arborescence ---
-		m_fenetre	= m_labib.fenetre,												---- la fenetre ---
+		m_fenetre	/* = m_labib.fenetre */,												---- la fenetre ---
 		
 	---- position dans la bib et selection -----
 		m_dossier,																			---- Selectionné dans le treeview, et enfants affichés dans le listview ----
@@ -54,8 +54,8 @@ struct str_edition (
 	--- managers ----
 		m_chrono 	= str_chrono (),													---- manager pour chronometrer les operations ----
 	public
-		m_hist 		= str_historique 		m_dialog:m_fenetre.m_dialog \	---- manager de l'historique ----
-													m_edit:this,	
+		m_hist ,		/* = str_historique 		m_dialog:m_fenetre.m_dialog \ */	---- manager de l'historique ----
+												/* 	m_edit:this */
 		
 	private
 	---- drag ----
@@ -74,7 +74,7 @@ struct str_edition (
 			debug "setDossier" var:_noeudA param:#nomUnique
 			if _noeudA != m_dossier do (				
 				m_dossier = _noeudA 
-				m_tv.selectionner _noeudA
+				m_TV.selectionner _noeudA
 			)
 			
 		),
@@ -106,15 +106,29 @@ struct str_edition (
 	public
 		--- Fonctions generales ---
 		fn initialiser =(
+			
 			debug "initaliser"
-			--- historique ----			
-			m_hist.m_TV = m_TV
-			m_hist.m_LV = m_LV
 			
-			m_hist.enregistrer  m_arbo.root
-			
+			--- fenetre ----
+			m_fenetre	= m_labib.fenetre
 			m_fenetre.initialiser ()
+			
+			--- historique ----			
+			m_hist 			= str_historique 		m_dialog:m_fenetre.m_dialog		m_edit:this
+			
 		),		
+		fn majPointeursFenetre =(
+			
+			debug "majPointeursFenetre"
+			
+		--- maj pointeurs Listes dans edit ---
+			m_TV = m_fenetre.m_dialog.m_TV
+			m_LV = m_fenetre.m_dialog.m_LV
+			
+			m_hist.m_TV 	= m_TV
+			m_hist.m_LV 	= m_LV
+			
+		),
 		fn ouvrir		_noeudAOuvrir 	enregistrer_historique:true		=(
 			
 			debug "ouvrir	---------------------------------------"

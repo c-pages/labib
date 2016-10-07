@@ -44,15 +44,17 @@ include "$userScripts\labib\labib - output.ms"
 include "$userScripts\labib\labib - Outils divers.ms"
 
 include "$userScripts\labib\labib - preferences.ms"
+include "$userScripts\labib\labib - arborescence.ms"	
 
+include "$userScripts\labib\labib - Mgr - Divers.ms"
 include "$userScripts\labib\labib - Mgr - TreeView.ms"
 include "$userScripts\labib\labib - Mgr - ListView.ms"
-include "$userScripts\labib\labib - Mgr - Divers.ms"
+
 
 include "$userScripts\labib\labib - menus.ms"		
-include "$userScripts\labib\labib - arborescence.ms"	
 -- include "$userScripts\labib\labib - fenetres secondaires.ms"
 include "$userScripts\labib\labib - fenetre.ms"
+
 include "$userScripts\labib\labib - edition.ms"	
 
 -----------------------------------------
@@ -78,8 +80,8 @@ struct str_labib (
 		prefs		= str_preferences 	dossierScript:dossierScript,		---- les préferences utilisateurs ----
 		arbo		= str_arborescence 	fichierArbo:prefs.fichierArbo,		---- la gestion de l'arborescenece de la bibliotheque ----	
 		menus	= str_menus (),													---- les menus RCMenu ----
-		fenetre	= str_fenLabib			m_labib:this, 							---- le manager de la fenetre principale (en post car boucle infernale avec edit sinon ) ----
 		edit 		= str_edition 			m_labib:this,							---- les commandes utilisateurs,  l'edition proprement dite de la bibliotheque (creation d'un asset, import dans la scene ... ) ----
+		fenetre	= str_fenLabib			m_labib:this, 							---- le manager de la fenetre principale (en post car boucle infernale avec edit sinon ) ----
 
  		rendu,																			---- la gestion des rendus des apercus ----		
 	
@@ -130,7 +132,7 @@ struct str_labib (
 	------------ Evenements 	----------------------------------------------------------------------------------
 	on create do (
 		--- initialiser ----	
-		edit.initialiser ()		
+		edit.initialiser ()
 		ecrire "Structure Labib crée."		
 		debug "Structure crée."	
 	)
