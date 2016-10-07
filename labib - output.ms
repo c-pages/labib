@@ -41,7 +41,7 @@ fn remplirTexte  _txt  var:	 param:  prefix: = (
 )
 	
 ----- debug ------------------------------
-global debug
+global debuger
 DEBUG_MODE = true
 
 fn debuger 	_txt  var:	 param:    prefix: = 	(

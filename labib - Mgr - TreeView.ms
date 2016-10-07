@@ -57,6 +57,9 @@ struct str_treeViewMgr (
 		m_arbo	=	m_prt.m_arbo,
 		m_edit	=	m_prt.m_prt.m_labib.edit,
 		
+		---- etats des items ---
+		m_etatItems = #(),
+		
 	private
 		m_noeudsTV_total		= #(),
 		m_selectionTVBack ,
@@ -76,7 +79,8 @@ struct str_treeViewMgr (
 		m_btnsDotNet = dotNetClass "System.Windows.Forms.MouseButtons",
 		
 		------------ FONCTIONS ----------------------------------
-	public	
+	public
+		
 		----accesseurs ----
 		fn	getNoeud 			_item = (
 			m_arbo.getParNomUnique _item.name
@@ -96,6 +100,34 @@ struct str_treeViewMgr (
 				noeudClique = m_arbo.getParNomUnique  noeudTVClique.name
 			
 			noeudClique
+		),
+		
+		
+		--- etat des nodes ---
+		fn expandSelection =(
+			local noeudSelec = m_edit.getDossier ()
+			local itemSelec = getItem noeudSelec
+			if itemSelec != undefined do itemSelec.expand ()
+		),
+		fn stocker_etatItems =(
+			m_etatItems = #()
+			for item in m_noeudsTV_total do (
+				local etat = str_etatItem 	name:item.name	\
+													expand:( item.isExpanded  )
+				append m_etatItems etat
+				
+			)
+		),
+		fn restaurer_etatItems =(
+			for etat in m_etatItems do (
+				local noeud = m_arbo.getParNomUnique  etat.name
+				if noeud != undefined	do (
+					local item = getItem noeud
+					if etat.expand
+						then item.expand ()
+						else item.collapse ()
+				)
+			)
 		),
 		
 		
@@ -174,7 +206,7 @@ struct str_treeViewMgr (
 			
 			--  la selection --
 			local dossierCourant 	= m_edit.getDossier ()	
-			selectionner dossierCourant
+			selectionner 	dossierCourant
 			/* local itemSelec 			= getItem	dossierCourant
 			m_ui.SelectedNode 		= itemSelec
 			itemSelec.expand ()	 */
@@ -203,15 +235,44 @@ struct str_treeViewMgr (
 			_arg.Effect=_arg.AllowedEffect			
 			
 			local posDrag	= m_ui.PointToClient 	m_ui.MousePosition
-			local testItem	= m_ui.GetNodeAt (dotNetObject "System.Drawing.Point" posDrag.x 	posDrag.y)
+			local itemSurvol	= m_ui.GetNodeAt (dotNetObject "System.Drawing.Point" posDrag.x 	posDrag.y)
 			
-			if testItem != undefined then (
+			
+			/* 
+			_arg.Effect=_arg.AllowedEffect
+			local posAbsolu = [_arg.x, _arg.y]
+			local posRollout = getDialogPos m_prt
+			local posUI = m_ui.pos
+			
+			local posLocal = posAbsolu - posRollout - posUI
+			--- si destination est un element qui se deplace , on fait rien ---
+			local itemSurvol				= m_ui.GetItemAt  	posLocal.x 		posLocal.y
+			local noeudSurvol 			= getNoeud	itemSurvol
+		
+			debug "_arg" var:[_arg.x, _arg.y]
+			debug "itemSurvol" var:itemSurvol param:#name
+			debug "noeudSurvol" var:noeudSurvol param:#nom
+			
+			
+			---- si on survol un element du drag on fait rien ---
+			if noeudSurvol != undefined 
+				do if (findItem noeudsQuiBougent  noeudSurvol ) != 0
+					do _arg.Effect=m_dragDropEffect.none
+			
+			
+			 */
+			
+			if itemSurvol != undefined then (
 				
-				if testItem.name == "RECHERCHE" then (
+				local noeudsQuiBougent 	= m_edit.drag_getNoeuds ()
+				local noeudSurvol 			= getNoeud	itemSurvol
+				
+				if noeudSurvol.nomUnique == "RECHERCHE" then 
 					_arg.Effect	=	m_dragDropEffect.none
-				) 
-				
-			) 			
+				else if (findItem noeudsQuiBougent  noeudSurvol ) != 0
+					do _arg.Effect=m_dragDropEffect.none
+			)
+			
 		),
 		fn drag_demarrer 	_arg =(
 			debug "drag_demarrer"
@@ -250,8 +311,8 @@ struct str_treeViewMgr (
 					-- menus --
 					m_prt.m_menus.arbo 	()
 				)
-				(m_btnsDotNet.XButton1): 	m_prt.m_hist.seDeplacer 	1
-				(m_btnsDotNet.XButton2):	m_prt.m_hist.seDeplacer 	-1
+				(m_btnsDotNet.XButton1):  () --	m_edit.m_hist.seDeplacer 	1
+				(m_btnsDotNet.XButton2): () --	m_edit.m_hist.seDeplacer 	-1
 			) -- fin case _arg.button 
 		),
 		fn clq_up 			_arg			= (

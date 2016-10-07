@@ -60,8 +60,18 @@ struct str_menus (
 		fn elements = (			
 			rcMenu rcMenuElements
 			(
+				------------ DEBUG	----------------------------------------------------------------------------------
+
+				local m_debug = false
+				fn debug 	_txt  var:	 param:    =(
+					if m_debug do ::debuger 	_txt  var:var	 param:param
+				)
+				fn aElementsSelectionnees = ( labib.edit.getSelection () ) .count > 0
+				
+				----------------------------------------------------------------------------------------------------------
+				
 				------- le menu ------------------------------------------
-				menuItem importer 					"Importer" 				
+				menuItem importer 					"Importer" 				enabled:( aElementsSelectionnees() )
 				subMenu  "Options d'import" (					
 					menuItem importerBrut 			"Brut" 			checked:true
 					menuItem importerCollapsed 	"Collapsed" 		
@@ -69,25 +79,32 @@ struct str_menus (
 				)
 				
 				seperator sep456			
+				menuItem couper 				"Couper"  	enabled:( aElementsSelectionnees() )
+				menuItem coller 					"Coller" 		enabled:( not labib.edit.pressePapierVide() )
 				
-				menuItem nouvelAsset 				"Nouvel Asset"
-				menuItem nouvelAssetDossier 	"Nouvel Asset depuis un dossier"
+-- 				subMenu  "Supprimer" 		(
+				menuItem 	supprimer 			"Supprimer" 				enabled:( aElementsSelectionnees() )
+-- 					menuItem 	supprimerDD 		"de Labib et du DD"	enabled:( aElementsSelectionnees() )
+-- 				)
 				
-				seperator sep03				
+-- 				seperator sep01								
+				menuItem Ourvir 						"Ourvir" 								enabled:( aElementsSelectionnees() )
+				menuItem OurvirExplo 				"Ourvir dans l'explorateur" 		enabled:( aElementsSelectionnees() )
+				
+				seperator sep02
+				
 				menuItem nouveauDossier 		"Nouveau dossier"
+				menuItem nouvelAsset 				"Nouvel Asset"
+				menuItem nouvelAssetDossier 	"Nouveaux Assets depuis un dossier"
+				
+-- 				seperator sep03				
 			/* 	subMenu  "Nouvel Asset" (
 					menuItem nouvelAsset 				"Fichier"
 					menuItem nouvelAssetDossier 	"Dossier"
 				) */
-				seperator sep01								
-				menuItem Ourvir 						"Ourvir" 
-				menuItem OurvirExplo 				"Ourvir dans l'explorateur" 
+				
 				seperator sep08
-				subMenu  "Supprimer" (
-					menuItem 	supprimer 			"de Labib" 
-					menuItem 	supprimerDD 		"de Labib et du DD"
-				)				
-				seperator sep02
+				
 				subMenu  "Affichage" (
 					menuItem	affichage_details 			"Détails"						checked:( labib.prefs.fenetre.affichageLV == #details )
 					menuItem	affichage_liste 			"Liste"						checked:( labib.prefs.fenetre.affichageLV == #liste )
@@ -107,12 +124,12 @@ struct str_menus (
 					menuItem	trier_nbrVertex 	"Nombre de vertex"
 					menuItem	trier_nbrImports 	"Nombre d'imports"	
 				)
-				seperator sep04
--- 				subMenu  "Fenêtres" (
+-- 				seperator sep04
+				subMenu  "Fenêtres" (
 					menuItem infos 		"Infos" 		checked:labib.prefs.fenetre.infos
 					menuItem apercu 	"Aperçu" 	checked:labib.prefs.fenetre.apercu
 					menuItem rendu	 	"Rendu" 		checked:labib.prefs.fenetre.rendu
-				-- 				)
+				)
 				
 				seperator sep5476		
 				subMenu  "Debug" (
@@ -123,6 +140,13 @@ struct str_menus (
 				on nouvelAsset 					picked do	labib.nouvelAsset ()				
 				on nouvelAssetDossier 			picked do	labib.nouvelAsset_dossier ()	
 				
+				on couper  picked do  labib.edit.couper 	( labib.edit.getSelection () )
+				on coller  	picked do  (
+					local selec = labib.edit.getSelection () 
+					if selec.count >0 then
+						labib.edit.coller 	selec[1]			
+					else labib.edit.coller 	( labib.edit.getDossier () )
+				)
 				on supprimer 						picked do 	labib.supprimer 	( labib.edit.getSelection () ) 
 				
 				on affichage_details 			picked do	labib.changerAffichage  #details
@@ -156,6 +180,18 @@ struct str_menus (
 			-------------------------------------------------------------
 			rcMenu rcMenuDossiers
 			(
+				
+				------------ DEBUG	----------------------------------------------------------------------------------
+
+				local m_debug = true
+				
+				local m_dbgPrefix ="menu Arbo"
+				fn debug 	_txt  var:	 param:    =(
+					if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+				)
+				----------------------------------------------------------------------------------------------------------
+				
+				
 				------- le menu ------------------------------------------
 -- 				subMenu  "Nouvel Asset" (
 				menuItem nouvelAsset 				"Nouvel Asset"
@@ -165,6 +201,10 @@ struct str_menus (
 				seperator sep01
 				menuItem nouveauDossier 	"Nouveau dossier" 
 -- 				menuItem renommer 			"Renommer"
+				
+				seperator sep01563
+				menuItem couper 				"Couper"  
+				menuItem coller 					"Coller" 	enabled:( not labib.edit.pressePapierVide() )
 				menuItem supprimer 			"Supprimer"
 				
 				seperator sep03
@@ -182,6 +222,16 @@ struct str_menus (
 				
 				on supprimer 					picked do 	labib.supprimer 	( labib.getDossiercourant () )
 				
+				on couper  picked do  (
+					local source = labib.edit.getDossier () 
+					debug "couper" var:source	param:#nomUnique
+					labib.edit.ouvrir 	source.parent
+					labib.edit.couper 	source
+				)
+				on coller  	picked do  (
+					local dest = labib.edit.getDossier () 
+					labib.edit.coller 	dest			
+				)
 			)
 			
 			popUpMenu 	rcMenuDossiers

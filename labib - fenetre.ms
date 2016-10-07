@@ -223,7 +223,7 @@ rollout roll_labib  "Labib" width:296 height:296
 		---- les dotnets ---
 		m_LV.initialiser ()
 		m_TV.initialiser ()
-		actualiser () ---- Creation des listes TV et LV ----
+		actualiser () 		---- Creation des listes TV et LV ----
 		
 		---- la fenetre	----
 		fen_recomposer ()
@@ -716,8 +716,9 @@ struct str_fenLabib (
 			
 			
 			---- Ouvrir dossier initiale ----
-			local	dossierInitial = m_labib.arbo.root
-			m_edit.ouvrir 	dossierInitial
+			local	dossierInitial 		= m_labib.arbo.root
+			m_edit.ouvrir 				dossierInitial
+			m_edit.m_hist.enregistrer  		dossierInitial
 			m_dialog.m_tv.expand 	dossierInitial
 			
 		),

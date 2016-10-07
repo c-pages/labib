@@ -51,7 +51,7 @@ struct str_historique (
 	
 	------------ DEBUG	----------------------------------------------------------------------------------
 
-		m_debug = false,
+		m_debug = true,
 		m_dbgPrefix ="hist",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
@@ -77,6 +77,9 @@ struct str_historique (
 	public
 		fn enregistrer 	 _noeudAEnregistrer	=(
 			
+			debug "enregistrer"
+			debug "_noeudAEnregistrer" var:_noeudAEnregistrer	param:#nomUnique
+			
 			-- on enregistre si noeud courant est differents --
 			if _noeudAEnregistrer != m_pile[1] do ( 
 				
@@ -96,7 +99,7 @@ struct str_historique (
 		),
 		-- se deplacer dans l'historque ---
 		fn seDeplacer  _sens =(
-			
+			debug "seDeplacer"
 			debug "pile" var:m_pile	param:#nomUnique
 			debug "pos" var:m_pile[m_pos]	param:#nomUnique
 			

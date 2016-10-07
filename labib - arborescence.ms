@@ -35,9 +35,7 @@ struct str_element (
 	
 	------------ Les membres	----------------------------------------------------------------------------------
 	public
-	---- parametres globaux----
-		m_prt, ---- pointeur vers arbo ---
-	
+		
 	---- parametres de l'element ----
 		nomUnique 				= "",										---- NomUnique de l'élément, ne doit jamais y avoir 2 element avec le mm nomUnique !!! ---
 		nom 						= "nom",								---- le nom affiché de l'élément ---
@@ -53,6 +51,10 @@ struct str_element (
 		nbrImports				= 0,										----  ----
 		nbrVertex				= 0,										----  ----
 		
+		
+	---- parametres globaux----
+		m_prt, ---- pointeur vers arbo ---
+	
 	
 	---- le composite ----
 	public
@@ -70,43 +72,6 @@ struct str_element (
 		
 		fn ajouterEnfant 	_enfant 	= (),
 		
-		/* 
-		fn retirerEnfant _enfantARetirer =(
-			
-			-- on le supprime dans le parent --
-			if parent != undefined do (
-				_index  = findItem parent.enfants this
-				if _index != 0 do deleteItem   parent.enfants 	_index
-				parent = undefined
-			)
-		),
-		fn definirParent 	_nvParent 	= (
-			if parent != undefined do
-				parent.retirerEnfant this
-			
-			parent = _nvParent 
-			
-			),		
-		fn retirer  			 = (
-			if parent != undefined then (
-				
-				deleteFile apercu
-				deleteFile detail
-				deleteFile proxy
-				deleteFile ( getFilenamePath  proxy + getFilenameFile  proxy + ".cgeo" )
-				
-				_index  = findItem parent.enfants this
-				if _index != 0 do deleteItem   parent.enfants 	_index
-				parent = undefined
-				
-				
-				return this
-			) else return undefined
-		),
-		
-		
-		
-		 */
 		fn retirerEnfant 	_enfantARetirer =(
 		),
 		fn retirerDuParent  			 	= (
@@ -188,58 +153,29 @@ struct str_branche (
 	------------ Les membres	----------------------------------------------------------------------------------
 	-- parametre du branche --
 	public
-		m_prt, ---- pointeur vers arbo ---
-	
 		nomUnique 	= "",
 		nom 				= "nom du branche",
 		
+	
 		
 	-- le composite --
 	public
 		parent  			= undefined ,
 		enfants 			= #(),
 		estExpanded	= false,
-	
+		
+	---- pointeur vers arbo ---
+		m_prt, 
+		
 	------------ Les fonctions	----------------------------------------------------------------------------------	
 	---- Manipulations Composite ----	
 	public
 	
 		----fichier ---
-		fn enregistrer =	m_prt.fichier_ecrireNoeud this,
+		fn enregistrer =	if nomUnique != "PRESSEPAPIER"	do m_prt.fichier_ecrireNoeud this,
 		fn retirerDuFichier =	m_prt.fichier_supprimerNoeud this,
 	
-		
-/* 		fn retirerEnfant 	_enfantARetirer =(
-			
-			-- on le supprime dans le parent --
-			_index  = findItem enfants _enfantARetirer
-			if _index != 0 do deleteItem   enfants 	_index
-			_enfantARetirer.parent = undefined
-			
-		),
-		fn retirerDuParent  			 	= (
-			
-			-- on le supprime dans le parent --
-			if parent != undefined do (
-				parent.retirerEnfant  this
-			)
-			
-		),
-		fn definirParent 	_nvParent 	= (
-			
-			retirerDuParent()
-			append _nvParent.enfants 		_enfant 
-			parent = _nvParent 
-			
-		),
-		
 	
-		fn ajouterEnfant 		_enfant 	= (
-			
-			_enfant.definirParent ( this )
-			
-		),
-		 */
 		fn retirerEnfant 	_enfantARetirer =(
 			
 			-- on le supprime dans le parent --
@@ -575,7 +511,7 @@ struct str_arborescence (
 			toArray 	&_noeudsADeplacer
 			debug "_noeudsADeplacer" var: _noeudsADeplacer param:#nom
 			
-			for n in _noeudsADeplacer do n.afficher recursif:false
+-- 			for n in _noeudsADeplacer do n.afficher recursif:false
 			
 			local noeudParentDepart = _noeudsADeplacer[1].parent
 			debug "noeudParentDepart" var: noeudParentDepart param:#nom

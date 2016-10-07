@@ -62,6 +62,11 @@ struct str_edition (
 		m_dragFlag 		= false,
 		m_dragNoeuds 	=#(),	-- les noeuds draggés ----
 	
+	---- copier coller ---
+		m_pressePapier = str_branche 	nom:"pressePapier" 	\
+													nomUnique:"PRESSEPAPIER",
+		
+		
 	------------ Les fonctions	----------------------------------------------------------------------------------	
 	public
 		---- Fonctionnement ----
@@ -104,7 +109,7 @@ struct str_edition (
 		
 		
 	public
-		--- Fonctions generales ---
+		--- Initialisations ---
 		fn initialiser =(
 			
 			debug "initaliser"
@@ -129,10 +134,14 @@ struct str_edition (
 			m_hist.m_LV 	= m_LV
 			
 		),
+		
+		--- ouvrir un dossier ---
 		fn ouvrir		_noeudAOuvrir 	enregistrer_historique:true		=(
 			
 			debug "ouvrir	---------------------------------------"
 			debug "_noeudAOuvrir" var:_noeudAOuvrir	 param:#nomUnique
+			debug "m_dossier" var:m_dossier	 param:#nomUnique
+			debug "enregistrer_historique" var:enregistrer_historique
 			
 			if _noeudAOuvrir != undefined then (
 				
@@ -162,15 +171,42 @@ struct str_edition (
 			debug "fin : ouvrir\n"
 		),
 		
+		
+		
 		--- Actions utilisateur ----
-		fn deplacer _noeudsA _dossierDest =(
+		fn deplacer _noeudsA 	_dossierDest =(
+			
+-- 			--- si la destination n'est pas dans les truc a deplacer (boucle infernale ! ) --
+-- 			if ( findItem _noeudsA _dossierDest ) == 0 
+			
+			--- etat inital du TV ----
+			m_TV.stocker_etatItems ()
 			
 			m_arbo.deplacer	_noeudsA 	_dossierDest 
 			
 			m_fenetre.m_dialog.actualiser ()
 			
+			--- restauration etat du TV ---
+			m_TV.restaurer_etatItems ()
+			ouvrir _dossierDest
+			m_TV.expandSelection ()
+			m_LV.selectionner _noeudsA
 		),
-		fn renommer _noeud	_nvNom =(
+		fn renommer _noeud	_nvNom =(			
+			--- etat inital du TV ----
+			m_TV.stocker_etatItems ()
+			
+			_noeud.nom 	= _nvNom
+			
+			--ecriture du fichier ---
+			_noeud.enregistrer ()
+			
+			--- actualiser ----
+			m_fenetre.actualiser ()
+			m_LV.selectionner noeudARenommer
+			
+			--- restauration etat du TV ---
+			m_TV.restaurer_etatItems ()
 			
 		),
 		fn creerDossier 	nom:"Nouveau dossier" 	parent: 	=(
@@ -184,6 +220,9 @@ struct str_edition (
 		fn nouveauDossier 	=(
 			debug "\nnouveauDossier	---------------------------------------"
 			debug "m_dossier" var:m_dossier param:#nomUnique
+			
+			--- etat inital du TV ----
+			m_TV.stocker_etatItems ()
 			
 			---- parent en fonction de recherche ----
 			local parent 
@@ -201,14 +240,13 @@ struct str_edition (
 			---- on reécrit les listes ----
 			m_fenetre.actualiser()
 			ouvrir 	m_dossier
--- 			m_TV.selectionner 
 			
 			---- on edit le nom du dossier ----
 			m_fenetre.editerNom			nouveauNoeud
 			
-			--- ecrire sur le fichier ---
--- 			nouveauNoeud.enregistrer ()
--- 			parent.enregistrer ()
+			--- restauration etat du TV ---
+			m_TV.restaurer_etatItems ()
+			m_TV.expandSelection ()
 			
 			--- sortie Listener --
 			ecrire "Branche créée."
@@ -297,6 +335,10 @@ struct str_edition (
 			debug "fin : nouvelAsset_dossier\n"
 		),
 		fn supprimer 	_noeudsArbo	=(
+			
+			--- etat inital du TV ----
+			m_TV.stocker_etatItems ()
+			
 			--- pour selectionner le parent a la fin ---
 			local parent = _noeudsArbo[1].parent
 			
@@ -307,10 +349,26 @@ struct str_edition (
 			m_fenetre.actualiser()		
 			m_fenetre.selectionnerTV		parent
 			
+			--- restauration etat du TV ---
+			m_TV.restaurer_etatItems ()
+		),
+		fn couper _noeudsACouper =(
+			toArray 	&_noeudsACouper
+			m_pressePapier.enfants =#()
+			deplacer 	_noeudsACouper 		m_pressePapier
+			
+		),
+		fn coller _noeudDest =(
+			if _noeudDest != undefined do (
+				if _noeudDest.nomUnique =="RETOUR" do _noeudDest = _noeudDest.parent
+				deplacer 	m_pressePapier.enfants		_noeudDest
+			)
 		),
 	
 		
-		
+		fn pressePapierVide =(
+			m_pressePapier.enfants.count == 0
+		),
 		
 		
 		---- drag ----
@@ -334,6 +392,9 @@ struct str_edition (
 			-- on vide la liste des drag --
 			m_dragNoeuds = #()
 			debug "drag_finaliser : Fin\n"
+		),
+		fn drag_getNoeuds 		=(
+			m_dragNoeuds
 		),
 		fn dragEnCours 		=(
 			m_dragFlag
@@ -396,3 +457,55 @@ struct str_edition (
 		)
 	 */
 ) --- fin str_edition
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

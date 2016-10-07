@@ -27,6 +27,14 @@
 
 
 
+--------------------------------------------------------------------------------
+----------	structure de données etat des item			--------------------
+--------------------------------------------------------------------------------
+struct str_etatItem (
+	name,
+	expand
+)
+
 
 --------------------------------------------------------------------------------
 ----------	gerer un ListView dotnet 					--------------------
@@ -56,8 +64,8 @@ struct str_listViewMgr (
 		m_prefs	=	m_prt.m_prefs,			---- les m_prefs de labib ---
 		m_arbo	=	m_prt.m_arbo,
 		m_edit	=	m_prt.m_prt.m_labib.edit,
-	
-	
+		
+		
 	private
 		---- pour la creation des items -----
 		m_itemsAAfficher		= #(),
@@ -80,6 +88,7 @@ struct str_listViewMgr (
 		
 		---- les boutons de souris dotNet ----
 		m_btnsDotNet = dotNetClass "System.Windows.Forms.MouseButtons",
+		
 		
 		------------ FONCTIONS ----------------------------------
 		
@@ -178,10 +187,12 @@ struct str_listViewMgr (
 		
 		---- Accession ----
 		fn	getNoeud 			_item 	= (
-			m_arbo.getParNomUnique _item.name
+			local result
+			if _item != undefined 	do	result = m_arbo.getParNomUnique _item.name
+			result
 		),
 		fn	getItem 			_noeudA 	= (
-			local	result = undefined
+			local	result
 			for i=0 to  m_ui.items.count - 1 do (
 				local elemLV  = m_ui.items.item[i]  
 				if elemLV.name == _noeudA.nomUnique do
@@ -382,31 +393,18 @@ struct str_listViewMgr (
 		),
 		fn renommer 		_arg	  =(
 			
-			debug "renommer Dbt" var:m_selection	 param:#nom
 			
-			local nouveauNom 	= _arg.label
-			local itemSelec 		= m_ui.items.item[_arg.item]
-	 		local noeudARenommer = getNoeud 	itemSelec			
-			m_selection = #(noeudARenommer)
+			local nouveauNom 		= _arg.label
+			local itemSelec 			= m_ui.items.item[_arg.item]
+	 		local noeudARenommer = getNoeud 	itemSelec	
 			
 			debug "nouveauNom" var:nouveauNom
 			debug "itemSelect" var:itemSelec	 param:#name
 			
 			debug "noeudARenommer" var:noeudARenommer param:#nomUnique		
 			
-			if nouveauNom != undefined  and  noeudARenommer !=undefined do ( 
-				
-				noeudARenommer.nom 	= nouveauNom
-				
-				--ecriture du fichier ---
-				noeudARenommer.enregistrer ()
-				
-				--- actualiser ----
-				m_prt.actualiser ()
-				selectionner noeudARenommer
-				
-			)
-			debug "renommer Fin" var:m_selection	 param:#nom
+			if nouveauNom != undefined  and  noeudARenommer !=undefined do 				
+				m_edit.renommer	noeudARenommer  nouveauNom
 			
 		),
 		
@@ -496,13 +494,27 @@ struct str_listViewMgr (
 		fn drag_checkSurvol	 _arg = (
 			
 			_arg.Effect=_arg.AllowedEffect
+			local posAbsolu = [_arg.x, _arg.y]
+			local posRollout = getDialogPos m_prt
+			local posUI = m_ui.pos
 			
-			local testItem= m_ui.GetItemAt _arg.x _arg.y
-			if testItem != undefined then (
-				if testItem.name != "RECHERCHE" then (
-					_arg.Effect=m_dragDropEffect.none
-				) 
-			) 		
+			local posLocal = posAbsolu - posRollout - posUI
+			--- si destination est un element qui se deplace , on fait rien ---
+			local itemSurvol				= m_ui.GetItemAt  	posLocal.x 		posLocal.y
+			local noeudSurvol 			= getNoeud	itemSurvol
+			local noeudsQuiBougent 	= m_edit.drag_getNoeuds ()
+		
+			debug "_arg" var:[_arg.x, _arg.y]
+			debug "itemSurvol" var:itemSurvol param:#name
+			debug "noeudSurvol" var:noeudSurvol param:#nom
+			
+			
+			---- si on survol un element du drag on fait rien ---
+			if noeudSurvol != undefined 
+				do if (findItem noeudsQuiBougent  noeudSurvol ) != 0
+					do _arg.Effect=m_dragDropEffect.none
+			
+			
 		),	
 		fn drag_demarrer 	_arg =(
 			debug "drag_demarrer"
@@ -627,6 +639,9 @@ struct str_listViewMgr (
 		),
 		
 		
+		
+		
+		
 		---- Initialisation ----
 		fn initialiser =(
 				
@@ -656,7 +671,9 @@ struct str_listViewMgr (
 			m_ui.ForeColor 				= toCouleurDotnet   m_col_txt
 			
 		)
-	
+		
+		
+		
 )	--- fin struct listView ----
 
 

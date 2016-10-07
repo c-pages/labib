@@ -1,8 +1,8 @@
--- clearListener ()
--- try ( 	labib.fermer ()	) catch  ()
+clearListener ()
+try ( 	labib.fermer ()	) catch  ()
 
--- Global 	labib = fileIn "$userScripts\labib\labib.ms" 
---  format "\n\n"
+Global 	labib = fileIn "$userScripts\labib\labib.ms" 
+ format "\n\n"
 
 /* 
 labib.ouvrir 	()
@@ -30,6 +30,14 @@ toolTip:""
 
 
 /*
+
+
+
+labib.fenetre.m_dialog.m_TV.stocker_etatItems ()
+labib.fenetre.m_dialog.m_TV.restaurer_etatItems ()
+
+labib.fenetre.m_dialog.m_TV.m_etatItems
+
 
 labib.creerArboDeBase()
 
@@ -72,9 +80,12 @@ labib.arbo.fichier_ouvrir()
 
  #### TV ####
 show 				labib.fenetre.m_dialog.ui_TV
+showmethods 				labib.fenetre.m_dialog.ui_TV.nodes.item[1]
 show 				labib.fenetre.m_dialog.ui_TV.nodes.item[1]
-labib.fenetre.m_dialog.ui_TV.nodes.item[1].IsExpanded
-labib.fenetre.m_dialog.ui_TV.nodes.item[1].expand ()
+labib.fenetre.m_dialog.ui_TV.nodes.item[1].IsExpanded = true
+
+labib.fenetre.m_dialog.ui_TV.nodes.item[0].nodes.item[1].expand ()
+labib.fenetre.m_dialog.ui_TV.nodes.item[0].nodes.item[1].Collapse ()
 
  #### LV ####
 show 				labib.fenetre.m_dialog.ui_LV
