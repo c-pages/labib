@@ -23,8 +23,8 @@
 struct str_edition (
 
 	------------ DEBUG	----------------------------------------------------------------------------------
-
-		m_debug = true,
+-- 		m_debug = true,
+		m_debug = false,
 		m_dbgPrefix ="edit",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
@@ -313,13 +313,13 @@ struct str_edition (
 			debug "deplacer" var:m_dragNoeuds param:#nomUnique
 			debug "dans" var:_noeudADest param:#nomUnique
 			
-			deplacer m_dragNoeuds _noeudADest
+			deplacer 	m_dragNoeuds 	_noeudADest
 			
 			m_dragFlag = false
 			
 			-- on vide la liste des drag --
 			m_dragNoeuds = #()
-			debug "fin : drag_finaliser\n"
+			debug "drag_finaliser : Fin\n"
 		),
 		fn dragEnCours 		=(
 			m_dragFlag

@@ -95,13 +95,38 @@ struct str_labib (
 		
 	--- Fenetre ----	
 	public
-		fn ouvrir 		= (			
-			fenetre.ouvrir()
-		),
-			
+		fn ouvrir 		= 	fenetre.ouvrir(),			
 		fn fermer 		= fenetre.fermer(),
 		fn estOuvert  	= prefs.fenetre.fenLabib_estOuvert, 
-	
+		
+		fn creerArboDeBase = (
+			
+			if estOuvert() do fermer ()
+			arbo.fichier_supprimer ()
+			
+			tmp_archi = creerDossier  "Archi"
+				tmp_lgt = creerDossier  "Logement" 	parent:tmp_archi
+					tmp_cuis = creerDossier  "Cuisine" 	parent:tmp_lgt
+					tmp_sam = creerDossier  "Salle à manger" 	parent:tmp_lgt
+					tmp_sal = creerDossier  "Sallon" 	parent:tmp_lgt
+					tmp_chbre = creerDossier  "Chambre" 	parent:tmp_lgt
+				tmp_bur = creerDossier  "Bureau" 	parent:tmp_archi
+				tmp_comm = creerDossier  "Commerce" 	parent:tmp_archi
+			tmp_veget = creerDossier  "Végétation"
+				tmp_arbres = creerDossier  "Arbres" 	parent:tmp_veget
+				tmp_Arbu = creerDossier  "Arbustes" 	parent:tmp_veget
+				tmp_Fleu = creerDossier  "Fleurs" 	parent:tmp_veget
+				tmp_herb = creerDossier  "Herbes" 	parent:tmp_veget
+			tmp_vehi = creerDossier  "Véhicules"
+				tmp_voit = creerDossier  "Voitures" 	parent:tmp_vehi
+				tmp_voit = creerDossier  "Vélos" 	parent:tmp_vehi
+			tmp_perso = creerDossier  "Personnages"
+				tmp_hom = creerDossier  "Hommes" 	parent:tmp_perso
+				tmp_fem = creerDossier  "Femmes" 	parent:tmp_perso
+				tmp_enf = creerDossier  "enfants" 	parent:tmp_perso
+				
+			ouvrir ()
+		),
 	------------ Evenements 	----------------------------------------------------------------------------------
 	on create do (
 		--- initialiser ----	

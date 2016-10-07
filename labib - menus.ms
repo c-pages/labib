@@ -114,12 +114,16 @@ struct str_menus (
 					menuItem rendu	 	"Rendu" 		checked:labib.prefs.fenetre.rendu
 				-- 				)
 				
+				seperator sep5476		
+				subMenu  "Debug" (
+					menuItem affichSelec 		"print selection" 		checked:labib.prefs.fenetre.infos
+				)
 				------- les evenements ------------------------------------------				
 				on nouveauDossier 				picked do	labib.nouveauDossier ()				
 				on nouvelAsset 					picked do	labib.nouvelAsset ()				
 				on nouvelAssetDossier 			picked do	labib.nouvelAsset_dossier ()	
 				
-				on supprimer 						picked do 	labib.supprimer 	( labib.getElementsSelection () ) 
+				on supprimer 						picked do 	labib.supprimer 	( labib.edit.getSelection () ) 
 				
 				on affichage_details 			picked do	labib.changerAffichage  #details
 				on affichage_liste				picked do	labib.changerAffichage  #liste
@@ -136,6 +140,8 @@ struct str_menus (
 				on apercu							picked do	labib.toggleApercu ()
 				on rendu							picked do	labib.toggleRendu ()
 			
+				on affichSelec						picked do		for n in labib.edit.getSelection () do	labib.arbo.afficherNoeud	n
+				
 			)
 			
 			popUpMenu 	rcMenuElements

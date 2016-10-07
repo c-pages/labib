@@ -24,7 +24,8 @@ struct str_element (
 	
 	------------ DEBUG	----------------------------------------------------------------------------------
 	private
-		m_debug = false,
+		m_debug = true,
+-- 		m_debug = false,
 		m_dbgPrefix ="element",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
@@ -68,7 +69,24 @@ struct str_element (
 		fn retirerDuFichier =	m_prt.fichier_supprimerNoeud this,
 		
 		fn ajouterEnfant 	_enfant 	= (),
-		fn definirParent 	_parent 	= ( parent = _parent ),
+		
+		/* 
+		fn retirerEnfant _enfantARetirer =(
+			
+			-- on le supprime dans le parent --
+			if parent != undefined do (
+				_index  = findItem parent.enfants this
+				if _index != 0 do deleteItem   parent.enfants 	_index
+				parent = undefined
+			)
+		),
+		fn definirParent 	_nvParent 	= (
+			if parent != undefined do
+				parent.retirerEnfant this
+			
+			parent = _nvParent 
+			
+			),		
 		fn retirer  			 = (
 			if parent != undefined then (
 				
@@ -84,6 +102,19 @@ struct str_element (
 				
 				return this
 			) else return undefined
+		),
+		
+		
+		
+		 */
+		fn retirerEnfant 	_enfantARetirer =(
+		),
+		fn retirerDuParent  			 	= (
+			
+			-- on le supprime dans le parent --
+			if parent != undefined do 
+				parent.retirerEnfant  this
+			
 		),
 		
 		fn supprimer  	_noeudsArbo		 = (
@@ -125,9 +156,11 @@ struct str_element (
 		fn getDateDernierImport 	= dateToString 	dateDernierImport,
 		fn getDateCreation 			= dateToString 	dateCreation,
 		fn getAProxy 					= if doesfileExist proxy then "oui" else "non",
-		fn getAVueDetail 				= if doesfileExist detail then "oui" else "non"
+		fn getAVueDetail 				= if doesfileExist detail then "oui" else "non",
 		
-		
+		fn afficher  recursif:true =(
+			m_prt.afficherNoeud 	this  recursif:recursif 
+		)
 		
 )	-- fin Struct Element
 
@@ -142,8 +175,9 @@ struct str_element (
 struct str_branche (
 	
 	------------ DEBUG	----------------------------------------------------------------------------------
-
-		m_debug = false,
+	private
+		m_debug = true,
+-- 		m_debug = false,
 		m_dbgPrefix ="branche",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
@@ -174,35 +208,62 @@ struct str_branche (
 		fn enregistrer =	m_prt.fichier_ecrireNoeud this,
 		fn retirerDuFichier =	m_prt.fichier_supprimerNoeud this,
 	
+		
+/* 		fn retirerEnfant 	_enfantARetirer =(
+			
+			-- on le supprime dans le parent --
+			_index  = findItem enfants _enfantARetirer
+			if _index != 0 do deleteItem   enfants 	_index
+			_enfantARetirer.parent = undefined
+			
+		),
+		fn retirerDuParent  			 	= (
+			
+			-- on le supprime dans le parent --
+			if parent != undefined do (
+				parent.retirerEnfant  this
+			)
+			
+		),
+		fn definirParent 	_nvParent 	= (
+			
+			retirerDuParent()
+			append _nvParent.enfants 		_enfant 
+			parent = _nvParent 
+			
+		),
+		
 	
 		fn ajouterEnfant 		_enfant 	= (
 			
-			append enfants 	_enfant 
-			_enfant.retirer()
 			_enfant.definirParent ( this )
 			
-		),		
-		fn definirParent 	_parent 	= ( parent = _parent ),		
-		fn retirer  			 = (
+		),
+		 */
+		fn retirerEnfant 	_enfantARetirer =(
 			
-			if nomUnique != "ROOT" and nomUnique != "RECHERCHE" then (
-				for enfant in enfants do 
-					enfant.retirer()
-				
-				-- on le supprime dans le parent --
-				if parent != undefined do (
-					_index  = findItem parent.enfants this
-					if _index != 0 do deleteItem   parent.enfants 	_index
-					parent = undefined
-				)
-				
-				
-				return this
-			) else return undefined
-			
+			-- on le supprime dans le parent --
+			_index  = findItem enfants _enfantARetirer
+			if _index != 0 do deleteItem   enfants 	_index
+			_enfantARetirer.parent = undefined
 			
 		),
-		fn supprimer  			 = (
+		fn retirerDuParent  			 	= (
+			
+			-- on le supprime dans le parent --
+			if parent != undefined do 
+				parent.retirerEnfant  this
+			
+		),
+		fn ajouterEnfant 		_enfant 	= (
+			
+			_enfant.retirerDuParent ()
+			_enfant.parent   = this
+			append enfants 		_enfant 
+		),
+		
+		
+		fn supprimer  			= (
 			
 			if nomUnique != "ROOT" and nomUnique != "RECHERCHE" then (
 				
@@ -225,7 +286,7 @@ struct str_branche (
 			
 		),
 		
-		fn compterElements = (
+		fn compterElements 	= (
 			local i=0
 			for enfant in enfants do 
 					i+= enfant.compterElements ()
@@ -244,7 +305,11 @@ struct str_branche (
 		fn getDateDernierImport 	= "",
 		fn getDateCreation 			= "",
 		fn getAProxy 					= "",
-		fn getAVueDetail 				= ""
+		fn getAVueDetail 				= "",
+		
+		fn afficher  recursif:true =(
+			m_prt.afficherNoeud 	this  recursif:recursif 
+		)
 		
 )	-- fin Struct branche
 
@@ -260,7 +325,9 @@ struct str_branche (
 struct str_arborescence (
 
 	------------ DEBUG	----------------------------------------------------------------------------------
-		m_debug = false,
+	private
+		m_debug = true,
+-- 		m_debug = false,
 		m_dbgPrefix ="arbo",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
@@ -504,13 +571,26 @@ struct str_arborescence (
 	---- deplacer un noeud dans l'arbo ----
 		fn deplacer 	_noeudsADeplacer	_noeudDest = (
 			
+			debug "deplacer"
 			toArray 	&_noeudsADeplacer
+			debug "_noeudsADeplacer" var: _noeudsADeplacer param:#nom
+			
+			for n in _noeudsADeplacer do n.afficher recursif:false
 			
 			local noeudParentDepart = _noeudsADeplacer[1].parent
+			debug "noeudParentDepart" var: noeudParentDepart param:#nom
 			
 			for noeudADeplacer in _noeudsADeplacer do (
+				
+				noeudADeplacer.afficher recursif:false
+				format"--- 1 -----\n"
 				_noeudDest.ajouterEnfant 	noeudADeplacer
+-- 				noeudADeplacer.definirParent   _noeudDest
+				
+				noeudADeplacer.afficher recursif:false
+				format"--- 2 -----\n"
 				noeudADeplacer.enregistrer ()
+				noeudADeplacer.afficher recursif:false
 			)
 			_noeudDest.enregistrer ()
 			noeudParentDepart.enregistrer ()
@@ -802,21 +882,22 @@ struct str_arborescence (
 	
 	-------- AFFICHAGE de l'arbo dans le listener --------
 	public
-		fn afficherNoeud 	_noeud = (
+		fn afficherNoeud 	_noeud  recursif:true = (
 			decallage =""
 			for i = 0 to indent do
 				decallage += tab
 			
 			format "%> nom: %\n" 			decallage	_noeud.nom
 			format "%  nomUnique: %\n" 	decallage	_noeud.nomUnique		
-			format "%  parent: %\n" 		decallage	(_noeud.parent as string)	
-			format "%  enfants: %\n" 		decallage	(_noeud.enfants as string)			
+			format "%  parent: %\n" 		decallage	( if  _noeud.parent != undefined then  _noeud.parent.nomUnique else _noeud.parent as string	)	
+			format "%  enfants: %\n" 		decallage	( for enfant in _noeud.enfants where enfant != undefined  collect enfant.nomUnique)	
 			
-			for enfant in _noeud.enfants do (
-				indent += 1
-				afficherNoeud 	enfant
-				indent -= 1
-			)
+			if recursif do
+				for enfant in _noeud.enfants do (
+					indent += 1
+					afficherNoeud 	enfant
+					indent -= 1
+				)
 		),
 		fn afficher = (
 			format "\n----- Arborescence --------------\n"

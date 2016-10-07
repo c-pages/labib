@@ -34,8 +34,8 @@
 struct str_listViewMgr (
 		
 	------------ DEBUG	----------------------------------------------------------------------------------
-
-		m_debug = true,
+		m_debug = false,
+-- 		m_debug = true,
 		m_dbgPrefix ="LV",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
