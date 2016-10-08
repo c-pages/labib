@@ -64,6 +64,8 @@ include "$userScripts\labib\labib - fenetre.ms"
 
 include "$userScripts\labib\labib - edition.ms"	
 
+include "$userScripts\labib\labib - Mgr - Commandes.ms"	
+
 -----------------------------------------
 ----- La structure principale -------
 -----------------------------------------
@@ -84,13 +86,18 @@ struct str_labib (
 	------------ Les structures	----------------------------------------------------------------------------------
 	public
 	
-		prefs		= str_preferences 	dossierScript:dossierScript,		---- les préferences utilisateurs ----
+		---- interface ----
+		prefs		= str_preferences 		dossierScript:dossierScript,		---- les préferences utilisateurs ----		
+		arbo		= str_arborescence 		fichierArbo:prefs.fichierArbo,		---- la gestion de l'arborescenece de la bibliotheque ----	
+		edit		= str_edition				m_labib:this,							---- les commandes utilisateurs,  l'edition proprement dite de la bibliotheque (creation d'un asset, import dans la scene ... ) ----
+		cmd 		= str_commandesMgr 	m_edit:edit,
 		
-		arbo		= str_arborescence 	fichierArbo:prefs.fichierArbo,		---- la gestion de l'arborescenece de la bibliotheque ----	
+		---- interface ----
 		menus	= str_menus (),														---- les menus RCMenu ----
-		edit		= str_edition				m_labib:this,								---- les commandes utilisateurs,  l'edition proprement dite de la bibliotheque (creation d'un asset, import dans la scene ... ) ----
-		fenetre	= str_fenLabib			m_labib:this,								---- le manager de la fenetre principale (en post car boucle infernale avec edit sinon ) ----
+		fenetre	= str_fenLabib				m_labib:this,							---- le manager de la fenetre principale (en post car boucle infernale avec edit sinon ) ----
 
+		---les actions --------
+		
  		rendu,																					---- la gestion des rendus des apercus ----		
 	
 	------------ Fonctions		----------------------------------------------------------------------------------

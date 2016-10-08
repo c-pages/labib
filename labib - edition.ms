@@ -170,6 +170,15 @@ struct str_edition (
 			debug "(ouvrir) m_dossier Fin" var:m_dossier	 param:#nomUnique
 			debug "fin : ouvrir\n"
 		),
+		fn creerDossier 	nom:"Nouveau dossier" 	parent: 	=(
+			
+			if parent == unsupplied do parent = m_arbo.root
+			
+			local nvDossier = m_arbo.creerNoeud  nom:nom\
+																parent:parent   
+			nvDossier
+		),
+		
 		
 		
 		
@@ -213,15 +222,7 @@ struct str_edition (
 			m_TV.restaurer_etatItems ()
 			
 		),
-		fn creerDossier 	nom:"Nouveau dossier" 	parent: 	=(
-			
-			if parent == unsupplied do parent = m_arbo.root
-			
-			local nvDossier = m_arbo.creerNoeud  nom:nom\
-																parent:parent   
-			nvDossier
-		),
-		fn nouveauDossier 	=(
+		fn nouveauDossier 			=(
 			debug "\nnouveauDossier	---------------------------------------"
 			debug "m_dossier" var:m_dossier param:#nomUnique
 			
@@ -256,8 +257,10 @@ struct str_edition (
 			ecrire "Branche créée."
 			debug "fin : nouveauDossier\n"
 			
+			nouveauNoeud
+			
 		),
-		fn nouvelAsset =(
+		fn nouvelAsset 				=(
 			debug "\nnouvelAsset	---------------------------------------"
 			
 			--- sortie Listener --
@@ -292,7 +295,7 @@ struct str_edition (
 			)
 			debug "fin : nouvelAsset\n"
 		),		
-		fn nouvelAsset_dossier =(
+		fn nouvelAsset_dossier 	=(
 			
 			debug "\nnouvelAsset_dossier	---------------------------------------"
 			
@@ -342,6 +345,8 @@ struct str_edition (
 			
 			--- etat inital du TV ----
 			m_TV.stocker_etatItems ()
+			
+			toArray &_noeudsArbo
 			
 			--- pour selectionner le parent a la fin ---
 			local parent = _noeudsArbo[1].parent

@@ -4,6 +4,7 @@ try ( 	labib.fermer ()	) catch  ()
 Global 	labib = fileIn "$userScripts\labib\labib.ms" 
  format "\n\n"
 
+labib.ouvrir 	()
 /* 
 labib.ouvrir 	()
 	Global 	labib = fileIn "$userScripts\labib\labib.ms" 
