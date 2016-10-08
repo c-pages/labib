@@ -243,6 +243,23 @@ struct str_branche (
 		fn getAProxy 					= "",
 		fn getAVueDetail 				= "",
 		
+		
+		--- tests ---
+		fn estRecherche 		=	nomUnique == "RECHERCHE",
+		fn estRetour 			=	nomUnique == "RETOUR",
+		fn estRoot 				=	nomUnique == "ROOT",
+		fn estPressepapier	=	nomUnique == "PRESSEPAPIER",
+		fn estElemUtilisateur =(
+			local result = true
+			if estRoot 	()			do result =false
+			if estRetour ()			do result =false
+			if estRecherche ()	do result =false
+			result
+		),
+		
+		
+		
+		
 		fn afficher  recursif:true =(
 			m_prt.afficherNoeud 	this  recursif:recursif 
 		)

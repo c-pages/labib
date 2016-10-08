@@ -13,13 +13,20 @@
 ##########################################################################################################################
 
 	todo:
-	-	le placement de la fenetre en bandeau est basé sur mon systeme à deux ecrans (je divise par 2 untruc) a voir comment faire plus universel
-	-	surveiller un dossier facon winamp pou mise a jour auto de la base 
-		( par exemple: 	- à l'ouverture on scane les dossiers, et on ajoute en auto les nouveaux assets sans faire de preview (comme ca c'est rapide)
+	-	placement de la fenetre en bandeau 
+			( basé sur mon systeme à deux ecrans (je divise par 2 untruc) a voir comment faire plus universel )
+	-	surveiller un dossier 
+			facon winamp pour mise a jour auto de la base 
+			( par exemple: 	- à l'ouverture on scane les dossiers, et on ajoute en auto les nouveaux assets sans faire de preview (comme ca c'est rapide)
 							- on a la possibilité dans un menu de selecctioner les assets sans previews (qui sont afficher de "RECHERCHE") )
 	-	version du moteur du fichier a stocker dans 	str_element
-	- 	importer-remplacer instances
-	-	checker si materiaux deja dans secene à l'import, pour utiliser celle de la scene, ecraser celle de la scene, ou renommer celle de l'import ( comme un merge classique en fait, a voir ...)
+	- 	importer-remplacer instances de la scene.
+	-	checker materiaux à l'import 
+			( si deja dans secene, pour utiliser celle de la scene, ecraser celle de la scene, ou renommer celle de l'import ( comme un merge classique en fait, a voir ...) )
+	-	Sauvegarde de arbo.ini 
+			( peut etre une sauvegarde / jour à la premiere ouverture du script en gardant 3 sauvegardes max)
+	-	Systeme undo-redo
+	
 	
 ##########################################################################################################################
 	changelog:
@@ -78,12 +85,13 @@ struct str_labib (
 	public
 	
 		prefs		= str_preferences 	dossierScript:dossierScript,		---- les préferences utilisateurs ----
+		
 		arbo		= str_arborescence 	fichierArbo:prefs.fichierArbo,		---- la gestion de l'arborescenece de la bibliotheque ----	
-		menus	= str_menus (),													---- les menus RCMenu ----
-		edit 		= str_edition 			m_labib:this,							---- les commandes utilisateurs,  l'edition proprement dite de la bibliotheque (creation d'un asset, import dans la scene ... ) ----
-		fenetre	= str_fenLabib			m_labib:this, 							---- le manager de la fenetre principale (en post car boucle infernale avec edit sinon ) ----
+		menus	= str_menus (),														---- les menus RCMenu ----
+		edit		= str_edition				m_labib:this,								---- les commandes utilisateurs,  l'edition proprement dite de la bibliotheque (creation d'un asset, import dans la scene ... ) ----
+		fenetre	= str_fenLabib			m_labib:this,								---- le manager de la fenetre principale (en post car boucle infernale avec edit sinon ) ----
 
- 		rendu,																			---- la gestion des rendus des apercus ----		
+ 		rendu,																					---- la gestion des rendus des apercus ----		
 	
 	------------ Fonctions		----------------------------------------------------------------------------------
 	--- Edition ----	

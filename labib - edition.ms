@@ -188,9 +188,13 @@ struct str_edition (
 			
 			--- restauration etat du TV ---
 			m_TV.restaurer_etatItems ()
-			ouvrir _dossierDest
+			
+			if not	_dossierDest.estPressepapier ()
+				do ouvrir _dossierDest
+			
 			m_TV.expandSelection ()
 			m_LV.selectionner _noeudsA
+			
 		),
 		fn renommer _noeud	_nvNom =(			
 			--- etat inital du TV ----
@@ -355,6 +359,7 @@ struct str_edition (
 		fn couper _noeudsACouper =(
 			toArray 	&_noeudsACouper
 			m_pressePapier.enfants =#()
+			_noeudsACouper = for n in _noeudsACouper where not n.estRetour() collect  n
 			deplacer 	_noeudsACouper 		m_pressePapier
 			
 		),

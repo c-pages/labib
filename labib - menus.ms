@@ -66,7 +66,13 @@ struct str_menus (
 				fn debug 	_txt  var:	 param:    =(
 					if m_debug do ::debuger 	_txt  var:var	 param:param
 				)
-				fn aElementsSelectionnees = ( labib.edit.getSelection () ) .count > 0
+				fn estRetour =(
+					local selec = (labib.edit.getSelection ()) [1]
+					selec.estRetour ()
+				)
+				
+				fn aElementsSelectionnees = not labib.edit.selectionEstVide () and  not estRetour() 
+				
 				
 				----------------------------------------------------------------------------------------------------------
 				
@@ -191,6 +197,14 @@ struct str_menus (
 				)
 				----------------------------------------------------------------------------------------------------------
 				
+				fn estElemUtilisateur = (
+					local dossierCourant = labib.edit.getDossier ()
+					dossierCourant.estElemUtilisateur ()
+				)
+				fn estRecherche =(
+					local dossierCourant = labib.edit.getDossier ()
+					dossierCourant.estRecherche ()
+				)
 				
 				------- le menu ------------------------------------------
 -- 				subMenu  "Nouvel Asset" (
@@ -203,9 +217,9 @@ struct str_menus (
 -- 				menuItem renommer 			"Renommer"
 				
 				seperator sep01563
-				menuItem couper 				"Couper"  
-				menuItem coller 					"Coller" 	enabled:( not labib.edit.pressePapierVide() )
-				menuItem supprimer 			"Supprimer"
+				menuItem couper 				"Couper"  		enabled:( estElemUtilisateur () )
+				menuItem coller 					"Coller" 			enabled:( not labib.edit.pressePapierVide() and not estRecherche () )
+				menuItem supprimer 			"Supprimer"		enabled:( estElemUtilisateur () )
 				
 				seperator sep03
 				
@@ -232,6 +246,9 @@ struct str_menus (
 					local dest = labib.edit.getDossier () 
 					labib.edit.coller 	dest			
 				)
+				
+				on expandAll picked do labib.fenetre.m_dialog.ui_TV.expandAll ()
+				
 			)
 			
 			popUpMenu 	rcMenuDossiers
