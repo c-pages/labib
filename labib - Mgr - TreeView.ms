@@ -26,6 +26,13 @@
 ########################################################################################################################*/
 
 
+--------------------------------------------------------------------------------
+----------	structure de données etat des item			--------------------
+--------------------------------------------------------------------------------
+struct str_etatItem (
+	name,
+	expand
+)
 
 --------------------------------------------------------------------------------
 ----------	gerer un TreeView dotnet 					--------------------
@@ -34,7 +41,7 @@ struct str_treeViewMgr (
 		
 	------------ DEBUG	----------------------------------------------------------------------------------
 
-		m_debug = true,
+		m_debug = false,
 -- 		m_debug = false,
 		m_dbgPrefix ="TV",
 		fn debug 	_txt  var:	 param:    =(
@@ -56,6 +63,7 @@ struct str_treeViewMgr (
 		m_prefs	=	m_prt.m_prefs,			---- les m_prefs de labib ---
 		m_arbo	=	m_prt.m_arbo,
 		m_edit	=	m_prt.m_prt.m_labib.edit,
+		m_cmd	=	m_prt.m_prt.m_labib.cmd,
 		
 		---- etats des items ---
 		m_etatItems = #(),
@@ -162,11 +170,6 @@ struct str_treeViewMgr (
 				m_ui.SelectedNode 	= getItem		_noeudA
 				m_ui.SelectedNode.EnsureVisible()
 				
--- 				---- expand ?!?!? ----
--- 				if not m_ui.SelectedNode.IsExpanded
--- 					do m_ui.SelectedNode.expand ()
-				
-				
 				
 			)
 			
@@ -187,6 +190,13 @@ struct str_treeViewMgr (
 			m_ui.Nodes.Clear()
 			m_noeudsTV_total = #()
 		),
+		
+		
+		fn actualiserSelection 	=(
+			debug "actualiserSelection"
+			m_edit.setDossier  (getNoeud 	m_ui.SelectedNode )
+			
+		),
 		fn actualiser  = (				
 			
 			debug "actualiser"
@@ -206,7 +216,8 @@ struct str_treeViewMgr (
 			
 			--  la selection --
 			local dossierCourant 	= m_edit.getDossier ()	
-			selectionner 	dossierCourant
+			if dossierCourant.estDansLabib () do
+				selectionner 	dossierCourant
 			/* local itemSelec 			= getItem	dossierCourant
 			m_ui.SelectedNode 		= itemSelec
 			itemSelec.expand ()	 */
@@ -226,7 +237,7 @@ struct str_treeViewMgr (
 				selectionner	m_selection.parent
 			)
 		),
-		 */
+		*/
 		
 		
 		---- dragAndDrop ---
@@ -238,29 +249,6 @@ struct str_treeViewMgr (
 			local itemSurvol	= m_ui.GetNodeAt (dotNetObject "System.Drawing.Point" posDrag.x 	posDrag.y)
 			
 			
-			/* 
-			_arg.Effect=_arg.AllowedEffect
-			local posAbsolu = [_arg.x, _arg.y]
-			local posRollout = getDialogPos m_prt
-			local posUI = m_ui.pos
-			
-			local posLocal = posAbsolu - posRollout - posUI
-			--- si destination est un element qui se deplace , on fait rien ---
-			local itemSurvol				= m_ui.GetItemAt  	posLocal.x 		posLocal.y
-			local noeudSurvol 			= getNoeud	itemSurvol
-		
-			debug "_arg" var:[_arg.x, _arg.y]
-			debug "itemSurvol" var:itemSurvol param:#name
-			debug "noeudSurvol" var:noeudSurvol param:#nom
-			
-			
-			---- si on survol un element du drag on fait rien ---
-			if noeudSurvol != undefined 
-				do if (findItem noeudsQuiBougent  noeudSurvol ) != 0
-					do _arg.Effect=m_dragDropEffect.none
-			
-			
-			 */
 			
 			if itemSurvol != undefined then (
 				
@@ -294,6 +282,14 @@ struct str_treeViewMgr (
 			
 		),
 	
+		
+		
+		
+		---- focus -----
+		fn focus =(
+			setFocus m_ui
+		),
+		
 		
 		---- Souris ----
 		fn clq_down 			_arg			= (
@@ -330,6 +326,57 @@ struct str_treeViewMgr (
 			
 		),
 		
+		---- clavier ----		
+		fn key_up				_arg =(
+			keyCode = _arg.KeyCode
+			local touches = dotnetclass  "System.Windows.Forms.Keys"
+-- 			show _arg.KeyCode
+-- 			actualiserSelection ()
+			
+			local dossierCourant  =( getNoeud 	m_ui.SelectedNode )
+-- 			
+-- 			debug "dossierCourant" var:dossierCourant param:#nom
+-- 			debug "_arg.Control" var:_arg.Control
+-- 			
+			
+			
+			
+			case keyCode of (
+				
+				( touches.Tab ): 		(
+					debug "TAB"
+					if _arg.shift then m_prt.focusPrecedant ()
+									else  m_prt.focusSuivant ()
+				)
+		/* 		-- renommer --
+				( touches.F2 ): 		if not m_edit.selectionEstVide ()	do editerNom	selectionA[1]
+				-- supprimer --
+				( touches.Delete ): 	if not m_edit.selectionEstVide ()	do m_edit.supprimer	selectionA */
+			
+				
+-- 				
+-- 				-- ouvrir  --	
+-- 				( touches.Enter ): 	m_edit.ouvrir		dossierCourant
+				
+				
+				-- fleches --
+				( touches.Left): 		m_edit.ouvrir		dossierCourant
+				( touches.Right ): 	m_edit.ouvrir		dossierCourant
+				( touches.Up): 		m_edit.ouvrir		dossierCourant
+				( touches.Down ): 	m_edit.ouvrir		dossierCourant
+				
+				
+				
+				
+				-- undo /redo --
+				( touches.Z ): 		if _arg.Control do	m_cmd.defaire ()
+				( touches.Y ): 		if _arg.Control do	m_cmd.refaire ()
+				
+			)
+				
+		),
+		
+		
 		---- Initialisation ----
 		fn initialiser =(
 			
@@ -353,5 +400,48 @@ struct str_treeViewMgr (
 			
 		)
 		
+		
+		
 )	--- fin struct treeView ----
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

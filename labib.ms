@@ -45,6 +45,8 @@ dossierScript 		-- en fonction de monMax --
 --------------------------------------
 ----- les fichiers à inclure --------
 --------------------------------------
+/* 
+---- 2014 ----
 dossierScript = getdir #userScripts + "\\" + nomDossierScript + "\\"
 
 include "$userScripts\labib\labib - output.ms"
@@ -65,6 +67,32 @@ include "$userScripts\labib\labib - fenetre.ms"
 include "$userScripts\labib\labib - edition.ms"	
 
 include "$userScripts\labib\labib - Mgr - Commandes.ms"	
+ */
+ 
+ 
+---- 2017 ----
+dossierScript = "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\\" + nomDossierScript + "\\"
+
+include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - output.ms"
+include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - Outils divers.ms"
+
+include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - preferences.ms"
+include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - arborescence.ms"	
+
+include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - Mgr - Divers.ms"
+include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - Mgr - TreeView.ms"
+include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - Mgr - ListView.ms"
+
+
+include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - menus.ms"		
+-- include "$userScripts\labib\labib - fenetres secondaires.ms"
+include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - fenetre.ms"
+
+include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - edition.ms"	
+
+include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - Mgr - Commandes.ms"	
+
+
 
 -----------------------------------------
 ----- La structure principale -------
@@ -73,7 +101,7 @@ struct str_labib (
 	
 	
 		------------ DEBUG	----------------------------------------------------------------------------------
-
+		
 		m_debug = false,
 		m_dbgPrefix ="LABIB",
 		fn debug 	_txt  var:	 param:    =(
@@ -81,13 +109,14 @@ struct str_labib (
 		),
 	----------------------------------------------------------------------------------------------------------
 	
-		
-		
+	
+	
 	------------ Les structures	----------------------------------------------------------------------------------
 	public
 	
 		---- interface ----
 		prefs		= str_preferences 		dossierScript:dossierScript,		---- les préferences utilisateurs ----		
+		
 		arbo		= str_arborescence 		fichierArbo:prefs.fichierArbo,		---- la gestion de l'arborescenece de la bibliotheque ----	
 		edit		= str_edition				m_labib:this,							---- les commandes utilisateurs,  l'edition proprement dite de la bibliotheque (creation d'un asset, import dans la scene ... ) ----
 		cmd 		= str_commandesMgr 	m_edit:edit,
@@ -95,11 +124,11 @@ struct str_labib (
 		---- interface ----
 		menus	= str_menus (),														---- les menus RCMenu ----
 		fenetre	= str_fenLabib				m_labib:this,							---- le manager de la fenetre principale (en post car boucle infernale avec edit sinon ) ----
-
+		
 		---les actions --------
 		
  		rendu,																					---- la gestion des rendus des apercus ----		
-	
+		
 	------------ Fonctions		----------------------------------------------------------------------------------
 	--- Edition ----	
 	public
@@ -112,8 +141,12 @@ struct str_labib (
 		
 	--- Fenetre ----	
 	public
-		fn ouvrir 		= 	fenetre.ouvrir(),			
-		fn fermer 		= fenetre.fermer(),
+		fn ouvrir 		= 	(
+			fenetre.ouvrir()
+		),			
+		fn fermer 		= (
+			fenetre.fermer()
+		),
 		fn estOuvert  	= prefs.fenetre.fenLabib_estOuvert, 
 		
 		fn creerArboDeBase = (

@@ -76,7 +76,7 @@ struct str_edition (
 				m_dossier
 		),
 		fn setDossier		_noeudA		= ( 
-			debug "setDossier" var:_noeudA param:#nomUnique
+			debug "setDossier" var:_noeudA param:#nom
 			if _noeudA != m_dossier do (				
 				m_dossier = _noeudA 
 				m_TV.selectionner _noeudA
@@ -132,6 +132,7 @@ struct str_edition (
 			
 			m_hist.m_TV 	= m_TV
 			m_hist.m_LV 	= m_LV
+			debug "majPointeursFenetre (fin)"
 			
 		),
 		
@@ -139,15 +140,16 @@ struct str_edition (
 		fn ouvrir		_noeudAOuvrir 	enregistrer_historique:true		=(
 			
 			debug "ouvrir	---------------------------------------"
-			debug "_noeudAOuvrir" var:_noeudAOuvrir	 param:#nomUnique
-			debug "m_dossier" var:m_dossier	 param:#nomUnique
+			debug "_noeudAOuvrir" var:_noeudAOuvrir	 param:#nom
+			debug "m_dossier" var:m_dossier	 param:#nom
 			debug "enregistrer_historique" var:enregistrer_historique
 			
 			if _noeudAOuvrir != undefined then (
-				
+				debug "--------1---------------"
 				-- si differnet du dossier courant--
 				if _noeudAOuvrir != m_dossier do (
 					
+				debug "--------2---------------"
 					---- on actualise la selection ---					
 					setDossier	_noeudAOuvrir
 					viderSelection ()
@@ -159,6 +161,11 @@ struct str_edition (
 					if enregistrer_historique do m_hist.enregistrer  	_noeudAOuvrir
 					
 				)
+				
+-- 				---- selection du premier element du LV (pour navigation clavier) ----------
+-- 				m_LV.selectionner ()
+				
+				m_LV.selectionnerPremier ()		
 				
 -- 				---- si selection TV different de noeudA ----
 -- 				if getItem _noeudAOuvrir != m_ui.selectedNode
@@ -179,10 +186,40 @@ struct str_edition (
 			nvDossier
 		),
 		
+		fn inserer	_noeuds 	_noeudDest 	=(
+			
+			--- etat inital du TV ----
+			m_TV.stocker_etatItems ()
+			
+			toArray 	&_noeuds
+			for n in _noeuds do (
+				n.parent.ajouterEnfant		n
+				n.enregistrer ()
+				n.parent.enregistrer ()
+			)
+			
+			
+			m_fenetre.actualiser ()
+			
+			--- restauration etat du TV ---
+			m_TV.restaurer_etatItems ()
+			m_TV.expandSelection ()
+		),
 		
 		
 		
 		--- Actions utilisateur ----
+		fn importer_scene 	_noeudsAImporter	=(
+			debug "importer dans la scene"
+			debug "noeuds" var:_noeudsAImporter param:#nom
+		),
+		
+		fn importer_viewport 							= (
+			debug "Importation dans la scene"
+			debug "noeuds importés" var:( for n in m_LV.m_selection collect n.nom )
+		),
+		
+		
 		fn deplacer _noeudsA 	_dossierDest =(
 			
 -- 			--- si la destination n'est pas dans les truc a deplacer (boucle infernale ! ) --
@@ -261,7 +298,7 @@ struct str_edition (
 			
 		),
 		fn nouvelAsset 				=(
-			debug "\nnouvelAsset	---------------------------------------"
+			debug "nouvelAsset	---------------------------------------"
 			
 			--- sortie Listener --
 			m_chrono.demarrer ()
@@ -302,6 +339,7 @@ struct str_edition (
 			local	dossierSource = 	getSavePath	caption:	"Fichier source du nouvel asset" \
 																initialDir:	m_prefs.general.dossierNouvelAsset
 			
+			local nouveauxElements = #()
 			if dossierSource != undefined do (
 				
 				ecrire "Créer asset depuis dossier ..."
@@ -311,7 +349,7 @@ struct str_edition (
 				debug "Creer asset"
 				
 				local fichiersMax = getFiles ( dossierSource + "\\*.max" )
-				local nouveauxElements = #()
+				
 				
 				for fichierSource in fichiersMax do (
 					
@@ -335,11 +373,16 @@ struct str_edition (
 				
 				--- maj des prefs ---
 				m_prefs.general.dossierNouvelAsset = dossierSource
+				
+				
+				
+				ecrire ( "Dossier importer : " +  nouveauxElements.count as string + " assets crées." )
+				m_chrono.ecrireDuree ()
+				
+				m_LV.focus ()
+				
+				debug "fin : nouvelAsset_dossier\n"
 			)
-			ecrire ( "Dossier importer : " +  nouveauxElements.count as string + " assets crées." )
-			m_chrono.ecrireDuree ()
-			
-			debug "fin : nouvelAsset_dossier\n"
 		),
 		fn supprimer 	_noeudsArbo	=(
 			
@@ -360,6 +403,8 @@ struct str_edition (
 			
 			--- restauration etat du TV ---
 			m_TV.restaurer_etatItems ()
+			
+			_noeudsArbo
 		),
 		fn couper _noeudsACouper =(
 			toArray 	&_noeudsACouper

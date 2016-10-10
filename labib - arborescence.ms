@@ -123,9 +123,29 @@ struct str_element (
 		fn getAProxy 					= if doesfileExist proxy then "oui" else "non",
 		fn getAVueDetail 				= if doesfileExist detail then "oui" else "non",
 		
+		
+		--- tests ---
+		fn estRecherche 		=	nomUnique == "RECHERCHE",
+		fn estRetour 			=	nomUnique == "RETOUR",
+		fn estRoot 				=	nomUnique == "ROOT",
+		fn estPressepapier	=	nomUnique == "PRESSEPAPIER",
+		fn estElemUtilisateur =(
+			local result = true
+			if estRoot 	()			do result =false
+			if estRetour ()			do result =false
+			if estRecherche ()	do result =false
+			result
+		),
+		fn estDansLabib = (
+			m_prt.getParNomUnique 	nomUnique != undefined
+		),
+		
+		
+		--- sorties ---
 		fn afficher  recursif:true =(
 			m_prt.afficherNoeud 	this  recursif:recursif 
 		)
+		
 		
 )	-- fin Struct Element
 
@@ -162,7 +182,6 @@ struct str_branche (
 	public
 		parent  			= undefined ,
 		enfants 			= #(),
-		estExpanded	= false,
 		
 	---- pointeur vers arbo ---
 		m_prt, 
@@ -256,10 +275,12 @@ struct str_branche (
 			if estRecherche ()	do result =false
 			result
 		),
+		fn estDansLabib = (
+			m_prt.getParNomUnique 	nomUnique != undefined
+		),
 		
 		
-		
-		
+		--- sorties ---
 		fn afficher  recursif:true =(
 			m_prt.afficherNoeud 	this  recursif:recursif 
 		)
@@ -346,7 +367,6 @@ struct str_arborescence (
 			case classOf _noeud  of (
 				str_branche: (
 					setINISetting   fichierArbo	_noeud.nomUnique   "composite"  		#branche
-					setINISetting   fichierArbo	_noeud.nomUnique   "estExpanded"  	( estExpanded as string )
 					
 					-- les enfants --
 					_enfants = ""
@@ -377,10 +397,6 @@ struct str_arborescence (
 				)
 			)
 			
-		),
-		fn fichier_supprimerNoeud _noeud =(
-			-- on supprime du fichierArbo --
-			delINISetting   fichierArbo	_noeud.nomUnique
 		),
 		fn fichier_supprimerNoeud _noeud =(
 			-- on supprime du fichierArbo --
@@ -434,7 +450,10 @@ struct str_arborescence (
 			nouvelElement.tags			= tags
 						
 			--- enregistrement ---			
-			if enregistrer do nouvelElement.enregistrer ()
+			if enregistrer do (
+				nouvelElement.enregistrer ()
+				parent.enregistrer ()
+			)
 			
 			nouvelElement
 		),	
@@ -487,12 +506,16 @@ struct str_arborescence (
 						local enfants =#()
 						
 						nouveauNoeud 					= creerNoeud 	nom:nom   nomUnique:_nomUnique  parent:_parent	enregistrer:false
-						nouveauNoeud.estExpanded 	=  ( if ( getINISetting   fichierArbo	_nomUnique   "estExpanded" )  == "true" then true else false )  
 					
 						for enfantNomUnique in enfantsNomsUniques do 
-							append enfants ( fichier_lireNoeud   enfantNomUnique 		nouveauNoeud )
+							if hasINISetting fichierArbo 	enfantNomUnique do
+								append enfants ( fichier_lireNoeud   enfantNomUnique 		nouveauNoeud )
+						
 						
 						nouveauNoeud.enfants = enfants
+						
+						
+						
 						
 					)
 				) -- fin case

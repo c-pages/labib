@@ -27,13 +27,6 @@
 
 
 
---------------------------------------------------------------------------------
-----------	structure de données etat des item			--------------------
---------------------------------------------------------------------------------
-struct str_etatItem (
-	name,
-	expand
-)
 
 
 --------------------------------------------------------------------------------
@@ -43,7 +36,7 @@ struct str_listViewMgr (
 		
 	------------ DEBUG	----------------------------------------------------------------------------------
 -- 		m_debug = false,
-		m_debug = true,
+		m_debug = false,
 		m_dbgPrefix ="LV",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
@@ -64,6 +57,7 @@ struct str_listViewMgr (
 		m_prefs	=	m_prt.m_prefs,			---- les m_prefs de labib ---
 		m_arbo	=	m_prt.m_arbo,
 		m_edit	=	m_prt.m_prt.m_labib.edit,
+		m_cmd	=	m_prt.m_prt.m_labib.cmd,
 		
 		
 	private
@@ -217,6 +211,15 @@ struct str_listViewMgr (
 		),
 		
 		---- divers ----
+		fn selectionnerPremier = (
+			debug "selectionnerPremier"
+			if m_ui.items.count >0 do (
+				m_ui.items.item[0].selected = true
+				m_edit.setSelection (getNoeud  m_ui.items.item[0])
+			)
+		),
+		
+		
 		fn selectionner 	_noeudsA	= (
 			
 			debug "selectionner"
@@ -243,16 +246,21 @@ struct str_listViewMgr (
 				)
 				
 				-- scroll jusqu'au elements selectionnés --
-				if not m_edit.selectionEstVide()  do (
+				if not m_edit.selectionEstVide()  then (
 					local selectionUnique = (m_edit.getSelection())[1]
 					if selectionUnique != undefined do
 						if getItem	 selectionUnique != undefined do
 							m_ui.EnsureVisible( ( getItem	 selectionUnique ).Index )
-					)
+				) 
+				
 			)
 			
 			debug "(selection fin) m_edit.getSelection" var:(m_edit.getSelection () )	 param:#nom
 		),
+		
+		
+		
+		
 		fn vider = (
 			
 			-- on vide la liste --
@@ -334,7 +342,7 @@ struct str_listViewMgr (
 			
 			-- ouverture --
 			m_edit.ouvrir		noeudCible
-			debug "noeudCible" var:noeudCible
+			debug "noeudCible" var:noeudCible param:#nom
 			
 		),
 		fn afficher	_noeudAOuvrir	  = (	
@@ -394,17 +402,17 @@ struct str_listViewMgr (
 		fn renommer 		_arg	  =(
 			
 			
-			local nouveauNom 		= _arg.label
+			local nvNom 		= _arg.label
 			local itemSelec 			= m_ui.items.item[_arg.item]
-	 		local noeudARenommer = getNoeud 	itemSelec	
+	 		local noeudCible = getNoeud 	itemSelec	
 			
-			debug "nouveauNom" var:nouveauNom
+			debug "nvNom" var:nvNom
 			debug "itemSelect" var:itemSelec	 param:#name
 			
-			debug "noeudARenommer" var:noeudARenommer param:#nomUnique		
+			debug "noeudCible" var:noeudCible param:#nomUnique		
 			
-			if nouveauNom != undefined  and  noeudARenommer !=undefined do 				
-				m_edit.renommer	noeudARenommer  nouveauNom
+			if nvNom != undefined  and  noeudCible !=undefined do 				
+				m_cmd.renommer	p1:noeudCible  	p2:nvNom
 			
 		),
 		
@@ -543,6 +551,13 @@ struct str_listViewMgr (
 		),
 		
 		
+		---- focus -----
+		fn focus =(
+			setFocus m_ui
+		),
+		
+		
+		
 		---- Souris ----
 		fn clq_down		_arg	 	= (
 			debug "clq_down"
@@ -610,36 +625,69 @@ struct str_listViewMgr (
 			debug "classOf noeudClique" var: ( classOf noeudClique )
 			
 			case classOf noeudClique of (
-				str_element: 	m_prt.importer_scene 	noeudClique
-				str_branche:	(
-					debug "PAR LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-					ouvrir		noeudClique
-					
-				)
+				str_element: 	m_edit.importer_scene 	noeudClique
+				str_branche:	ouvrir		noeudClique
 			)
+			
 		),
 		
 		
 		---- clavier ----		
-		fn key_down				_keyCode =(
-			
-			local touche = dotnetclass  "System.Windows.Forms.Keys"
--- 			show touche
+		fn key_up				_arg =(
+			keyCode = _arg.KeyCode
+			local touches = dotnetclass  "System.Windows.Forms.Keys"
+-- 			show keyCode
 			local selectionA = m_edit.getSelection ()
-			if not m_edit.selectionEstVide ()
-				do case _keyCode of (
-						-- renommer --
-						( touche.F2 ): 		editerNom	selectionA[1]
-						-- supprimer --
-						( touche.Delete ): 	m_edit.supprimer	selectionA
-						-- ouvrir --
-						( touche.Enter ): 	ouvrir		selectionA[1]
-					)
 			
+-- 			debug "_arg.KeyValue" var:_arg.KeyValue
+-- 			debug "selectionA" var:selectionA param:#nom
+			
+			case keyCode of (
+				-- focus --
+				( touches.Tab ): 		(
+					debug "TAB"
+					if _arg.shift then m_prt.focusPrecedant ()
+									else  m_prt.focusSuivant ()
+				)
+				
+				-- renommer --
+				( touches.F2 ): 		if not m_edit.selectionEstVide ()	do editerNom	selectionA[1]
+				
+				-- supprimer --
+				( touches.Delete ): 	if not m_edit.selectionEstVide ()	do m_cmd.supprimer		p1:selectionA
+				
+				-- ouvrir --
+				( touches.Enter ): 	if not m_edit.selectionEstVide ()	do (
+					case classOf selectionA[1] of (
+						str_element: 	m_edit.importer_scene 	selectionA[1]
+						str_branche:	ouvrir		selectionA[1]
+					) -- fin case classof
+				)
+				
+				
+				-- fleches --
+				( touches.Left): 		actualiserSelection ()
+				( touches.Right ): 	actualiserSelection ()
+				( touches.Up): 		actualiserSelection ()
+				( touches.Down ): 	actualiserSelection ()
+				
+				-- nouvelAsset --
+				( touches.N ): 		(
+					if _arg.Control do	
+						if _arg.Shift		then 	m_edit.nouvelAsset_dossier ()
+												else		m_edit.nouvelAsset ()
+				)
+				
+				
+				-- undo /redo --
+				( touches.Z ): 		if _arg.Control do	m_cmd.defaire ()
+				( touches.Y ): 		if _arg.Control do	m_cmd.refaire ()
+			)
+				
 		),
 		
 		
-		
+		 
 		
 		
 		---- Initialisation ----
@@ -675,6 +723,54 @@ struct str_listViewMgr (
 		
 		
 )	--- fin struct listView ----
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

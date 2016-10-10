@@ -30,6 +30,64 @@
 ------------------------------------------------------------------------------
 ----------	chrono						--------------------------
 ------------------------------------------------------------------------------
+struct str_recherche (
+	------------ DEBUG	----------------------------------------------------------------------------------
+-- 		m_debug = false,
+		m_debug = true,
+		m_dbgPrefix ="recherche",
+		fn debug 	_txt  var:	 param:    =(
+			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+		),
+	----------------------------------------------------------------------------------------------------------
+	
+		
+		
+		
+		
+		m_prt,				---- le parent, le rollout ---- ( a initialiser ) ----	
+		m_ui, 					---- le editTexte  a controler -- ( a initialiser ) ----
+
+		
+		
+		---- focus -----
+		fn focus =(
+			setFocus m_ui
+		),
+		
+		
+		
+		---- clavier ----		
+		fn key_up				_arg =(
+			keyCode = _arg.KeyCode
+			local touches = dotnetclass  "System.Windows.Forms.Keys"
+			
+			
+			case keyCode of (
+				-- renommer --
+				( touches.Tab ): 		(
+					debug "TAB"
+					if _arg.shift then m_prt.focusPrecedant ()
+									else  m_prt.focusSuivant ()
+				)
+				
+				( touches.Enter ): 	 debug "Lancer RECHERCHE"
+				( touches.Escape ):  m_prt.focusSuivant ()
+				
+				
+				-- undo --
+				( touches.Z ): 		if _arg.Control do	debug "UNDO" 
+				-- undo --
+				( touches.Y ): 		if _arg.Control do	debug "REDO" 
+			)
+				
+		)
+		
+)
+
+
+------------------------------------------------------------------------------
+----------	chrono						--------------------------
+------------------------------------------------------------------------------
 struct str_chrono (
 	tempsDebut,
 	fn demarrer =(

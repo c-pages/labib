@@ -1,7 +1,7 @@
 clearListener ()
 try ( 	labib.fermer ()	) catch  ()
 
-Global 	labib = fileIn "$userScripts\labib\labib.ms" 
+Global 	labib = fileIn "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib.ms" 
  format "\n\n"
 
 labib.ouvrir 	()
@@ -17,7 +17,8 @@ category:"#CPages"
 toolTip:""
 (
 	
-	Global 	labib  = fileIn "$userScripts\labib\labib.ms" 
+-- 	Global 	labib  = fileIn "$userScripts\labib\labib.ms" 
+	Global 	labib  = fileIn "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib.ms" 
 	
 	on execute do 	(
 		
@@ -26,22 +27,27 @@ toolTip:""
 			else 	labib.ouvrir 	()
 	)
 	on isChecked return try ( labib.estOuvert () )  catch	( false )	
-	
 )
 
 
 /*
 
+labib.arbo.fichier_supprimer ()
+labib.arbo.fichier_ouvrir ()
 
+labib.creerArboDeBase()
+
+
+
+
+
+
+labib.cmd.defaire()
 
 labib.fenetre.m_dialog.m_TV.stocker_etatItems ()
 labib.fenetre.m_dialog.m_TV.restaurer_etatItems ()
 
 labib.fenetre.m_dialog.m_TV.m_etatItems
-
-
-labib.creerArboDeBase()
-
 
 
 
@@ -88,8 +94,19 @@ labib.fenetre.m_dialog.ui_TV.nodes.item[1].IsExpanded = true
 labib.fenetre.m_dialog.ui_TV.nodes.item[0].nodes.item[1].expand ()
 labib.fenetre.m_dialog.ui_TV.nodes.item[0].nodes.item[1].Collapse ()
 
+
+
+
+
+######" recherche ######
+show 				labib.fenetre.m_dialog.ui_recherche
+showmethods 				labib.fenetre.m_dialog.ui_recherche
+
+
+
+
  #### LV ####
-show 				labib.fenetre.m_dialog.ui_LV
+show 				labib.fenetre.m_dialog.ui_LV.items.item[1]
 showmethods		labib.fenetre.m_dialog.ui_LV
 
 labib.fenetre.m_dialog.m_LV.m_selection
@@ -106,10 +123,10 @@ cui.UnRegisterDialogBar 	labib.fenetre.m_dialog
 
 
 
+labib.fenetre.m_dialog.ui_LV.items.item[2].selected
 
 
-
-
+labib.fenetre.m_dialog.ui_LV
 
 
 

@@ -100,16 +100,15 @@ struct str_menus (
 				seperator sep02
 				
 				menuItem nouveauDossier 		"Nouveau dossier"
-				menuItem nouvelAsset 				"Nouvel Asset"
-				menuItem nouvelAssetDossier 	"Nouveaux Assets depuis un dossier"
-				
--- 				seperator sep03				
-			/* 	subMenu  "Nouvel Asset" (
-					menuItem nouvelAsset 				"Fichier"
-					menuItem nouvelAssetDossier 	"Dossier"
-				) */
+				menuItem nouvelAsset 				"Nouvel asset"
+				menuItem nouvelAssetDossier 	"Nouveaux assets depuis un dossier"
 				
 				seperator sep08
+				
+				menuItem undoMenu 		"Undo"		enabled:( labib.cmd.aDesUndo () )
+				menuItem redoMenu			"Redo"		enabled:( labib.cmd.aDesRedo () )
+				
+				seperator sep0353
 				
 				subMenu  "Affichage" (
 					menuItem	affichage_details 			"Détails"						checked:( labib.prefs.fenetre.affichageLV == #details )
@@ -130,19 +129,23 @@ struct str_menus (
 					menuItem	trier_nbrVertex 	"Nombre de vertex"
 					menuItem	trier_nbrImports 	"Nombre d'imports"	
 				)
--- 				seperator sep04
+				
 				subMenu  "Fenêtres" (
 					menuItem infos 		"Infos" 		checked:labib.prefs.fenetre.infos
 					menuItem apercu 	"Aperçu" 	checked:labib.prefs.fenetre.apercu
 					menuItem rendu	 	"Rendu" 		checked:labib.prefs.fenetre.rendu
 				)
 				
-				seperator sep5476		
+				seperator sep5476
+				
 				subMenu  "Debug" (
 					menuItem affichSelec 		"print selection" 		checked:labib.prefs.fenetre.infos
 				)
+				
+				
+				
 				------- les evenements ------------------------------------------				
-				on nouveauDossier 				picked do	labib.nouveauDossier ()				
+				on nouveauDossier 				picked do	labib.cmd.nvDossier ()				
 				on nouvelAsset 					picked do	labib.nouvelAsset ()				
 				on nouvelAssetDossier 			picked do	labib.nouvelAsset_dossier ()	
 				
@@ -153,13 +156,21 @@ struct str_menus (
 						labib.edit.coller 	selec[1]			
 					else labib.edit.coller 	( labib.edit.getDossier () )
 				)
-				on supprimer 						picked do 	labib.supprimer 	( labib.edit.getSelection () ) 
+				on supprimer 						picked do 	labib.cmd.supprimer 	p1:( labib.edit.getSelection () ) 
+				
+				
+				on undoMenu 						picked do 		labib.cmd.defaire()
+				on redoMenu 						picked do 		labib.cmd.refaire()
+				
 				
 				on affichage_details 			picked do	labib.changerAffichage  #details
 				on affichage_liste				picked do	labib.changerAffichage  #liste
 				on affichage_GrandeIcone		picked do	labib.changerAffichage  #grandeIcone
 				on affichage_petitIcone		picked do	labib.changerAffichage  #petitIcone
 				on affichage_tuile				picked do	labib.changerAffichage  #tuile
+				
+				
+				
 				
 				on afficherDossiers 				picked do 	(
 					labib.prefs.fenetre.afficherDossier = not labib.prefs.fenetre.afficherDossier
@@ -222,6 +233,11 @@ struct str_menus (
 				menuItem supprimer 			"Supprimer"		enabled:( estElemUtilisateur () )
 				
 				seperator sep03
+				menuItem undoMenu 		"Undo"		enabled:( labib.cmd.aDesUndo () )
+				menuItem redoMenu			"Redo"		enabled:( labib.cmd.aDesRedo () )
+				
+				seperator sep0353
+
 				
 				menuItem expandAll 			"Expand all"
 				
@@ -229,12 +245,16 @@ struct str_menus (
 				
 				menuItem rechercheAvance 			"Recherche avancée"
 				------- les evenements ------------------------------------------
-				on nouveauDossier 			picked do	labib.nouveauDossier ()				
+				on nouveauDossier 			picked do	labib.cmd.nvDossier ()
 				on nouvelAsset 				picked do	labib.nouvelAsset ()				
 				on nouvelAssetDossier 		picked do	labib.nouvelAsset_dossier ()		
 				on renommer 					picked do	labib.renommer ()	
 				
-				on supprimer 					picked do 	labib.supprimer 	( labib.getDossiercourant () )
+				on supprimer 					picked do 	labib.cmd.supprimer 		p1:( labib.getDossiercourant () )
+								
+				
+				on undoMenu 						picked do 		labib.cmd.defaire()
+				on redoMenu 						picked do 		labib.cmd.refaire()
 				
 				on couper  picked do  (
 					local source = labib.edit.getDossier () 

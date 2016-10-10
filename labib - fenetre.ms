@@ -86,10 +86,11 @@ rollout roll_labib  "Labib" width:296 height:296
 																							visible:	false */
 	
 	------------  Structures	----------------------------------------------------------------------------------	
-	local 	m_drag		---- manager du drag de la fenetre  ----
-	local		m_LV 			---- manager du liste view ----
-	local		m_TV 			---- manager du tree view ----
-	local 	m_menus		---- manager des menus ----
+	local 	m_drag				---- manager du drag de la fenetre  ----
+	local		m_LV 				---- manager du liste view ----
+	local		m_TV 				---- manager du tree view ----
+	local		m_recherche 		---- manager du tree view ----
+	local 	m_menus			---- manager des menus ----
 	
 	------------  Fonctions	----------------------------------------------------------------------------------
 	---- la fenetre ----
@@ -149,6 +150,25 @@ rollout roll_labib  "Labib" width:296 height:296
 		
 	)
 	
+	
+	---- focus ----
+	local focusListe = #(  ui_TV , ui_LV , ui_recherche )
+	local focusID = 0
+	fn focusSuivant =(
+		focusID += 1
+		if focusID > focusListe.count do focusID = 1
+		setFocus focusListe[ focusID ]
+	)
+	fn focusPrecedant =(
+		focusID -= 1
+		if focusID ==0 do focusID =  focusListe.count 
+		setFocus focusListe[ focusID ]
+	)
+	
+	
+	
+	
+	---- les listes et tree -----
 	fn viderListes = (
 		m_TV.vider ()
 		m_LV.vider ()
@@ -169,7 +189,7 @@ rollout roll_labib  "Labib" width:296 height:296
 		
 	)
 	fn initialiser 	= (
-		
+		debug "initialiser"
 		---- initialiser les membres ------------
 		-- pointeurs --
 		m_prefs 			= m_prt.m_prefs
@@ -184,6 +204,7 @@ rollout roll_labib  "Labib" width:296 height:296
 		m_LV 			= str_listViewMgr		m_prt:roll_labib	m_ui:ui_LV
 	 	m_TV 			= str_treeViewMgr	m_prt:roll_labib	m_ui:ui_TV
 		m_LV.m_TV 	=	m_TV  -- sinon ca boucle a l'init avec la creation du m_TV--
+		m_recherche 	= str_recherche		m_prt:roll_labib	m_ui:ui_recherche
 		
 		m_edit.majPointeursFenetre ()
 		
@@ -227,9 +248,11 @@ rollout roll_labib  "Labib" width:296 height:296
 		
 		---- la fenetre	----
 		fen_recomposer ()
-		
+		focusSuivant ()
 		
 	)
+	
+	
 	
 	--- interactions dans la fenetre
 	fn togglePleinEcran 	=(
@@ -338,7 +361,8 @@ rollout roll_labib  "Labib" width:296 height:296
 		m_prefs.fenetre.bandeau_taille	= [roll_labib.width, roll_labib.height ]
 		
 	)
-		
+	
+	
 	---- la souris ----
 	fn souris_bouge 		_pos =(
 		
@@ -420,7 +444,8 @@ rollout roll_labib  "Labib" width:296 height:296
 		else  togglePleinEcran ()			
 		
 	)
-		
+	
+	
 	---- boutons ----
 	fn etatBtnFermer		_etat 	=(
 		case _etat of (
@@ -431,62 +456,9 @@ rollout roll_labib  "Labib" width:296 height:296
 	)
 	
 	
-	fn importerViewport 							= (
-		debug "Importation dans la scene"
-		debug "noeuds importés" var:( for n in m_LV.m_selection collect n.nom )
-	)
-	fn importer_scene 		_noeudsA 		= (
-		toArray 	&_noeudsA
-		
-		debug "IMPORTATION" 
-		debug "_noeudsA"	var:_noeudsA param:#nom
-	)
-	fn deplacer _noeudsA 	_noeudDest	=(
-		
-	)
-	
-	
-	
-	/* 
-	fn bougeboiboite _pos =(
-		
-		debug "boiteTest" var:boiteTest
-		boiteTest.pos = _pos
-		
-	)
-	
-	fn fct_suivreSourisImport	msg ir obj faceNum shift ctrl alt 	 =(
-		
-		case msg of
-		(
-			#mouseabort: return 0
-			#freeMove: ()
-			#mousePoint: (
-				debug "#mousePoint" var:("Pos ("+mouse.pos.x as string +", "+ mouse.pos.y as string + ")")
-				delete boiteTest
-				importer ()
-		return 0
-			)
-			#mouseMove: (
-				
-				debug "ir" var:ir
-				bougeboiboite  ir.pos
-				
-				
-				
-				
-				)
-		)
-				#continue
-	)
 
-	fn activeTackSouris = 	(
-		boiteTest = box lengthsegs:1 widthsegs:1 heightsegs:1 length:20 width:40 height:10 
-		
-		mouseTrack trackCallback:fct_suivreSourisImport
-		
-	)
-	*/
+	
+	
 	
 	------------  Evenements	----------------------------------------------------------------------------------
 	--------- Fenetre ----------
@@ -503,87 +475,36 @@ rollout roll_labib  "Labib" width:296 height:296
 	--------- Bouton fermer ----------
 	on ui_btnFermer	mouseover 				do 	etatBtnFermer #Survol
 	on ui_btnFermer	mouseout 				do 	etatBtnFermer #Repos
-	on ui_btnFermer	mousedown 				do 	etatBtnFermer #Press
-	on ui_btnFermer	mouseup					do 	etatBtnFermer #Repos
-	on ui_btnFermer 	click 							do 	m_prt.fermer 	()
+	on ui_btnFermer	mousedown 			do 	etatBtnFermer #Press
+	on ui_btnFermer	mouseup				do 	etatBtnFermer #Repos
+	on ui_btnFermer 	click 						do 	m_prt.fermer 	()
 
 	--------- le treeView ---------
 	on ui_TV 	mouseDown 			_arg 	do  	m_tv.clq_down  				_arg
-	on ui_TV 	mouseUp 	_sender 	_arg 	do 	m_TV.clq_up 					_arg 
-	
-	on ui_TV 	DragOver 	_sender	_arg	 	do	m_TV.drag_checkSurvol  	_arg
-	on ui_TV 	DragDrop 					_arg 	do	m_TV.drag_recevoir 			_arg
-	on ui_TV 	ItemDrag 					_arg 	do	m_TV.drag_demarrer 		_arg
-	
+	on ui_TV 	mouseUp 	_sender 	_arg 	do 	m_TV.clq_up 					_arg
+	on ui_TV 	DragOver 	_sender	_arg	do	m_TV.drag_checkSurvol  	_arg
+	on ui_TV 	DragDrop 				_arg 	do	m_TV.drag_recevoir 			_arg
+	on ui_TV 	ItemDrag 				_arg 	do	m_TV.drag_demarrer 		_arg
 	on ui_TV 	AfterLabelEdit			_arg 	do  	(
 		m_TV.renommer	_arg.label
 		m_LV.afficher		m_TV.m_selection
 	)	
+	on ui_TV 	keyup  					_arg 	do  	m_TV.key_up				_arg
 	
 	--------- le listView ---------
 	on ui_LV 	mouseDown 			_arg 	do  	m_LV.clq_down				_arg
 	on ui_LV 	mouseUp 	_sender	_arg 	do 	m_LV.clq_up 					_arg 
 	on ui_LV	MouseWheel 			_arg 	do  	if keyboard.controlPressed do m_LV.zoomer 	_arg.delta
 	on ui_LV 	DoubleClick				_arg 	do  	m_LV.clq_double 				_arg 	
-	
 	on ui_LV 	DragOver 	_sender	_arg 	do	m_LV.drag_checkSurvol  	_arg
-	on ui_LV 	DragDrop 					_arg 	do	m_LV.drag_recevoir 			_arg
+	on ui_LV 	DragDrop 				_arg 	do	m_LV.drag_recevoir 			_arg
 	on ui_LV 	itemDrag 	_sender 	_arg 	do 	m_LV.drag_demarrer 		_arg 	
-	on ui_LV 	lostFocus 	_sender 	_arg 	do  	if dragFlag == true do	importerViewport ()
+	on ui_LV 	lostFocus 	_sender 	_arg 	do  	if dragFlag == true do	m_edit.importer_viewport ()
+	on ui_LV 	AfterLabelEdit			_arg 	do  	m_LV.renommer				_arg		
+	on ui_LV 	keyup  					_arg 	do  	m_LV.key_up				_arg
 	
-	on ui_LV 	AfterLabelEdit			_arg 	do  	m_LV.renommer				_arg
-	on ui_LV 	KeyDown 					_arg 	do  	m_LV.key_down				_arg.KeyCode
-	
-				
-	/*
-	---- le liste view----
-	on ui_LV 	mouseDown 			_arg 	do  	cliqueLV				_arg
--- 	on ui_LV 		mouseUp				_arg 	do  	cliqueLV 	_arg 
-	on ui_LV 		DoubleClick			_arg 	do  	dbCliqueLV 	_arg 		
-	on ui_LV		MouseWheel 			_arg 	do  	if keyboard.controlPressed do m_LV.zoomer 	_arg.delta
-	on ui_LV 		AfterLabelEdit			_arg 	do  	(
-		m_LV.renommer	_arg.label
-		actualiser ()
-	)
-	on ui_LV 		DragOver 	_sender	_arg 	do	checkDragDrop  _arg
-	on ui_LV 		DragDrop 				_arg 	do	debug "LV Drop"
-	on ui_LV 		ItemDrag 		_arg 	do	(	
-		debug "ItemDrag"
-		ui_LV.doDragDrop 		_arg.item 		dragDropEffect.Move
--- 		activeTackSouris ()
-		
-		dragFlag = true 
-	
-	)
-	
-	
-				on ui_LV mouseUp sender _arg do (
-					dragFlag = false
-					cliqueLV 	_arg 
-				)
-	
-	on ui_LV 	lostFocus sender _arg do (
-		debug "ui_LV 	lostFocus "
-		debug "sender " var:sender
--- 		local theFilePath = sender.SelectedItems.Item[0].tag.value --the filepath for the dropped item
--- 		debug "theFilePath " var:theFilePath
-						
-		--place the max-string into a dotnet-string-array
-		local dropfilePath = dotnetobject "System.String[]" 1 --this isn't a string, but an array of strings with one member
-		dropfilePath.setvalue theFilePath 0
-		debug "dropfilePath " var:dropfilePath
-		
-		--feed the string into a special dataObject
-		local dataObj = dotnetobject "DataObject" ((dotnetclass "DataFormats").filedrop) dropfilePath 
-		sender.dodragdrop dataobj ((dotnetclass "DragDropEffects").Copy) 
-		debug "dataObj " var:dataObj
-	)
-	 */
-	
-		
--- 		local pos=ui_arborescence.PointToClient 	ui_arborescence.MousePosition
--- 		
--- 		checkDragDrop pos arg
+	------- recherche ---------------
+	on ui_recherche 	keyup  					_arg 	do  	m_recherche.key_up				_arg
 	
 ) -- fin rollout
 
@@ -604,7 +525,7 @@ struct str_fenLabib (
 	------------ DEBUG	----------------------------------------------------------------------------------
 
 		m_debug = true,
-		m_dbgPrefix ="fenetre",
+		m_dbgPrefix ="str_fenetre",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
 		),
@@ -717,9 +638,10 @@ struct str_fenLabib (
 			
 			---- Ouvrir dossier initiale ----
 			local	dossierInitial 		= m_labib.arbo.root
-			m_edit.ouvrir 				dossierInitial
-			m_edit.m_hist.enregistrer  		dossierInitial
-			m_dialog.m_tv.expand 	dossierInitial
+			m_edit.ouvrir 					dossierInitial
+			m_edit.m_hist.enregistrer 	dossierInitial
+			m_dialog.m_tv.expand 		dossierInitial
+			m_dialog.m_LV.selectionnerPremier ()
 			
 		),
 		fn fermer  silence:false =(		---- silence : fermer sans modifier l'état des preferences ---
