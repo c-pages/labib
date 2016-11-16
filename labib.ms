@@ -26,7 +26,7 @@
 	-	Sauvegarde de arbo.ini 
 			( peut etre une sauvegarde / jour à la premiere ouverture du script en gardant 3 sauvegardes max)
 	-	Systeme undo-redo
-	
+	- à l'ouverture, proposer de retirer de la biblio (et / ou du DD) les éléments n'ayant jamais étaient utilisés depuis un certain temps ?
 	
 ##########################################################################################################################
 	changelog:
@@ -35,64 +35,42 @@
 	- Une interface souple et simple
 ########################################################################################################################*/
 
-
-
+-- (
+ 
+Global 	labib 
 
 ----  Le dossier du script  ----
-nomDossierScript = "labib"
+nomDossierScript = "cp - labib"
 dossierScript 		-- en fonction de monMax --
 
 --------------------------------------
 ----- les fichiers à inclure --------
 --------------------------------------
-/* 
+
 ---- 2014 ----
 dossierScript = getdir #userScripts + "\\" + nomDossierScript + "\\"
 
-include "$userScripts\labib\labib - output.ms"
-include "$userScripts\labib\labib - Outils divers.ms"
+include "$userScripts\cp - labib\labib - output.ms"
+include "$userScripts\cp - labib\labib - Outils divers.ms"
 
-include "$userScripts\labib\labib - preferences.ms"
-include "$userScripts\labib\labib - arborescence.ms"	
+include "$userScripts\cp - labib\labib - preferences.ms"
+include "$userScripts\cp - labib\labib - arborescence.ms"	
 
-include "$userScripts\labib\labib - Mgr - Divers.ms"
-include "$userScripts\labib\labib - Mgr - TreeView.ms"
-include "$userScripts\labib\labib - Mgr - ListView.ms"
+include "$userScripts\cp - labib\labib - apercus.ms"
 
+include "$userScripts\cp - labib\labib - Mgr - Divers.ms"
+include "$userScripts\cp - labib\labib - Mgr - TreeView.ms"
+include "$userScripts\cp - labib\labib - Mgr - ListView.ms"
 
-include "$userScripts\labib\labib - menus.ms"		
--- include "$userScripts\labib\labib - fenetres secondaires.ms"
-include "$userScripts\labib\labib - fenetre.ms"
-
-include "$userScripts\labib\labib - edition.ms"	
-
-include "$userScripts\labib\labib - Mgr - Commandes.ms"	
- */
- 
- 
----- 2017 ----
-dossierScript = "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\\" + nomDossierScript + "\\"
-
-include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - output.ms"
-include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - Outils divers.ms"
-
-include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - preferences.ms"
-include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - arborescence.ms"	
-
-include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - Mgr - Divers.ms"
-include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - Mgr - TreeView.ms"
-include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - Mgr - ListView.ms"
+include "$userScripts\cp - labib\labib - menus.ms"
+include "$userScripts\labib\labib - fenetres secondaires.ms"
 
 
-include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - menus.ms"		
--- include "$userScripts\labib\labib - fenetres secondaires.ms"
-include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - fenetre.ms"
+ include "$userScripts\cp - labib\labib - fenetre.ms"
 
-include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - edition.ms"	
+include "$userScripts\cp - labib\labib - edition.ms"
 
-include "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib - Mgr - Commandes.ms"	
-
-
+include "$userScripts\cp - labib\labib - Mgr - Commandes.ms"	
 
 -----------------------------------------
 ----- La structure principale -------
@@ -115,11 +93,13 @@ struct str_labib (
 	public
 	
 		---- interface ----
-		prefs		= str_preferences 		dossierScript:dossierScript,		---- les préferences utilisateurs ----		
+		prefs		= 	str_preferences 		dossierScript:dossierScript,		---- les préferences utilisateurs ----		
 		
-		arbo		= str_arborescence 		fichierArbo:prefs.fichierArbo,		---- la gestion de l'arborescenece de la bibliotheque ----	
-		edit		= str_edition				m_labib:this,							---- les commandes utilisateurs,  l'edition proprement dite de la bibliotheque (creation d'un asset, import dans la scene ... ) ----
-		cmd 		= str_commandesMgr 	m_edit:edit,
+		arbo		= 	str_arborescence 	fichierArbo:prefs.fichierArbo,		---- la gestion de l'arborescenece de la bibliotheque ----	
+		edit		= 	str_edition				m_labib:this,							---- les commandes utilisateurs,  l'edition proprement dite de la bibliotheque (creation d'un asset, import dans la scene ... ) ----
+
+		apercus	=	str_apercus 			m_labib:this,							---- la creation des apercus -----
+		cmd 		= 	str_commandesMgr 	m_edit:edit,
 		
 		---- interface ----
 		menus	= str_menus (),														---- les menus RCMenu ----
@@ -127,12 +107,12 @@ struct str_labib (
 		
 		---les actions --------
 		
- 		rendu,																					---- la gestion des rendus des apercus ----		
+ 		rendu,																				---- la gestion des rendus des apercus ----		
 		
 	------------ Fonctions		----------------------------------------------------------------------------------
 	--- Edition ----	
 	public
-		fn nouveauDossier 				=	edit.nouveauDossier	(),
+	 	fn nouveauDossier 				=	edit.nouveauDossier	(),
 		fn nouvelAsset 					=	edit.nouvelAsset	(),
 		fn nouvelAsset_dossier 		=	edit.nouvelAsset_dossier (),
 		fn supprimer 	_noeudsArbo	=	edit.supprimer	_noeudsArbo,
@@ -175,7 +155,7 @@ struct str_labib (
 				tmp_fem = creerDossier  "Femmes" 	parent:tmp_perso
 				tmp_enf = creerDossier  "enfants" 	parent:tmp_perso
 				
-			ouvrir ()
+-- 			ouvrir ()
 		),
 	------------ Evenements 	----------------------------------------------------------------------------------
 	on create do (
@@ -183,7 +163,7 @@ struct str_labib (
 		edit.initialiser ()
 		ecrire "Structure Labib crée."		
 		debug "Structure crée."	
-	)
+	) 
 	
 ) -- fin struct labib ----
 
@@ -195,6 +175,6 @@ struct str_labib (
 -----------------------------------------
 labib = str_labib ()
 	
-	
+-- )
 
 

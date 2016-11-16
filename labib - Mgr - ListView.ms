@@ -35,8 +35,8 @@
 struct str_listViewMgr (
 		
 	------------ DEBUG	----------------------------------------------------------------------------------
--- 		m_debug = false,
 		m_debug = false,
+-- 		m_debug = true,
 		m_dbgPrefix ="LV",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
@@ -52,15 +52,16 @@ struct str_listViewMgr (
 	public
 		---- pointeurs (à donner en param a la creation) ----
 		m_prt,										---- le parent, le rollout ---- ( a initialiser ) ----	
+		
 		m_ui, 										---- le listview a controler -- ( a initialiser ) ----
 		m_TV,	
-		m_prefs	=	m_prt.m_prefs,			---- les m_prefs de labib ---
-		m_arbo	=	m_prt.m_arbo,
+		
+	private
+		m_prefs	=	m_prt.m_prefs,			---- les m_prefs de labib ---		
 		m_edit	=	m_prt.m_prt.m_labib.edit,
 		m_cmd	=	m_prt.m_prt.m_labib.cmd,
 		
 		
-	private
 		---- pour la creation des items -----
 		m_itemsAAfficher		= #(),
 		m_iconesAAfficher,
@@ -83,10 +84,13 @@ struct str_listViewMgr (
 		---- les boutons de souris dotNet ----
 		m_btnsDotNet = dotNetClass "System.Windows.Forms.MouseButtons",
 		
+		--- renommer ----
+		m_renommageEnCours = false,
+		
 		
 		------------ FONCTIONS ----------------------------------
 		
-	public
+	private
 	
 		
 		---- Creation d'un tiem ----
@@ -182,7 +186,7 @@ struct str_listViewMgr (
 		---- Accession ----
 		fn	getNoeud 			_item 	= (
 			local result
-			if _item != undefined 	do	result = m_arbo.getParNomUnique _item.name
+			if _item != undefined 	do	result = m_edit.getNoeud	 	_item.name
 			result
 		),
 		fn	getItem 			_noeudA 	= (
@@ -199,17 +203,22 @@ struct str_listViewMgr (
 			local	noeudTVClique = m_ui.GetItemAt  _x  _y 
 			
 			if noeudTVClique != undefined then
-				noeudClique = m_arbo.getParNomUnique  noeudTVClique.name
+				noeudClique = m_edit.getNoeud	 	  noeudTVClique.name
 			
 			noeudClique
 		),
-		fn getDossierCourant 			=(
+		fn getDossier 			=(
 			m_edit.getDossier()
 		),
 		fn getSelection =(
 			m_edit.getSelection ()
 		),
 		
+		
+		
+		
+		
+	public
 		---- divers ----
 		fn selectionnerPremier = (
 			debug "selectionnerPremier"
@@ -280,7 +289,7 @@ struct str_listViewMgr (
 			
 			for i = 0 to m_ui.SelectedItems.count - 1 do (
 				-- on ajoute chaque noeud a la slection --
-				elem = 	m_arbo.getParNomUnique 	 m_ui.SelectedItems.item[i].name
+				elem = 	m_edit.getNoeud	 		 m_ui.SelectedItems.item[i].name
 				if elem != undefined do 
 					m_edit.addSelection 		elem
 				
@@ -294,7 +303,7 @@ struct str_listViewMgr (
 			vider ()
 			
 			--- on actualise la branche courante --
-			m_brancheCourante = getDossierCourant ()
+			m_brancheCourante = getDossier ()
 			debug "m_brancheCourante" var:m_brancheCourante	 param:#nom
 			if m_brancheCourante != undefined then (
 				
@@ -310,8 +319,9 @@ struct str_listViewMgr (
 					
 					----  retour ----
 					if m_brancheCourante.NomUnique != "ROOT" and m_brancheCourante.NomUnique != "RECHERCHE" do  (
-						creerItems 	m_arbo.retour
-						m_arbo.retour.parent = m_brancheCourante.parent
+						local ndRetour = m_edit.getNdRetour()
+						creerItems 	ndRetour
+						ndRetour.parent = m_brancheCourante.parent
 					)
 					
 					---- Les dossiers enfants ----
@@ -345,51 +355,8 @@ struct str_listViewMgr (
 			debug "noeudCible" var:noeudCible param:#nom
 			
 		),
-		fn afficher	_noeudAOuvrir	  = (	
-			debug "afficher"
-			debug "_noeudAOuvrir Dbt" var:_noeudAOuvrir	 param:#nom
-			
-			--- on actualise la branche courante --
-			if _noeudAOuvrir != undefined then (
-				
-				-- on nettoie le terrain ---
-				vider ()
-				
-				
-				--- la couleur de fond du LV ---------
-				local col_fondVue			
-				if _noeudAOuvrir.nomUnique == "RECHERCHE"	
-					then	col_fondVue 	= m_col_uiFondRecherche
-					else	col_fondVue 	= m_col_uiFond
-				m_ui.BackColor 			= toCouleurDotnet 	col_fondVue
-				
-				-- Affichage des dossiers --
-				if m_prefs.fenetre.afficherDossier do (	
-					
-					----  retour ----
-					if _noeudAOuvrir.NomUnique != "ROOT" and _noeudAOuvrir.NomUnique != "RECHERCHE" do  (
-						creerItems 	m_arbo.retour
-						m_arbo.retour.parent = _noeudAOuvrir.parent
-					)
-					
-					---- Les dossiers enfants ----
-					creerItems 	( _noeudAOuvrir.getNoeuds() )
-				)
-				
-				---- les elements enfants----
-				creerItems 	( _noeudAOuvrir.getElements() )
-				
-				--- on remplie la liste LV ----
-				m_ui.LargeImageList = 	m_iconesAAfficher
-				m_ui.items.addRange		m_itemsAAfficher
--- 				
--- 				---- on selectionne ----
-				selectionner	( m_edit.getSelection () )
-				
-			) --else debug "dossier" var:dossier
-			
-			
-		),
+		
+		
 		
 		
 		---- nom ----
@@ -398,6 +365,9 @@ struct str_listViewMgr (
 			local noeudAEditer = getItem		_noeudA
 			selectionner _noeudA
 			noeudAEditer.BeginEdit()
+			
+			--- etat du renommage ----
+			m_renommageEnCours = true
 		),
 		fn renommer 		_arg	  =(
 			
@@ -412,10 +382,12 @@ struct str_listViewMgr (
 			debug "noeudCible" var:noeudCible param:#nomUnique		
 			
 			if nvNom != undefined  and  noeudCible !=undefined do 				
-				m_cmd.renommer	p1:noeudCible  	p2:nvNom
+				m_cmd.renommer		noeudCible  	nvNom
 			
 		),
-		
+		fn debutRenommage = (
+			m_renommageEnCours = true
+		),
 		
 		---- La vue ----
 		fn zoomer		_deltaArg 	= (
@@ -546,6 +518,7 @@ struct str_listViewMgr (
 					do noeudDest = noeudDest.parent
 				
 				---- deplacement des noeuds ---
+				m_cmd.deplacer 	( m_edit.getNdsDrag() ) 		noeudDest
 				m_edit.drag_finaliser 	noeudDest
 			)
 		),
@@ -570,7 +543,7 @@ struct str_listViewMgr (
 			if m_ui.selectedItems.count <=1 then (
 				debug "un seul elemnt selec"
 				if noeudLVClique != undefined do ( 
-					noeudAClique = m_arbo.getParNomUnique  noeudLVClique.name
+					noeudAClique = m_edit.getNoeud  noeudLVClique.name
 					
 					debug "(clq_down) noeudAClique" var:( noeudAClique )	 param:#nomUnique
 					
@@ -654,14 +627,17 @@ struct str_listViewMgr (
 				( touches.F2 ): 		if not m_edit.selectionEstVide ()	do editerNom	selectionA[1]
 				
 				-- supprimer --
-				( touches.Delete ): 	if not m_edit.selectionEstVide ()	do m_cmd.supprimer		p1:selectionA
+				( touches.Delete ): 	if not m_edit.selectionEstVide ()	and not m_renommageEnCours 	do m_cmd.supprimer		selectionA
 				
 				-- ouvrir --
 				( touches.Enter ): 	if not m_edit.selectionEstVide ()	do (
-					case classOf selectionA[1] of (
-						str_element: 	m_edit.importer_scene 	selectionA[1]
-						str_branche:	ouvrir		selectionA[1]
-					) -- fin case classof
+					
+					if m_renommageEnCours 
+					then m_renommageEnCours = false
+					else	case classOf selectionA[1] of (
+							str_element: 	m_cmd.importer 	selectionA
+							str_branche:	ouvrir		selectionA[1]
+						) -- fin case classof
 				)
 				
 				
@@ -674,9 +650,17 @@ struct str_listViewMgr (
 				-- nouvelAsset --
 				( touches.N ): 		(
 					if _arg.Control do	
-						if _arg.Shift		then 	m_edit.nouvelAsset_dossier ()
-												else		m_edit.nouvelAsset ()
+						if _arg.Shift		then 	m_cmd.nvxAssets ()
+												else		m_cmd.nvlAsset ()
 				)
+				
+				
+				
+				-- couper --
+				( touches.X ): 		if _arg.Control do	m_cmd.couper 	( getSelection () )
+				-- coller --
+				( touches.X ): 		if _arg.Control do	m_cmd.coller 		( getdossier() )
+				
 				
 				
 				-- undo /redo --

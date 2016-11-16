@@ -41,7 +41,7 @@ struct str_treeViewMgr (
 		
 	------------ DEBUG	----------------------------------------------------------------------------------
 
-		m_debug = false,
+		m_debug = true,
 -- 		m_debug = false,
 		m_dbgPrefix ="TV",
 		fn debug 	_txt  var:	 param:    =(
@@ -61,7 +61,7 @@ struct str_treeViewMgr (
 		m_ui, 										---- le treeView a controler -- ( a initialiser ) ----
 		m_TV,	
 		m_prefs	=	m_prt.m_prefs,			---- les m_prefs de labib ---
-		m_arbo	=	m_prt.m_arbo,
+-- 		m_arbo	=	m_prt.m_arbo,
 		m_edit	=	m_prt.m_prt.m_labib.edit,
 		m_cmd	=	m_prt.m_prt.m_labib.cmd,
 		
@@ -91,7 +91,10 @@ struct str_treeViewMgr (
 		
 		----accesseurs ----
 		fn	getNoeud 			_item = (
-			m_arbo.getParNomUnique _item.name
+			local	result = undefined
+			if _item != undefined 
+				do result = m_edit.getNoeud	 	_item.name
+			result
 		),
 		fn	getItem 			_noeudA = (
 			local	result = undefined
@@ -101,14 +104,32 @@ struct str_treeViewMgr (
 			result
 		),
 		fn getNoeudA_at 	_x  _y 	=(
-			local noeudClique
-			local	noeudTVClique = m_ui.GetNodeAt (dotNetObject "System.Drawing.Point" _x  _y )
+			local noeudAt
+			local	itemAt = m_ui.GetNodeAt (dotNetObject "System.Drawing.Point" _x  _y )
+-- 			debug "itemAt" var:itemAt
+			if itemAt !=undefined do 
+				debug "itemAt" var:itemAt.name
 			
-			if noeudTVClique != undefined then
-				noeudClique = m_arbo.getParNomUnique  noeudTVClique.name
+			if itemAt != undefined then
+				noeudAt = getNoeud  itemAt
 			
-			noeudClique
+			noeudAt
 		),
+		
+		fn renommer _arg  =(
+			local nvNom 		= _arg.label
+	 		local noeudCible = m_edit.getDossier ()
+			
+			debug "nvNom" var:nvNom
+			debug "itemSelect" var:itemSelec	 param:#name
+			
+			debug "noeudCible" var:noeudCible param:#nomUnique		
+			
+			if nvNom != undefined  and  noeudCible !=undefined do 				
+				m_cmd.renommer		noeudCible  	nvNom
+			
+		),
+		
 		
 		
 		--- etat des nodes ---
@@ -128,7 +149,7 @@ struct str_treeViewMgr (
 		),
 		fn restaurer_etatItems =(
 			for etat in m_etatItems do (
-				local noeud = m_arbo.getParNomUnique  etat.name
+				local noeud = m_edit.getNoeud  etat.name
 				if noeud != undefined	do (
 					local item = getItem noeud
 					if etat.expand
@@ -166,9 +187,11 @@ struct str_treeViewMgr (
 				---- on actualise Edit ----
 				m_edit.setDossier 		_noeudA
 				
-				---- on selectionne les items ----
-				m_ui.SelectedNode 	= getItem		_noeudA
-				m_ui.SelectedNode.EnsureVisible()
+-- 				---- on selectionne les items ----
+-- 				if m_ui.SelectedNode !=  getItem		_noeudA
+-- 					do m_ui.SelectedNode 	= getItem		_noeudA
+-- 				if m_ui.SelectedNode != undefined 
+-- 					do m_ui.SelectedNode.EnsureVisible()
 				
 				
 			)
@@ -197,7 +220,7 @@ struct str_treeViewMgr (
 			m_edit.setDossier  (getNoeud 	m_ui.SelectedNode )
 			
 		),
-		fn actualiser  = (				
+		fn actualiser  = (
 			
 			debug "actualiser"
 			
@@ -205,39 +228,25 @@ struct str_treeViewMgr (
 			vider ()
 			
 			-- on recréer l'arborescence--		
-			creerItem 		m_arbo.root  		m_ui
+			local root = m_edit.getNdRoot ()
+			creerItem 		root  		m_ui
 			
 			-- ajout du noeud recherches --
-			noeudTVRech 			= m_ui.Nodes.add 		"RECHERCHE"
-			noeudTVRech.name 	= "RECHERCHE"	
-			for enfant in ( m_arbo.recherche.getNoeuds  () ) 
-				do ajouterTV 	enfant  	noeudTVRech	
-			append m_noeudsTV_total 	noeudTVRech
+			local ndRecherche = m_edit.getNdRecherche ()
+			local itemRech 			= m_ui.Nodes.add 		"RECHERCHE"
+			itemRech.name 	= "RECHERCHE"
+			
+			
+			for enfant in ( ndRecherche.getNoeuds  () ) 
+				do ajouterTV 	enfant  	itemRech	
+			append m_noeudsTV_total 	itemRech
 			
 			--  la selection --
 			local dossierCourant 	= m_edit.getDossier ()	
 			if dossierCourant.estDansLabib () do
-				selectionner 	dossierCourant
-			/* local itemSelec 			= getItem	dossierCourant
-			m_ui.SelectedNode 		= itemSelec
-			itemSelec.expand ()	 */
+				selectionner 	dossierCourant 
 			
 		),
-		/* 
-		fn renommer 			_nouveauNom  =(
-			debug "renommer tv"
-			debug "m_selection tv" var:m_selection
-			
-			if _nouveauNom != undefined  and  m_selection !=undefined do ( 
-				
-				m_selection.nom 	= _nouveauNom
-				--ecriture du fichier ---
-				m_selection.enregistrer ()
-				
-				selectionner	m_selection.parent
-			)
-		),
-		*/
 		
 		
 		---- dragAndDrop ---
@@ -294,7 +303,11 @@ struct str_treeViewMgr (
 		---- Souris ----
 		fn clq_down 			_arg			= (
 			
+			debug "clq_down"
 			local	noeudAClique = getNoeudA_at  _arg.x _arg.y 
+			debug "noeudAClique" var:noeudAClique param:#nom
+			
+			if noeudAClique != undefined do		selectionner	noeudAClique
 			
 			case _arg.button of (
 				(m_btnsDotNet.Left): 		m_edit.ouvrir 	noeudAClique
@@ -329,11 +342,12 @@ struct str_treeViewMgr (
 		---- clavier ----		
 		fn key_up				_arg =(
 			keyCode = _arg.KeyCode
+			show _arg
 			local touches = dotnetclass  "System.Windows.Forms.Keys"
 -- 			show _arg.KeyCode
 -- 			actualiserSelection ()
 			
-			local dossierCourant  =( getNoeud 	m_ui.SelectedNode )
+			local dossierCourant  = m_edit.getDossier ()
 -- 			
 -- 			debug "dossierCourant" var:dossierCourant param:#nom
 -- 			debug "_arg.Control" var:_arg.Control
@@ -348,10 +362,11 @@ struct str_treeViewMgr (
 					if _arg.shift then m_prt.focusPrecedant ()
 									else  m_prt.focusSuivant ()
 				)
-		/* 		-- renommer --
-				( touches.F2 ): 		if not m_edit.selectionEstVide ()	do editerNom	selectionA[1]
+		 		-- renommer --
+				( touches.F2 ): 		if dossierCourant.estElemUtilisateur () do editerNom	dossierCourant
+				
 				-- supprimer --
-				( touches.Delete ): 	if not m_edit.selectionEstVide ()	do m_edit.supprimer	selectionA */
+				( touches.Delete ): 	if dossierCourant.estElemUtilisateur ()	do m_edit.supprimer	dossierCourant
 			
 				
 -- 				
@@ -387,11 +402,11 @@ struct str_treeViewMgr (
 			m_col_txtDossier 				= m_prefs.fenetre.col_txtDossier
 			m_col_fondDossier 			= m_prefs.fenetre.col_fondDossier
 			m_col_fondDossierPrt 		= m_prefs.fenetre.col_fondDossierPrt	
-			m_col_txt							= m_prefs.fenetre.col_txt
+			m_col_txt						= m_prefs.fenetre.col_txt
 			
 			---- l'UI ----
 			m_ui.borderstyle 				= (dotnetclass "System.Windows.Forms.BorderStyle").None
-			m_ui.LabelEdit 					= false 
+			m_ui.LabelEdit 				= true 
 			m_ui.allowdrop 				= true
 			m_ui.HideSelection 			= false
 			m_ui.BackColor 				= toCouleurDotnet	m_col_uiFond

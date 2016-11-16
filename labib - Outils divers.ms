@@ -17,6 +17,21 @@
 #################################################################################*/
 
 
+fichierFetch = (getDir #temp )+ "TmpFetch.max"
+fn fetchPerso =(
+	debuger "Fetch perso"
+	if doesFileExist fichierFetch do (
+		delete objects
+		mergeMAXFile fichierFetch quiet:true
+		deletefile fichierFetch
+	)
+)
+fn holdPerso =(
+	debuger "hold perso"
+	saveMaxFile fichierFetch quiet:true
+)
+
+
 ---- variable en array ----
 fn toArray &var =(
 	if classof var != Array 

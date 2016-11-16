@@ -103,6 +103,10 @@ struct str_menus (
 				menuItem nouvelAsset 				"Nouvel asset"
 				menuItem nouvelAssetDossier 	"Nouveaux assets depuis un dossier"
 				
+				seperator sep086546
+				
+				menuItem faireAprecus 				"Apercus"
+				
 				seperator sep08
 				
 				menuItem undoMenu 		"Undo"		enabled:( labib.cmd.aDesUndo () )
@@ -145,29 +149,34 @@ struct str_menus (
 				
 				
 				------- les evenements ------------------------------------------				
+				on importer 						picked do	labib.cmd.importer ( labib.edit.getSelection () ) 
 				on nouveauDossier 				picked do	labib.cmd.nvDossier ()				
-				on nouvelAsset 					picked do	labib.nouvelAsset ()				
-				on nouvelAssetDossier 			picked do	labib.nouvelAsset_dossier ()	
+				on nouvelAsset 					picked do	labib.cmd.nvlAsset ()				
+				on nouvelAssetDossier 			picked do	labib.cmd.nvxAssets()	
 				
-				on couper  picked do  labib.edit.couper 	( labib.edit.getSelection () )
+				on OurvirExplo 					picked do	labib.edit.ouvrirDansExplorer ( labib.edit.getSelection () )[1]
+				on Ourvir 							picked do	labib.edit.ouvrirFichier ( labib.edit.getSelection () )[1]
+				
+				on couper  picked do  labib.cmd.couper 	( labib.edit.getSelection () )
 				on coller  	picked do  (
 					local selec = labib.edit.getSelection () 
-					if selec.count >0 then
-						labib.edit.coller 	selec[1]			
-					else labib.edit.coller 	( labib.edit.getDossier () )
+					if selec.count >0 
+						then	labib.cmd.coller 	selec[1]			
+						else 	labib.cmd.coller 	( labib.edit.getDossier () )
 				)
-				on supprimer 						picked do 	labib.cmd.supprimer 	p1:( labib.edit.getSelection () ) 
+				on supprimer 						picked do 	labib.cmd.supprimer 	( labib.edit.getSelection () ) 
 				
+				on faireAprecus 					picked do 	labib.edit.faireApercus 	( labib.edit.getSelection () ) 
 				
 				on undoMenu 						picked do 		labib.cmd.defaire()
 				on redoMenu 						picked do 		labib.cmd.refaire()
 				
 				
-				on affichage_details 			picked do	labib.changerAffichage  #details
-				on affichage_liste				picked do	labib.changerAffichage  #liste
-				on affichage_GrandeIcone		picked do	labib.changerAffichage  #grandeIcone
-				on affichage_petitIcone		picked do	labib.changerAffichage  #petitIcone
-				on affichage_tuile				picked do	labib.changerAffichage  #tuile
+				on affichage_details 			picked do	labib.fenetre.changerAffichage  #details
+				on affichage_liste				picked do	labib.fenetre.changerAffichage  #liste
+				on affichage_GrandeIcone		picked do	labib.fenetre.changerAffichage  #grandeIcone
+				on affichage_petitIcone		picked do	labib.fenetre.changerAffichage  #petitIcone
+				on affichage_tuile				picked do	labib.fenetre.changerAffichage  #tuile
 				
 				
 				
@@ -177,9 +186,9 @@ struct str_menus (
 					labib.fenetre.actualiser ()
 				)
 				
-				on infos								picked do	labib.toggleInfos ()
-				on apercu							picked do	labib.toggleApercu ()
-				on rendu							picked do	labib.toggleRendu ()
+				on infos								picked do	labib.fenetre.toggleInfos ()
+				on apercu							picked do	labib.fenetre.toggleApercu ()
+				on rendu							picked do	labib.fenetre.toggleRendu ()
 			
 				on affichSelec						picked do		for n in labib.edit.getSelection () do	labib.arbo.afficherNoeud	n
 				
@@ -242,15 +251,16 @@ struct str_menus (
 				menuItem expandAll 			"Expand all"
 				
 				seperator sep04
+						
 				
 				menuItem rechercheAvance 			"Recherche avancée"
 				------- les evenements ------------------------------------------
 				on nouveauDossier 			picked do	labib.cmd.nvDossier ()
-				on nouvelAsset 				picked do	labib.nouvelAsset ()				
-				on nouvelAssetDossier 		picked do	labib.nouvelAsset_dossier ()		
+				on nouvelAsset 				picked do	labib.cmd.nvlAsset ()				
+				on nouvelAssetDossier 		picked do	labib.cmd.nvxAssets()		
 				on renommer 					picked do	labib.renommer ()	
 				
-				on supprimer 					picked do 	labib.cmd.supprimer 		p1:( labib.getDossiercourant () )
+				on supprimer 					picked do 	labib.cmd.supprimer 		( labib.edit.getDossier () )
 								
 				
 				on undoMenu 						picked do 		labib.cmd.defaire()
@@ -260,11 +270,11 @@ struct str_menus (
 					local source = labib.edit.getDossier () 
 					debug "couper" var:source	param:#nomUnique
 					labib.edit.ouvrir 	source.parent
-					labib.edit.couper 	source
+					labib.cmd.couper 	source
 				)
 				on coller  	picked do  (
 					local dest = labib.edit.getDossier () 
-					labib.edit.coller 	dest			
+					labib.cmd.coller 	dest			
 				)
 				
 				on expandAll picked do labib.fenetre.m_dialog.ui_TV.expandAll ()

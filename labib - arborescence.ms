@@ -75,19 +75,20 @@ struct str_element (
 		fn retirerEnfant 	_enfantARetirer =(
 		),
 		fn retirerDuParent  			 	= (
-			
 			-- on le supprime dans le parent --
-			if parent != undefined do 
-				parent.retirerEnfant  this
-			
+			if parent != undefined do (
+				debug "on le supprime dans le parent" var:parent.nom
+				local index  = findItem parent.enfants this
+				if index != 0 do deleteItem   parent.enfants 	index
+			)
 		),
 		
-		fn supprimer  	_noeudsArbo		 = (
+		fn supprimer  	 = (
 			
-			toArray &_noeudsArbo		
+			retirerDuParent ()
 			
-			for noeud in _noeudsArbo
-				do noeud.supprimer 	()
+			--- on le retire du fichier --
+			retirerDuFichier ()
 			
 		),
 		
@@ -192,7 +193,7 @@ struct str_branche (
 	
 		----fichier ---
 		fn enregistrer =	if nomUnique != "PRESSEPAPIER"	do m_prt.fichier_ecrireNoeud this,
-		fn retirerDuFichier =	m_prt.fichier_supprimerNoeud this,
+		fn retirerDuFichier =	m_prt.fichier_supprimerNoeud 	this,
 	
 	
 		fn retirerEnfant 	_enfantARetirer =(
@@ -204,11 +205,13 @@ struct str_branche (
 			
 		),
 		fn retirerDuParent  			 	= (
-			
 			-- on le supprime dans le parent --
-			if parent != undefined do 
-				parent.retirerEnfant  this
-			
+			if parent != undefined do (
+				debug "on le supprime dans le parent" var:parent.nom
+				local index  = findItem parent.enfants this
+				if index != 0 do deleteItem   parent.enfants 	index
+			)
+		
 		),
 		fn ajouterEnfant 		_enfant 	= (
 			
@@ -222,20 +225,11 @@ struct str_branche (
 			
 			if nomUnique != "ROOT" and nomUnique != "RECHERCHE" then (
 				
-				-- on le supprime dans le parent --
-				if parent != undefined do (
-					debug "on le supprime dans le parent" var:parent.nom
-					local index  = findItem parent.enfants this
-					if index != 0 do deleteItem   parent.enfants 	index
-				)
+				
+				retirerDuParent ()
 				
 				--- on le retire du fichier --
 				retirerDuFichier ()
-				
-				--- on suprrime les enfants du chichier ----
-				for enfant in enfants 
-					do enfant.supprimer  ()
-				
 				
 			) 
 			
@@ -398,9 +392,10 @@ struct str_arborescence (
 			)
 			
 		),
-		fn fichier_supprimerNoeud _noeud =(
+		fn fichier_supprimerNoeud 	_noeud =(
 			-- on supprime du fichierArbo --
 			delINISetting   fichierArbo	_noeud.nomUnique
+			for enfant in _noeud.enfants do fichier_supprimerNoeud enfant
 		),
 		fn fichier_ouvrir =	ShellLaunch "explorer.exe" @"C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\data\arbo.ini"	,
 
@@ -410,7 +405,7 @@ struct str_arborescence (
 	---- Creation des nouveaux élements ou branches ----
 	public
 		fn creerNoeud  	nom:"Nouvelle branche" 	\
-								parent:root 	\
+								parent:root 					\
 								nomUnique:( creerNomUnique_branche () )	\
 								enregistrer:true	=( 			
 									
@@ -549,18 +544,16 @@ struct str_arborescence (
 			
 			debug "deplacer"
 			toArray 	&_noeudsADeplacer
-			debug "_noeudsADeplacer" var: _noeudsADeplacer param:#nom
-			
--- 			for n in _noeudsADeplacer do n.afficher recursif:false
-			
+
 			local noeudParentDepart = _noeudsADeplacer[1].parent
-			debug "noeudParentDepart" var: noeudParentDepart param:#nom
-			
-			for noeudADeplacer in _noeudsADeplacer do (
+
 				
+			for i = 1 to _noeudsADeplacer.count do (
+				local 	noeudADeplacer = _noeudsADeplacer[i]				
 				_noeudDest.ajouterEnfant 	noeudADeplacer
 				noeudADeplacer.enregistrer ()
 			)
+			
 			_noeudDest.enregistrer ()
 			noeudParentDepart.enregistrer ()
 		),

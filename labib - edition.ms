@@ -12,6 +12,16 @@
 
 
 
+
+--------------------------------------------------------------------------------------------------------------------
+-------Les scripts de corona				   ----------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------
+global CoronaConverterSuppressGui = true
+include  "$scripts\CoronaRenderer\CoronaConverter_v1.29.ms"
+CoronaConverterSuppressGui = false
+
+
+
 --------------------------------------------------------------------------------------------------------------------
 ------- Les composites de l'arborescence ----------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------
@@ -30,7 +40,7 @@ struct str_edition (
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
 		),
 	----------------------------------------------------------------------------------------------------------
-	
+		
 		
 		
 		
@@ -39,47 +49,90 @@ struct str_edition (
 	------------ Les membres	----------------------------------------------------------------------------------	
 	---- pointeurs ----
 	public 
-		m_labib,																				---- la structure principale ---	
-		m_TV 		/* = m_fenetre.m_dialog.m_TV */,									---- le treeview ---
-		m_LV 		/* = m_fenetre.m_dialog.m_LV */,									---- le listview ---
+		m_labib,										---- la structure principale ---	
+		m_TV 		,								---- le treeview ---
+		m_LV 		,								---- le listview ---
 	private
-		m_prefs		= m_labib.prefs,													---- les preferences ---
-		m_arbo		= m_labib.arbo,													---- l'arborescence ---
-		m_fenetre	/* = m_labib.fenetre */,												---- la fenetre ---
+		m_prefs		= m_labib.prefs,			---- les preferences ---
+		m_arbo		= m_labib.arbo,			---- l'arborescence ---
+		m_apercus /* 	= m_labib.apercus */,		---- les apercus ----
+		m_fenetre	,								---- la fenetre ---
+		
 		
 	---- position dans la bib et selection -----
-		m_dossier,																			---- Selectionné dans le treeview, et enfants affichés dans le listview ----
-		m_selection =#(),																---- Elements selectionés dans le listview ----
+		m_dossier,									---- Selectionné dans le treeview, et enfants affichés dans le listview ----
+		m_selection =#(),						---- Elements selectionés dans le listview ----
 		
 	--- managers ----
-		m_chrono 	= str_chrono (),													---- manager pour chronometrer les operations ----
+		m_chrono 	= str_chrono (),			---- manager pour chronometrer les operations ----
 	public
-		m_hist ,		/* = str_historique 		m_dialog:m_fenetre.m_dialog \ */	---- manager de l'historique ----
-												/* 	m_edit:this */
+		m_hist ,										---- manager de l'historique ----
 		
 	private
 	---- drag ----
 		m_dragFlag 		= false,
 		m_dragNoeuds 	=#(),	-- les noeuds draggés ----
-	
+		
+	--------- conversion coronas ----------
+		m_coroConverter = CoronaConverter,
+		m_coroProxyConverter = CoronaProxyConverter,
+-- 					CoronaConverter.convertScene ()
+
+	public  -- DEBUG sinon private ---
 	---- copier coller ---
 		m_pressePapier = str_branche 	nom:"pressePapier" 	\
 													nomUnique:"PRESSEPAPIER",
+		m_PressePapierOrigine,
+		
+		
 		
 		
 	------------ Les fonctions	----------------------------------------------------------------------------------	
 	public
 		---- Fonctionnement ----
+		
+		--- noeuds arbo ---
+		fn getNoeud 	_nomUnique	=(
+			local result
+			if _nomUnique != undefined 	do	
+				result = m_arbo.getParNomUnique 	_nomUnique
+			
+			result
+		),
+		fn getNdRetour 	=(
+			m_arbo.retour
+		),
+		fn getNdRoot 	=(
+			m_arbo.root
+		),
+		fn getNdRecherche 	=(
+			m_arbo.recherche
+		),
+		fn getNdsDrag = m_dragNoeuds,
+		fn getPressePapier = for n in m_pressePapier.enfants collect n,
+		
+		fn getPressePapierOrigine = m_PressePapierOrigine,
+		
+		
+		
+		
 		-- Dossier --
 		fn getDossier 						= (
-			if m_dossier == undefined do m_dossier = m_arbo.root
-				m_dossier
+			
+			if m_dossier == undefined do 
+				m_dossier = m_tv.getNoeud	 m_tv.m_ui.SelectedNode
+			if m_dossier == undefined do 
+				m_dossier = m_arbo.root
+			m_dossier
 		),
 		fn setDossier		_noeudA		= ( 
 			debug "setDossier" var:_noeudA param:#nom
+			debug "m_dossier BACK" var:m_dossier param:#nom
 			if _noeudA != m_dossier do (				
+			debug "------------<><>" 
 				m_dossier = _noeudA 
-				m_TV.selectionner _noeudA
+			debug "m_dossier NEW" var:m_dossier param:#nom
+-- 				m_TV.selectionner _noeudA
 			)
 			
 		),
@@ -107,7 +160,6 @@ struct str_edition (
 		
 		
 		
-		
 	public
 		--- Initialisations ---
 		fn initialiser =(
@@ -117,6 +169,8 @@ struct str_edition (
 			--- fenetre ----
 			m_fenetre	= m_labib.fenetre
 			m_fenetre.initialiser ()
+			
+			m_apercus 	= m_labib.apercus
 			
 			--- historique ----			
 			m_hist 			= str_historique 		m_dialog:m_fenetre.m_dialog		m_edit:this
@@ -145,31 +199,25 @@ struct str_edition (
 			debug "enregistrer_historique" var:enregistrer_historique
 			
 			if _noeudAOuvrir != undefined then (
-				debug "--------1---------------"
+				
 				-- si differnet du dossier courant--
 				if _noeudAOuvrir != m_dossier do (
 					
-				debug "--------2---------------"
 					---- on actualise la selection ---					
 					setDossier	_noeudAOuvrir
 					viderSelection ()
 					
-					---- on affiche la ListView  ---					
-					m_LV.afficher  _noeudAOuvrir
+					---- on affiche la ListView  ---		
+					m_LV.actualiser ()
 					
 					---- historique ---
 					if enregistrer_historique do m_hist.enregistrer  	_noeudAOuvrir
 					
 				)
 				
--- 				---- selection du premier element du LV (pour navigation clavier) ----------
--- 				m_LV.selectionner ()
-				
+				---- selection du premier element du LV (pour navigation clavier) ----------
 				m_LV.selectionnerPremier ()		
 				
--- 				---- si selection TV different de noeudA ----
--- 				if getItem _noeudAOuvrir != m_ui.selectedNode
--- 					do selectionner _noeudA
 				
 				
 				
@@ -187,16 +235,18 @@ struct str_edition (
 		),
 		
 		fn inserer	_noeuds 	_noeudDest 	=(
+			debug "inserer"
 			
 			--- etat inital du TV ----
 			m_TV.stocker_etatItems ()
 			
 			toArray 	&_noeuds
 			for n in _noeuds do (
-				n.parent.ajouterEnfant		n
+				debug "n" var:n param:#nom
+				_noeudDest.ajouterEnfant		n
 				n.enregistrer ()
-				n.parent.enregistrer ()
 			)
+			_noeudDest.enregistrer ()
 			
 			
 			m_fenetre.actualiser ()
@@ -207,23 +257,45 @@ struct str_edition (
 		),
 		
 		
-		
-		--- Actions utilisateur ----
-		fn importer_scene 	_noeudsAImporter	=(
+		--- Actions utilisateur ---------------------------------
+		---- importation ----
+		fn importer		_noeudsAImporter	=(
 			debug "importer dans la scene"
 			debug "noeuds" var:_noeudsAImporter param:#nom
 		),
-		
 		fn importer_viewport 							= (
 			debug "Importation dans la scene"
 			debug "noeuds importés" var:( for n in m_LV.m_selection collect n.nom )
 		),
+		fn ouvrirDansExplorer _noeud =(
+			ShellLaunch "explorer.exe" ("/e,/select,\"" +  _noeud.fichier + "\"")
+		),
+		fn ouvrirFichier _noeud =(
+			local check = checkForSave()
+			if check do loadMaxFile  _noeud.fichier
+		),
 		
 		
-		fn deplacer _noeudsA 	_dossierDest =(
+		--------- conversion coronas ----------
+		fn convertMateriauxScene =(
 			
--- 			--- si la destination n'est pas dans les truc a deplacer (boucle infernale ! ) --
--- 			if ( findItem _noeudsA _dossierDest ) == 0 
+-- 			show coronaConverter
+			m_coroConverter.convertScene ()
+		),
+		fn convertToProxy =(
+			
+-- 		m_coroProxyConverter = CoronaProxyConverter
+		),
+		
+		fn faireApercus _noeuds =(
+			
+				m_apercus.creer 	_noeuds
+-- 		m_coroProxyConverter = CoronaProxyConverter
+		),
+		
+		
+		---- gestion de la liste ----		
+		fn deplacer _noeudsA 	_dossierDest =(
 			
 			--- etat inital du TV ----
 			m_TV.stocker_etatItems ()
@@ -303,6 +375,8 @@ struct str_edition (
 			--- sortie Listener --
 			m_chrono.demarrer ()
 			
+			local nouvelElement 
+			
 			---- fenetre de pointage de fichier ----
 			local	fichierSource = 	getOpenFileName  	caption:				"Fichier source du nouvel asset" \
 																		types:				"model (*.max)|*.max|All Files (*.*)|*.*|"	\
@@ -314,12 +388,15 @@ struct str_edition (
 				debug "Importer " var:fichierSource
 				
 				---- creation du nouveau noeud ----
-				local nouvelElement = m_arbo.creerElement  nom:(getFilenameFile	fichierSource) \
+				nouvelElement = m_arbo.creerElement  nom:(getFilenameFile	fichierSource) \
 																			parent:(  getDossier () )   		\
 																			fichier:fichierSource							\
 																			apercu:""	\
 																			tags:""	\
 																			type:#vide	
+				
+				---- creation de l'apercu ----
+				m_apercus.creer 	nouvelElement
 				
 				---- actualise l'UI ----
 				m_fenetre.actualiser ()
@@ -329,8 +406,10 @@ struct str_edition (
 				ecrire ( "Asset créé: " + nouvelElement.nom )
 				m_chrono.ecrireDuree ()
 				
+				
 			)
 			debug "fin : nouvelAsset\n"
+			nouvelElement
 		),		
 		fn nouvelAsset_dossier 	=(
 			
@@ -366,6 +445,9 @@ struct str_edition (
 				
 				(  getDossier () ).enregistrer ()
 				
+				---- creation de l'apercu ----
+				m_apercus.creer 	nouveauxElements
+				
 				m_fenetre.actualiser ()			
 				m_fenetre.selectionnerLV 	nouveauxElements
 				
@@ -382,10 +464,13 @@ struct str_edition (
 				m_LV.focus ()
 				
 				debug "fin : nouvelAsset_dossier\n"
+				
 			)
+			nouveauxElements
 		),
 		fn supprimer 	_noeudsArbo	=(
-			
+			debug "supprimer"
+			debug "_noeudsArbo" var:_noeudsArbo param:#nom
 			--- etat inital du TV ----
 			m_TV.stocker_etatItems ()
 			
@@ -395,11 +480,11 @@ struct str_edition (
 			local parent = _noeudsArbo[1].parent
 			
 			--- on supprime tout de l'arbo ---
-			m_arbo.supprimer _noeudsArbo
+			m_arbo.supprimer 	_noeudsArbo
 			
 			--- on actualise ---
 			m_fenetre.actualiser()		
-			m_fenetre.selectionnerTV		parent
+			ouvrir 	parent
 			
 			--- restauration etat du TV ---
 			m_TV.restaurer_etatItems ()
@@ -407,20 +492,25 @@ struct str_edition (
 			_noeudsArbo
 		),
 		fn couper _noeudsACouper =(
+			debug "couper"
 			toArray 	&_noeudsACouper
 			m_pressePapier.enfants =#()
+			m_PressePapierOrigine = _noeudsACouper[1].parent
 			_noeudsACouper = for n in _noeudsACouper where not n.estRetour() collect  n
 			deplacer 	_noeudsACouper 		m_pressePapier
 			
 		),
 		fn coller _noeudDest =(
+			debug "coller"
 			if _noeudDest != undefined do (
 				if _noeudDest.nomUnique =="RETOUR" do _noeudDest = _noeudDest.parent
-				deplacer 	m_pressePapier.enfants		_noeudDest
+					local pressPapier = for enfant in m_pressePapier.enfants collect enfant
+				deplacer 	pressPapier		_noeudDest
 			)
+			m_PressePapierOrigine = undefiend
 		),
 	
-		
+		--- presse parpier ----
 		fn pressePapierVide =(
 			m_pressePapier.enfants.count == 0
 		),
@@ -439,8 +529,6 @@ struct str_edition (
 			debug "drag_finaliser	---------------------------------------"
 			debug "deplacer" var:m_dragNoeuds param:#nomUnique
 			debug "dans" var:_noeudADest param:#nomUnique
-			
-			deplacer 	m_dragNoeuds 	_noeudADest
 			
 			m_dragFlag = false
 			
@@ -510,9 +598,8 @@ struct str_edition (
 			
 		
 		)
-	 */
+	*/
 ) --- fin str_edition
-
 
 
 

@@ -1,24 +1,30 @@
-clearListener ()
-try ( 	labib.fermer ()	) catch  ()
 
-Global 	labib = fileIn "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib.ms" 
- format "\n\n"
+-- clearListener ()
+-- try ( 	labib.fermer ()	) catch  ()
 
-labib.ouvrir 	()
+-- fileIn "$userScripts\cp - labib\labib.ms" 
+--  format "\n\n"
+
+-- labib.creerArboDeBase()
+-- labib.creerArboDeBase()
+
+-- labib.ouvrir 	()
 /* 
 labib.ouvrir 	()
 	Global 	labib = fileIn "$userScripts\labib\labib.ms" 
 	labib.ouvrir 	()
 	
  */
- 
+
+	
+	
 macroScript Labib
 category:"#CPages"
 toolTip:""
 (
 	
--- 	Global 	labib  = fileIn "$userScripts\labib\labib.ms" 
-	Global 	labib  = fileIn "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib.ms" 
+	fileIn	 "$userScripts\cp - labib\labib.ms" 
+-- 	fileIn "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib.ms" 
 	
 	on execute do 	(
 		
@@ -36,10 +42,10 @@ labib.arbo.fichier_supprimer ()
 labib.arbo.fichier_ouvrir ()
 
 labib.creerArboDeBase()
+labib.ouvrir ()
 
 
-
-
+debuger "" var:(labib.edit.getSelection ()) param:#nom
 
 
 labib.cmd.defaire()

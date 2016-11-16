@@ -64,20 +64,22 @@ struct str_prefsFenPrincipale (
 	
 	accroche		=	false,				---- si le mode accroche fenetres est activé --- ( depreciated )
 	couleurFond 	= (color 56 56 56),
-	tailleApercus 	= [255, 255 ],
+	tailleApercus 	= [512, 512 ],
 	
 	afficherMenu 	= false,
 	afficherTitre 	= false,
 	afficherDossier = true,
 
-	tailleApercusLV = 40,		-- taille affiché des apercus dans le LV --
+	tailleApercusLV = 100,		-- taille affiché des apercus dans le LV --
 	
 	---- Couleurs ----
 	-- des rollouts --
-	col_fenetreFond			= color 56  95 120, 	----  ----
+-- 	col_fenetreFond			= color 56  95 120, 	----  bleu ----
+	col_fenetreFond			= color 68 68 68, 	---- MAX ----
 	col_fenetreTxt				= color 230  230 230, 	----  ----
 	
-	col_uiFond 					= color 160 166 182, 	----  ----
+-- 	col_uiFond 					= color 160 166 182, 	----  bleu ----
+	col_uiFond 					= color 81 81 81, 	----  MAX ----
 	col_uiFondRecherche 	= color 190 196 212, 		----  ----
 	
 	col_fondDossier 			= color 167 173 189, 	----  ----
@@ -101,9 +103,15 @@ struct str_prefsFenPrincipale (
 	
 	
 	---- icones ----
-	ico_btnFermer_R				= dossierScript + "data\ico\ico_fermer_R.jpg", 	-- repos 	--
-	ico_btnFermer_S				= dossierScript + "data\ico\ico_fermer_S.jpg", 	-- survol 	--
-	ico_btnFermer_P				= dossierScript + "data\ico\ico_fermer_P.jpg" 	-- press 	--
+	-- facon dossier commun --
+	ico_btnFermer_R	=	"$userScripts\cp - GLOBAL\ico\ico_fermer_grisClaire_R.jpg",
+	ico_btnFermer_S	=	"$userScripts\cp - GLOBAL\ico\ico_fermer_grisClaire_S.jpg",
+	ico_btnFermer_P	=	"$userScripts\cp - GLOBAL\ico\ico_fermer_grisClaire_P.jpg"--,
+	
+	-- facon dossier labib --
+-- 	ico_btnFermer_R				= dossierScript + "data\ico\ico_fermer_R.jpg", 	-- repos 	--
+-- 	ico_btnFermer_S				= dossierScript + "data\ico\ico_fermer_S.jpg", 	-- survol 	--
+-- 	ico_btnFermer_P				= dossierScript + "data\ico\ico_fermer_P.jpg" 	-- press 	--
 
 )
 
@@ -143,19 +151,20 @@ struct str_prefsRendu (
 	convertToCoronaMats 		= true,
 	
 	-- parametres du moteur de rendu --
-	moteur							= "Corona_1_4__hotfix_1()",	-- execute ( ( filterString moteur ":")[1] +"()" )
-	taille								= [256,256],	
+	moteur							= "Corona_1_5__hotfix_1()",	-- execute ( ( filterString moteur ":")[1] +"()" )
+	taille								= [512,512],	
 	coefDistance					= 1.7,
+	
 	exposition 						= -5,
-	highlightCompress			= 1.4,
+	highlightCompress			= 1,
 	temperatureRendu 			= 5300,
 	contraste 						= 3,
 	
 	-- parametres rendu Apercus --
 	nom 								= "apercu_",
 	angleVue 						= 40,
-	noiseLevel 						= 7,
-	denoiseAmount 				= .4,
+	noiseLevel 						= 1,
+	denoiseAmount 				= 1,
 	transX 							= 0,
 	transY 							= 0,
 	transZ 							= 0,
@@ -195,8 +204,8 @@ struct str_prefsRendu (
 struct str_preferences (
 
 	------------ DEBUG	----------------------------------------------------------------------------------
--- 		m_debug = false,
-		m_debug = true,
+		m_debug = false,
+-- 		m_debug = true,
 		m_dbgPrefix ="prefs",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
@@ -296,7 +305,6 @@ struct str_preferences (
 		
 	
 )
-
 
 
 

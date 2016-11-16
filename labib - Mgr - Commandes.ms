@@ -10,7 +10,7 @@
 	
 	Gerer les undo redo de la biblio
 	
-	---- MODELE de commande ---------------------------------------
+	---- MODELE pour creer une commande ---------------------------------------
 			struct 	cmd_MODELE  (		
 				---- membres --------------------------------
 				public
@@ -36,32 +36,28 @@
 
 
 ---- les commandes ------------------------------------------------------------------
----------------------------------------------------------------------------------------
-struct 	cmd_nvDossier  (		
-	---- membres --------------------------------
-	public
-		m_edit,
-	private
-		m_nvDossier,
-	
-	---- fonctions  --------------------------------
-	public
-		fn executer  	=	( m_nvDossier = m_edit.nouveauDossier () ),
-		fn refaire 		=	m_edit.inserer		m_nvDossier	m_nvDossier.parent,
-		fn defaire 		=	m_edit.supprimer 	m_nvDossier
-)
+---- edition ----
 struct 	cmd_supprimer  (	
 	---- membres --------------------------------
 	public
 		m_edit,
 	private
-		m_elemsSupprimes,
+		m_ndsSupprimes,
+		m_ndOrigine,
 	
 	---- fonctions  --------------------------------
 	public
-		fn executer  p1:	=	( m_elemsSupprimes = m_edit.supprimer 	p1 ),
-		fn refaire 			=	( m_elemsSupprimes = m_edit.supprimer 	m_elemsSupprimes ),
-		fn defaire 			=	for elem in m_elemsSupprimes do m_edit.inserer	elem	elem.parent
+		fn executer  p1:	=	(
+			---- données de la commande ----
+			toArray 	&p1
+			m_ndsSupprimes = p1			
+			m_ndOrigine 	= m_ndsSupprimes[1].parent
+			
+			----action ----
+			m_edit.supprimer 		m_ndsSupprimes 
+		),
+		fn refaire 			=	( m_edit.supprimer 	m_ndsSupprimes ),
+		fn defaire 			=	m_edit.inserer	 m_ndsSupprimes		m_ndOrigine
 )
 struct 	cmd_renommer  (		
 	---- membres --------------------------------
@@ -75,9 +71,12 @@ struct 	cmd_renommer  (
 	---- fonctions  --------------------------------
 	public
 		fn executer 	p1:  p2: 	=	(
+			---- données de la commande ----
 			m_noeudCible 	= p1
 			m_nvNom		= p2
 			m_ancienNom 	= m_noeudCible.nom
+			
+			----action ----
 			m_edit.renommer 	m_noeudCible 	m_nvNom
 		),
 		fn refaire 	=(			
@@ -87,52 +86,32 @@ struct 	cmd_renommer  (
 			m_edit.renommer 	m_noeudCible 	m_ancienNom
 		)
 )
-struct 	cmd_nvlAsset  (
-	---- membres --------------------------------
-	public
-		m_edit,
-	private
-		m_data,
-	
-	---- fonctions  --------------------------------
-	public
-		fn executer 	=(			
-		),
-		fn refaire 	=(			
-		),
-		fn defaire =(			
-		)
-)
-struct 	cmd_nvxAssets  (	
-	---- membres --------------------------------
-	public
-		m_edit,
-	private
-		m_data,
-	
-	---- fonctions  --------------------------------
-	public
-		fn executer 	=(			
-		),
-		fn refaire 	=(			
-		),
-		fn defaire =(			
-		)
-)
 struct 	cmd_deplacer  (
 	---- membres --------------------------------
 	public
 		m_edit,
 	private
-		m_data,
+		m_ndsADeplacer=#(),
+		m_ndOrigine,
+		m_ndDestination,
 	
 	---- fonctions  --------------------------------
 	public
-		fn executer 	=(			
+		fn executer  p1: p2:		=(
+			---- données de la commande ----
+			toArray 	&p1
+			m_ndsADeplacer 	= p1
+			m_ndOrigine 		= m_ndsADeplacer[1].parent
+			m_ndDestination 	= p2
+			
+			----action ----
+			m_edit.deplacer 	m_ndsADeplacer 	m_ndDestination 
 		),
-		fn refaire 	=(			
+		fn refaire 		=(			
+			m_edit.deplacer 	m_ndsADeplacer 	m_ndDestination 
 		),
-		fn defaire =(			
+		fn defaire 		=(			
+			m_edit.deplacer 	m_ndsADeplacer 	m_ndOrigine 
 		)
 )
 struct 	cmd_couper  (	
@@ -140,15 +119,29 @@ struct 	cmd_couper  (
 	public
 		m_edit,
 	private
-		m_data,
+		m_ndsCoupes=#(),
+		m_ndOrigine,
 	
 	---- fonctions  --------------------------------
 	public
-		fn executer 	=(			
+		fn executer 	 p1: =(
+			---- données de la commande ----
+			toArray 	&p1
+			m_ndsCoupes 	= p1
+			m_ndOrigine 	= m_ndsCoupes[1].parent
+			
+			debuger  "m_ndsCoupes" var:m_ndsCoupes param:#nom
+			debuger  "m_ndOrigine" var:m_ndOrigine param:#nom
+			----action ----
+			m_edit.couper  m_ndsCoupes 
 		),
-		fn refaire 	=(			
+		fn refaire 	=(
+			m_edit.couper  m_ndsCoupes 			
 		),
 		fn defaire =(			
+			debuger  "m_ndOrigine" var:m_ndOrigine param:#nom
+			debuger  "m_ndsCoupes" var:m_ndsCoupes param:#nom
+			m_edit.inserer		m_ndsCoupes		m_ndOrigine
 		)
 )
 struct 	cmd_coller  (	
@@ -156,17 +149,115 @@ struct 	cmd_coller  (
 	public
 		m_edit,
 	private
-		m_data,
+		m_ndsCoupes	=#(),
+		m_ndOrigine,
+		m_ndDest,
+	
+	---- fonctions  --------------------------------
+	public
+		fn executer 	p1:	=(		
+			---- données de la commande ----
+			m_ndDest 		= p1
+			m_ndOrigine 	= m_edit.getPressePapierOrigine ()
+			debuger "m_ndOrigine" var:m_ndOrigine param:#nom
+			m_ndsCoupes 	= m_edit.getPressePapier ()
+			----action ----
+			m_edit.coller   m_ndDest 	
+		),
+		fn refaire 	=(
+			m_edit.deplacer  m_ndsCoupes 	m_ndDest
+			
+		),
+		fn defaire =(
+			debuger "m_ndsCoupes" 	var:m_ndsCoupes 	param:#nom
+			debuger "m_ndOrigine" 		var:m_ndOrigine 		param:#nom
+			m_edit.deplacer  m_ndsCoupes 	m_ndOrigine
+		)
+)
+
+
+
+---- creation -----
+struct 	cmd_nvDossier  (		
+	---- membres --------------------------------
+	public
+		m_edit,
+	private
+		m_nvDossier,
+	
+	---- fonctions  --------------------------------
+	public
+		fn executer  	=	( m_nvDossier = m_edit.nouveauDossier () ),
+		fn refaire 		=	m_edit.inserer		m_nvDossier	m_nvDossier.parent,
+		fn defaire 		=	m_edit.supprimer 	m_nvDossier
+)
+struct 	cmd_nvlAsset  (
+	---- membres --------------------------------
+	public
+		m_edit,
+	private
+		m_nouvelAsset,
+		m_dossier,
 	
 	---- fonctions  --------------------------------
 	public
 		fn executer 	=(			
+			m_dossier 			= m_edit.getDossier()
+			m_nouvelAsset 	= m_edit.nouvelAsset ()
 		),
 		fn refaire 	=(			
+			m_edit.inserer	m_nouvelAsset 	m_dossier
 		),
-		fn defaire =(			
+		fn defaire =(
+			m_edit.supprimer		m_nouvelAsset
 		)
 )
+struct 	cmd_nvxAssets  (	
+	---- membres --------------------------------
+	public
+		m_edit,
+	private
+		m_nvxAssets,
+		m_dossier,
+	
+	---- fonctions  --------------------------------
+	public
+		fn executer 	=(			
+			m_dossier 			= m_edit.getDossier()
+			m_nvxAssets = m_edit.nouvelAsset_dossier ()
+		),
+		fn refaire 	=(			
+			m_edit.inserer	m_nvxAssets 	m_dossier
+		),
+		fn defaire =(
+			m_edit.supprimer		m_nvxAssets
+		)
+)
+
+
+
+----importation ----
+struct 	cmd_importer  (		
+	---- membres --------------------------------
+	public
+		m_edit,
+	private
+		m_ndsAImporter,
+		m_objsImport,
+	
+	---- fonctions  --------------------------------
+	public
+		fn executer  p1:	=	(
+			m_ndsAImporter = p1
+			m_objsImport = m_edit.importer 	m_ndsAImporter 
+		),
+		fn refaire 			=	m_objsImport = m_edit.importer 	m_ndsAImporter ,
+		fn defaire 			=	for obj in  m_objsImport do try delete obj catch ()
+)
+
+
+
+
 
 
 
@@ -204,16 +295,18 @@ struct str_commandesMgr (
 		m_pileRefaire = #(),
 		
 	---- Commandes ----
-	public
-		cmdMgr_nvDossier		= str_commandeCtrl (),
+	private
 		cmdMgr_supprimer		= str_commandeCtrl (),
 		cmdMgr_renommer		= str_commandeCtrl (),
-		cmdMgr_nvlAsset			= str_commandeCtrl (),
-		cmdMgr_nvxAssets		= str_commandeCtrl (),
 		cmdMgr_deplacer			= str_commandeCtrl (),
 		cmdMgr_couper			= str_commandeCtrl (),
 		cmdMgr_coller				= str_commandeCtrl (),
+	
+		cmdMgr_nvDossier		= str_commandeCtrl (),
+		cmdMgr_nvlAsset			= str_commandeCtrl (),
+		cmdMgr_nvxAssets		= str_commandeCtrl (),
 
+		cmdMgr_importer			= str_commandeCtrl (),
 	
 	------------ Les fonctions	----------------------------------------------------------------------------------	
 	private
@@ -241,19 +334,22 @@ struct str_commandesMgr (
 				dernierRefaire.refaire ()
 				deleteItem m_pileRefaire 	m_pileRefaire.count
 			)
-		),
+		), 
 		
 	---- les commandes ----
 	public
-		fn	nvDossier 					=	executer 	cmdMgr_nvDossier,
-		fn	supprimer 	p1:			=	executer 	cmdMgr_supprimer 	p1:p1,
-		fn	renommer 	p1:	p2:	=	executer 	cmdMgr_renommer	p1:p1	p2:p2,
-		fn	nvlAsset 					=	executer 	cmdMgr_nvlAsset,
-		fn	nvxAssets 					=	executer 	cmdMgr_nvxAssets,
-		fn	deplacer 					=	executer 	cmdMgr_deplacer,
-		fn	couper 						=	executer 	cmdMgr_couper,
-		fn	coller 						=	executer 	cmdMgr_coller,
+		fn	supprimer 	_ndASupprimer					=	executer 	cmdMgr_supprimer 	p1:_ndASupprimer,
+		fn	renommer 	_ndARenommer	_nvNom		=	executer 	cmdMgr_renommer	p1:_ndARenommer	p2:_nvNom,
+		fn	deplacer 	_ndADeplacer		_ndDest		=	executer 	cmdMgr_deplacer 	p1:_ndADeplacer		p2:_ndDest,
+		fn	couper 		_ndsACouper						=	executer 	cmdMgr_couper		p1:_ndsACouper,
+		fn	coller 		_ndDest								=	executer 	cmdMgr_coller			p1:_ndDest,
+		
+		fn	nvDossier 											=	executer 	cmdMgr_nvDossier,
+		fn	nvlAsset 											=	executer 	cmdMgr_nvlAsset ,
+		fn	nvxAssets 											=	executer 	cmdMgr_nvxAssets,
 	
+		fn	importer 		_ndsAImporter					=	executer 	cmdMgr_importer		p1:_ndsAImporter,
+		
 	----- tests des undos ----
 		fn aDesUndo = m_pileDefaire.count >0,
 		fn aDesRedo = m_pileRefaire.count >0,
@@ -261,14 +357,17 @@ struct str_commandesMgr (
 	------------ Les evenements	----------------------------------------------------------------------------------	
 		on create do (
 			---- initialisation des commandes ----
-			cmdMgr_nvDossier.setCommande		( cmd_nvDossier 		m_edit:m_edit )
 			cmdMgr_supprimer.setCommande		( cmd_supprimer 		m_edit:m_edit )
 			cmdMgr_renommer.setCommande		( cmd_renommer 		m_edit:m_edit )
-			cmdMgr_nvlAsset.setCommande			( cmd_nvlAsset 		m_edit:m_edit )
-			cmdMgr_nvxAssets.setCommande		( cmd_nvxAssets 	m_edit:m_edit )
 			cmdMgr_deplacer.setCommande			( cmd_deplacer 		m_edit:m_edit )
 			cmdMgr_couper.setCommande			( cmd_couper 			m_edit:m_edit )
 			cmdMgr_coller.setCommande				( cmd_coller			m_edit:m_edit )
+			
+			cmdMgr_nvDossier.setCommande		( cmd_nvDossier 		m_edit:m_edit )
+			cmdMgr_nvlAsset.setCommande			( cmd_nvlAsset 		m_edit:m_edit )
+			cmdMgr_nvxAssets.setCommande		( cmd_nvxAssets 	m_edit:m_edit )
+			
+			cmdMgr_importer.setCommande			( cmd_importer 		m_edit:m_edit )
 		)
 )
 

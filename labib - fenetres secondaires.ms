@@ -2,13 +2,14 @@
 
 
 
+
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 ----------	Le rollout des infos  ---------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 rollout m_rollInfos "Infos" width:346 height:262
 (
 	------------  MEMBRES	----------------------------------------------------------------------------------
-	local prt
+	local m_labib
 	local prefs
 	
 	-- drag --
@@ -54,12 +55,12 @@ rollout m_rollInfos "Infos" width:346 height:262
 	
 	------------  FONCTION	----------------------------------------------------------------------------------
 	fn initialiser = (
-		ui_btnFermer.bitmap = openBitMap prt.prefs.fenetre.ico_btnFermer_R
+		ui_btnFermer.bitmap = openBitMap m_labib.prefs.fenetre.ico_btnFermer_R
 	)
 	
 	
 	------------  EVENEMENTS	----------------------------------------------------------------------------------
-	on m_rollInfos moved			pos 	do	prt.prefs.fenetre.posInfos	= pos
+	on m_rollInfos moved			pos 	do	m_labib.prefs.fenetre.posInfos	= pos
 	---- le drag ----
 	on m_rollInfos lbuttondown	pos 	do	drag.demarrer ()
 	on m_rollInfos lbuttonup 		pos 	do	drag.arreter ()
@@ -70,40 +71,40 @@ rollout m_rollInfos "Infos" width:346 height:262
 	on 	ui_btnFermer	mouseout 	do ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_R
 	on 	ui_btnFermer	mousedown do ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_P
 	on 	ui_btnFermer	mouseup	do ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_S
-	on 	ui_btnFermer 	click 			do prt.fenetre.infos.fermer()
+	on 	ui_btnFermer 	click 			do m_labib.fenetre.infos.fermer()
 	
 )
 
 struct infos_struct (
-	prt,
+	m_labib,
 	dialog = m_rollInfos,
 	
 	fn ouvrir =(
-		prt.prefs.fenetre.infos = true
-		createDialog dialog 	bgcolor:				prt.prefs.fenetre.col_fenetreFond 	 \
-									fgcolor:				prt.prefs.fenetre.col_fenetreFore 	\
+		m_labib.prefs.fenetre.infos = true
+		createDialog dialog 	bgcolor:				m_labib.prefs.fenetre.col_fenetreFond 	 \
+									fgcolor:				m_labib.prefs.fenetre.col_fenetreFore 	\
 									style:				#(#style_resizing) \
 									lockHeight:			true	\
 									lockWidth:			true	\									
-									pos:					prt.prefs.fenetre.posInfos	
+									pos:					m_labib.prefs.fenetre.posInfos	
 		
 		dialog.drag 	= drag_struct fenetre:dialog
-		dialog.prefs = prt.prefs
-		dialog.prt 	= prt
+		dialog.prefs = m_labib.prefs
+		dialog.m_labib 	= m_labib
 		
 		dialog.initialiser ()
 	),
 	fn fermer  silence:false = (
 		if not silence do (
-			prt.prefs.fenetre.infos = false
-			prt.prefs.fenetre.posInfos	= getdialogpos dialog
+			m_labib.prefs.fenetre.infos = false
+			m_labib.prefs.fenetre.posInfos	= getdialogpos dialog
 		)
 		try destroydialog dialog catch ()
 	)
 	
 )
 
-
+ 
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 ----------	Le rollout des infos  ---------------------------------------------------------------------------------------------------------------------
@@ -111,7 +112,7 @@ struct infos_struct (
 rollout rollApercu  "Aperçu" width:296 height:296
 (
 	------------  MEMBRES	----------------------------------------------------------------------------------
-	local prt
+	local m_labib
 	local prefs
 	
 	-- drag --
@@ -125,13 +126,13 @@ rollout rollApercu  "Aperçu" width:296 height:296
 	
 	------------  FONCTION	----------------------------------------------------------------------------------
 	fn initialiser = (
-		ui_btnFermer.bitmap = openBitMap prt.prefs.fenetre.ico_btnFermer_R
-		ui_vue.bitmap 			= openBitMap prt.prefs.fenetre.apercuVide
+		ui_btnFermer.bitmap = openBitMap m_labib.prefs.fenetre.ico_btnFermer_R
+		ui_vue.bitmap 			= openBitMap m_labib.prefs.fenetre.apercuVide
 	)
 	
 	------------  EVENEMENTS	----------------------------------------------------------------------------------
 	
-	on rollApercu moved			pos 	do	prt.prefs.fenetre.posApercu	= pos
+	on rollApercu moved			pos 	do	m_labib.prefs.fenetre.posApercu	= pos
 	-- drag --
 	on rollApercu lbuttondown	pos 	do	drag.demarrer ()
 	on rollApercu lbuttonup 	pos 	do	drag.arreter ()
@@ -144,34 +145,34 @@ rollout rollApercu  "Aperçu" width:296 height:296
 	on 	ui_btnFermer	mousedown 	do ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_P
 	on 	ui_btnFermer	mouseup		do ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_S
 	-- action --
-	on 	ui_btnFermer 	click 			do prt.fenetre.apercu.fermer()
+	on 	ui_btnFermer 	click 			do m_labib.fenetre.apercu.fermer()
 	
 )
 
 struct apercu_struct (
-	prt,
+	m_labib,
 	dialog = rollApercu ,
 	
 	fn ouvrir =(
-		prt.prefs.fenetre.apercu = true
+		m_labib.prefs.fenetre.apercu = true
 		
-		createDialog dialog 	bgcolor:				prt.prefs.fenetre.col_fenetreFond 	 \
-									fgcolor:				prt.prefs.fenetre.col_fenetreFore 	\
+		createDialog dialog 	bgcolor:				m_labib.prefs.fenetre.col_fenetreFond 	 \
+									fgcolor:				m_labib.prefs.fenetre.col_fenetreFore 	\
 									style:				#(#style_resizing) \
 									lockHeight:			true	\
 									lockWidth:			true	\									
-									pos:					prt.prefs.fenetre.posApercu	
+									pos:					m_labib.prefs.fenetre.posApercu	
 		
 		dialog.drag 	= drag_struct fenetre:dialog
-		dialog.prefs = prt.prefs
-		dialog.prt 	= prt
+		dialog.prefs = m_labib.prefs
+		dialog.m_labib 	= m_labib
 		
 		dialog.initialiser ()
 	),
 	fn fermer  silence:false = (
 		if not silence do (
-			prt.prefs.fenetre.apercu = false
-			prt.prefs.fenetre.posApercu	= getdialogpos dialog
+			m_labib.prefs.fenetre.apercu = false
+			m_labib.prefs.fenetre.posApercu	= getdialogpos dialog
 		)
 		try destroydialog dialog catch ()
 	)
@@ -186,7 +187,7 @@ struct apercu_struct (
 rollout rollRendu "Rendu" width:377 height:206
 (
 	------------  MEMBRES	----------------------------------------------------------------------------------
-	local prt
+	local m_labib
 	local prefs
 	
 	-- drag --
@@ -237,7 +238,7 @@ rollout rollRendu "Rendu" width:377 height:206
 	
 	------------  FONCTION	----------------------------------------------------------------------------------
 	fn initialiser = (
-		ui_btnFermer.bitmap = openBitMap prt.prefs.fenetre.ico_btnFermer_R
+		ui_btnFermer.bitmap = openBitMap m_labib.prefs.fenetre.ico_btnFermer_R
 		
 	)
 	
@@ -251,7 +252,7 @@ rollout rollRendu "Rendu" width:377 height:206
 	-- action --
 	
 	on rollRendu moved pos 	do
-		prt.prefs.fenetre.posRendu	= pos
+		m_labib.prefs.fenetre.posRendu	= pos
 	on rollRendu lbuttondown pos 	do
 		drag.demarrer ()
 	on rollRendu lbuttonup pos 	do
@@ -267,32 +268,32 @@ rollout rollRendu "Rendu" width:377 height:206
 	on ui_btnFermer mouseUp do
 		ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_S
 	on ui_btnFermer click do
-		prt.fenetre.rendu.fermer()
+		m_labib.fenetre.rendu.fermer()
 )
 struct rendu_struct (
-	prt,
+	m_labib,
 	dialog = rollRendu ,
 	
 	fn ouvrir =(
-		prt.prefs.fenetre.rendu = true
+		m_labib.prefs.fenetre.rendu = true
 		
-		createDialog dialog 	bgcolor:				prt.prefs.fenetre.col_fenetreFond 	 \
-									fgcolor:				prt.prefs.fenetre.col_fenetreFore 	\
+		createDialog dialog 	bgcolor:				m_labib.prefs.fenetre.col_fenetreFond 	 \
+									fgcolor:				m_labib.prefs.fenetre.col_fenetreFore 	\
 									style:				#(#style_resizing) \
 									lockHeight:			true	\
 									lockWidth:			true	\									
-									pos:					prt.prefs.fenetre.posRendu 
+									pos:					m_labib.prefs.fenetre.posRendu 
 		
 		dialog.drag 	= drag_struct fenetre:dialog
-		dialog.prefs = prt.prefs
-		dialog.prt 	= prt
+		dialog.prefs = m_labib.prefs
+		dialog.m_labib 	= m_labib
 		
 		dialog.initialiser ()
 	),
 	fn fermer  silence:false = (
 		if not silence do (
-			prt.prefs.fenetre.rendu = false
-			prt.prefs.fenetre.posRendu	= getdialogpos dialog
+			m_labib.prefs.fenetre.rendu = false
+			m_labib.prefs.fenetre.posRendu	= getdialogpos dialog
 		)
 		try destroydialog dialog catch ()
 	)

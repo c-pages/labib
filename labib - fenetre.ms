@@ -12,6 +12,7 @@
 	
 ##########################################################################################################################
 
+
 	todo:
 	
 ##########################################################################################################################
@@ -22,12 +23,12 @@
 ########################################################################################################################*/
 
 
-
 ------------------------------------------------------------------------------
 ----------	Fenetre								 -------------------------
 ------------------------------------------------------------------------------
 rollout roll_labib  "Labib" width:296 height:296
 (
+
 
 	------------ DEBUG	----------------------------------------------------------------------------------
 	local	m_debug = false
@@ -53,12 +54,12 @@ rollout roll_labib  "Labib" width:296 height:296
 	
 	------------  UI	----------------------------------------------------------------------------------
 	local 	ui_slider_H  		 	= 	str_btnVirtuel					pos:		[200, m_ecartUI] \
-																							width:	m_ecartUI	\
-																							height: 	( m_tailleRolloutCreation.y - 2 *m_ecartUI ) 
+																					width:	m_ecartUI	\
+																					height: 	( m_tailleRolloutCreation.y - 2 *m_ecartUI ) 
 																					
 	local 	ui_slider_V  	 		= 	str_btnVirtuel					pos:		[m_ecartUI, m_tailleRolloutCreation.y - 100 ] \
 																							width:	( ui_slider_H.pos.x )	\
-																							height: 	m_ecartUI
+																							height: 	m_ecartUI 
 																					
 	dotNetControl ui_TV 				"TreeView"			 			pos:		[m_ecartUI ,m_ecartUI]	\
 																							width:	ui_slider_V.width	\
@@ -366,7 +367,7 @@ rollout roll_labib  "Labib" width:296 height:296
 	---- la souris ----
 	fn souris_bouge 		_pos =(
 		
--- 		debug "souris_out" var:( souris_out () )
+		debug "souris_bouge" var:_pos
 		
 		-- le curseur souris  --		
 		if ui_slider_H.survole _pos or ui_slider_V.survole _pos  
@@ -485,11 +486,8 @@ rollout roll_labib  "Labib" width:296 height:296
 	on ui_TV 	DragOver 	_sender	_arg	do	m_TV.drag_checkSurvol  	_arg
 	on ui_TV 	DragDrop 				_arg 	do	m_TV.drag_recevoir 			_arg
 	on ui_TV 	ItemDrag 				_arg 	do	m_TV.drag_demarrer 		_arg
-	on ui_TV 	AfterLabelEdit			_arg 	do  	(
-		m_TV.renommer	_arg.label
-		m_LV.afficher		m_TV.m_selection
-	)	
-	on ui_TV 	keyup  					_arg 	do  	m_TV.key_up				_arg
+	on ui_TV 	AfterLabelEdit			_arg 	do  	m_TV.renommer				_arg
+	on ui_TV 	keyup  					_arg 	do  	m_TV.key_up					_arg
 	
 	--------- le listView ---------
 	on ui_LV 	mouseDown 			_arg 	do  	m_LV.clq_down				_arg
@@ -501,10 +499,11 @@ rollout roll_labib  "Labib" width:296 height:296
 	on ui_LV 	itemDrag 	_sender 	_arg 	do 	m_LV.drag_demarrer 		_arg 	
 	on ui_LV 	lostFocus 	_sender 	_arg 	do  	if dragFlag == true do	m_edit.importer_viewport ()
 	on ui_LV 	AfterLabelEdit			_arg 	do  	m_LV.renommer				_arg		
-	on ui_LV 	keyup  					_arg 	do  	m_LV.key_up				_arg
+	on ui_LV 	BeforeLabelEdit		_arg 	do  	m_LV.debutRenommage ()
+	on ui_LV 	keyup  					_arg 	do  	m_LV.key_up					_arg
 	
 	------- recherche ---------------
-	on ui_recherche 	keyup  					_arg 	do  	m_recherche.key_up				_arg
+	on ui_recherche 	keyup  			_arg 	do  	m_recherche.key_up				_arg
 	
 ) -- fin rollout
 
@@ -550,7 +549,7 @@ struct str_fenLabib (
 								),
 								
 		---- structures des fenetres secondaires ---
-		m_fen_infos,
+		m_infos = infos_struct labib:m_labib,
 		m_fen_apercu,
 		m_fen_rendu,
 
@@ -574,7 +573,7 @@ struct str_fenLabib (
 		),
 		
 		---- affichage ----
-		fn	changerAffichage  _nvlAffichage =	fenetre.m_dialog.m_LV.changerAffichage		 _nvlAffichage,
+		fn	changerAffichage  	_nvlAffichage =	m_dialog.m_LV.changerAffichage		 _nvlAffichage,
 
 		---- fenetre ----		
 		fn ouvrir = (			
