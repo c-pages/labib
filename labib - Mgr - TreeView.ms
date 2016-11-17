@@ -41,7 +41,7 @@ struct str_treeViewMgr (
 		
 	------------ DEBUG	----------------------------------------------------------------------------------
 
-		m_debug = true,
+		m_debug = false,
 -- 		m_debug = false,
 		m_dbgPrefix ="TV",
 		fn debug 	_txt  var:	 param:    =(

@@ -63,7 +63,8 @@ include "$userScripts\cp - labib\labib - Mgr - TreeView.ms"
 include "$userScripts\cp - labib\labib - Mgr - ListView.ms"
 
 include "$userScripts\cp - labib\labib - menus.ms"
-include "$userScripts\labib\labib - fenetres secondaires.ms"
+-- include "$userScripts\cp - labib\labib - fenetres secondaires.ms"
+include "$userScripts\cp - labib\labib - fenetre infos.ms"
 
 
  include "$userScripts\cp - labib\labib - fenetre.ms"
@@ -101,9 +102,13 @@ struct str_labib (
 		apercus	=	str_apercus 			m_labib:this,							---- la creation des apercus -----
 		cmd 		= 	str_commandesMgr 	m_edit:edit,
 		
-		---- interface ----
+		---- interfaces ----
 		menus	= str_menus (),														---- les menus RCMenu ----
 		fenetre	= str_fenLabib				m_labib:this,							---- le manager de la fenetre principale (en post car boucle infernale avec edit sinon ) ----
+		
+		-- Fenetres secondaires --
+		infos = str_infos 	m_labib:this,
+		
 		
 		---les actions --------
 		

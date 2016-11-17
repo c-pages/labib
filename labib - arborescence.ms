@@ -104,25 +104,63 @@ struct str_element (
 		fn getNoeuds 			= return #(),		--- n'as pas d'enfants ---
 		
 		
-		---- tags ----
-		fn possedeTag 	_tagAChercher  =(
+		
+		fn setTags 		_tags =(
 			
-			local listeDesTags = filterString  tags 	m_prt.m_tagsSeparateurs
-			local result = false
+			local tags1 = filterString  _tags 	m_prt.m_tagsSeparateurs
+
+			local listeTags =#()
 			
-			for tag in listeDesTags while not result do 
-				if tag == _tagAChercher do result = true
+			-- on retire les balncs en trop --
+			for i = 1 to tags1.count	do(
+				
+				tags2 = filterString  tags1[i] 	" "
+				
+				if tags2.count > 0 do (
+					tags1[i] = tags2[1]
+					for j = 1 to tags2.count-1 do
+						tags1[i] += " " + tags2[j+1]
+					append listeTags tags1[i]
+				)
+				
+			)
+			-- on transfrom en string ---
+			local tagsString = ""
 			
-			result
+			debug "listeTags.count" var:listeTags.count 
+			
+			for  i = 1 to  listeTags.count do (
+				tagsString += toLower  listeTags[i]
+--  				if i == 1 and listeTags.count > 1 and i < listeTags.count do
+					tagsString += " | "
+			)
+			
+			
+			tags = tagsString
+			
 		),
 		
 		----- accesseurs -----
-		fn getNbrVertex 				= nbrVertex as string,
-		fn getNbrImports 			= nbrImports as string,
-		fn getDateDernierImport 	= dateToString 	dateDernierImport,
-		fn getDateCreation 			= dateToString 	dateCreation,
-		fn getAProxy 					= if doesfileExist proxy then "oui" else "non",
-		fn getAVueDetail 				= if doesfileExist detail then "oui" else "non",
+		fn getNbrVertex 				= 	nbrVertex as string,
+		fn getNbrImports 			= 	nbrImports as string,
+		fn getDateDernierImport 	= 	dateToString 	dateDernierImport,
+		fn getDateCreation 			= 	dateToString 	dateCreation,
+		fn getAProxy 					= 	if doesfileExist proxy then "oui" else "non",
+		fn getAVueDetail 				= 	if doesfileExist detail then "oui" else "non",
+		fn getTags						=	tags,
+		fn getNom						=	nom,
+		fn getCommentaires			=	commentaires,
+		fn getFichier					=	fichier,
+		fn getApercu					=	apercu,
+		fn getDetail					=	detail,
+		
+		
+		fn setTag 	_tags =(
+			
+			
+			tags = _tags
+		),
+		
 		
 		
 		--- tests ---
@@ -141,6 +179,17 @@ struct str_element (
 			m_prt.getParNomUnique 	nomUnique != undefined
 		),
 		
+		---- tags ----
+		fn possedeTag 	_tagAChercher  =(
+			
+			local listeDesTags = filterString  tags 	m_prt.m_tagsSeparateurs
+			local result = false
+			
+			for tag in listeDesTags while not result do 
+				if tag == _tagAChercher do result = true
+			
+			result
+		),
 		
 		--- sorties ---
 		fn afficher  recursif:true =(
@@ -327,8 +376,9 @@ struct str_arborescence (
 		tab 			= 	"    ",
 		decallage 	=	"",
 		
+	public
 	---- tags ----
-		m_tagsSeparateurs	=	", -/.;",
+		m_tagsSeparateurs	=	"|,;",
 		
 	------------ 	FONCTIONS		----------------------------------------------------------------------------------	
 	

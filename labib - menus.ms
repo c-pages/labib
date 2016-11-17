@@ -134,16 +134,17 @@ struct str_menus (
 					menuItem	trier_nbrImports 	"Nombre d'imports"	
 				)
 				
-				subMenu  "Fenêtres" (
-					menuItem infos 		"Infos" 		checked:labib.prefs.fenetre.infos
+					seperator sep26548
+-- 				subMenu  "Fenêtres" (
+					menuItem infos 		"Infos" 		checked:( labib.infos.estOuvert() )
 					menuItem apercu 	"Aperçu" 	checked:labib.prefs.fenetre.apercu
 					menuItem rendu	 	"Rendu" 		checked:labib.prefs.fenetre.rendu
-				)
+-- 				)
 				
 				seperator sep5476
 				
 				subMenu  "Debug" (
-					menuItem affichSelec 		"print selection" 		checked:labib.prefs.fenetre.infos
+					menuItem affichSelec 		"print selection" 	--	checked:labib.prefs.fenetre.fenInfos_estOuvert
 				)
 				
 				
@@ -186,7 +187,7 @@ struct str_menus (
 					labib.fenetre.actualiser ()
 				)
 				
-				on infos								picked do	labib.fenetre.toggleInfos ()
+				on infos								picked do	labib.infos.toggleOuverture ()
 				on apercu							picked do	labib.fenetre.toggleApercu ()
 				on rendu							picked do	labib.fenetre.toggleRendu ()
 			

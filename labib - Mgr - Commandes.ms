@@ -64,26 +64,28 @@ struct 	cmd_renommer  (
 	public
 		m_edit,
 	private
-		m_noeudCible,
-		m_ancienNom,
+		m_noeudsCible,
+		m_anciensNoms,
 		m_nvNom,
 	
 	---- fonctions  --------------------------------
 	public
 		fn executer 	p1:  p2: 	=	(
 			---- données de la commande ----
-			m_noeudCible 	= p1
-			m_nvNom		= p2
-			m_ancienNom 	= m_noeudCible.nom
+			m_noeudsCible 	= p1
+			m_nvNom			= p2
+			m_anciensNoms 	= for noeud in m_noeudsCible collect noeud.nom
 			
 			----action ----
-			m_edit.renommer 	m_noeudCible 	m_nvNom
+			m_edit.renommer 	m_noeudsCible 	m_nvNom
 		),
 		fn refaire 	=(			
-			m_edit.renommer 	m_noeudCible 	m_nvNom	
+			m_edit.renommer 	m_noeudsCible 	m_nvNom	
 		),
 		fn defaire =(		
-			m_edit.renommer 	m_noeudCible 	m_ancienNom
+			for i = 1 to m_noeudsCible.count  do 
+				m_edit.renommer 	m_noeudsCible[i] 	m_anciensNoms[i]
+			
 		)
 )
 struct 	cmd_deplacer  (
@@ -172,6 +174,62 @@ struct 	cmd_coller  (
 			debuger "m_ndsCoupes" 	var:m_ndsCoupes 	param:#nom
 			debuger "m_ndOrigine" 		var:m_ndOrigine 		param:#nom
 			m_edit.deplacer  m_ndsCoupes 	m_ndOrigine
+		)
+)
+struct 	cmd_changerFichier  (		
+	---- membres --------------------------------
+	public
+		m_edit,
+	private
+		m_noeudCible,
+		m_ancienNom,
+		m_nvNom,
+	
+	---- fonctions  --------------------------------
+	public
+		fn executer 	p1:  p2: 	=	(
+			---- données de la commande ----
+			m_noeudCible 		= p1
+			m_nvFichier		= p2
+			m_ancienFichier 	= m_noeudCible.fichier
+			
+			----action ----
+			m_edit.changerFichier 	m_noeudCible 		m_nvFichier
+		),
+		fn refaire 	=(			
+			m_edit.changerFichier 	m_noeudCible 		m_nvFichier	
+		),
+		fn defaire =(		
+			m_edit.changerFichier 	m_noeudCible 		m_ancienFichier
+		)
+)
+
+struct 	cmd_setTags  (		
+	---- membres --------------------------------
+	public
+		m_edit,
+	private
+		m_noeudsCibles,
+		m_anciensTags,
+		m_nvTags,
+	
+	---- fonctions  --------------------------------
+	public
+		fn executer 	p1:  p2: 	=	(
+			---- données de la commande ----
+			m_noeudsCibles 	= p1
+			m_nvTags			= p2
+			m_anciensTags 	= for noeud in m_noeudsCibles collect noeud.tags
+			
+			----action ----
+			m_edit.setTags 	m_noeudsCibles 		m_nvTags
+		),
+		fn refaire 	=(			
+			m_edit.setTags 	m_noeudsCibles 		m_nvTags	
+		),
+		fn defaire =(		
+			for i = 1 to m_noeudsCibles.count  do 
+				m_edit.setTags 	m_noeudsCibles[i] 	m_anciensTags[i]
 		)
 )
 
@@ -301,6 +359,8 @@ struct str_commandesMgr (
 		cmdMgr_deplacer			= str_commandeCtrl (),
 		cmdMgr_couper			= str_commandeCtrl (),
 		cmdMgr_coller				= str_commandeCtrl (),
+		cmdMgr_changerFichier	= str_commandeCtrl (),
+		cmdMgr_setTags			= str_commandeCtrl (),
 	
 		cmdMgr_nvDossier		= str_commandeCtrl (),
 		cmdMgr_nvlAsset			= str_commandeCtrl (),
@@ -338,11 +398,13 @@ struct str_commandesMgr (
 		
 	---- les commandes ----
 	public
-		fn	supprimer 	_ndASupprimer					=	executer 	cmdMgr_supprimer 	p1:_ndASupprimer,
-		fn	renommer 	_ndARenommer	_nvNom		=	executer 	cmdMgr_renommer	p1:_ndARenommer	p2:_nvNom,
-		fn	deplacer 	_ndADeplacer		_ndDest		=	executer 	cmdMgr_deplacer 	p1:_ndADeplacer		p2:_ndDest,
-		fn	couper 		_ndsACouper						=	executer 	cmdMgr_couper		p1:_ndsACouper,
-		fn	coller 		_ndDest								=	executer 	cmdMgr_coller			p1:_ndDest,
+		fn	supprimer 		_ndASupprimer					=	executer 	cmdMgr_supprimer 		p1:_ndASupprimer,
+		fn	renommer 		_ndARenommer	_nvNom		=	executer 	cmdMgr_renommer		p1:_ndARenommer	p2:_nvNom,
+		fn	deplacer 		_ndADeplacer		_ndDest		=	executer 	cmdMgr_deplacer 		p1:_ndADeplacer		p2:_ndDest,
+		fn	couper 			_ndsACouper						=	executer 	cmdMgr_couper			p1:_ndsACouper,
+		fn	coller 			_ndDest								=	executer 	cmdMgr_coller				p1:_ndDest,
+		fn	changerFichier _ndDest				_nvFichier	=	executer 	cmdMgr_changerFichier	p1:_ndDest				p2:_nvFichier,
+		fn	setTags 		_ndDest				_nvTags		=	executer 	cmdMgr_setTags			p1:_ndDest				p2:_nvTags,
 		
 		fn	nvDossier 											=	executer 	cmdMgr_nvDossier,
 		fn	nvlAsset 											=	executer 	cmdMgr_nvlAsset ,
@@ -357,17 +419,19 @@ struct str_commandesMgr (
 	------------ Les evenements	----------------------------------------------------------------------------------	
 		on create do (
 			---- initialisation des commandes ----
-			cmdMgr_supprimer.setCommande		( cmd_supprimer 		m_edit:m_edit )
-			cmdMgr_renommer.setCommande		( cmd_renommer 		m_edit:m_edit )
-			cmdMgr_deplacer.setCommande			( cmd_deplacer 		m_edit:m_edit )
-			cmdMgr_couper.setCommande			( cmd_couper 			m_edit:m_edit )
-			cmdMgr_coller.setCommande				( cmd_coller			m_edit:m_edit )
+			cmdMgr_supprimer.setCommande		( cmd_supprimer 			m_edit:m_edit )
+			cmdMgr_renommer.setCommande		( cmd_renommer 			m_edit:m_edit )
+			cmdMgr_deplacer.setCommande			( cmd_deplacer 			m_edit:m_edit )
+			cmdMgr_couper.setCommande			( cmd_couper 				m_edit:m_edit )
+			cmdMgr_coller.setCommande				( cmd_coller				m_edit:m_edit )
+			cmdMgr_changerFichier.setCommande	( cmd_changerFichier	m_edit:m_edit )
+			cmdMgr_setTags.setCommande			( cmd_setTags			m_edit:m_edit )
 			
-			cmdMgr_nvDossier.setCommande		( cmd_nvDossier 		m_edit:m_edit )
-			cmdMgr_nvlAsset.setCommande			( cmd_nvlAsset 		m_edit:m_edit )
-			cmdMgr_nvxAssets.setCommande		( cmd_nvxAssets 	m_edit:m_edit )
+			cmdMgr_nvDossier.setCommande		( cmd_nvDossier 			m_edit:m_edit )
+			cmdMgr_nvlAsset.setCommande			( cmd_nvlAsset 			m_edit:m_edit )
+			cmdMgr_nvxAssets.setCommande		( cmd_nvxAssets 		m_edit:m_edit )
 			
-			cmdMgr_importer.setCommande			( cmd_importer 		m_edit:m_edit )
+			cmdMgr_importer.setCommande			( cmd_importer 			m_edit:m_edit )
 		)
 )
 

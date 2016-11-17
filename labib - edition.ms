@@ -142,6 +142,7 @@ struct str_edition (
 		fn getSelection 					= m_selection,		
 		fn addSelection 	_noeudA		= if _noeudA != undefined do append m_selection _noeudA,		
 		fn setSelection	_noeudsA	= (
+			
 			toArray  &_noeudsA
 			debug "setSelection"
 			debug "_noeudsA" var:_noeudsA param:#nomUnique
@@ -152,6 +153,9 @@ struct str_edition (
 				
 				for noeudA in _noeudsA do
 					if noeudA != undefined do append m_selection noeudA
+						
+				-- MAJ fenetre infos ---
+				m_labib.infos.afficher m_selection
 				
 			)
 			debug "(setSelection) _noeudsA" var:m_selection param:#nomUnique
@@ -200,8 +204,9 @@ struct str_edition (
 			
 			if _noeudAOuvrir != undefined then (
 				
-				-- si differnet du dossier courant--
-				if _noeudAOuvrir != m_dossier do (
+				
+-- 				-- si differnet du dossier courant--
+-- 				if _noeudAOuvrir != m_dossier do (
 					
 					---- on actualise la selection ---					
 					setDossier	_noeudAOuvrir
@@ -213,11 +218,13 @@ struct str_edition (
 					---- historique ---
 					if enregistrer_historique do m_hist.enregistrer  	_noeudAOuvrir
 					
-				)
+-- 				)
 				
 				---- selection du premier element du LV (pour navigation clavier) ----------
 				m_LV.selectionnerPremier ()		
 				
+				--- actualiser la barre d'adresse ---
+				m_fenetre.m_dialog.setAdresseTexte 	m_dossier
 				
 				
 				
@@ -225,6 +232,7 @@ struct str_edition (
 			debug "(ouvrir) m_dossier Fin" var:m_dossier	 param:#nomUnique
 			debug "fin : ouvrir\n"
 		),
+		
 		fn creerDossier 	nom:"Nouveau dossier" 	parent: 	=(
 			
 			if parent == unsupplied do parent = m_arbo.root
@@ -314,23 +322,70 @@ struct str_edition (
 			m_LV.selectionner _noeudsA
 			
 		),
-		fn renommer _noeud	_nvNom =(			
+		fn renommer _noeuds	_nvNom =(
+			
+			toArray &_noeuds
+			
 			--- etat inital du TV ----
 			m_TV.stocker_etatItems ()
 			
-			_noeud.nom 	= _nvNom
 			
-			--ecriture du fichier ---
-			_noeud.enregistrer ()
+			local index = 1
 			
+			if _noeuds.count == 1  then (
+				
+				_noeuds[1].nom = _nvNom
+				_noeuds[1].enregistrer ()
+				
+			) else (
+				for noeud in _noeuds do (
+					
+					noeud.nom = _nvNom + " - " + index as string
+					noeud.enregistrer ()
+					
+					index +=1
+				)
+			)
+						
 			--- actualiser ----
 			m_fenetre.actualiser ()
-			m_LV.selectionner noeudARenommer
+			m_LV.selectionner 	_noeuds
 			
 			--- restauration etat du TV ---
 			m_TV.restaurer_etatItems ()
 			
 		),
+		fn changerFichier  _noeudCible _nvFichier =(
+			if doesFileExist _nvFichier and getFilenameType _nvFichier == ".max" then (
+				_noeudCible.fichier = _nvFichier
+				
+				noeud.enregistrer ()
+			)
+			
+			m_labib.infos.afficher 	m_selection
+
+		),
+		fn setTags  	_noeudsCibles _nvTags =(
+			toArray &_noeudsCibles
+			
+			--- etat inital du TV ----
+			m_TV.stocker_etatItems ()
+			
+			
+			for noeud in _noeudsCibles do (
+				noeud.setTags  	_nvTags
+				noeud.enregistrer ()
+			)
+			
+			
+			m_fenetre.actualiser ()
+			
+			--- restauration etat du TV ---
+			m_TV.restaurer_etatItems ()
+		),
+		
+		
+		
 		fn nouveauDossier 			=(
 			debug "\nnouveauDossier	---------------------------------------"
 			debug "m_dossier" var:m_dossier param:#nomUnique

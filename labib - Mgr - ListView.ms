@@ -35,8 +35,8 @@
 struct str_listViewMgr (
 		
 	------------ DEBUG	----------------------------------------------------------------------------------
-		m_debug = false,
--- 		m_debug = true,
+-- 		m_debug = false,
+		m_debug = true,
 		m_dbgPrefix ="LV",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
@@ -182,7 +182,6 @@ struct str_listViewMgr (
 			
 		),
 		
-		
 		---- Accession ----
 		fn	getNoeud 			_item 	= (
 			local result
@@ -211,7 +210,12 @@ struct str_listViewMgr (
 			m_edit.getDossier()
 		),
 		fn getSelection =(
-			m_edit.getSelection ()
+			local selectionNoeud = #()
+			
+			for i = 0 to (  m_ui.SelectedItems.count - 1 ) do
+				append selectionNoeud ( getNoeud 	m_ui.SelectedItems.item[ i ] )
+			
+			selectionNoeud
 		),
 		
 		
@@ -567,6 +571,9 @@ struct str_listViewMgr (
 		),
 		fn clq_up 			_arg 			= (
 			debug "clq_up"
+			
+			m_edit.setSelection 		( getSelection () )
+			
 			debug "(clq_up) m_edit.getSelection" var:( m_edit.getSelection () )	 param:#nom
 			
 			if not m_edit.dragEnCours () do (

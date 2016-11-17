@@ -55,10 +55,11 @@ struct str_prefsFenPrincipale (
 	affichageLV		=	#grandeIcone,
 	
 	-- pour les fenetres seondaires --
-	infos				=	false,				---- si l'onglet "infos" est ouvert ---
+	fenInfos_estOuvert				=	false,				---- si l'onglet "infos" est ouvert ---
+	fenInfos_pos	= [0,0],
+	
 	apercu			=	false,				----
 	rendu				=	false,				----
-	posInfos			= [0,0],
 	posApercu		= [0,0],
 	posRendu		= [0,0],
 	
@@ -79,7 +80,7 @@ struct str_prefsFenPrincipale (
 	col_fenetreTxt				= color 230  230 230, 	----  ----
 	
 -- 	col_uiFond 					= color 160 166 182, 	----  bleu ----
-	col_uiFond 					= color 81 81 81, 	----  MAX ----
+	col_uiFond 					= color 100 100 100, 	----  MAX ----
 	col_uiFondRecherche 	= color 190 196 212, 		----  ----
 	
 	col_fondDossier 			= color 167 173 189, 	----  ----
@@ -104,9 +105,13 @@ struct str_prefsFenPrincipale (
 	
 	---- icones ----
 	-- facon dossier commun --
-	ico_btnFermer_R	=	"$userScripts\cp - GLOBAL\ico\ico_fermer_grisClaire_R.jpg",
-	ico_btnFermer_S	=	"$userScripts\cp - GLOBAL\ico\ico_fermer_grisClaire_S.jpg",
-	ico_btnFermer_P	=	"$userScripts\cp - GLOBAL\ico\ico_fermer_grisClaire_P.jpg"--,
+	ico_btnFermer_R	=	"$userScripts\cp - GLOBAL\ico\ico_fermer_grisFoncee_R.jpg",
+	ico_btnFermer_S	=	"$userScripts\cp - GLOBAL\ico\ico_fermer_grisFoncee_S.jpg",
+	ico_btnFermer_P	=	"$userScripts\cp - GLOBAL\ico\ico_fermer_grisFoncee_P.jpg"--,
+	
+-- 	ico_btnFermer_R	=	"$userScripts\cp - GLOBAL\ico\ico_fermer_grisClaire_R.jpg",
+-- 	ico_btnFermer_S	=	"$userScripts\cp - GLOBAL\ico\ico_fermer_grisClaire_S.jpg",
+-- 	ico_btnFermer_P	=	"$userScripts\cp - GLOBAL\ico\ico_fermer_grisClaire_P.jpg"--,
 	
 	-- facon dossier labib --
 -- 	ico_btnFermer_R				= dossierScript + "data\ico\ico_fermer_R.jpg", 	-- repos 	--
@@ -152,7 +157,7 @@ struct str_prefsRendu (
 	
 	-- parametres du moteur de rendu --
 	moteur							= "Corona_1_5__hotfix_1()",	-- execute ( ( filterString moteur ":")[1] +"()" )
-	taille								= [512,512],	
+	taille								= [256,256],	
 	coefDistance					= 1.7,
 	
 	exposition 						= -5,

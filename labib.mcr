@@ -17,12 +17,17 @@ labib.ouvrir 	()
  */
 
 	
+try ( 	
+-- 	labib.fermer()
+	destroydialog labib.fenetre.m_dialog		
+) catch  ()
+
 	
 macroScript Labib
 category:"#CPages"
 toolTip:""
 (
-	
+
 	fileIn	 "$userScripts\cp - labib\labib.ms" 
 -- 	fileIn "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib.ms" 
 	
@@ -60,7 +65,7 @@ labib.fenetre.m_dialog.m_TV.m_etatItems
 
 debug "test" var:labib.arbo.root.enfants 	param:#nom
 
-ShellLaunch "explorer.exe" @"C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\data\"
+ShellLaunch "explorer.exe" @"C:\Users\Windows\AppData\Local\Autodesk\3dsMax\2017 - 64bit\ENU\scripts\cp - Labib\data\"
 
 
  #### Arbo ####
@@ -114,6 +119,8 @@ showmethods 				labib.fenetre.m_dialog.ui_recherche
  #### LV ####
 show 				labib.fenetre.m_dialog.ui_LV.items.item[1]
 showmethods		labib.fenetre.m_dialog.ui_LV
+
+labib.fenetre.m_dialog.ui_LV.SelectedItems
 
 labib.fenetre.m_dialog.m_LV.m_selection
 

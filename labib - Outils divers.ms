@@ -17,6 +17,30 @@
 #################################################################################*/
 
 
+
+
+----
+/* 
+verifie si tout les elements d'un tableau sont identiques
+si oui, renvois la valeur unique
+sinon renvoie -1
+*/
+fn checkUnite _tableau =(
+	local unite = true
+	local valUnique
+	if _tableau.count > 0 do (
+		valUnique = _tableau[1]
+		for i =1 to _tableau.count  do (
+			if _tableau[i] != valUnique do unite = false
+		)
+	)
+	if unite 	then valUnique as string
+				else "-"
+)
+
+
+---- fetchPerso -----
+
 fichierFetch = (getDir #temp )+ "TmpFetch.max"
 fn fetchPerso =(
 	debuger "Fetch perso"

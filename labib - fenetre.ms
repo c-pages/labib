@@ -53,6 +53,10 @@ rollout roll_labib  "Labib" width:296 height:296
 	local m_ecartUISimple	= 1		----  ----	
 	
 	------------  UI	----------------------------------------------------------------------------------
+	
+	ImgTag 'ui_barreAdresse' "" 	pos:[200 + m_ecartUI, 2 ] width:66 height:18 align:#left
+	
+	
 	local 	ui_slider_H  		 	= 	str_btnVirtuel					pos:		[200, m_ecartUI] \
 																					width:	m_ecartUI	\
 																					height: 	( m_tailleRolloutCreation.y - 2 *m_ecartUI ) 
@@ -92,6 +96,7 @@ rollout roll_labib  "Labib" width:296 height:296
 	local		m_TV 				---- manager du tree view ----
 	local		m_recherche 		---- manager du tree view ----
 	local 	m_menus			---- manager des menus ----
+	local 	m_barreAdresse
 	
 	------------  Fonctions	----------------------------------------------------------------------------------
 	---- la fenetre ----
@@ -115,7 +120,6 @@ rollout roll_labib  "Labib" width:296 height:296
 		---- les virtuels -----
 		ui_slider_H.height	= tailleRollout.y - 2* m_ecartUI		
 		ui_slider_V.width	= ui_slider_H.pos.x 
-		
 		---- les autres -----		
 		ui_TV.width 			= ui_slider_V.width- m_ecartUI
 		ui_TV.height 			= ui_slider_V.pos.y - m_ecartUI		
@@ -129,6 +133,7 @@ rollout roll_labib  "Labib" width:296 height:296
 		ui_LV.height			= tailleRollout.y - 2* m_ecartUI		
 		ui_btnFermer.pos		= [ tailleRollout.x - 1 *m_ecartUI	, 0 ]
 		
+		ui_barreAdresse.pos.x = ui_LV.pos.x - 2
 	)
 	fn fen_bouger  _pos =(
 		--- on stock la pos  ---		
@@ -169,6 +174,36 @@ rollout roll_labib  "Labib" width:296 height:296
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	fn setAdresseTexte 	_noeud =(
+		
+		local adresseTxt =""
+		local noeudArbo = _noeud
+		
+		while noeudArbo.parent != undefined do (
+			if adresseTxt =="" 
+				then	adresseTxt = noeudArbo.nom
+				else	adresseTxt = noeudArbo.nom + " | " + adresseTxt
+			
+			noeudArbo = noeudArbo.parent
+		)
+		
+		adresseTxt = "Labib | " + adresseTxt
+		
+		m_barreAdresse.setTexte 	adresseTxt	--( m_edit.getDossier () ).nom
+		
+		
+		
+	)
+	
+	
+	
+	
 	---- les listes et tree -----
 	fn viderListes = (
 		m_TV.vider ()
@@ -184,6 +219,7 @@ rollout roll_labib  "Labib" width:296 height:296
 		---- on actualise  ----
 		m_TV.actualiser 	()
 		m_LV.actualiser	()
+		
 		
 -- 		ui_TV.SelectedNode 	= 	m_selcTV_Back
 -- 		m_LV.selectionner			m_selcLV_Back
@@ -206,6 +242,10 @@ rollout roll_labib  "Labib" width:296 height:296
 	 	m_TV 			= str_treeViewMgr	m_prt:roll_labib	m_ui:ui_TV
 		m_LV.m_TV 	=	m_TV  -- sinon ca boucle a l'init avec la creation du m_TV--
 		m_recherche 	= str_recherche		m_prt:roll_labib	m_ui:ui_recherche
+		
+		m_barreAdresse 			= str_label 	m_ui:ui_barreAdresse			m_texte:""
+-- 		m_barreAdresse.setPolice (str_policePetite())
+		m_barreAdresse.setCouleur 		( m_prt.col_fenetreTxt - [50,50,50] )
 		
 		m_edit.majPointeursFenetre ()
 		
@@ -366,8 +406,8 @@ rollout roll_labib  "Labib" width:296 height:296
 	
 	---- la souris ----
 	fn souris_bouge 		_pos =(
-		
-		debug "souris_bouge" var:_pos
+-- 		
+-- 		debug "souris_bouge" var:_pos
 		
 		-- le curseur souris  --		
 		if ui_slider_H.survole _pos or ui_slider_V.survole _pos  
@@ -450,9 +490,9 @@ rollout roll_labib  "Labib" width:296 height:296
 	---- boutons ----
 	fn etatBtnFermer		_etat 	=(
 		case _etat of (
-			#Repos : 	ui_btnFermer.bitmap = openBitmap 	m_prefs.fenetre.ico_btnFermer_S
-			#Survol : 	ui_btnFermer.bitmap = openBitmap 	m_prefs.fenetre.ico_btnFermer_R
-			#Press : 	ui_btnFermer.bitmap = openBitmap 	m_prefs.fenetre.ico_btnFermer_P
+			#Repos : 	ui_btnFermer.bitmap = m_prt.m_icos_fermer[1]
+			#Survol : 	ui_btnFermer.bitmap = m_prt.m_icos_fermer[2]
+			#Press : 	ui_btnFermer.bitmap = m_prt.m_icos_fermer[3]
 		)
 	)
 	
@@ -465,6 +505,7 @@ rollout roll_labib  "Labib" width:296 height:296
 	--------- Fenetre ----------
 	on roll_labib moved					_pos 	do	fen_bouger  				_pos
 	on roll_labib resized					_val 	do	fen_redimensionner  _val
+	on roll_labib closed						 	do	m_prt.fermer ()
 	
 	--------- Drag ---------
 	on roll_labib mouseMove 			_pos 	do	souris_bouge 		_pos
@@ -539,7 +580,7 @@ struct str_fenLabib (
 		m_labib	,								---- pointeur vers la structure principale ----
 	
 		m_dialog 	= roll_labib ,			---- le rollout ----
-	private
+-- 	private
 		m_prefs		= m_labib.prefs ,		---- pointeur vers les preferences ----
 		m_edit		,							---- pointeur vers les preferences ----
 		m_icos_fermer= #( 					---- les images pour les icones du bouton de fermeture ----		
@@ -548,29 +589,31 @@ struct str_fenLabib (
 									openBitMap m_prefs.fenetre.ico_btnFermer_P 		-- Pressé ----
 								),
 								
-		---- structures des fenetres secondaires ---
-		m_infos = infos_struct labib:m_labib,
-		m_fen_apercu,
-		m_fen_rendu,
+		col_fenetreFond			= m_prefs.fenetre.col_fenetreFond, 	----  couleur max (68 68 68)----
+		col_fenetreTxt				= m_prefs.fenetre.col_fenetreTxt , 	----  ----
+-- 		---- structures des fenetres secondaires ---
+-- 		m_infos = str_infos 	m_labib:m_labib,
+-- 		m_fen_apercu,
+-- 		m_fen_rendu,
 
 		------------  Fonctions	----------------------------------------------------------------------------------
 	public
 		---- fenetres secondaires ----
-		fn toggleInfos =(
-			if m_prefs.fenetre.infos 
-				then m_fen_infos.fermer ()
-				else	m_fen_infos.ouvrir ()
-		),
-		fn toggleApercu =(
-			if prefs.fenetre.m_fen_apercu 
-				then fenetre.m_fen_apercu.fermer ()
-				else	fenetre.m_fen_apercu.ouvrir ()
-		),
-		fn toggleRendu =(
-			if prefs.fenetre.m_fen_rendu 
-				then fenetre.m_fen_rendu.fermer ()
-				else	fenetre.m_fen_rendu.ouvrir ()
-		),
+-- 		fn toggleInfos =(
+-- 			if m_prefs.fenetre.fenInfos_estOuvert 
+-- 				then m_infos.fermer ()
+-- 				else	m_infos.ouvrir ()
+-- 		),
+-- 		fn toggleApercu =(
+-- 			if prefs.fenetre.m_fen_apercu 
+-- 				then fenetre.m_fen_apercu.fermer ()
+-- 				else	fenetre.m_fen_apercu.ouvrir ()
+-- 		),
+-- 		fn toggleRendu =(
+-- 			if prefs.fenetre.m_fen_rendu 
+-- 				then fenetre.m_fen_rendu.fermer ()
+-- 				else	fenetre.m_fen_rendu.ouvrir ()
+-- 		),
 		
 		---- affichage ----
 		fn	changerAffichage  	_nvlAffichage =	m_dialog.m_LV.changerAffichage		 _nvlAffichage,
@@ -609,17 +652,17 @@ struct str_fenLabib (
 															pos:						pos \
 															width:					taille.x \
 															height:					taille.y \
-															escapeEnable:		false 		 \
-															bgcolor:				m_prefs.fenetre.col_fenetreFond 	 \
-															fgcolor:				m_prefs.fenetre.col_fenetreTxt 	
+															escapeEnable:		false 		 /* \
+															bgcolor:				col_fenetreFond 	 \
+															fgcolor:				col_fenetreTxt 	 */
 				) else	(
 					createDialog m_dialog 	style:					style \
 															pos:						pos \
 															width:					taille.x \
 															height:					taille.y \
-															escapeEnable:		false 		 \
-															bgcolor:				m_prefs.fenetre.col_fenetreFond 	 \
-															fgcolor:				m_prefs.fenetre.col_fenetreTxt 	
+															escapeEnable:		false 		/*  \
+															bgcolor:				col_fenetreFond 	 \
+															fgcolor:				col_fenetreTxt 	 */
 				)
 			
 			---- initialisation de la fenetre ----
@@ -627,7 +670,7 @@ struct str_fenLabib (
 			m_dialog.initialiser ()
 			
 			-- les fenetres secondaires --
--- 			if m_prefs.fenetre.infos 	do infos.ouvrir()
+			if m_labib.infos.estOuvert() 	do m_labib.infos.ouvrir()
 -- 			if m_prefs.fenetre.apercu 	do apercu.ouvrir()
 -- 			if m_prefs.fenetre.rendu 	do rendu.ouvrir()
 				
@@ -646,6 +689,8 @@ struct str_fenLabib (
 		fn fermer  silence:false =(		---- silence : fermer sans modifier l'état des preferences ---
 			
 			debug "fermeture"
+			
+			m_labib.infos.fermer enregistrer:false
 			
 			---- maj des preferences ----	
 -- 			if not silence do (
