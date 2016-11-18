@@ -27,7 +27,8 @@ macroScript Labib
 category:"#CPages"
 toolTip:""
 (
-
+	global labib
+	
 	fileIn	 "$userScripts\cp - labib\labib.ms" 
 -- 	fileIn "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib.ms" 
 	
@@ -149,10 +150,16 @@ labib.fenetre.m_dialog.ui_LV
 
 
 
+ #### ui tags ####
+show 				labib.fenetre.m_dialog.ui_tags.items.item[0].checked
+
+showmethods 				labib.fenetre.m_dialog.ui_tags.items
+
+labib.fenetre.m_dialog.m_tags.getChecked ()
 
 
-
-
+labib.fenetre.m_dialog.ui_tags.items.count
+labib.fenetre.m_dialog.ui_tags.items.item[1].text
 
 
 

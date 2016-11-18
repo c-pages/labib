@@ -31,7 +31,7 @@ rollout roll_labib  "Labib" width:296 height:296
 
 
 	------------ DEBUG	----------------------------------------------------------------------------------
-	local	m_debug = false
+	local	m_debug = true
 	local	m_dbgPrefix ="roll_labib"
 	fn debug 	_txt  var:	 param:    =(
 		if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
@@ -77,6 +77,9 @@ rollout roll_labib  "Labib" width:296 height:296
 	dotNetControl ui_tags	"system.windows.forms.listView"	pos:		( ui_recherche.pos + [0,ui_recherche.height  + m_ecartUISimple ] ) \
 																							width:	ui_slider_V.width  \
 																							height:	0
+-- 	MultiListBox ui_tags	""	pos:		( ui_recherche.pos + [0,ui_recherche.height  + m_ecartUISimple ] ) \
+-- 																							width:	ui_slider_V.width  \
+-- 																							height:	0
 																					
 	dotNetControl ui_LV 	"system.windows.forms.listView"	pos:		[ ui_slider_H.pos.x + ui_slider_H.width, m_ecartUI ] \
 																							width:	0 \
@@ -94,6 +97,7 @@ rollout roll_labib  "Labib" width:296 height:296
 	local 	m_drag				---- manager du drag de la fenetre  ----
 	local		m_LV 				---- manager du liste view ----
 	local		m_TV 				---- manager du tree view ----
+	local 	m_tags				---- manager de tags ----
 	local		m_recherche 		---- manager du tree view ----
 	local 	m_menus			---- manager des menus ----
 	local 	m_barreAdresse
@@ -195,13 +199,28 @@ rollout roll_labib  "Labib" width:296 height:296
 		
 		adresseTxt = "Labib | " + adresseTxt
 		
-		m_barreAdresse.setTexte 	adresseTxt	--( m_edit.getDossier () ).nom
-		
-		
+		m_barreAdresse.setTexte 	adresseTxt	
 		
 	)
 	
-	
+	fn afficherTags 	_noeuds 	recursif:m_tags.m_recursif 	=(
+		
+		toArray 	&_noeuds
+		
+		m_tags.afficher 	_noeuds
+		
+		/* 
+		local tags = #()		
+		for noeud in _noeuds do (
+			local nvxTags = noeud.getTagsArray 	recursif:recursif
+			for nvTag in nvxTags 
+				do appendIfUnique tags nvTag
+		)
+		
+		m_tags.afficher 	tags */
+		
+		debug "tags" var:tags 
+	)
 	
 	
 	---- les listes et tree -----
@@ -249,6 +268,11 @@ rollout roll_labib  "Labib" width:296 height:296
 		
 		m_edit.majPointeursFenetre ()
 		
+		--- tags ---
+		m_tags = str_tagsMgr		m_prt:roll_labib	m_ui:ui_tags
+		
+		
+		
 		---- l'UI ------------
 		-- icones --
 		ui_btnFermer.bitmap = m_prt.m_icos_fermer[1]
@@ -274,13 +298,20 @@ rollout roll_labib  "Labib" width:296 height:296
 		ui_recherche.AcceptsTab 	= true
 		
 		---- tags ----
+		
 		ui_tags.BackColor 			= (dotNetClass "System.Drawing.Color").fromARGB 	col_fondVue.r 		col_fondVue.g 	col_fondVue .b
 		ui_tags.ForeColor 			= (dotNetClass "System.Drawing.Color").fromARGB 	col_textes.r 		col_textes.g 		col_textes.b
 		ui_tags.borderstyle 			= (dotnetclass "System.Windows.Forms.BorderStyle").None
-		ui_tags.view 					= (dotNetClass "system.windows.forms.view").List
+-- 		ui_tags.view 					= (dotNetClass "system.windows.forms.view").Details
+		ui_tags.view 					= (dotNetClass "system.windows.forms.view").list
 		ui_tags.checkboxes 			= true
 		ui_tags.labeledit 				= false
-		ui_tags.Columns.add "" 1000
+-- 		ui_tags.columns.add "Nom" 1000
+		
+-- 		ui_tags.GridLines				= true
+		ui_tags.FullRowSelect		= true
+		ui_tags.MultiSelect		 	= true
+-- 		ui_tags.HoverSelection		 	= true
 		
 		---- les dotnets ---
 		m_LV.initialiser ()
@@ -542,6 +573,13 @@ rollout roll_labib  "Labib" width:296 height:296
 	on ui_LV 	AfterLabelEdit			_arg 	do  	m_LV.renommer				_arg		
 	on ui_LV 	BeforeLabelEdit		_arg 	do  	m_LV.debutRenommage ()
 	on ui_LV 	keyup  					_arg 	do  	m_LV.key_up					_arg
+	
+	--- tags ----
+	on ui_tags  ItemChecked  _arg do (
+		m_tags.updateChecked ()
+		m_LV.actualiser ()
+	)
+	on ui_tags 	mouseUp 			_arg 	do  	m_tags.clq_up  				_arg
 	
 	------- recherche ---------------
 	on ui_recherche 	keyup  			_arg 	do  	m_recherche.key_up				_arg

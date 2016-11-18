@@ -10,10 +10,7 @@
 	
 	Structs
 	
-	Regroupe differentes structures (potentielement réutilisables )
 	-	gestionnaire de ListView dotnet
-	-	gestionnaire de TreeView dotnet
-	-	structure permetant de dragger un dialog
 	
 ##########################################################################################################################
 
@@ -99,8 +96,35 @@ struct str_listViewMgr (
 			---- on transforme "_elemsArbo" en array si element unique --
 			toArray 	&_noeudsA
 			
+			
+			
+			--- le filtre des tags ---
+			local filtreTags = m_prt.m_tags.getChecked ()		
+			
+			
+			
+			--- la creation ----
 			for noeud  in _noeudsA do (
 				
+				--- le filtre des tags ---
+				if not noeud.estRetour () do
+					if 	m_prt.m_tags.estChecked () then  (
+						
+-- 						if classOf noeud != str_branche or not m_prt.m_tags.m_recursif do (
+							
+						local filtreTags = m_prt.m_tags.getChecked ()		
+						
+						local tagTrouve = false
+						
+						for tag in filtreTags do
+							if noeud.possedeTag 	tag 	recursif:m_prt.m_tags.m_recursif	do (
+								tagTrouve = true
+								break 
+							)
+							
+						if not tagTrouve do continue
+-- 						)
+					)
 				
 				---- le nouvel item ----
 				local nvItem			= dotNetObject "System.Windows.Forms.ListViewItem" 	noeud.nomUnique
@@ -178,6 +202,7 @@ struct str_listViewMgr (
 				-- on ajoute le nouveau noeud à la liste de creation ---
 				append m_itemsAAfficher	 nvItem
 				m_idImage += 1
+				
 			) -- fin for noeud  in _noeudsA 
 			
 		),
@@ -348,14 +373,20 @@ struct str_listViewMgr (
 		),
 		fn ouvrir 	_noeudA 			=(
 			debug "ouvrir"
+-- 			debug "_noeudA" var:_noeudA
+			
 			local noeudCible 
-			--- retour ? --					
+			--- retour ? --
 			if _noeudA.nomUnique == "RETOUR" 
 				then noeudCible =  	_noeudA.parent
 				else	noeudCible =	_noeudA
 			
 			-- ouverture --
 			m_edit.ouvrir		noeudCible
+			
+			m_tv.selectionner noeudCible
+-- 			m_tv.expandSelection	()
+			
 			debug "noeudCible" var:noeudCible param:#nom
 			
 		),

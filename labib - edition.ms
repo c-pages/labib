@@ -123,6 +123,7 @@ struct str_edition (
 				m_dossier = m_tv.getNoeud	 m_tv.m_ui.SelectedNode
 			if m_dossier == undefined do 
 				m_dossier = m_arbo.root
+			
 			m_dossier
 		),
 		fn setDossier		_noeudA		= ( 
@@ -207,14 +208,21 @@ struct str_edition (
 				
 -- 				-- si differnet du dossier courant--
 -- 				if _noeudAOuvrir != m_dossier do (
-					
+					 
 					---- on actualise la selection ---					
 					setDossier	_noeudAOuvrir
+					
 					viderSelection ()
 					
-					---- on affiche la ListView  ---		
+					debug "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!	2	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+					----  on actualise les tags ----
+					m_labib.fenetre.m_dialog.afficherTags 		_noeudAOuvrir 
+				
+					debug "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!	3	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+					---- on actualise la ListView  ---		
 					m_LV.actualiser ()
 					
+					debug "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!	4	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 					---- historique ---
 					if enregistrer_historique do m_hist.enregistrer  	_noeudAOuvrir
 					

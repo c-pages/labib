@@ -71,6 +71,9 @@ struct 	cmd_renommer  (
 	---- fonctions  --------------------------------
 	public
 		fn executer 	p1:  p2: 	=	(
+			
+			toArray &p1
+			
 			---- données de la commande ----
 			m_noeudsCible 	= p1
 			m_nvNom			= p2

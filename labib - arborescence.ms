@@ -103,7 +103,27 @@ struct str_element (
 		fn getElements 		=	return #(),	--- n'as pas d'enfants ---
 		fn getNoeuds 			= return #(),		--- n'as pas d'enfants ---
 		
-		
+		fn getTagsAsArray =(
+			local listeTags =#()
+			
+			local tags1 = filterString  tags 	m_prt.m_tagsSeparateurs
+			
+			-- on retire les balncs en trop --
+			for i = 1 to tags1.count	do(
+				
+				
+				
+				tags2 = filterString  tags1[i] 	" "
+				
+				if tags2.count > 0 do (
+					tags1[i] = tags2[1]
+					for j = 1 to tags2.count-1 do
+						tags1[i] += " " + tags2[j+1]
+					append listeTags tags1[i]
+				)
+			)
+			listeTags
+		),
 		
 		fn setTags 		_tags =(
 			
@@ -148,18 +168,13 @@ struct str_element (
 		fn getAProxy 					= 	if doesfileExist proxy then "oui" else "non",
 		fn getAVueDetail 				= 	if doesfileExist detail then "oui" else "non",
 		fn getTags						=	tags,
+		fn getTagsArray				=	getTagsAsArray(),
 		fn getNom						=	nom,
 		fn getCommentaires			=	commentaires,
 		fn getFichier					=	fichier,
 		fn getApercu					=	apercu,
 		fn getDetail					=	detail,
 		
-		
-		fn setTag 	_tags =(
-			
-			
-			tags = _tags
-		),
 		
 		
 		
@@ -182,7 +197,7 @@ struct str_element (
 		---- tags ----
 		fn possedeTag 	_tagAChercher  =(
 			
-			local listeDesTags = filterString  tags 	m_prt.m_tagsSeparateurs
+			local listeDesTags = getTagsAsArray ()
 			local result = false
 			
 			for tag in listeDesTags while not result do 
@@ -304,7 +319,39 @@ struct str_branche (
 		fn getDateCreation 			= "",
 		fn getAProxy 					= "",
 		fn getAVueDetail 				= "",
+			
 		
+		fn getTagsArray			recursif:true =(
+			local tagsArray =#()
+			for enfant in enfants where classOf enfant == str_element do (
+				local tagsEnfants_elem = enfant.getTagsArray ()
+				for tag in tagsEnfants_elem do
+					appendIfUnique tagsArray tag
+			)
+			
+			if recursif do
+				for enfant in enfants where classOf enfant == str_branche do (
+					local tagsEnfants_brch = enfant.getTagsArray ()
+					for tag in tagsEnfants_brch do
+						appendIfUnique tagsArray tag
+				)
+			
+			tagsArray
+		),
+		
+		fn getTags			recursif:true =(
+			local tagsArray =getTagsArray ()
+			local tagsTxt =""
+			
+			for  i = 1 to tagsArray.count do (
+				
+				tagsTxt += tagsArray[i]
+				if i != tagsArray.count do 
+					tagsTxt += " | "
+				
+			)
+			tagsTxt
+		),
 		
 		--- tests ---
 		fn estRecherche 		=	nomUnique == "RECHERCHE",
@@ -320,6 +367,19 @@ struct str_branche (
 		),
 		fn estDansLabib = (
 			m_prt.getParNomUnique 	nomUnique != undefined
+		),
+		
+		
+		---- tags ----
+		fn possedeTag 	_tagAChercher  recursif:true =(
+			
+			local result = false
+			if recursif do
+				for enfant in enfants do
+					if enfant.possedeTag 	_tagAChercher do
+						result = true
+			
+			result
 		),
 		
 		

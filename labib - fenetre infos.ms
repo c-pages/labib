@@ -115,7 +115,7 @@ rollout roll_infos "infos"  width:346 height:262
 		if _assets.count == 1 then (
 			local selectionNoeud = _assets[1]
 			
-			if classOf selectionNoeud == str_element do (
+			if classOf selectionNoeud == str_element then  (
 				
 				for ui in m_uis do ui.enabled=true
 				ui_editNom.text = selectionNoeud.nom
@@ -130,7 +130,19 @@ rollout roll_infos "infos"  width:346 height:262
 				ui_editNbreImports.text 			= 	selectionNoeud.getNbrImports () 
 				ui_editNbreVertex.text 				= 	selectionNoeud.getNbrVertex ()
 				
+			) else (
+				
+				for ui in m_uis do ui.enabled=false
+				ui_editNom.text = selectionNoeud.nom
+				ui_lblNom.enabled = true
+				ui_editNom.enabled = true
+				
+				local listeTags = for asset in _assets collect selectionNoeud.getTags()
+				ui_editTags.text = checkUnite 	listeTags
+				ui_lblTags.enabled = true
+				ui_editTags.enabled = true
 			)
+			
 		) else (
 			
 			for ui in m_uis do ui.enabled=false

@@ -10,10 +10,7 @@
 	
 	Structs
 	
-	Regroupe differentes structures (potentielement réutilisables )
-	-	gestionnaire de ListView dotnet
 	-	gestionnaire de TreeView dotnet
-	-	structure permetant de dragger un dialog
 	
 ##########################################################################################################################
 
@@ -41,8 +38,8 @@ struct str_treeViewMgr (
 		
 	------------ DEBUG	----------------------------------------------------------------------------------
 
+-- 		m_debug = true,
 		m_debug = false,
--- 		m_debug = false,
 		m_dbgPrefix ="TV",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
@@ -177,9 +174,9 @@ struct str_treeViewMgr (
 				creerItem 	enfant  	nouveauNoeudTV
 		
 		),
-		fn selectionner	 	_noeudA	= (			
+		fn setDossierCourant	 	_noeudA		= (			
 			
-			debug "selectionner"
+			debug "setDossierCourant"
 			debug "_noeudA" var:_noeudA	 param:#nom
 			
 			if _noeudA !=undefined do (
@@ -192,6 +189,29 @@ struct str_treeViewMgr (
 -- 					do m_ui.SelectedNode 	= getItem		_noeudA
 -- 				if m_ui.SelectedNode != undefined 
 -- 					do m_ui.SelectedNode.EnsureVisible()
+				
+				
+			)
+			
+			debug "m_edit.getDossier " var:(m_edit.getDossier () )	 param:#nom
+		),
+		fn selectionner	 	_noeudA		= (			
+			
+			debug "selectionner"
+			debug "_noeudA" var:_noeudA	 param:#nom
+			
+			if _noeudA !=undefined do (
+-- 				
+-- 				---- on actualise Edit ----
+-- 				m_edit.setDossier 		_noeudA
+				
+-- 				---- on selectionne les items ----
+-- 				if m_ui.SelectedNode !=  getItem		_noeudA
+-- 					do 
+				
+				m_ui.SelectedNode 	= getItem		_noeudA
+				
+				expandSelection ()
 				
 				
 			)
@@ -242,9 +262,9 @@ struct str_treeViewMgr (
 			append m_noeudsTV_total 	itemRech
 			
 			--  la selection --
-			local dossierCourant 	= m_edit.getDossier ()	
-			if dossierCourant.estDansLabib () do
-				selectionner 	dossierCourant 
+-- 			local dossierCourant 	= m_edit.getDossier ()	
+-- 			if dossierCourant.estDansLabib () do
+-- 				setDossierCourant 	dossierCourant 
 			
 		),
 		
@@ -307,7 +327,7 @@ struct str_treeViewMgr (
 			local	noeudAClique = getNoeudA_at  _arg.x _arg.y 
 			debug "noeudAClique" var:noeudAClique param:#nom
 			
-			if noeudAClique != undefined do		selectionner	noeudAClique
+			if noeudAClique != undefined do		setDossierCourant	noeudAClique
 			
 			case _arg.button of (
 				(m_btnsDotNet.Left): 		m_edit.ouvrir 	noeudAClique

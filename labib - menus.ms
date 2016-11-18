@@ -285,6 +285,26 @@ struct str_menus (
 			popUpMenu 	rcMenuDossiers
 		),
 		
+		fn tags = (	
+			rcMenu rcTags
+			(	
+				------- le menu ------------------------------------------
+				
+				menuItem checkAll 		"Check all" 	
+				menuItem uncheckAll 	"Uncheck all" 	
+				
+				seperator sep02
+				
+				menuItem recursif  	"Recursif" 	 checked:labib.fenetre.m_dialog.m_tags.m_recursif
+				
+				
+				------- les evenements ------------------------------------------
+				on checkAll 		picked do	()
+				on uncheckAll 	picked do	()
+				on recursif 			picked do	labib.fenetre.m_dialog.m_tags.toggleRecursif ()
+			)
+			popUpMenu rcTags
+		),
 		fn fenetre = (	
 			rcMenu rcFenetre
 			(	
