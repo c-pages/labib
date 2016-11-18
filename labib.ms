@@ -64,7 +64,7 @@ include "$userScripts\cp - labib\labib - Mgr - ListView.ms"
 include "$userScripts\cp - labib\labib - Mgr - ListView Tags.ms"
 
 include "$userScripts\cp - labib\labib - menus.ms"
--- include "$userScripts\cp - labib\labib - fenetres secondaires.ms"
+
 include "$userScripts\cp - labib\labib - fenetre infos.ms"
 
 

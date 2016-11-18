@@ -2,8 +2,10 @@
 ------------------------------------------------------------------------------
 ----------	Fichiers annexes						--------------------------
 ------------------------------------------------------------------------------
-include "$userScripts\cp - GLOBAL\UI.ms"
-include "$userScripts\cp - GLOBAL\DragDialog.ms"
+include "$userScripts\cp - labib\cp - GLOBAL\UI.ms"
+include "$userScripts\cp - labib\cp - GLOBAL\DragDialog.ms"
+-- include "$userScripts\cp - GLOBAL\UI.ms"
+-- include "$userScripts\cp - GLOBAL\DragDialog.ms"
 
 
 
