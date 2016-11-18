@@ -115,7 +115,16 @@ struct str_tagsMgr (
 					if m_ui.items.item[i ].checked do 
 						append m_listeTagsChecked m_ui.items.item[i ].text
 
+			debug "m_listeTagsChecked.count" var:m_listeTagsChecked.count
 					
+			if m_listeTagsChecked.count > 0 then (
+				-- la couleur passe en mode recherche --
+				m_ui.BackColor 	= toCouleurDotnet 	m_prt.m_prefs.fenetre.col_uiFondRecherche 
+			)	else (
+				-- la couleur passe en mode repos --
+				m_ui.BackColor 	= toCouleurDotnet 	m_prt.m_prefs.fenetre.col_uiFond				
+			)
+			
 			tagsChecked
 		),
 		fn vider =(
@@ -130,10 +139,13 @@ struct str_tagsMgr (
 			
 		),
 		fn afficher 	_noeuds 	=(
+			
 			toArray &_noeuds
+			
 			local tags = #()		
 			for noeud in _noeuds do (
-				local nvxTags = noeud.getTagsArray 	recursif:m_recursif
+				local recursif = if m_prt.m_recherche.estActif() then false else m_recursif
+				local nvxTags = noeud.getTagsArray 	recursif:recursif
 				for nvTag in nvxTags 
 					do appendIfUnique tags nvTag
 			)
@@ -164,7 +176,7 @@ struct str_tagsMgr (
 			
 		),
 		fn actualiser =(
-			afficher ( m_edit.getDossier() )
+			afficher ( m_edit.getNoeudAAfficher() )
 		),
 		
 		fn toggleRecursif =(

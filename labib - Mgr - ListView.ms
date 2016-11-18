@@ -137,12 +137,15 @@ struct str_listViewMgr (
 				--- Vue Détail : la couleur des lignes  --
 				if m_prefs.fenetre.affichageLV == #Details do (
 					
-					local idPaire = (  m_idImage / 2. - floor ( m_idImage / 2. ) ) == 0 
+-- 					local idPaire = (  m_idImage / 2. - floor ( m_idImage / 2. ) ) == 0 
 					local couleurLigne
-					if idPaire	then couleurLigne 	= m_col_fondDossier
-									else couleurLigne 	= m_col_uiFond
-					if classof noeud == str_branche do
-						couleurLigne -= [30,30,20] as color
+					
+-- 					if idPaire	then couleurLigne 	= m_col_fondDossier
+-- 									else couleurLigne 	= m_col_uiFond
+					if classof noeud == str_branche then
+						couleurLigne 	= m_col_uiFond + [20,20,20]
+					else 
+						couleurLigne 	= m_col_uiFond
 					
 					nvItem.BackColor		=	toCouleurDotnet	couleurLigne
 					
@@ -158,6 +161,8 @@ struct str_listViewMgr (
 				nvItem.subItems.add 	( noeud.getAVueDetail ()   )		
 				nvItem.subItems.add 	( noeud.getDateCreation ()  )
 				
+				nvItem.subItems.add 	( noeud.getFichier ()  )
+				nvItem.subItems.add 	( noeud.getTags ()  )
 				/* m_ui.columns.add "Nom" 200
 					m_ui.columns.add "Verts" 70
 					m_ui.columns.add "Dernier import" 130
@@ -325,7 +330,69 @@ struct str_listViewMgr (
 			)
 			debug "selection" var:(m_edit.getSelection ()) param:#nom
 		),
-		fn actualiser  = (	
+		
+		
+		
+		
+		
+		fn getBranches _noeuds =(
+			local result = #()
+			result = for noeud in _noeuds where classOf noeud == str_branche collect noeud
+			result
+		),
+		fn getElements _noeuds =(
+			local result = #()
+			result = for noeud in _noeuds where classOf noeud == str_element collect noeud
+			result
+		),
+		
+		
+		
+		fn afficher  _noeudsAAfficher	= (	
+			
+			debug "afficher"
+			
+			-- on nettoie le terrain ---
+			vider ()
+			
+			local aAfficher = _noeudsAAfficher
+			
+			--- la couleur de fond du LV ---------
+			local col_fondVue			
+			if m_prt.m_recherche.estActif () or m_prt.m_tags.estChecked ()
+				then	col_fondVue 	= m_col_uiFondRecherche
+				else	col_fondVue 	= m_col_uiFond
+			m_ui.BackColor 				= toCouleurDotnet 	col_fondVue
+			
+			-- Affichage des dossiers --
+			if m_prefs.fenetre.afficherDossier do (	
+				
+				----  retour ----
+				if m_brancheCourante.NomUnique != "ROOT" and m_brancheCourante.NomUnique != "RECHERCHE" do  (
+					local ndRetour = m_edit.getNdRetour()
+					creerItems 	ndRetour
+					ndRetour.parent = m_brancheCourante.parent
+				)
+				
+				---- Les dossiers enfants ----
+				creerItems ( getBranches aAfficher )
+			)
+			
+			---- les elements enfants----
+			creerItems ( getElements aAfficher )
+			
+			--- on remplie la liste LV ----
+			m_ui.LargeImageList = 	m_iconesAAfficher
+			m_ui.items.addRange		m_itemsAAfficher
+			
+			---- on selectionne ----
+			selectionner	( m_edit.getSelection() )
+			
+			
+			
+		),
+		
+		fn actualiser  noeudAAfficher:(getDossier ()).enfants	= (	
 			debug "actualiser"
 			
 			-- on nettoie le terrain ---
@@ -333,42 +400,44 @@ struct str_listViewMgr (
 			
 			--- on actualise la branche courante --
 			m_brancheCourante = getDossier ()
+			
 			debug "m_brancheCourante" var:m_brancheCourante	 param:#nom
-			if m_brancheCourante != undefined then (
+			
+			debug "noeudAAfficher" var:noeudAAfficher	 param:#nom
+			
+			local aAfficher = noeudAAfficher
+			
+			--- la couleur de fond du LV ---------
+			local col_fondVue			
+			if m_prt.m_recherche.estActif () or m_prt.m_tags.estChecked ()
+				then	col_fondVue 	= m_col_uiFondRecherche
+				else	col_fondVue 	= m_col_uiFond
+			m_ui.BackColor 				= toCouleurDotnet 	col_fondVue
+			
+			-- Affichage des dossiers --
+			if m_prefs.fenetre.afficherDossier do (	
 				
-				--- la couleur de fond du LV ---------
-				local col_fondVue			
-				if m_brancheCourante.nomUnique == "RECHERCHE"	
-					then	col_fondVue 	= m_col_uiFondRecherche
-					else	col_fondVue 	= m_col_uiFond
-				m_ui.BackColor 				= toCouleurDotnet 	col_fondVue
-				
-				-- Affichage des dossiers --
-				if m_prefs.fenetre.afficherDossier do (	
-					
-					----  retour ----
-					if m_brancheCourante.NomUnique != "ROOT" and m_brancheCourante.NomUnique != "RECHERCHE" do  (
-						local ndRetour = m_edit.getNdRetour()
-						creerItems 	ndRetour
-						ndRetour.parent = m_brancheCourante.parent
-					)
-					
-					---- Les dossiers enfants ----
-					creerItems 	( m_brancheCourante.getNoeuds() )
+				----  retour ----
+				if m_brancheCourante.NomUnique != "ROOT" and m_brancheCourante.NomUnique != "RECHERCHE" do  (
+					local ndRetour = m_edit.getNdRetour()
+					creerItems 	ndRetour
+					ndRetour.parent = m_brancheCourante.parent
 				)
 				
-				---- les elements enfants----
-				creerItems 	( m_brancheCourante.getElements() )
-				
-				--- on remplie la liste LV ----
-				m_ui.LargeImageList = 	m_iconesAAfficher
-				m_ui.items.addRange		m_itemsAAfficher
-				
-				---- on selectionne ----
-				selectionner	( m_edit.getSelection() )
-				
-			) --else debug "dossier" var:dossier
+				---- Les dossiers enfants ----
+				creerItems ( getBranches aAfficher )
+			)
 			
+			---- les elements enfants----
+			creerItems ( getElements aAfficher )
+			
+			--- on remplie la liste LV ----
+			m_ui.LargeImageList = 	m_iconesAAfficher
+			m_ui.items.addRange		m_itemsAAfficher
+			
+			---- on selectionne ----
+			selectionner	( m_edit.getSelection() )
+				
 			
 		),
 		fn ouvrir 	_noeudA 			=(
@@ -390,6 +459,7 @@ struct str_listViewMgr (
 			debug "noeudCible" var:noeudCible param:#nom
 			
 		),
+		
 		
 		
 		
@@ -501,6 +571,8 @@ struct str_listViewMgr (
 					m_ui.margin.all = 0
 				)
 			)
+			
+			actualiser ()
 			
 		),
 		

@@ -28,9 +28,11 @@
 
 
 ------------------------------------------------------------------------------
-----------	chrono						--------------------------
+----------	recherche						--------------------------
 ------------------------------------------------------------------------------
 struct str_recherche (
+	
+	
 	------------ DEBUG	----------------------------------------------------------------------------------
 -- 		m_debug = false,
 		m_debug = true,
@@ -39,21 +41,160 @@ struct str_recherche (
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
 		),
 	----------------------------------------------------------------------------------------------------------
-	
+		
 		
 		
 		
 		
 		m_prt,				---- le parent, le rollout ---- ( a initialiser ) ----	
-		m_ui, 					---- le editTexte  a controler -- ( a initialiser ) ----
-
+		m_ui, 				---- le editTexte  a controler -- ( a initialiser ) ----
+		m_arbo, 	
+		m_edit,
 		
+		
+		---- les boutons de souris dotNet ----
+		m_btnsDotNet = dotNetClass "System.Windows.Forms.MouseButtons",
+		
+		--- options ----
+		m_rechercheDansNoms 	= true,
+		m_rechercheDansTags 	= false,
+		m_recursif					= true,
 		
 		---- focus -----
 		fn focus =(
 			setFocus m_ui
 		),
 		
+		
+		fn chercherDansTags 	_aChercher	noeud:m_arbo.root   =(
+			
+			local result = #()
+			local listeTags = noeud.getTagsArray ()
+			
+			for tag in listeTags do
+				if findString tag  _aChercher != undefined do (
+					appendIfUnique result  noeud
+					continue
+				)
+				
+			if m_recursif do
+				for enfant in noeud.enfants do
+					result += 	chercherDansTags 	_aChercher	noeud:enfant
+			
+			result
+		),
+		
+		fn chercherDansNoms 	_aChercher		noeud:m_arbo.root   =(
+						
+			local result = #()
+			
+			if findString noeud.nom  _aChercher != undefined then
+				append result  noeud
+			
+			if m_recursif do
+				for enfant in noeud.enfants do
+					result += 	chercherDansNoms 	_aChercher	noeud:enfant
+			
+			result
+		),
+		
+		
+		
+		fn chercher 	_aChercher 	noeuds:#( m_edit.getDossier() )	=(
+			
+			toArray &noeuds
+			
+			local resultatsRecherche = #()
+			if _aChercher != "" do (
+				
+				for noeud in noeuds do (
+					
+					local listeAChercher = filterString  _aChercher 	" "
+					
+					for motAChercher in listeAChercher where motAChercher != undefined do (
+						
+						--- chercher dans les NOMS des assets ----
+						if m_rechercheDansNoms do
+							resultatsRecherche +=		chercherDansNoms 		motAChercher  	noeud:noeud
+						
+						--- chercher dans les TAGS des assets ----
+						if m_rechercheDansTags do
+							resultatsRecherche +=		chercherDansTags 		motAChercher  noeud:noeud
+						
+					)
+					
+					debug "resultatsRecherche" var:resultatsRecherche param:#nom
+					
+				)
+				
+			)
+			
+			resultatsRecherche
+			
+		),
+		
+		
+		fn estActif =(
+			m_ui.text != ""
+		),
+		
+		
+		fn getResultat  noeuds:( m_edit.getDossier() )  =(		
+			chercher 	m_ui.text 	noeuds:noeuds
+		),
+		
+		fn actualiserResultats =(
+			
+			m_edit.actualiser ()
+			
+			-- la couleur passe en mode recherche --
+			if estActif() then
+				m_ui.BackColor 	= toCouleurDotnet 	m_prt.m_prefs.fenetre.col_uiFondRecherche 
+			else
+				m_ui.BackColor 	= toCouleurDotnet 	m_prt.m_prefs.fenetre.col_uiFond 
+			
+		),
+		
+		
+		fn toggle_rechercheDansNoms =(
+			m_rechercheDansNoms = not m_rechercheDansNoms
+			if not m_rechercheDansNoms do
+				m_rechercheDansTags = true
+			
+			-- actualiser resultats --			
+			actualiserResultats ()
+		),
+		fn toggle_rechercheDansTags =(
+			m_rechercheDansTags = not m_rechercheDansTags
+			if not m_rechercheDansTags do
+				m_rechercheDansNoms = true
+			
+			-- actualiser resultats --		
+			actualiserResultats ()
+		),
+		fn toggle_recursif =(
+			m_recursif = not m_recursif
+			
+			-- actualiser resultats --		
+			actualiserResultats ()
+		),
+		
+		
+		--- souris ---
+		fn clq_up 			_arg 			= (
+			debug "clq_up"
+			
+				
+			
+			case _arg.button of (
+				(m_btnsDotNet.Left): 		()
+				(m_btnsDotNet.Middle): 	()
+				(m_btnsDotNet.None): 		()
+				(m_btnsDotNet.Right): 		m_prt.m_menus.recherche ()
+				(m_btnsDotNet.XButton1): 	()
+				(m_btnsDotNet.XButton2):	()
+			)
+		),
 		
 		
 		---- clavier ----		
@@ -70,7 +211,7 @@ struct str_recherche (
 									else  m_prt.focusSuivant ()
 				)
 				
-				( touches.Enter ): 	 debug "Lancer RECHERCHE"
+				( touches.Enter ): 	actualiserResultats () -- chercher m_ui.text
 				( touches.Escape ):  m_prt.focusSuivant ()
 				
 				
@@ -78,9 +219,22 @@ struct str_recherche (
 				( touches.Z ): 		if _arg.Control do	debug "UNDO" 
 				-- undo --
 				( touches.Y ): 		if _arg.Control do	debug "REDO" 
+				
+				--defaut--
+				default:	actualiserResultats ()
+					
+				
 			)
 				
 		)
+		
+		
+		
+		/* ,
+		fn textChange _arg =(
+			
+			debug "textChange"
+		) */
 		
 )
 

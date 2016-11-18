@@ -73,8 +73,11 @@ struct str_menus (
 				
 				fn aElementsSelectionnees = not labib.edit.selectionEstVide () and  not estRetour() 
 				
+				fn siRechercheEnCours =  labib.fenetre.m_dialog.m_recherche.estActif()
+					
 				
 				----------------------------------------------------------------------------------------------------------
+				menuItem afficherDansDossier  	"Affficher dans le dossier" 	filter:siRechercheEnCours
 				
 				------- le menu ------------------------------------------
 				menuItem importer 					"Importer" 				enabled:( aElementsSelectionnees() )
@@ -283,6 +286,25 @@ struct str_menus (
 			)
 			
 			popUpMenu 	rcMenuDossiers
+		),
+		fn recherche = (	
+			rcMenu rcRecherche
+			(	
+				------- le menu ------------------------------------------
+				
+				menuItem rechercheNoms 		"Rechercher dans les noms" 	checked:labib.fenetre.m_dialog.m_recherche.m_rechercheDansNoms
+				menuItem rechercheTags 		"Rechercher dans les tags" 	checked:labib.fenetre.m_dialog.m_recherche.m_rechercheDansTags
+				
+				seperator sep02
+				
+				menuItem recursif  	"Recursif"  	 checked:labib.fenetre.m_dialog.m_recherche.m_recursif
+				
+				------- les evenements ------------------------------------------
+				on rechercheNoms 	picked do	labib.fenetre.m_dialog.m_recherche.toggle_rechercheDansNoms ()
+				on rechercheTags 	picked do	labib.fenetre.m_dialog.m_recherche.toggle_rechercheDansTags ()
+				on recursif 	picked do	labib.fenetre.m_dialog.m_recherche.toggle_recursif ()
+			)
+			popUpMenu rcRecherche
 		),
 		
 		fn tags = (	

@@ -52,6 +52,9 @@ struct str_edition (
 		m_labib,										---- la structure principale ---	
 		m_TV 		,								---- le treeview ---
 		m_LV 		,								---- le listview ---
+		m_tags 		,								---- le listview ---
+		m_recherche 		,								---- le listview ---
+		
 	private
 		m_prefs		= m_labib.prefs,			---- les preferences ---
 		m_arbo		= m_labib.arbo,			---- l'arborescence ---
@@ -62,6 +65,7 @@ struct str_edition (
 	---- position dans la bib et selection -----
 		m_dossier,									---- Selectionné dans le treeview, et enfants affichés dans le listview ----
 		m_selection =#(),						---- Elements selectionés dans le listview ----
+		m_ndsAAfficher =#(),
 		
 	--- managers ----
 		m_chrono 	= str_chrono (),			---- manager pour chronometrer les operations ----
@@ -91,6 +95,20 @@ struct str_edition (
 	public
 		---- Fonctionnement ----
 		
+		fn filtrer 	_noeuds 	=(
+			local result =#()
+			if m_recherche.estActif() then (
+				--- recherche ---
+				result =  m_recherche.getResultat 	noeuds:_noeuds
+				
+			) else 
+				result = _noeuds
+			
+			result			
+		),
+		
+		
+		
 		--- noeuds arbo ---
 		fn getNoeud 	_nomUnique	=(
 			local result
@@ -109,6 +127,13 @@ struct str_edition (
 			m_arbo.recherche
 		),
 		fn getNdsDrag = m_dragNoeuds,
+			
+		fn getNdsAAfficher =(
+			m_ndsAAfficher
+-- 			_noeudAOuvrir = filtrer  _noeudAOuvrir.enfants
+
+		),
+		
 		fn getPressePapier = for n in m_pressePapier.enfants collect n,
 		
 		fn getPressePapierOrigine = m_PressePapierOrigine,
@@ -186,13 +211,23 @@ struct str_edition (
 			debug "majPointeursFenetre"
 			
 		--- maj pointeurs Listes dans edit ---
-			m_TV = m_fenetre.m_dialog.m_TV
-			m_LV = m_fenetre.m_dialog.m_LV
+			m_TV 			= m_fenetre.m_dialog.m_TV
+			m_LV 			= m_fenetre.m_dialog.m_LV
+			m_tags			= m_fenetre.m_dialog.m_tags
+			m_recherche	= m_fenetre.m_dialog.m_recherche
 			
 			m_hist.m_TV 	= m_TV
 			m_hist.m_LV 	= m_LV
+			
 			debug "majPointeursFenetre (fin)"
 			
+		),
+		
+		
+		fn filtrerAffichage =(
+			--- les filtres de recherche et tags ---
+			m_ndsAAfficher = filtrer  	m_dossier.enfants
+			debug "filtrerAffichage" var:m_ndsAAfficher param:#nom
 		),
 		
 		--- ouvrir un dossier ---
@@ -214,13 +249,19 @@ struct str_edition (
 					
 					viderSelection ()
 					
+					filtrerAffichage ()
+					
+					debug "m_ndsAAfficher" var:m_ndsAAfficher param:#nom
+				
 					debug "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!	2	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 					----  on actualise les tags ----
 					m_labib.fenetre.m_dialog.afficherTags 		_noeudAOuvrir 
 				
 					debug "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!	3	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+				
 					---- on actualise la ListView  ---		
-					m_LV.actualiser ()
+					m_LV.actualiser 	noeudAAfficher:m_ndsAAfficher
+-- 					m_LV.afficher _noeudAOuvrir
 					
 					debug "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!	4	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 					---- historique ---
@@ -240,6 +281,42 @@ struct str_edition (
 			debug "(ouvrir) m_dossier Fin" var:m_dossier	 param:#nomUnique
 			debug "fin : ouvrir\n"
 		),
+		
+		
+		fn actualiser =(
+			
+			viderSelection ()
+			
+			
+			debug "m_ndsAAfficher" var:m_ndsAAfficher param:#nom
+		
+			debug "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!	2	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+			----  on actualise les tags ----
+			filtrerAffichage ()
+			m_labib.fenetre.m_dialog.afficherTags 		m_ndsAAfficher 
+		
+			debug "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!	3	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+		
+			---- on actualise la ListView  ---		
+			m_LV.actualiser 	noeudAAfficher:m_ndsAAfficher
+			
+		
+		),
+		
+		
+		
+		/* 
+		fn afficherRecherche vide:false =(
+			
+			if not vide then (
+				---- on actualise la ListView  ---
+				m_LV.actualiser noeudAAfficher:m_arbo.recherche
+			) else (
+				ouvrir m_dossier
+			)
+			
+		),
+		 */
 		
 		fn creerDossier 	nom:"Nouveau dossier" 	parent: 	=(
 			
@@ -386,6 +463,7 @@ struct str_edition (
 			)
 			
 			
+			m_labib.fenetre.m_dialog.afficherTags 		m_ndsAAfficher 
 			m_fenetre.actualiser ()
 			
 			--- restauration etat du TV ---

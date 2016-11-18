@@ -65,16 +65,17 @@ rollout roll_labib  "Labib" width:296 height:296
 																							width:	( ui_slider_H.pos.x )	\
 																							height: 	m_ecartUI 
 																					
-	dotNetControl ui_TV 				"TreeView"			 			pos:		[m_ecartUI ,m_ecartUI]	\
-																							width:	ui_slider_V.width	\
-																							height:	0 	
-																					
-	dotNetControl ui_recherche		"TextBox"	 						pos:		[ m_ecartUI , 	ui_slider_V.pos.y + ui_slider_V.height   ]  \
+	dotNetControl ui_recherche		"TextBox"	 						pos:		[ m_ecartUI , 	m_ecartUI   ]  \
 																							width:	ui_slider_V.width \
 																							border:	false	\
 																							height:	0
+																							
+	dotNetControl ui_TV 				"TreeView"			 			pos:		[m_ecartUI ,ui_recherche.pos.y + ui_recherche.height - 5  ]	\
+																							width:	ui_slider_V.width	\
+																							height:	0 	
 																					
-	dotNetControl ui_tags	"system.windows.forms.listView"	pos:		( ui_recherche.pos + [0,ui_recherche.height  + m_ecartUISimple ] ) \
+																					
+	dotNetControl ui_tags	"system.windows.forms.listView"	pos:		( ui_TV.pos + [0,ui_TV.height  + m_ecartUI ] ) \
 																							width:	ui_slider_V.width  \
 																							height:	0
 -- 	MultiListBox ui_tags	""	pos:		( ui_recherche.pos + [0,ui_recherche.height  + m_ecartUISimple ] ) \
@@ -104,18 +105,37 @@ rollout roll_labib  "Labib" width:296 height:296
 	
 	------------  Fonctions	----------------------------------------------------------------------------------
 	---- la fenetre ----
+	
+	/* 
+
+	dotNetControl ui_recherche		"TextBox"	 						pos:		[ m_ecartUI , 	m_ecartUI   ]  \
+																							width:	ui_slider_V.width \
+																							border:	false	\
+																							height:	0
+																							
+	dotNetControl ui_TV 				"TreeView"			 			pos:		[m_ecartUI ,ui_recherche.pos.y + ui_recherche.height + m_ecartUISimple ]	\
+																							width:	ui_slider_V.width	\
+																							height:	0 	
+																					
+																					
+	dotNetControl ui_tags	"system.windows.forms.listView"	pos:		( ui_TV.pos + [0,ui_TV.height  + m_ecartUI ] ) \
+																							width:	ui_slider_V.width  \
+																							height:	0																			width:	ui_slider
+	 */
+	
 	fn fen_recomposer 	= (
 		
 		local tailleRollout = [ roll_labib.width, roll_labib.height ]
 		
+		debug "ui_tags.pos.y ---1----" var:ui_tags.pos.y
 		--limitations positions des sliders--
 		local min_H 	= 0* m_ecartUI
 		local max_H 	= tailleRollout.x - ( 1* m_ecartUI ) 
-		local min_V 	= 0* m_ecartUI 
+		local min_V 	= 5* m_ecartUI 
 		local max_V 	
 		if m_prefs.fenetre.sliderV_estRabattu 
 			then max_V	= tailleRollout.y - ( 1* m_ecartUI ) 
-			else max_V	= tailleRollout.y - ( 2* m_ecartUI + ui_recherche.height )
+			else max_V	= tailleRollout.y - ( 5* m_ecartUI  )
 		if ui_slider_H.pos.x  >max_H 	do	ui_slider_H.pos.x = 	max_H
 		if ui_slider_H.pos.x < min_H  	do 	ui_slider_H.pos.x =  	min_H		
 		if ui_slider_V.pos.y > max_V 	do 	ui_slider_V.pos.y = 	max_V	
@@ -126,18 +146,21 @@ rollout roll_labib  "Labib" width:296 height:296
 		ui_slider_V.width	= ui_slider_H.pos.x 
 		---- les autres -----		
 		ui_TV.width 			= ui_slider_V.width- m_ecartUI
-		ui_TV.height 			= ui_slider_V.pos.y - m_ecartUI		
-		ui_recherche.pos		= [ m_ecartUI , 	ui_slider_V.pos.y + ui_slider_V.height  ]
+		ui_TV.height 			= ui_slider_V.pos.y - ( m_ecartUI	+ 	ui_recherche.height)
+-- 		ui_recherche.pos		= [ m_ecartUI , 	ui_slider_V.pos.y + ui_slider_V.height  ]
 		ui_recherche.width 	= ui_slider_V.width- m_ecartUI		
-		ui_tags.pos 			= ui_recherche.pos + [0,ui_recherche.height  + m_ecartUISimple ]
+-- 		ui_tags.pos 			=  ui_TV.pos + [0,ui_TV.height  + m_ecartUI ]
+		ui_tags.pos 			=  ui_slider_V.pos + [0, m_ecartUI ]
 		ui_tags.width 			= ui_slider_V.width - m_ecartUI
-		ui_tags.height			= tailleRollout.y - ( ui_recherche.pos.y + ui_recherche.height +  m_ecartUI + m_ecartUISimple )		
+		ui_tags.height			= tailleRollout.y - ( ui_TV.pos.y + ui_TV.height +  2 * m_ecartUI )		
 		ui_LV.pos				= [ui_slider_H.pos.x + ui_slider_H.width, m_ecartUI ]
 		ui_LV.width				= tailleRollout.x - ( ui_slider_H.pos.x + ui_slider_H.width +  m_ecartUI )
 		ui_LV.height			= tailleRollout.y - 2* m_ecartUI		
 		ui_btnFermer.pos		= [ tailleRollout.x - 1 *m_ecartUI	, 0 ]
 		
 		ui_barreAdresse.pos.x = ui_LV.pos.x - 2
+		
+		debug "ui_tags.pos.y ---2----" var:ui_tags.pos.y
 	)
 	fn fen_bouger  _pos =(
 		--- on stock la pos  ---		
@@ -150,10 +173,15 @@ rollout roll_labib  "Labib" width:296 height:296
 		if not m_prefs.fenetre.pleinEcran and not  m_prefs.fenetre.bandeau do
 			m_prefs.fenetre.fenLabib_taille = _taille
 		
+		debug "ui_tags.pos.y " var:ui_tags.pos.y 
+		
 		-- on laisse les tags à la meme taille --
 		if not  m_prefs.fenetre.sliderV_estRabattu
-			then	ui_slider_V.pos.y = _taille.y - ( ui_recherche.height + m_ecartUISimple +  ui_tags.height + 2 * m_ecartUI )
+			then	ui_slider_V.pos.y = _taille.y - ( ui_tags.height +  2 * m_ecartUI )
 			else 	ui_slider_V.pos.y = _taille.y - m_ecartUI
+		
+		debug "ui_slider_V.pos.y" var:ui_slider_V.pos.y
+		debug "_taille.y - ( ui_tags.pos.y +  m_ecartUI )" var:(_taille.y - ( ui_tags.pos.y +  m_ecartUI ))
 		
 		--- on retaille la fenetre --
 		fen_recomposer()
@@ -260,9 +288,13 @@ rollout roll_labib  "Labib" width:296 height:296
 		m_LV 			= str_listViewMgr		m_prt:roll_labib	m_ui:ui_LV
 	 	m_TV 			= str_treeViewMgr	m_prt:roll_labib	m_ui:ui_TV
 		m_LV.m_TV 	=	m_TV  -- sinon ca boucle a l'init avec la creation du m_TV--
-		m_recherche 	= str_recherche		m_prt:roll_labib	m_ui:ui_recherche
+		m_recherche 	= str_recherche		m_prt:roll_labib	m_ui:ui_recherche	m_arbo:m_arbo	m_edit:m_edit
+		ui_recherche.ContextMenu  = dotNetObject "System.Windows.Forms.ContextMenu"
 		
 		m_barreAdresse 			= str_label 	m_ui:ui_barreAdresse			m_texte:""
+		
+		
+		
 -- 		m_barreAdresse.setPolice (str_policePetite())
 		m_barreAdresse.setCouleur 		( m_prt.col_fenetreTxt - [50,50,50] )
 		
@@ -285,15 +317,13 @@ rollout roll_labib  "Labib" width:296 height:296
 			then	ui_slider_V.pos.y 	= roll_labib.height - m_ecartUI
 			else 	ui_slider_V.pos.y 	= m_prefs.fenetre.sliderV_pos
 		
-		--- type d'affichage du LV ---
-		m_LV.changerAffichage		m_prefs.fenetre.affichageLV
 		
 		local col_fondVue 	= m_prefs.fenetre.col_uiFond
 		local col_textes 		= m_prefs.fenetre.col_txt
 		
 		--- textbox ---		
-		ui_recherche.BackColor 	= (dotNetClass "System.Drawing.Color").fromARGB 	col_fondVue.r 		col_fondVue.g 	col_fondVue .b
-		ui_recherche.ForeColor 		= (dotNetClass "System.Drawing.Color").fromARGB 	col_textes.r 		col_textes.g 		col_textes.b
+		ui_recherche.BackColor 	= toCouleurDotnet 	m_prefs.fenetre.col_uiFond 		--	(dotNetClass "System.Drawing.Color").fromARGB 	col_fondVue.r 		col_fondVue.g 	col_fondVue .b
+		ui_recherche.ForeColor 		= toCouleurDotnet 	m_prefs.fenetre.col_txt 		--	(dotNetClass "System.Drawing.Color").fromARGB 	col_textes.r 		col_textes.g 		col_textes.b
 		ui_recherche.borderstyle 	= (dotnetclass "System.Windows.Forms.BorderStyle").None
 		ui_recherche.AcceptsTab 	= true
 		
@@ -316,6 +346,10 @@ rollout roll_labib  "Labib" width:296 height:296
 		---- les dotnets ---
 		m_LV.initialiser ()
 		m_TV.initialiser ()
+		
+		--- type d'affichage du LV ---
+		m_LV.changerAffichage		m_prefs.fenetre.affichageLV
+		
 		actualiser () 		---- Creation des listes TV et LV ----
 		
 		---- la fenetre	----
@@ -582,7 +616,9 @@ rollout roll_labib  "Labib" width:296 height:296
 	on ui_tags 	mouseUp 			_arg 	do  	m_tags.clq_up  				_arg
 	
 	------- recherche ---------------
-	on ui_recherche 	keyup  			_arg 	do  	m_recherche.key_up				_arg
+	on ui_recherche 	keyup  					_arg 	do  	m_recherche.key_up			_arg
+	on ui_recherche 	mouseUp 	_sender	_arg 	do 	m_recherche.clq_up 		_arg 
+-- 	on ui_recherche 	TextChanged  	_arg 	do  	m_recherche.key_up				_arg
 	
 ) -- fin rollout
 

@@ -279,9 +279,19 @@ struct str_branche (
 		),
 		fn ajouterEnfant 		_enfant 	= (
 			
-			_enfant.retirerDuParent ()
-			_enfant.parent   = this
-			append enfants 		_enfant 
+			--- la version des bra,nches classiques ---
+			if not this.estRecherche () then (
+				
+				_enfant.retirerDuParent ()
+				_enfant.parent   = this
+				append enfants 		_enfant 
+				
+			--- la version des RECHERCHE ---
+			) else (
+				
+				append enfants 		_enfant 
+			)
+			
 		),
 		
 		
@@ -320,6 +330,9 @@ struct str_branche (
 		fn getAProxy 					= "",
 		fn getAVueDetail 				= "",
 			
+		fn getFichier					=	"",
+		fn getApercu					=	"",
+		fn getDetail					=	"",
 		
 		fn getTagsArray			recursif:true =(
 			local tagsArray =#()

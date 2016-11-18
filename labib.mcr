@@ -106,12 +106,14 @@ labib.fenetre.m_dialog.ui_TV.nodes.item[1].IsExpanded = true
 labib.fenetre.m_dialog.ui_TV.nodes.item[0].nodes.item[1].expand ()
 labib.fenetre.m_dialog.ui_TV.nodes.item[0].nodes.item[1].Collapse ()
 
+tmp = labib.fenetre.m_dialog.ui_TV.SelectedNode
+labib.fenetre.m_dialog.ui_TV.SelectedNode = tmp
+cible = labib.arbo.root.enfants[1]
 
-
-
+labib.arbo.recherche.ajouterEnfant cible
 
 ######" recherche ######
-show 				labib.fenetre.m_dialog.ui_recherche
+show 				labib.fenetre.m_dialog.ui_recherche.ContextMenu
 showmethods 				labib.fenetre.m_dialog.ui_recherche
 
 

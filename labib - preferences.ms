@@ -81,7 +81,7 @@ struct str_prefsFenPrincipale (
 	
 -- 	col_uiFond 					= color 160 166 182, 	----  bleu ----
 	col_uiFond 					= color 100 100 100, 	----  MAX ----
-	col_uiFondRecherche 	= color 190 196 212, 		----  ----
+	col_uiFondRecherche 	= color 140 140 140, 		----  ----
 	
 	col_fondDossier 			= color 167 173 189, 	----  ----
 	col_fondDossierPrt 		= color 130 136 152, 	----  ----

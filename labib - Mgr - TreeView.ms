@@ -137,6 +137,7 @@ struct str_treeViewMgr (
 		),
 		fn stocker_etatItems =(
 			m_etatItems = #()
+			m_selectionTVBack = m_ui.SelectedNode
 			for item in m_noeudsTV_total do (
 				local etat = str_etatItem 	name:item.name	\
 													expand:( item.isExpanded  )
@@ -154,6 +155,7 @@ struct str_treeViewMgr (
 						else item.collapse ()
 				)
 			)
+			m_ui.SelectedNode = m_selectionTVBack
 		),
 		
 		
@@ -244,6 +246,8 @@ struct str_treeViewMgr (
 			
 			debug "actualiser"
 			
+			stocker_etatItems ()
+			
 			-- on vide la liste --
 			vider ()
 			
@@ -251,15 +255,20 @@ struct str_treeViewMgr (
 			local root = m_edit.getNdRoot ()
 			creerItem 		root  		m_ui
 			
+			
 			-- ajout du noeud recherches --
+			/* 
 			local ndRecherche = m_edit.getNdRecherche ()
 			local itemRech 			= m_ui.Nodes.add 		"RECHERCHE"
 			itemRech.name 	= "RECHERCHE"
 			
-			
 			for enfant in ( ndRecherche.getNoeuds  () ) 
 				do ajouterTV 	enfant  	itemRech	
+			
 			append m_noeudsTV_total 	itemRech
+			 */
+			
+			restaurer_etatItems ()
 			
 			--  la selection --
 -- 			local dossierCourant 	= m_edit.getDossier ()	
