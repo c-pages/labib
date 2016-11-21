@@ -148,10 +148,11 @@ struct str_menus (
 				
 				subMenu  "Debug" (
 					menuItem affichSelec 		"print selection" 	--	checked:labib.prefs.fenetre.fenInfos_estOuvert
+					menuItem debugMode 		"Debug mode" 		checked:DEBUG_MODE		
 				)
 				
 				
-				
+				on debugMode 			picked do	DEBUG_MODE = not DEBUG_MODE
 				------- les evenements ------------------------------------------				
 				on importer 						picked do	labib.cmd.importer ( labib.edit.getSelection () ) 
 				on nouveauDossier 				picked do	labib.cmd.nvDossier ()				

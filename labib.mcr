@@ -117,8 +117,12 @@ show 				labib.fenetre.m_dialog.ui_recherche.ContextMenu
 showmethods 				labib.fenetre.m_dialog.ui_recherche
 
 
+labib.fenetre.m_dialog.ui_recherche.text = ""
 
+labib.fenetre.m_dialog.m_recherche.actualiser ()
 
+labib.edit.actualiser ()
+labib.fenetre.m_dialog.actualiser ()
  #### LV ####
 show 				labib.fenetre.m_dialog.ui_LV.items.item[1]
 showmethods		labib.fenetre.m_dialog.ui_LV

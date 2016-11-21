@@ -226,9 +226,14 @@ struct str_recherche (
 				
 			)
 				
+		),
+		
+		
+		fn viderRecherche =(
+			m_ui.text = ""
+			actualiserResultats ()
+			
 		)
-		
-		
 		
 		/* ,
 		fn textChange _arg =(

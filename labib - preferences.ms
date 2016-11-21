@@ -105,9 +105,9 @@ struct str_prefsFenPrincipale (
 	
 	---- icones ----
 	-- facon dossier commun --
-	ico_btnFermer_R	=	"$userScripts\cp - GLOBAL\ico\ico_fermer_grisFoncee_R.jpg",
-	ico_btnFermer_S	=	"$userScripts\cp - GLOBAL\ico\ico_fermer_grisFoncee_S.jpg",
-	ico_btnFermer_P	=	"$userScripts\cp - GLOBAL\ico\ico_fermer_grisFoncee_P.jpg"--,
+	ico_btnFermer_R	=	"$userScripts\cp - labib\cp - GLOBAL\ico\ico_fermer_grisFoncee_R.jpg",
+	ico_btnFermer_S	=	"$userScripts\cp - labib\cp - GLOBAL\ico\ico_fermer_grisFoncee_S.jpg",
+	ico_btnFermer_P	=	"$userScripts\cp - labib\cp - GLOBAL\ico\ico_fermer_grisFoncee_P.jpg"--,
 	
 -- 	ico_btnFermer_R	=	"$userScripts\cp - GLOBAL\ico\ico_fermer_grisClaire_R.jpg",
 -- 	ico_btnFermer_S	=	"$userScripts\cp - GLOBAL\ico\ico_fermer_grisClaire_S.jpg",

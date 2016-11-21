@@ -41,18 +41,22 @@ Global 	labib
 
 ----  Le dossier du script  ----
 nomDossierScript = "cp - labib"
-dossierScript 		-- en fonction de monMax --
-
---------------------------------------
------ les fichiers à inclure --------
---------------------------------------
-
----- 2014 ----
 dossierScript = getdir #userScripts + "\\" + nomDossierScript + "\\"
+
+
+------------------------------------------------------------------------------
+----------	Fichiers annexes						--------------------------
+------------------------------------------------------------------------------
+include "$userScripts\cp - labib\cp - GLOBAL\UI.ms"
+include "$userScripts\cp - labib\cp - GLOBAL\DragDialog.ms"
+
 
 include "$userScripts\cp - labib\labib - output.ms"
 include "$userScripts\cp - labib\labib - Outils divers.ms"
 
+--------------------------------------
+----- les fichiers corps --------
+--------------------------------------
 include "$userScripts\cp - labib\labib - preferences.ms"
 include "$userScripts\cp - labib\labib - arborescence.ms"	
 

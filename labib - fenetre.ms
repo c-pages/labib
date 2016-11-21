@@ -59,16 +59,22 @@ rollout roll_labib  "Labib" width:296 height:296
 	
 	local 	ui_slider_H  		 	= 	str_btnVirtuel					pos:		[200, m_ecartUI] \
 																					width:	m_ecartUI	\
-																					height: 	( m_tailleRolloutCreation.y - 2 *m_ecartUI ) 
+																					height: 	( m_tailleRolloutCreation.y - 2 *m_ecartUI )
 																					
 	local 	ui_slider_V  	 		= 	str_btnVirtuel					pos:		[m_ecartUI, m_tailleRolloutCreation.y - 100 ] \
 																							width:	( ui_slider_H.pos.x )	\
 																							height: 	m_ecartUI 
 																					
-	dotNetControl ui_recherche		"TextBox"	 						pos:		[ m_ecartUI , 	m_ecartUI   ]  \
-																							width:	ui_slider_V.width \
+	dotNetControl ui_recherche		"TextBox"	 							pos:		[ m_ecartUI , 	m_ecartUI   ]  \
+																							width:	( ui_slider_V.width - ( m_ecartUI + m_ecartUISimple  + 2 )	)\
 																							border:	false	\
 																							height:	0
+																							
+	imgTag 			ui_btnViderRecherche	""							pos:		[ ui_recherche.pos.x +	ui_recherche.width + m_ecartUISimple, m_ecartUI - 2 ]  \
+																							width:	m_ecartUI 	\
+																							height:	m_ecartUI  \
+																							tooltip: 	"Vider la recherche" \
+																							style:	#bmp_center  
 																							
 	dotNetControl ui_TV 				"TreeView"			 			pos:		[m_ecartUI ,ui_recherche.pos.y + ui_recherche.height - 5  ]	\
 																							width:	ui_slider_V.width	\
@@ -78,9 +84,7 @@ rollout roll_labib  "Labib" width:296 height:296
 	dotNetControl ui_tags	"system.windows.forms.listView"	pos:		( ui_TV.pos + [0,ui_TV.height  + m_ecartUI ] ) \
 																							width:	ui_slider_V.width  \
 																							height:	0
--- 	MultiListBox ui_tags	""	pos:		( ui_recherche.pos + [0,ui_recherche.height  + m_ecartUISimple ] ) \
--- 																							width:	ui_slider_V.width  \
--- 																							height:	0
+																								
 																					
 	dotNetControl ui_LV 	"system.windows.forms.listView"	pos:		[ ui_slider_H.pos.x + ui_slider_H.width, m_ecartUI ] \
 																							width:	0 \
@@ -106,22 +110,7 @@ rollout roll_labib  "Labib" width:296 height:296
 	------------  Fonctions	----------------------------------------------------------------------------------
 	---- la fenetre ----
 	
-	/* 
 
-	dotNetControl ui_recherche		"TextBox"	 						pos:		[ m_ecartUI , 	m_ecartUI   ]  \
-																							width:	ui_slider_V.width \
-																							border:	false	\
-																							height:	0
-																							
-	dotNetControl ui_TV 				"TreeView"			 			pos:		[m_ecartUI ,ui_recherche.pos.y + ui_recherche.height + m_ecartUISimple ]	\
-																							width:	ui_slider_V.width	\
-																							height:	0 	
-																					
-																					
-	dotNetControl ui_tags	"system.windows.forms.listView"	pos:		( ui_TV.pos + [0,ui_TV.height  + m_ecartUI ] ) \
-																							width:	ui_slider_V.width  \
-																							height:	0																			width:	ui_slider
-	 */
 	
 	fn fen_recomposer 	= (
 		
@@ -148,7 +137,10 @@ rollout roll_labib  "Labib" width:296 height:296
 		ui_TV.width 			= ui_slider_V.width- m_ecartUI
 		ui_TV.height 			= ui_slider_V.pos.y - ( m_ecartUI	+ 	ui_recherche.height)
 -- 		ui_recherche.pos		= [ m_ecartUI , 	ui_slider_V.pos.y + ui_slider_V.height  ]
-		ui_recherche.width 	= ui_slider_V.width- m_ecartUI		
+		ui_recherche.width 	=  ui_slider_V.width - ( 2* m_ecartUI + m_ecartUISimple )		+ 4
+		
+		ui_btnViderRecherche.pos.x =  ui_recherche.pos.x +	ui_recherche.width + m_ecartUISimple
+		
 -- 		ui_tags.pos 			=  ui_TV.pos + [0,ui_TV.height  + m_ecartUI ]
 		ui_tags.pos 			=  ui_slider_V.pos + [0, m_ecartUI ]
 		ui_tags.width 			= ui_slider_V.width - m_ecartUI
@@ -231,25 +223,6 @@ rollout roll_labib  "Labib" width:296 height:296
 		
 	)
 	
-	fn afficherTags 	_noeuds 	recursif:m_tags.m_recursif 	=(
-		
-		toArray 	&_noeuds
-		
-		m_tags.afficher 	_noeuds
-		
-		/* 
-		local tags = #()		
-		for noeud in _noeuds do (
-			local nvxTags = noeud.getTagsArray 	recursif:recursif
-			for nvTag in nvxTags 
-				do appendIfUnique tags nvTag
-		)
-		
-		m_tags.afficher 	tags */
-		
-		debug "tags" var:tags 
-	)
-	
 	
 	---- les listes et tree -----
 	fn viderListes = (
@@ -258,18 +231,11 @@ rollout roll_labib  "Labib" width:296 height:296
 	)
 	fn actualiser 	= (
 		debug "actualiser"
--- 		local m_selcTV_Back = ui_TV.SelectedNode
--- 		local m_selcLV_Back = m_LV.m_selection
-		
--- 		debug "<fenetre>	m_selcTV_Back" var:m_selcTV_Back	param:#name
--- 		debug "<fenetre>	m_selcLV_Back" var:m_selcLV_Back param:#nomUnique
 		---- on actualise  ----
 		m_TV.actualiser 	()
 		m_LV.actualiser	()
 		
-		
--- 		ui_TV.SelectedNode 	= 	m_selcTV_Back
--- 		m_LV.selectionner			m_selcLV_Back
+		m_tags.actualiser	()
 		
 	)
 	fn initialiser 	= (
@@ -294,20 +260,23 @@ rollout roll_labib  "Labib" width:296 height:296
 		m_barreAdresse 			= str_label 	m_ui:ui_barreAdresse			m_texte:""
 		
 		
-		
--- 		m_barreAdresse.setPolice (str_policePetite())
 		m_barreAdresse.setCouleur 		( m_prt.col_fenetreTxt - [50,50,50] )
 		
-		m_edit.majPointeursFenetre ()
 		
 		--- tags ---
 		m_tags = str_tagsMgr		m_prt:roll_labib	m_ui:ui_tags
 		
 		
 		
+		
+		
+		
+		m_edit.majPointeursFenetre ()
+		
 		---- l'UI ------------
 		-- icones --
 		ui_btnFermer.bitmap = m_prt.m_icos_fermer[1]
+		ui_btnViderRecherche.bitmap = m_prt.m_icos_fermer[1]
 		
 		--- Sliders---		
 		if m_prefs.fenetre.sliderH_estRabattu  
@@ -322,8 +291,8 @@ rollout roll_labib  "Labib" width:296 height:296
 		local col_textes 		= m_prefs.fenetre.col_txt
 		
 		--- textbox ---		
-		ui_recherche.BackColor 	= toCouleurDotnet 	m_prefs.fenetre.col_uiFond 		--	(dotNetClass "System.Drawing.Color").fromARGB 	col_fondVue.r 		col_fondVue.g 	col_fondVue .b
-		ui_recherche.ForeColor 		= toCouleurDotnet 	m_prefs.fenetre.col_txt 		--	(dotNetClass "System.Drawing.Color").fromARGB 	col_textes.r 		col_textes.g 		col_textes.b
+		ui_recherche.BackColor 	= toCouleurDotnet 	m_prefs.fenetre.col_uiFond 		
+		ui_recherche.ForeColor 		= toCouleurDotnet 	m_prefs.fenetre.col_txt 	
 		ui_recherche.borderstyle 	= (dotnetclass "System.Windows.Forms.BorderStyle").None
 		ui_recherche.AcceptsTab 	= true
 		
@@ -332,16 +301,14 @@ rollout roll_labib  "Labib" width:296 height:296
 		ui_tags.BackColor 			= (dotNetClass "System.Drawing.Color").fromARGB 	col_fondVue.r 		col_fondVue.g 	col_fondVue .b
 		ui_tags.ForeColor 			= (dotNetClass "System.Drawing.Color").fromARGB 	col_textes.r 		col_textes.g 		col_textes.b
 		ui_tags.borderstyle 			= (dotnetclass "System.Windows.Forms.BorderStyle").None
--- 		ui_tags.view 					= (dotNetClass "system.windows.forms.view").Details
+
 		ui_tags.view 					= (dotNetClass "system.windows.forms.view").list
 		ui_tags.checkboxes 			= true
 		ui_tags.labeledit 				= false
--- 		ui_tags.columns.add "Nom" 1000
-		
--- 		ui_tags.GridLines				= true
+
+
 		ui_tags.FullRowSelect		= true
 		ui_tags.MultiSelect		 	= true
--- 		ui_tags.HoverSelection		 	= true
 		
 		---- les dotnets ---
 		m_LV.initialiser ()
@@ -471,8 +438,6 @@ rollout roll_labib  "Labib" width:296 height:296
 	
 	---- la souris ----
 	fn souris_bouge 		_pos =(
--- 		
--- 		debug "souris_bouge" var:_pos
 		
 		-- le curseur souris  --		
 		if ui_slider_H.survole _pos or ui_slider_V.survole _pos  
@@ -561,6 +526,14 @@ rollout roll_labib  "Labib" width:296 height:296
 		)
 	)
 	
+	fn etatBtnViderRecherche		_etat 	=(
+		case _etat of (
+			#Repos : 	ui_btnViderRecherche.bitmap = m_prt.m_icos_fermer[1]
+			#Survol : 	ui_btnViderRecherche.bitmap = m_prt.m_icos_fermer[2]
+			#Press : 	ui_btnViderRecherche.bitmap = m_prt.m_icos_fermer[3]
+		)
+	)
+	
 	
 
 	
@@ -586,6 +559,15 @@ rollout roll_labib  "Labib" width:296 height:296
 	on ui_btnFermer	mouseup				do 	etatBtnFermer #Repos
 	on ui_btnFermer 	click 						do 	m_prt.fermer 	()
 
+	--------- Bouton Vider Recherche ----------
+	on ui_btnViderRecherche	mouseover 				do 	etatBtnViderRecherche #Survol
+	on ui_btnViderRecherche	mouseout 				do 	etatBtnViderRecherche #Repos
+	on ui_btnViderRecherche	mousedown 			do 	etatBtnViderRecherche #Press
+	on ui_btnViderRecherche	mouseup				do 	etatBtnViderRecherche #Repos
+	on ui_btnViderRecherche 	click 						do 	m_recherche.viderRecherche 	()
+	
+	
+	
 	--------- le treeView ---------
 	on ui_TV 	mouseDown 			_arg 	do  	m_tv.clq_down  				_arg
 	on ui_TV 	mouseUp 	_sender 	_arg 	do 	m_TV.clq_up 					_arg
@@ -610,15 +592,18 @@ rollout roll_labib  "Labib" width:296 height:296
 	
 	--- tags ----
 	on ui_tags  ItemChecked  _arg do (
-		m_tags.updateChecked ()
-		m_LV.actualiser ()
+		
+		if  not m_tags.m_couperEcouteurEvent do (
+			m_tags.updateChecked ()
+	-- 		m_LV.actualiser ()
+			m_edit.actualiser ()
+		)
 	)
 	on ui_tags 	mouseUp 			_arg 	do  	m_tags.clq_up  				_arg
 	
 	------- recherche ---------------
 	on ui_recherche 	keyup  					_arg 	do  	m_recherche.key_up			_arg
 	on ui_recherche 	mouseUp 	_sender	_arg 	do 	m_recherche.clq_up 		_arg 
--- 	on ui_recherche 	TextChanged  	_arg 	do  	m_recherche.key_up				_arg
 	
 ) -- fin rollout
 

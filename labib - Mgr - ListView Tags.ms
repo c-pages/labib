@@ -58,13 +58,12 @@ struct str_tagsMgr (
 		m_listeTagsChecked =#(),
 		
 		m_affichageEnCours = false,
+		m_couperEcouteurEvent = false,  			---- variable pour pouvoir couper l'event du dotnet quand on checked nous meme ---
 		
 		m_recursif = true,
 		
 		---- les boutons de souris dotNet ----
 		m_btnsDotNet = dotNetClass "System.Windows.Forms.MouseButtons",
-		
-		
 		
 		
 		
@@ -86,22 +85,60 @@ struct str_tagsMgr (
 		
 		
 		
-		fn ajouter 	_tag 	checked:false =(
+		fn ajouter 	_tag 		checked:false 	/* 	couperEcouteurEvent:false */	=(
+			
+			m_couperEcouteurEvent = true
 			
 			---- le nouvel item ----
 			local nvItem			= dotNetObject "System.Windows.Forms.ListViewItem" 	_tag
 			nvItem.text 			= _tag
 			nvItem.checked      	= checked
 			m_ui.items.Add 	nvItem
+			
+			m_couperEcouteurEvent = false
+			
 		),
 		
-		fn estChecked =(
+		fn estActif =(
 			m_listeTagsChecked.count > 0
 		),
 		
 		
-		fn getChecked =m_listeTagsChecked,
+		fn getChecked = m_listeTagsChecked,
+		
+		fn getResultat 	noeuds:( m_edit.getDossier() )  =(
 			
+			toArray &noeuds
+			
+			local result = #()
+			
+			--- le filtre des tags ---
+			if 	estActif () then  (
+				
+				local listeTagsChecked = getChecked ()
+				
+				for noeud in noeuds do (
+					
+					for tag in listeTagsChecked do (
+						if noeud.possedeTag  tag	do (
+							appendIfUnique result  noeud
+							continue
+						)
+					)
+					
+					if m_recursif do
+						for enfant in noeud.enfants do
+							result += 	getResultat 	noeuds:enfant
+					
+				)
+				
+			) else result = noeuds
+			
+			result
+		),
+		
+		
+		
 		fn updateChecked =(
 			
 			debug "updateChecked"
@@ -109,21 +146,14 @@ struct str_tagsMgr (
 			m_listeTagsChecked = #()
 			local tagsChecked = #()
 			
-		
+			
 			if m_ui.items.count >0 do 
 				for i = 0 to m_ui.items.count - 1 do 
 					if m_ui.items.item[i ].checked do 
 						append m_listeTagsChecked m_ui.items.item[i ].text
-
+			
 			debug "m_listeTagsChecked.count" var:m_listeTagsChecked.count
-					
-			if m_listeTagsChecked.count > 0 then (
-				-- la couleur passe en mode recherche --
-				m_ui.BackColor 	= toCouleurDotnet 	m_prt.m_prefs.fenetre.col_uiFondRecherche 
-			)	else (
-				-- la couleur passe en mode repos --
-				m_ui.BackColor 	= toCouleurDotnet 	m_prt.m_prefs.fenetre.col_uiFond				
-			)
+			
 			
 			tagsChecked
 		),
@@ -133,15 +163,13 @@ struct str_tagsMgr (
 			m_ui.clear ()
 			
 			
--- 			if estChecked () do 
--- 				for tag in m_listeTagsChecked do 
--- 					ajouter tag checked:true
 			
 		),
 		fn afficher 	_noeuds 	=(
 			
 			toArray &_noeuds
 			
+			--- on liste les tags des noeuds ---
 			local tags = #()		
 			for noeud in _noeuds do (
 				local recursif = if m_prt.m_recherche.estActif() then false else m_recursif
@@ -151,32 +179,35 @@ struct str_tagsMgr (
 			)
 			
 			
--- 			vider ()
+			----	vider  ----
 			m_ui.clear ()
 			
-			--- on remet les tag checkés ---
+			--- on liste les tag checkés précedement pour les rajouter si il ne sont plus là ---
 			m_listeTags = #()
 			m_listeTags += m_listeTagsChecked
 			local tagsChecked = for tagChecked in m_listeTagsChecked collect tagChecked
-			
 			for tag in tags do 
 				appendIfUnique m_listeTags 	tag 
-			
 			sort m_listeTags
 			
-			for tag in m_listeTags do (
-				debug "tagsChecked" var:tagsChecked
-				debug "tag" var:tag
-				debug "findItem tagsChecked  tag" var:(findItem tagsChecked  tag)
-				
-				local checked = findItem tagsChecked  tag != 0
-				
+			-- on creer tout nos tags avec gestion des checks ---
+			for tag in m_listeTags do (				
+				local checked = findItem tagsChecked  tag != 0				
 				ajouter tag 	checked:checked
 			)
 			
+			--- on gere la couleur du fond ----
+			if m_listeTagsChecked.count > 0 then (
+				-- la couleur passe en mode recherche --
+				m_ui.BackColor 	= toCouleurDotnet 	m_prt.m_prefs.fenetre.col_uiFondRecherche 
+			)	else (
+				-- la couleur passe en mode repos --
+				m_ui.BackColor 	= toCouleurDotnet 	m_prt.m_prefs.fenetre.col_uiFond				
+			)
 		),
+		
 		fn actualiser =(
-			afficher ( m_edit.getNoeudAAfficher() )
+			afficher ( m_edit.getDossier () )
 		),
 		
 		fn toggleRecursif =(

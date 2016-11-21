@@ -96,13 +96,15 @@ struct str_edition (
 		---- Fonctionnement ----
 		
 		fn filtrer 	_noeuds 	=(
-			local result =#()
-			if m_recherche.estActif() then (
-				--- recherche ---
-				result =  m_recherche.getResultat 	noeuds:_noeuds
-				
-			) else 
-				result = _noeuds
+			local result = _noeuds
+			
+			--- recherche ---
+			if m_recherche.estActif() do
+				result =  m_recherche.getResultat 	noeuds:result
+			
+			---- tags ----
+			if m_tags.estActif () do
+				result =  m_tags.getResultat 	noeuds:result
 			
 			result			
 		),
@@ -224,10 +226,10 @@ struct str_edition (
 		),
 		
 		
-		fn filtrerAffichage =(
+		fn filtrerNoeuds =(
 			--- les filtres de recherche et tags ---
 			m_ndsAAfficher = filtrer  	m_dossier.enfants
-			debug "filtrerAffichage" var:m_ndsAAfficher param:#nom
+			debug "filtrerNoeuds" var:m_ndsAAfficher param:#nom
 		),
 		
 		--- ouvrir un dossier ---
@@ -249,18 +251,18 @@ struct str_edition (
 					
 					viderSelection ()
 					
-					filtrerAffichage ()
+					filtrerNoeuds ()
 					
 					debug "m_ndsAAfficher" var:m_ndsAAfficher param:#nom
 				
 					debug "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!	2	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 					----  on actualise les tags ----
-					m_labib.fenetre.m_dialog.afficherTags 		_noeudAOuvrir 
+					m_labib.fenetre.m_dialog.actualiser ()
 				
 					debug "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!	3	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 				
 					---- on actualise la ListView  ---		
-					m_LV.actualiser 	noeudAAfficher:m_ndsAAfficher
+-- 					m_LV.actualiser 	noeudAAfficher:m_ndsAAfficher
 -- 					m_LV.afficher _noeudAOuvrir
 					
 					debug "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!	4	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
@@ -292,13 +294,15 @@ struct str_edition (
 		
 			debug "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!	2	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 			----  on actualise les tags ----
-			filtrerAffichage ()
-			m_labib.fenetre.m_dialog.afficherTags 		m_ndsAAfficher 
+			
+			filtrerNoeuds ()
+			
+			m_labib.fenetre.m_dialog.actualiser 		() 
 		
 			debug "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!	3	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 		
 			---- on actualise la ListView  ---		
-			m_LV.actualiser 	noeudAAfficher:m_ndsAAfficher
+-- 			m_LV.actualiser 	noeudAAfficher:m_ndsAAfficher
 			
 		
 		),

@@ -98,14 +98,14 @@ struct str_listViewMgr (
 			
 			
 			
-			--- le filtre des tags ---
-			local filtreTags = m_prt.m_tags.getChecked ()		
+-- 			--- le filtre des tags ---
+-- 			local filtreTags = m_prt.m_tags.getChecked ()		
 			
 			
 			
 			--- la creation ----
 			for noeud  in _noeudsA do (
-				
+				/* 
 				--- le filtre des tags ---
 				if not noeud.estRetour () do
 					if 	m_prt.m_tags.estChecked () then  (
@@ -124,7 +124,7 @@ struct str_listViewMgr (
 							
 						if not tagTrouve do continue
 -- 						)
-					)
+					) */
 				
 				---- le nouvel item ----
 				local nvItem			= dotNetObject "System.Windows.Forms.ListViewItem" 	noeud.nomUnique
@@ -296,9 +296,9 @@ struct str_listViewMgr (
 							m_ui.EnsureVisible( ( getItem	 selectionUnique ).Index )
 				) 
 				
-			)
+			) 
 			
-			debug "(selection fin) m_edit.getSelection" var:(m_edit.getSelection () )	 param:#nom
+-- 			debug "(selection fin) m_edit.getSelection" var:(m_edit.getSelection () )	 param:#nom
 		),
 		
 		
@@ -392,7 +392,7 @@ struct str_listViewMgr (
 			
 		),
 		
-		fn actualiser  noeudAAfficher:(getDossier ()).enfants	= (	
+		fn actualiser  noeudAAfficher:(m_edit.getNdsAAfficher ())	= (	
 			debug "actualiser"
 			
 			-- on nettoie le terrain ---
@@ -409,7 +409,8 @@ struct str_listViewMgr (
 			
 			--- la couleur de fond du LV ---------
 			local col_fondVue			
-			if m_prt.m_recherche.estActif () or m_prt.m_tags.estChecked ()
+			
+			if m_prt.m_recherche.estActif () or m_prt.m_tags.estActif ()
 				then	col_fondVue 	= m_col_uiFondRecherche
 				else	col_fondVue 	= m_col_uiFond
 			m_ui.BackColor 				= toCouleurDotnet 	col_fondVue

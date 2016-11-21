@@ -17,7 +17,7 @@
 --  (
 	
 -- 	include "$userScripts\cp - GLOBAL\Debuger et ecrire.ms"
-	include "$userScripts\cp - GLOBAL\Polices.ms"
+	include "$userScripts\cp - labib\cp - GLOBAL\Polices.ms"
 
 
 	struct str_elemUI_fond (
