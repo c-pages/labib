@@ -49,7 +49,6 @@ struct str_listViewMgr (
 	public
 		---- pointeurs (à donner en param a la creation) ----
 		m_prt,										---- le parent, le rollout ---- ( a initialiser ) ----	
-		
 		m_ui, 										---- le listview a controler -- ( a initialiser ) ----
 		m_TV,	
 		
@@ -96,35 +95,8 @@ struct str_listViewMgr (
 			---- on transforme "_elemsArbo" en array si element unique --
 			toArray 	&_noeudsA
 			
-			
-			
--- 			--- le filtre des tags ---
--- 			local filtreTags = m_prt.m_tags.getChecked ()		
-			
-			
-			
 			--- la creation ----
 			for noeud  in _noeudsA do (
-				/* 
-				--- le filtre des tags ---
-				if not noeud.estRetour () do
-					if 	m_prt.m_tags.estChecked () then  (
-						
--- 						if classOf noeud != str_branche or not m_prt.m_tags.m_recursif do (
-							
-						local filtreTags = m_prt.m_tags.getChecked ()		
-						
-						local tagTrouve = false
-						
-						for tag in filtreTags do
-							if noeud.possedeTag 	tag 	recursif:m_prt.m_tags.m_recursif	do (
-								tagTrouve = true
-								break 
-							)
-							
-						if not tagTrouve do continue
--- 						)
-					) */
 				
 				---- le nouvel item ----
 				local nvItem			= dotNetObject "System.Windows.Forms.ListViewItem" 	noeud.nomUnique
@@ -137,11 +109,8 @@ struct str_listViewMgr (
 				--- Vue Détail : la couleur des lignes  --
 				if m_prefs.fenetre.affichageLV == #Details do (
 					
--- 					local idPaire = (  m_idImage / 2. - floor ( m_idImage / 2. ) ) == 0 
 					local couleurLigne
 					
--- 					if idPaire	then couleurLigne 	= m_col_fondDossier
--- 									else couleurLigne 	= m_col_uiFond
 					if classof noeud == str_branche then
 						couleurLigne 	= m_col_uiFond + [20,20,20]
 					else 
@@ -163,20 +132,7 @@ struct str_listViewMgr (
 				
 				nvItem.subItems.add 	( noeud.getFichier ()  )
 				nvItem.subItems.add 	( noeud.getTags ()  )
-				/* m_ui.columns.add "Nom" 200
-					m_ui.columns.add "Verts" 70
-					m_ui.columns.add "Dernier import" 130
-					m_ui.columns.add "Nbre d'imports" 70
-					m_ui.columns.add "Proxy" 70
-					m_ui.columns.add "Détail" 70
-					m_ui.columns.add "Création" 130
-					
-					m_ui.columns.add "Emplacement" 130
-					m_ui.columns.add "Tags" 130				
-					m_ui.columns.add "Lien" 130
-					m_ui.columns.add "Détail" 70
-					m_ui.columns.add "Source manquante" 70 */
-					
+				
 				-- remplissage en fonction de la classe de l'élément --
 				case classof noeud of (
 					str_branche: (	--------------------------------------
@@ -364,7 +320,7 @@ struct str_listViewMgr (
 				else	col_fondVue 	= m_col_uiFond
 			m_ui.BackColor 				= toCouleurDotnet 	col_fondVue
 			
-			-- Affichage des dossiers --
+			-- si Affichage des dossiers --
 			if m_prefs.fenetre.afficherDossier do (	
 				
 				----  retour ----
@@ -376,6 +332,7 @@ struct str_listViewMgr (
 				
 				---- Les dossiers enfants ----
 				creerItems ( getBranches aAfficher )
+				
 			)
 			
 			---- les elements enfants----
@@ -388,12 +345,15 @@ struct str_listViewMgr (
 			---- on selectionne ----
 			selectionner	( m_edit.getSelection() )
 			
-			
-			
 		),
 		
-		fn actualiser  noeudAAfficher:(m_edit.getNdsAAfficher ())	= (	
+		
+		
+		
+		fn actualiser  noeudAAfficher:(m_edit.getNdsAAfficher ())	=(
+			
 			debug "actualiser"
+			debug "(m_edit.getNdsAAfficher ())" var:(m_edit.getNdsAAfficher ()) param:#nom
 			
 			-- on nettoie le terrain ---
 			vider ()
@@ -436,11 +396,16 @@ struct str_listViewMgr (
 			m_ui.LargeImageList = 	m_iconesAAfficher
 			m_ui.items.addRange		m_itemsAAfficher
 			
-			---- on selectionne ----
-			selectionner	( m_edit.getSelection() )
-				
+-- 			---- on selectionne ----
+-- 			selectionner	( m_edit.getSelection() )
+			
 			
 		),
+		
+		
+		
+		
+		
 		fn ouvrir 	_noeudA 			=(
 			debug "ouvrir"
 -- 			debug "_noeudA" var:_noeudA
@@ -573,7 +538,7 @@ struct str_listViewMgr (
 				)
 			)
 			
-			actualiser ()
+-- 			actualiser ()
 			
 		),
 		
@@ -709,9 +674,9 @@ struct str_listViewMgr (
 			debug "classOf noeudClique" var: ( classOf noeudClique )
 			
 			case classOf noeudClique of (
-				str_element: 	m_edit.importer_scene 	noeudClique
+				str_element: 	() --m_edit.importer_scene 	noeudClique
 				str_branche:	ouvrir		noeudClique
-			)
+			) 
 			
 		),
 		
@@ -720,16 +685,12 @@ struct str_listViewMgr (
 		fn key_up				_arg =(
 			keyCode = _arg.KeyCode
 			local touches = dotnetclass  "System.Windows.Forms.Keys"
--- 			show keyCode
 			local selectionA = m_edit.getSelection ()
 			
--- 			debug "_arg.KeyValue" var:_arg.KeyValue
--- 			debug "selectionA" var:selectionA param:#nom
 			
 			case keyCode of (
 				-- focus --
 				( touches.Tab ): 		(
-					debug "TAB"
 					if _arg.shift then m_prt.focusPrecedant ()
 									else  m_prt.focusSuivant ()
 				)
@@ -777,6 +738,9 @@ struct str_listViewMgr (
 				-- undo /redo --
 				( touches.Z ): 		if _arg.Control do	m_cmd.defaire ()
 				( touches.Y ): 		if _arg.Control do	m_cmd.refaire ()
+				
+				
+				( touches.Escape ): 		m_apercus.annuler ()
 			)
 				
 		),
@@ -787,7 +751,7 @@ struct str_listViewMgr (
 		
 		---- Initialisation ----
 		fn initialiser =(
-				
+			
 			---- affichage ----
 			m_taille_icones				= m_prefs.fenetre.tailleApercusLV
 			

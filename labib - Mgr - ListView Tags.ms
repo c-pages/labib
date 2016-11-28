@@ -154,6 +154,14 @@ struct str_tagsMgr (
 			
 			debug "m_listeTagsChecked.count" var:m_listeTagsChecked.count
 			
+			--- on gere la couleur du fond ----
+			if m_listeTagsChecked.count > 0 then (
+				-- la couleur passe en mode recherche --
+				m_ui.BackColor 	= toCouleurDotnet 	m_prt.m_prefs.fenetre.col_uiFondRecherche 
+			)	else (
+				-- la couleur passe en mode repos --
+				m_ui.BackColor 	= toCouleurDotnet 	m_prt.m_prefs.fenetre.col_uiFond				
+			)
 			
 			tagsChecked
 		),
@@ -196,14 +204,6 @@ struct str_tagsMgr (
 				ajouter tag 	checked:checked
 			)
 			
-			--- on gere la couleur du fond ----
-			if m_listeTagsChecked.count > 0 then (
-				-- la couleur passe en mode recherche --
-				m_ui.BackColor 	= toCouleurDotnet 	m_prt.m_prefs.fenetre.col_uiFondRecherche 
-			)	else (
-				-- la couleur passe en mode repos --
-				m_ui.BackColor 	= toCouleurDotnet 	m_prt.m_prefs.fenetre.col_uiFond				
-			)
 		),
 		
 		fn actualiser =(

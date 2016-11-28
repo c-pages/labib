@@ -34,30 +34,54 @@
 
 
 
-
+----------------------------------------------------------------------------------------
 ---- les commandes ------------------------------------------------------------------
+----------------------------------------------------------------------------------------
 ---- edition ----
 struct 	cmd_supprimer  (	
 	---- membres --------------------------------
 	public
 		m_edit,
+		
 	private
-		m_ndsSupprimes,
+		m_noeudsCible,
 		m_ndOrigine,
+	
 	
 	---- fonctions  --------------------------------
 	public
-		fn executer  p1:	=	(
-			---- données de la commande ----
-			toArray 	&p1
-			m_ndsSupprimes = p1			
-			m_ndOrigine 	= m_ndsSupprimes[1].parent
+		fn logger _typeCmd = (
+			local logOut = "" 
+			case _typeCmd of (
+				#executer:	()
+				#annuler:	logOut = "Annuler: "
+				#refaire:		logOut = "Refaire: "
+			)
 			
-			----action ----
-			m_edit.supprimer 		m_ndsSupprimes 
+			logOut += "Suppression de " + m_noeudsCible.count as string + " asset(s)." 
+			
+			m_edit.logger logOut
 		),
-		fn refaire 			=	( m_edit.supprimer 	m_ndsSupprimes ),
-		fn defaire 			=	m_edit.inserer	 m_ndsSupprimes		m_ndOrigine
+			
+		fn executer  p1:	=	(
+			
+			
+			---- données de la commande ----
+			toArray 	&p1			
+			m_noeudsCible = p1			
+			m_ndOrigine 	= m_noeudsCible[1].parent
+			
+			----action ----	
+			m_edit.supprimer 		m_noeudsCible 	
+			
+		),
+		fn refaire 			=	( 
+			m_edit.supprimer 	m_noeudsCible 
+			
+		),
+		fn defaire 			=	(
+			m_edit.inserer	 m_noeudsCible		m_ndOrigine
+		)
 )
 struct 	cmd_renommer  (		
 	---- membres --------------------------------
@@ -70,6 +94,19 @@ struct 	cmd_renommer  (
 	
 	---- fonctions  --------------------------------
 	public
+		fn getCibles = m_noeudsCible,
+		fn logger _typeCmd = (
+			local logOut = "" 
+			case _typeCmd of (
+				#executer:	()
+				#annuler:	logOut = "Annuler: "
+				#refaire:		logOut = "Refaire: "
+			)
+			
+			logOut += "Renommer " + m_noeudsCible.count as string + " asset(s)." 
+			
+			m_edit.logger logOut
+		),
 		fn executer 	p1:  p2: 	=	(
 			
 			toArray &p1
@@ -96,27 +133,41 @@ struct 	cmd_deplacer  (
 	public
 		m_edit,
 	private
-		m_ndsADeplacer=#(),
+		m_noeudsCible=#(),
 		m_ndOrigine,
 		m_ndDestination,
 	
 	---- fonctions  --------------------------------
 	public
+		fn getCibles = m_noeudsCible,
+			
+		fn logger _typeCmd = (
+			local logOut = "" 
+			case _typeCmd of (
+				#executer:	()
+				#annuler:	logOut = "Annuler: "
+				#refaire:		logOut = "Refaire: "
+			)
+			
+			logOut += "Déplacer " + m_noeudsCible.count as string + " asset(s) depuis " + m_ndOrigine.nom + " vers " + m_ndDestination.nom +"." 
+			
+			m_edit.logger logOut
+		),
 		fn executer  p1: p2:		=(
 			---- données de la commande ----
 			toArray 	&p1
-			m_ndsADeplacer 	= p1
-			m_ndOrigine 		= m_ndsADeplacer[1].parent
+			m_noeudsCible 	= p1
+			m_ndOrigine 		= m_noeudsCible[1].parent
 			m_ndDestination 	= p2
 			
 			----action ----
-			m_edit.deplacer 	m_ndsADeplacer 	m_ndDestination 
+			m_edit.deplacer 	m_noeudsCible 	m_ndDestination 
 		),
 		fn refaire 		=(			
-			m_edit.deplacer 	m_ndsADeplacer 	m_ndDestination 
+			m_edit.deplacer 	m_noeudsCible 	m_ndDestination 
 		),
 		fn defaire 		=(			
-			m_edit.deplacer 	m_ndsADeplacer 	m_ndOrigine 
+			m_edit.deplacer 	m_noeudsCible 	m_ndOrigine 
 		)
 )
 struct 	cmd_couper  (	
@@ -124,29 +175,42 @@ struct 	cmd_couper  (
 	public
 		m_edit,
 	private
-		m_ndsCoupes=#(),
+		m_noeudsCible=#(),
 		m_ndOrigine,
 	
 	---- fonctions  --------------------------------
 	public
+		fn getCibles = m_noeudsCible,
+		fn logger _typeCmd = (
+			local logOut = "" 
+			case _typeCmd of (
+				#executer:	()
+				#annuler:	logOut = "Annuler: "
+				#refaire:		logOut = "Refaire: "
+			)
+			
+			logOut += "Couper " + m_noeudsCible.count as string + " asset(s)." 
+			
+			m_edit.logger logOut
+		),
 		fn executer 	 p1: =(
 			---- données de la commande ----
 			toArray 	&p1
-			m_ndsCoupes 	= p1
-			m_ndOrigine 	= m_ndsCoupes[1].parent
+			m_noeudsCible 	= p1
+			m_ndOrigine 	= m_noeudsCible[1].parent
 			
-			debuger  "m_ndsCoupes" var:m_ndsCoupes param:#nom
+			debuger  "m_noeudsCible" var:m_noeudsCible param:#nom
 			debuger  "m_ndOrigine" var:m_ndOrigine param:#nom
 			----action ----
-			m_edit.couper  m_ndsCoupes 
+			m_edit.couper  m_noeudsCible 
 		),
 		fn refaire 	=(
-			m_edit.couper  m_ndsCoupes 			
+			m_edit.couper  m_noeudsCible 			
 		),
 		fn defaire =(			
 			debuger  "m_ndOrigine" var:m_ndOrigine param:#nom
-			debuger  "m_ndsCoupes" var:m_ndsCoupes param:#nom
-			m_edit.inserer		m_ndsCoupes		m_ndOrigine
+			debuger  "m_noeudsCible" var:m_noeudsCible param:#nom
+			m_edit.inserer		m_noeudsCible		m_ndOrigine
 		)
 )
 struct 	cmd_coller  (	
@@ -154,29 +218,42 @@ struct 	cmd_coller  (
 	public
 		m_edit,
 	private
-		m_ndsCoupes	=#(),
+		m_noeudsCible	=#(),
 		m_ndOrigine,
 		m_ndDest,
 	
 	---- fonctions  --------------------------------
 	public
+		fn getCibles = m_noeudsCible,
+		fn logger _typeCmd = (
+			local logOut = "" 
+			case _typeCmd of (
+				#executer:	()
+				#annuler:	logOut = "Annuler: "
+				#refaire:		logOut = "Refaire: "
+			)
+			
+			logOut += "Coller " + m_noeudsCible.count as string + " asset(s)." 
+			
+			m_edit.logger logOut
+		),
 		fn executer 	p1:	=(		
 			---- données de la commande ----
 			m_ndDest 		= p1
 			m_ndOrigine 	= m_edit.getPressePapierOrigine ()
 			debuger "m_ndOrigine" var:m_ndOrigine param:#nom
-			m_ndsCoupes 	= m_edit.getPressePapier ()
+			m_noeudsCible 	= m_edit.getPressePapier ()
 			----action ----
 			m_edit.coller   m_ndDest 	
 		),
 		fn refaire 	=(
-			m_edit.deplacer  m_ndsCoupes 	m_ndDest
+			m_edit.deplacer  m_noeudsCible 	m_ndDest
 			
 		),
 		fn defaire =(
-			debuger "m_ndsCoupes" 	var:m_ndsCoupes 	param:#nom
+			debuger "m_noeudsCible" 	var:m_noeudsCible 	param:#nom
 			debuger "m_ndOrigine" 		var:m_ndOrigine 		param:#nom
-			m_edit.deplacer  m_ndsCoupes 	m_ndOrigine
+			m_edit.deplacer  m_noeudsCible 	m_ndOrigine
 		)
 )
 struct 	cmd_changerFichier  (		
@@ -190,6 +267,19 @@ struct 	cmd_changerFichier  (
 	
 	---- fonctions  --------------------------------
 	public
+		fn getCibles = m_noeudsCible,
+		fn logger _typeCmd = (
+			local logOut = "" 
+			case _typeCmd of (
+				#executer:	()
+				#annuler:	logOut = "Annuler: "
+				#refaire:		logOut = "Refaire: "
+			)
+			
+			logOut += "Changer fichier : " + m_noeudCible.nom
+			
+			m_edit.logger logOut
+		),
 		fn executer 	p1:  p2: 	=	(
 			---- données de la commande ----
 			m_noeudCible 		= p1
@@ -218,6 +308,19 @@ struct 	cmd_setTags  (
 	
 	---- fonctions  --------------------------------
 	public
+		fn getCibles = m_noeudsCible,
+		fn logger _typeCmd = (
+			local logOut = "" 
+			case _typeCmd of (
+				#executer:	()
+				#annuler:	logOut = "Annuler: "
+				#refaire:		logOut = "Refaire: "
+			)
+			
+			logOut += "Changer tags " + m_noeudsCible.count as string + " asset(s)." 
+			
+			m_edit.logger logOut
+		),
 		fn executer 	p1:  p2: 	=	(
 			---- données de la commande ----
 			m_noeudsCibles 	= p1
@@ -248,6 +351,19 @@ struct 	cmd_nvDossier  (
 	
 	---- fonctions  --------------------------------
 	public
+		fn getCibles = m_noeudsCible,
+		fn logger _typeCmd = (
+			local logOut = "" 
+			case _typeCmd of (
+				#executer:	()
+				#annuler:	logOut = "Annuler: "
+				#refaire:		logOut = "Refaire: "
+			)
+			
+			logOut += "Nouveau dossier." 
+			
+			m_edit.logger logOut
+		),
 		fn executer  	=	( m_nvDossier = m_edit.nouveauDossier () ),
 		fn refaire 		=	m_edit.inserer		m_nvDossier	m_nvDossier.parent,
 		fn defaire 		=	m_edit.supprimer 	m_nvDossier
@@ -262,6 +378,20 @@ struct 	cmd_nvlAsset  (
 	
 	---- fonctions  --------------------------------
 	public
+		fn getCibles = m_noeudsCible,
+			
+		fn logger _typeCmd = (
+			local logOut = "" 
+			case _typeCmd of (
+				#executer:	()
+				#annuler:	logOut = "Annuler: "
+				#refaire:		logOut = "Refaire: "
+			)
+			
+			logOut += "Nouvel asset." 
+			
+			m_edit.logger logOut
+		),
 		fn executer 	=(			
 			m_dossier 			= m_edit.getDossier()
 			m_nouvelAsset 	= m_edit.nouvelAsset ()
@@ -283,9 +413,23 @@ struct 	cmd_nvxAssets  (
 	
 	---- fonctions  --------------------------------
 	public
+		fn getCibles = m_noeudsCible,
+			
+		fn logger _typeCmd = (
+			local logOut = "" 
+			case _typeCmd of (
+				#executer:	()
+				#annuler:	logOut = "Annuler: "
+				#refaire:		logOut = "Refaire: "
+			)
+			
+			logOut += "Nouveaux assets." 
+			
+			m_edit.logger logOut
+		),
 		fn executer 	=(			
-			m_dossier 			= m_edit.getDossier()
-			m_nvxAssets = m_edit.nouvelAsset_dossier ()
+			m_dossier 		= m_edit.getDossier()
+			m_nvxAssets 	= m_edit.nouvelAsset_dossier ()
 		),
 		fn refaire 	=(			
 			m_edit.inserer	m_nvxAssets 	m_dossier
@@ -308,6 +452,20 @@ struct 	cmd_importer  (
 	
 	---- fonctions  --------------------------------
 	public
+		fn getCibles = m_noeudsCible,
+			
+		fn logger _typeCmd = (
+			local logOut = "" 
+			case _typeCmd of (
+				#executer:	()
+				#annuler:	logOut = "Annuler: "
+				#refaire:		logOut = "Refaire: "
+			)
+			
+			logOut += "Importer." 
+			
+			m_edit.logger logOut
+		),
 		fn executer  p1:	=	(
 			m_ndsAImporter = p1
 			m_objsImport = m_edit.importer 	m_ndsAImporter 
@@ -328,12 +486,54 @@ struct 	cmd_importer  (
 struct str_commandeCtrl (
 	------------ Les membres	----------------------------------------------------------------------------------		
 	m_commande,				--- 
-	
+	m_edit,
+	m_chrono 	= str_chrono (),			---- manager pour chronometrer les operations ----
 	------------ Les fonctions	----------------------------------------------------------------------------------	
+	
+	fn demarrerCommande =(
+		m_chrono.demarrer()
+		setWaitCursor ()		
+	),
+	fn terminerCommande =(
+		local duree = m_chrono.getDuree () as string
+		ecrire ( "Durée de l'opération : " + duree + " s." )		
+		setArrowCursor ()
+	),
+	
 	fn setCommande 		_cmd	= ( m_commande = _cmd ),
-	fn executer 	p1:	p2:	= m_commande.executer p1:p1  p2:p2,
-	fn refaire 						= m_commande.refaire (),
-	fn defaire 						= m_commande.defaire (),
+	fn executer 	p1:	p2:	= (
+		
+		demarrerCommande ()
+		
+		-- l'execution ---
+		m_commande.executer p1:p1  p2:p2		
+		m_commande.logger #executer
+		
+		terminerCommande ()
+		
+	),
+	fn refaire 						= (
+		
+		demarrerCommande ()
+		
+		-- l'execution ---
+		m_commande.refaire ()		
+		m_commande.logger	#refaire
+		
+		terminerCommande ()
+		
+	),
+	fn defaire 						= (
+		
+		demarrerCommande ()
+		
+		-- l'execution ---
+		m_commande.defaire ()		
+		m_commande.logger	#annuler
+		
+		terminerCommande ()
+		
+	),
 	
 	on clone do m_commande = copy m_commande
 )
@@ -357,19 +557,19 @@ struct str_commandesMgr (
 		
 	---- Commandes ----
 	private
-		cmdMgr_supprimer		= str_commandeCtrl (),
-		cmdMgr_renommer		= str_commandeCtrl (),
-		cmdMgr_deplacer			= str_commandeCtrl (),
-		cmdMgr_couper			= str_commandeCtrl (),
-		cmdMgr_coller				= str_commandeCtrl (),
-		cmdMgr_changerFichier	= str_commandeCtrl (),
-		cmdMgr_setTags			= str_commandeCtrl (),
+		cmdMgr_supprimer		= str_commandeCtrl m_edit:m_edit,
+		cmdMgr_renommer		= str_commandeCtrl m_edit:m_edit,
+		cmdMgr_deplacer			= str_commandeCtrl m_edit:m_edit,
+		cmdMgr_couper			= str_commandeCtrl m_edit:m_edit,
+		cmdMgr_coller				= str_commandeCtrl m_edit:m_edit,
+		cmdMgr_changerFichier	= str_commandeCtrl m_edit:m_edit,
+		cmdMgr_setTags			= str_commandeCtrl m_edit:m_edit,
 	
-		cmdMgr_nvDossier		= str_commandeCtrl (),
-		cmdMgr_nvlAsset			= str_commandeCtrl (),
-		cmdMgr_nvxAssets		= str_commandeCtrl (),
+		cmdMgr_nvDossier		= str_commandeCtrl m_edit:m_edit,
+		cmdMgr_nvlAsset			= str_commandeCtrl m_edit:m_edit,
+		cmdMgr_nvxAssets		= str_commandeCtrl m_edit:m_edit,
 
-		cmdMgr_importer			= str_commandeCtrl (),
+		cmdMgr_importer			= str_commandeCtrl m_edit:m_edit,
 	
 	------------ Les fonctions	----------------------------------------------------------------------------------	
 	private

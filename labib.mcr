@@ -1,5 +1,5 @@
 
--- clearListener ()
+clearListener ()
 -- try ( 	labib.fermer ()	) catch  ()
 
 -- fileIn "$userScripts\cp - labib\labib.ms" 
@@ -9,11 +9,11 @@
 -- labib.creerArboDeBase()
 
 -- labib.ouvrir 	()
-/* 
+/*
 labib.ouvrir 	()
 	Global 	labib = fileIn "$userScripts\labib\labib.ms" 
 	labib.ouvrir 	()
-	
+	scene vertex
  */
 
 	
@@ -27,23 +27,38 @@ macroScript Labib
 category:"#CPages"
 toolTip:""
 (
+
 	global labib
 	
 	fileIn	 "$userScripts\cp - labib\labib.ms" 
 -- 	fileIn "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib.ms" 
+	
+	labib.prefs.reset()
 	
 	on execute do 	(
 		
 		if ( labib.estOuvert () )	
 			then	labib.fermer	()
 			else 	labib.ouvrir 	()
+		
 	)
 	on isChecked return try ( labib.estOuvert () )  catch	( false )	
+	
 )
 
+-- 	labib.ouvrir 	()
 
 /*
+labib.prefs.fermer()
 
+labib.prefs.m_dialog.ui_btnReset.height
+labib.prefs.m_dialog.ui_editBiblio.height
+
+
+labib.edit.
+labib.edit.getNdsAAfficher ()
+
+labib.edit.m_ndsAAfficher
 labib.arbo.fichier_supprimer ()
 labib.arbo.fichier_ouvrir ()
 

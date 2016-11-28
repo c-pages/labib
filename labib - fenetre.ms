@@ -26,7 +26,7 @@
 ------------------------------------------------------------------------------
 ----------	Fenetre								 -------------------------
 ------------------------------------------------------------------------------
-rollout roll_labib  "Labib" width:296 height:296
+rollout roll_labib  "Labib" width:296 height:296 
 (
 
 
@@ -54,7 +54,7 @@ rollout roll_labib  "Labib" width:296 height:296
 	
 	------------  UI	----------------------------------------------------------------------------------
 	
-	ImgTag 'ui_barreAdresse' "" 	pos:[200 + m_ecartUI, 2 ] width:66 height:18 align:#left
+	ImgTag 'ui_barreAdresse' "" 	pos:[200 + m_ecartUI, 3 ] width:66 height:18 align:#left
 	
 	
 	local 	ui_slider_H  		 	= 	str_btnVirtuel					pos:		[200, m_ecartUI] \
@@ -98,6 +98,8 @@ rollout roll_labib  "Labib" width:296 height:296
 																							style:	#bmp_center /* 	\
 																							visible:	false */
 	
+	ImgTag 'ui_log' "" 																pos:[ m_ecartUI, m_tailleRolloutCreation.y - m_ecartUI ] width:66 height:18 align:#left
+	
 	------------  Structures	----------------------------------------------------------------------------------	
 	local 	m_drag				---- manager du drag de la fenetre  ----
 	local		m_LV 				---- manager du liste view ----
@@ -106,6 +108,7 @@ rollout roll_labib  "Labib" width:296 height:296
 	local		m_recherche 		---- manager du tree view ----
 	local 	m_menus			---- manager des menus ----
 	local 	m_barreAdresse
+	local 	m_log
 	
 	------------  Fonctions	----------------------------------------------------------------------------------
 	---- la fenetre ----
@@ -116,7 +119,6 @@ rollout roll_labib  "Labib" width:296 height:296
 		
 		local tailleRollout = [ roll_labib.width, roll_labib.height ]
 		
-		debug "ui_tags.pos.y ---1----" var:ui_tags.pos.y
 		--limitations positions des sliders--
 		local min_H 	= 0* m_ecartUI
 		local max_H 	= tailleRollout.x - ( 1* m_ecartUI ) 
@@ -132,10 +134,16 @@ rollout roll_labib  "Labib" width:296 height:296
 		
 		---- les virtuels -----
 		ui_slider_H.height	= tailleRollout.y - 2* m_ecartUI		
-		ui_slider_V.width	= ui_slider_H.pos.x 
+		ui_slider_V.width	= ui_slider_H.pos.x
+		
 		---- les autres -----		
-		ui_TV.width 			= ui_slider_V.width- m_ecartUI
-		ui_TV.height 			= ui_slider_V.pos.y - ( m_ecartUI	+ 	ui_recherche.height)
+		ui_TV.width 			= ui_slider_V.width - m_ecartUI
+		
+		if m_prefs.fenetre.sliderV_estRabattu then
+			ui_TV.height 			= tailleRollout.y - ( 	ui_TV.pos.y + m_ecartUI )
+		else
+			ui_TV.height 			= tailleRollout.y - ( 	ui_TV.pos.y + ( tailleRollout.y - ui_slider_V.pos.y ) )
+		
 -- 		ui_recherche.pos		= [ m_ecartUI , 	ui_slider_V.pos.y + ui_slider_V.height  ]
 		ui_recherche.width 	=  ui_slider_V.width - ( 2* m_ecartUI + m_ecartUISimple )		+ 4
 		
@@ -151,8 +159,9 @@ rollout roll_labib  "Labib" width:296 height:296
 		ui_btnFermer.pos		= [ tailleRollout.x - 1 *m_ecartUI	, 0 ]
 		
 		ui_barreAdresse.pos.x = ui_LV.pos.x - 2
+		ui_log.pos.y = tailleRollout.y - m_ecartUI + 2
+		ui_log.pos.x = ui_barreAdresse.pos.x
 		
-		debug "ui_tags.pos.y ---2----" var:ui_tags.pos.y
 	)
 	fn fen_bouger  _pos =(
 		--- on stock la pos  ---		
@@ -165,15 +174,15 @@ rollout roll_labib  "Labib" width:296 height:296
 		if not m_prefs.fenetre.pleinEcran and not  m_prefs.fenetre.bandeau do
 			m_prefs.fenetre.fenLabib_taille = _taille
 		
-		debug "ui_tags.pos.y " var:ui_tags.pos.y 
+-- 		debug "ui_tags.pos.y " var:ui_tags.pos.y 
 		
 		-- on laisse les tags à la meme taille --
 		if not  m_prefs.fenetre.sliderV_estRabattu
 			then	ui_slider_V.pos.y = _taille.y - ( ui_tags.height +  2 * m_ecartUI )
 			else 	ui_slider_V.pos.y = _taille.y - m_ecartUI
 		
-		debug "ui_slider_V.pos.y" var:ui_slider_V.pos.y
-		debug "_taille.y - ( ui_tags.pos.y +  m_ecartUI )" var:(_taille.y - ( ui_tags.pos.y +  m_ecartUI ))
+-- 		debug "ui_slider_V.pos.y" var:ui_slider_V.pos.y
+-- 		debug "_taille.y - ( ui_tags.pos.y +  m_ecartUI )" var:(_taille.y - ( ui_tags.pos.y +  m_ecartUI ))
 		
 		--- on retaille la fenetre --
 		fen_recomposer()
@@ -204,7 +213,7 @@ rollout roll_labib  "Labib" width:296 height:296
 	
 	
 	
-	fn setAdresseTexte 	_noeud =(
+	fn setAdresseTexte 	_noeud 	=(
 		
 		local adresseTxt =""
 		local noeudArbo = _noeud
@@ -225,21 +234,25 @@ rollout roll_labib  "Labib" width:296 height:296
 	
 	
 	---- les listes et tree -----
-	fn viderListes = (
-		m_TV.vider ()
-		m_LV.vider ()
-	)
 	fn actualiser 	= (
+		
 		debug "actualiser"
+		
 		---- on actualise  ----
 		m_TV.actualiser 	()
 		m_LV.actualiser	()
-		
 		m_tags.actualiser	()
 		
+		--- actualiser la barre d'adresse ---
+		setAdresseTexte 	( m_edit.getDossier() )
+		
 	)
+	
+	
 	fn initialiser 	= (
+		
 		debug "initialiser"
+		
 		---- initialiser les membres ------------
 		-- pointeurs --
 		m_prefs 			= m_prt.m_prefs
@@ -247,6 +260,7 @@ rollout roll_labib  "Labib" width:296 height:296
 		m_menus 		= m_prt.m_labib.menus
 		m_edit	 		= m_prt.m_labib.edit
 		
+		------ les structs ------------------
 		-- managers --
 		m_drag 			= str_drag	 			m_prt:roll_labib
 		
@@ -254,26 +268,24 @@ rollout roll_labib  "Labib" width:296 height:296
 		m_LV 			= str_listViewMgr		m_prt:roll_labib	m_ui:ui_LV
 	 	m_TV 			= str_treeViewMgr	m_prt:roll_labib	m_ui:ui_TV
 		m_LV.m_TV 	=	m_TV  -- sinon ca boucle a l'init avec la creation du m_TV--
+		
+		-- recherche --
 		m_recherche 	= str_recherche		m_prt:roll_labib	m_ui:ui_recherche	m_arbo:m_arbo	m_edit:m_edit
-		ui_recherche.ContextMenu  = dotNetObject "System.Windows.Forms.ContextMenu"
 		
+		-- barre d'adresse --
 		m_barreAdresse 			= str_label 	m_ui:ui_barreAdresse			m_texte:""
-		
-		
 		m_barreAdresse.setCouleur 		( m_prt.col_fenetreTxt - [50,50,50] )
 		
+		-- log --
+		m_log 			= str_label 	m_ui:ui_log			m_texte:"LOG:"
+		m_log.setCouleur 		( m_prt.col_fenetreTxt - [50,50,50] )
+		
+		m_log.setPolice ( str_policePetite() )
 		
 		--- tags ---
 		m_tags = str_tagsMgr		m_prt:roll_labib	m_ui:ui_tags
 		
-		
-		
-		
-		
-		
-		m_edit.majPointeursFenetre ()
-		
-		---- l'UI ------------
+		------ l'UI ------------------
 		-- icones --
 		ui_btnFermer.bitmap = m_prt.m_icos_fermer[1]
 		ui_btnViderRecherche.bitmap = m_prt.m_icos_fermer[1]
@@ -286,42 +298,40 @@ rollout roll_labib  "Labib" width:296 height:296
 			then	ui_slider_V.pos.y 	= roll_labib.height - m_ecartUI
 			else 	ui_slider_V.pos.y 	= m_prefs.fenetre.sliderV_pos
 		
-		
 		local col_fondVue 	= m_prefs.fenetre.col_uiFond
 		local col_textes 		= m_prefs.fenetre.col_txt
 		
 		--- textbox ---		
+		ui_recherche.ContextMenu  = dotNetObject "System.Windows.Forms.ContextMenu"
 		ui_recherche.BackColor 	= toCouleurDotnet 	m_prefs.fenetre.col_uiFond 		
 		ui_recherche.ForeColor 		= toCouleurDotnet 	m_prefs.fenetre.col_txt 	
 		ui_recherche.borderstyle 	= (dotnetclass "System.Windows.Forms.BorderStyle").None
 		ui_recherche.AcceptsTab 	= true
 		
-		---- tags ----
-		
+		---- tags ----		
 		ui_tags.BackColor 			= (dotNetClass "System.Drawing.Color").fromARGB 	col_fondVue.r 		col_fondVue.g 	col_fondVue .b
 		ui_tags.ForeColor 			= (dotNetClass "System.Drawing.Color").fromARGB 	col_textes.r 		col_textes.g 		col_textes.b
 		ui_tags.borderstyle 			= (dotnetclass "System.Windows.Forms.BorderStyle").None
-
+		
 		ui_tags.view 					= (dotNetClass "system.windows.forms.view").list
 		ui_tags.checkboxes 			= true
 		ui_tags.labeledit 				= false
-
-
+		
 		ui_tags.FullRowSelect		= true
 		ui_tags.MultiSelect		 	= true
 		
-		---- les dotnets ---
+		---- les structs ---
 		m_LV.initialiser ()
 		m_TV.initialiser ()
+		m_edit.majPointeursFenetre ()
+		
 		
 		--- type d'affichage du LV ---
 		m_LV.changerAffichage		m_prefs.fenetre.affichageLV
 		
-		actualiser () 		---- Creation des listes TV et LV ----
-		
 		---- la fenetre	----
 		fen_recomposer ()
-		focusSuivant ()
+		focusSuivant ()	
 		
 	)
 	
@@ -337,17 +347,16 @@ rollout roll_labib  "Labib" width:296 height:296
 		
 		-- retour taille et pos normal si plein ecran ou bandeau --
 		if m_prefs.fenetre.pleinEcran  or m_prefs.fenetre.bandeau then (
-			debug "par la 1" var:m_prefs.fenetre.fenLabib_pos.x
+			
 			-- on place la fenetre dans le bureau --				
 			if m_prefs.fenetre.fenLabib_pos.x < 0 do m_prefs.fenetre.fenLabib_pos.x = 0
-			debug "par la 2"
-			if m_prefs.fenetre.fenLabib_pos.x > tailleBureau.x - m_prefs.fenetre.fenLabib_taille.x do debug "POPO" --m_prefs.fenetre.fenLabib_pos.x = tailleBureau.x - m_prefs.fenetre.fenLabib_taille.x 
-			debug "par la 3"
+				
+			if m_prefs.fenetre.fenLabib_pos.x > tailleBureau.x - m_prefs.fenetre.fenLabib_taille.x do debug "POPO" 
+				
 			if m_prefs.fenetre.fenLabib_pos.y < 0 do m_prefs.fenetre.fenLabib_pos.y = 0
-			debug "par la 4"
+				
 			if m_prefs.fenetre.fenLabib_pos.y > tailleBureau.y - m_prefs.fenetre.fenLabib_taille.y do m_prefs.fenetre.fenLabib_pos.y = tailleBureau.y - m_prefs.fenetre.fenLabib_taille.y 
 			
-			debug "par la 5"
 			SetDialogPos roll_labib 	m_prefs.fenetre.fenLabib_pos
 			roll_labib.width 	= m_prefs.fenetre.fenLabib_taille.x
 			roll_labib.height 	= m_prefs.fenetre.fenLabib_taille.y
@@ -357,15 +366,18 @@ rollout roll_labib  "Labib" width:296 height:296
 			
 		-- sinon on passe en plein ecran --
 		) else (
-			m_prefs.fenetre.pleinEcran = true
-			m_prefs.fenetre.fenLabib_pos 		= getDialogPos roll_labib		
-			m_prefs.fenetre.fenLabib_taille 		= [ roll_labib.width , roll_labib.height ]				
+			m_prefs.fenetre.pleinEcran 		= true
+			m_prefs.fenetre.fenLabib_pos 	= getDialogPos roll_labib		
+			m_prefs.fenetre.fenLabib_taille 	= [ roll_labib.width , roll_labib.height ]				
 			SetDialogPos roll_labib 	posAgrandi
 			roll_labib.width 	= tailleAgrandi.x
 			roll_labib.height 	= tailleAgrandi.y
 		)
 		
 	)
+	
+	
+	
 	fn toggleSlider_H 	=(		
 		debug "toggleSlider_H"
 		if m_prefs.fenetre.sliderH_estRabattu  then (
@@ -379,22 +391,34 @@ rollout roll_labib  "Labib" width:296 height:296
 		debug "sliderH_pos" var:m_prefs.fenetre.sliderH_pos
 		fen_recomposer ()
 	)
+	
+	
+	
 	fn toggleSlider_V 	=(			
+		debug "toggleSlider_V"
 		if m_prefs.fenetre.sliderV_estRabattu  then (
-			ui_slider_V.pos.y 						= m_prefs.fenetre.sliderV_pos
-			m_prefs.fenetre.sliderV_estRabattu 	= false
+			ui_slider_V.pos.y 							= m_prefs.fenetre.sliderV_pos
+			m_prefs.fenetre.sliderV_estRabattu = false
 		) else (
-			m_prefs.fenetre.sliderV_pos 		= ui_slider_V.pos.y 
-			ui_slider_V.pos.y  					= roll_labib.height - m_ecartUI
-			m_prefs.fenetre.sliderV_estRabattu 	= true
+			m_prefs.fenetre.sliderV_pos 			= ui_slider_V.pos.y 
+			ui_slider_V.pos.y  						= roll_labib.height - m_ecartUI
+			m_prefs.fenetre.sliderV_estRabattu = true
 		)
 		fen_recomposer ()
 	)
+	
+	
+	
+	
 	fn checkBandeau 	=(
 	
 		local tailleBureau 		= sysInfo.desktopSize		
-		local larg_bandeauH 	= 117 + 2*m_ecartUI
-		local larg_bandeauV 	= 75 + 2*m_ecartUI
+-- 		local larg_bandeauH 	= 117 + 2*m_ecartUI
+-- 		local larg_bandeauV 	= 75 + 2*m_ecartUI
+			
+		local larg_bandeauH 	= m_prefs.fenetre.tailleApercusLV + 6*m_ecartUI + 3
+		local larg_bandeauV 	= m_prefs.fenetre.tailleApercusLV + 4*m_ecartUI
+		
 		
 		---- plaquer la fenetre à gauche --
 		if mouse.screenpos.x == 0 do (
@@ -472,7 +496,7 @@ rollout roll_labib  "Labib" width:296 height:296
 		
 	)
 	fn souris_Dpress 		_pos =(	
-		
+		popUpMenu rc_fenLabib
 	)
 	fn souris_Gpress 		_pos =(
 		
@@ -502,6 +526,7 @@ rollout roll_labib  "Labib" width:296 height:296
 		m_drag.arreter ()
 		ui_slider_H.pressed = false		
 		ui_slider_V.pressed = false
+		
 	)
 	fn souris_dblClique  	_pos =(
 		
@@ -569,13 +594,14 @@ rollout roll_labib  "Labib" width:296 height:296
 	
 	
 	--------- le treeView ---------
-	on ui_TV 	mouseDown 			_arg 	do  	m_tv.clq_down  				_arg
+	on ui_TV 	mouseDown 			_arg 	do  	m_TV.clq_down  				_arg
 	on ui_TV 	mouseUp 	_sender 	_arg 	do 	m_TV.clq_up 					_arg
 	on ui_TV 	DragOver 	_sender	_arg	do	m_TV.drag_checkSurvol  	_arg
 	on ui_TV 	DragDrop 				_arg 	do	m_TV.drag_recevoir 			_arg
 	on ui_TV 	ItemDrag 				_arg 	do	m_TV.drag_demarrer 		_arg
 	on ui_TV 	AfterLabelEdit			_arg 	do  	m_TV.renommer				_arg
 	on ui_TV 	keyup  					_arg 	do  	m_TV.key_up					_arg
+		
 	
 	--------- le listView ---------
 	on ui_LV 	mouseDown 			_arg 	do  	m_LV.clq_down				_arg
@@ -595,8 +621,7 @@ rollout roll_labib  "Labib" width:296 height:296
 		
 		if  not m_tags.m_couperEcouteurEvent do (
 			m_tags.updateChecked ()
-	-- 		m_LV.actualiser ()
-			m_edit.actualiser ()
+			m_edit.actualiserListe ()
 		)
 	)
 	on ui_tags 	mouseUp 			_arg 	do  	m_tags.clq_up  				_arg
@@ -637,11 +662,11 @@ struct str_fenLabib (
 	public
 		---- pointeurs ----
 		m_labib	,								---- pointeur vers la structure principale ----
-	
 		m_dialog 	= roll_labib ,			---- le rollout ----
--- 	private
 		m_prefs		= m_labib.prefs ,		---- pointeur vers les preferences ----
-		m_edit		,							---- pointeur vers les preferences ----
+		
+		m_edit,									---- pointeur vers les preferences ----
+		
 		m_icos_fermer= #( 					---- les images pour les icones du bouton de fermeture ----		
 									openBitMap m_prefs.fenetre.ico_btnFermer_R ,		-- Repos ----
 									openBitMap m_prefs.fenetre.ico_btnFermer_S ,		-- Survol ----
@@ -657,26 +682,10 @@ struct str_fenLabib (
 
 		------------  Fonctions	----------------------------------------------------------------------------------
 	public
-		---- fenetres secondaires ----
--- 		fn toggleInfos =(
--- 			if m_prefs.fenetre.fenInfos_estOuvert 
--- 				then m_infos.fermer ()
--- 				else	m_infos.ouvrir ()
--- 		),
--- 		fn toggleApercu =(
--- 			if prefs.fenetre.m_fen_apercu 
--- 				then fenetre.m_fen_apercu.fermer ()
--- 				else	fenetre.m_fen_apercu.ouvrir ()
--- 		),
--- 		fn toggleRendu =(
--- 			if prefs.fenetre.m_fen_rendu 
--- 				then fenetre.m_fen_rendu.fermer ()
--- 				else	fenetre.m_fen_rendu.ouvrir ()
--- 		),
 		
 		---- affichage ----
 		fn	changerAffichage  	_nvlAffichage =	m_dialog.m_LV.changerAffichage		 _nvlAffichage,
-
+		
 		---- fenetre ----		
 		fn ouvrir = (			
 			
@@ -724,26 +733,24 @@ struct str_fenLabib (
 															fgcolor:				col_fenetreTxt 	 */
 				)
 			
-			---- initialisation de la fenetre ----
-			m_dialog.m_prt	 	= this
-			m_dialog.initialiser ()
 			
 			-- les fenetres secondaires --
-			if m_labib.infos.estOuvert() 	do m_labib.infos.ouvrir()
--- 			if m_prefs.fenetre.apercu 	do apercu.ouvrir()
--- 			if m_prefs.fenetre.rendu 	do rendu.ouvrir()
+			if m_labib.infos.estOuvert() 	
+				do m_labib.infos.ouvrir()
 				
 			---- maj des preferences ----	
 			m_prefs.fenetre.fenLabib_estOuvert = true
 			
+			---- initialisation de la fenetre ----
+			m_dialog.m_prt	 	= this
+			m_dialog.initialiser ()
 			
-			---- Ouvrir dossier initiale ----
-			local	dossierInitial 		= m_labib.arbo.root
-			m_edit.ouvrir 					dossierInitial
-			m_edit.m_hist.enregistrer 	dossierInitial
-			m_dialog.m_tv.expand 		dossierInitial
-			m_dialog.m_LV.selectionnerPremier ()
+			---- actualiser l'edition ----
+			m_edit.actualiser ()
 			
+			m_dialog.m_TV.selectionner  ( m_edit.getDossier () )
+			
+			m_edit.logger "Ouverture de Labib"
 		),
 		fn fermer  silence:false =(		---- silence : fermer sans modifier l'état des preferences ---
 			
@@ -752,15 +759,9 @@ struct str_fenLabib (
 			m_labib.infos.fermer enregistrer:false
 			
 			---- maj des preferences ----	
--- 			if not silence do (
 			m_prefs.fenetre.fenLabib_estOuvert 	= false
 			m_prefs.fenetre.fenLabib_pos				= getdialogpos m_dialog
--- 			)
-			
-			-- on ferme les fenetres secondaires --
--- 			infos.fermer()
--- 			apercu.fermer()
--- 			rendu.fermer()
+
 			
 			-- on sauvegarde les preferences --
 			m_prefs.enregistrer ()
@@ -774,14 +775,16 @@ struct str_fenLabib (
 		),
 		
 		
-		fn initialiser = (
-			debug "initialiser"
-			m_dialog.m_prt = this
-			m_edit		= m_labib.edit
-			
+		fn actualiserListe =(
+			m_dialog.m_LV.actualiser ()
 		),
 		
-		---- fctsen passerelles ---
+		fn actualiser =(
+			m_dialog.actualiser ()
+		),
+		
+		
+		---- fcts passerelles ---
 		fn selectionnerTV		_noeudA 	= m_dialog.m_TV.selectionner 	_noeudA,
 		fn selectionnerLV		_noeudsA 	= m_dialog.m_LV.selectionner 	_noeudsA,
 		fn actualiser 							= m_dialog.actualiser (),

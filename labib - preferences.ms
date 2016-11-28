@@ -19,7 +19,11 @@
 struct str_prefsGenerales (
 	
 		dossierScript	, 						
-		dossierNouvelAsset	= getDir #Scene
+		dossierNouvelAsset	= getDir #Scene,
+	
+		fichierArbo				= dossierScript + "data\arbo.bib",		---- le fichier de l'arborescence ----
+		dossierApercus		= dossierScript + "data\apercus",		---- le fichier de l'arborescence ----
+		dossierProxy			= dossierScript + "data\proxies"		---- le fichier de l'arborescence ----
 
 )
 ------------------------------------------------------------------------------
@@ -107,7 +111,9 @@ struct str_prefsFenPrincipale (
 	-- facon dossier commun --
 	ico_btnFermer_R	=	"$userScripts\cp - labib\cp - GLOBAL\ico\ico_fermer_grisFoncee_R.jpg",
 	ico_btnFermer_S	=	"$userScripts\cp - labib\cp - GLOBAL\ico\ico_fermer_grisFoncee_S.jpg",
-	ico_btnFermer_P	=	"$userScripts\cp - labib\cp - GLOBAL\ico\ico_fermer_grisFoncee_P.jpg"--,
+	ico_btnFermer_P	=	"$userScripts\cp - labib\cp - GLOBAL\ico\ico_fermer_grisFoncee_P.jpg", 
+	
+	dossierCourant = "ROOT"
 	
 -- 	ico_btnFermer_R	=	"$userScripts\cp - GLOBAL\ico\ico_fermer_grisClaire_R.jpg",
 -- 	ico_btnFermer_S	=	"$userScripts\cp - GLOBAL\ico\ico_fermer_grisClaire_S.jpg",
@@ -140,12 +146,12 @@ struct str_prefsFenInfos (
 ------------------------------------------------------------------------------
 -- Les preferences actives pour les rendus des  aperçus				--
 ------------------------------------------------------------------------------
-struct str_prefsRendu (
+struct str_prefsApercus (
 	
 	------------ Les membres	----------------------------------------------------------------------------------
 	public
 	
-	dossierScript 					="",	-- le dossier du script --
+	dossierScript 					= "",	-- le dossier du script --
 	
 	nomVide 						= "apVide" ,
 	nomCalqueImport 			= "ImportTemp",
@@ -168,20 +174,20 @@ struct str_prefsRendu (
 	-- parametres rendu Apercus --
 	nom 								= "apercu_",
 	angleVue 						= 40,
-	noiseLevel 						= 1,
+	noiseLevel 						= 15,
 	denoiseAmount 				= 1,
 	transX 							= 0,
 	transY 							= 0,
 	transZ 							= 0,
 	rotX 								= 0,
-	rotY 								= -15,
-	rotZ 								= -135,
+	rotY 								= -0,
+	rotZ 								= -0,
 	
 	-- parametres rendu Detail --
 	nomDetail 						= "apDetail_",
 	angleVueDetail 				= 9,	
-	noiseLevelDetail				= 11,
-	denoiseAmountDetail		= .3,
+	noiseLevelDetail				= 5,
+	denoiseAmountDetail			= 1,
 	transXDetail					= 0,
 	transYDetail					= 0,
 	transZDetail					= 0,
@@ -200,6 +206,255 @@ struct str_prefsRendu (
 
 
 
+------------------------------------------------------------------------------
+----------	Fenetre								 -------------------------
+------------------------------------------------------------------------------
+rollout roll_preferences "preferences" width:346 height:128
+(
+	
+	
+	------------ DEBUG	----------------------------------------------------------------------------------
+	local	m_debug = true
+	local	m_dbgPrefix ="roll_preferences"
+	fn debug 	_txt  var:	 param:    =(
+		if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+	)
+	----------------------------------------------------------------------------------------------------------
+	
+	
+	
+	------------  Membres	----------------------------------------------------------------------------------
+	---- Pointeurs ----
+	local m_prt				---- pointeur vers la structure de controle ----
+	local m_labib
+	
+	---- Structures ----
+	local m_drag			---- la structure gerant le drag de la fenetre ----
+	
+	--- ctro des imgtags ---
+	local m_titre
+-- 	local m_log
+	
+	--- liste des uis ----
+	local m_uis	=#()
+	
+	
+	------------  UI	----------------------------------------------------------------------------------		
+	
+	
+	
+	label 'ui_lblApercus' "Dossier des Aperçus: " pos:[20,56] width:101 height:17 align:#left
+	edittext 'ui_editApercus' "" pos:[126,56] width:181 height:17 align:#left
+	button 'ui_btnOuvrirApercus' "..." pos:[307,54] width:20 height:20 toolTip:"Choisir le fichier .max de référence de cet asset." align:#left
+	
+	label 'ui_lblBiblio' "Bibliothèque : " pos:[20,37] width:101 height:17 align:#left
+	edittext 'ui_editBiblio' "" pos:[126,37] width:181 height:17 align:#left
+	button 'ui_btnOuvrirBiblio' "..." pos:[307,35] width:20 height:20 toolTip:"Choisir le fichier .max de référence de cet asset." align:#left
+	
+	label 'ui_lblProxy' "Dossier des Proxy : " pos:[20,75] width:101 height:17 align:#left
+	edittext 'ui_editProxy' "" pos:[126,75] width:181 height:17 align:#left
+	button 'ui_btnOuvrirProxy' "..." pos:[307,73] width:20 height:20 toolTip:"Choisir le fichier .max de référence de cet asset." align:#left
+	
+	button 'ui_btnReset' "Reset" pos:[19,5] width:42 height:16 align:#left
+
+	
+	---- le bouton pour fermer la fenetre ----
+	ImgTag 'ui_btnFermer' "X" pos:[326,0] width:20 height:20 toolTip:"Fermer" style:#bmp_center align:#left
+	
+	ImgTag 'ui_titre' "" pos:[128,4] width:66 height:18 align:#left
+	
+
+	
+	------------  Fonctions	----------------------------------------------------------------------------------
+	---- Gere l'état du bouton  -----
+	fn etatBtnFermer		_etat =(
+		case _etat of (
+			#Repos : 	ui_btnFermer.bitmap = m_prt.m_icos_fermer[1]	
+			#Survol : 	ui_btnFermer.bitmap = m_prt.m_icos_fermer[2]	
+			#Press : 	ui_btnFermer.bitmap = m_prt.m_icos_fermer[3]	
+		)
+	)
+	
+	fn actualiser = (
+		ui_editBiblio.text 		= m_prt.general.fichierArbo
+		ui_editApercus.text 	= m_prt.general.dossierApercus
+		ui_editProxy.text 		= m_prt.general.dossierProxy
+	)
+	
+	fn reagencer _taille =(
+		
+		m_prt.m_taille = _taille
+		
+		local LargeurEdit = 145
+		local LargeurBtn = 20
+		local	decalXBtn1 = 34
+		local	decalXBtn2 = decalXBtn1 + LargeurBtn
+		local	decalXBtn3 = decalXBtn1 + 2* LargeurBtn
+		
+		ui_editProxy.width 					= 	_taille.x - ( LargeurEdit + LargeurBtn )
+		ui_editBiblio.width 					= 	_taille.x - ( LargeurEdit + LargeurBtn )
+		ui_editApercus.width 				= 	_taille.x - ( LargeurEdit + LargeurBtn )
+-- 		ui_btnReset.width 					= 	_taille.x - ( LargeurEdit )
+
+
+		ui_btnOuvrirProxy.pos.x			=	_taille.x - ( decalXBtn1 )		
+		ui_btnOuvrirBiblio.pos.x				=	_taille.x - ( decalXBtn1 )
+		ui_btnOuvrirApercus.pos.x				=	_taille.x - ( decalXBtn1 )
+		
+		ui_btnFermer.pos.x						=	_taille.x - ( LargeurBtn )
+		
+	)
+	
+	---- Initialisation de la fenetre  -----
+	fn initialiser labib: prt: = (
+		
+		if labib != unsupplied and prt != unsupplied do (
+			
+			m_labib 	= labib
+			m_prt 	= prt
+			m_drag 	= str_drag 	m_prt:roll_preferences		
+			
+			m_titre 	= str_label 	m_ui:ui_titre			m_texte:m_prt.m_titre
+			m_titre.setCouleur 	m_prt.col_fenetreTxt
+			
+			/* 
+			m_log 		= str_label 	m_ui:ui_log				m_texte:"..."
+			m_log.setPolice (str_policePetite())
+			m_log.setCouleur (color 200	200	200)
+			 */
+			
+			-- le bouton fermer --
+			ui_btnFermer.bitmap = m_prt.m_icos_fermer[1]	
+			/* 
+			-- creation de la liste des uis ---
+			m_uis = #(
+				ui_lblNom, ui_editNom, ui_lblFichier, ui_editFichier, ui_btnOuvrirFichierMax, ui_lblApercu, ui_editApercu, ui_btnOurvirApercu , ui_btnCreerDetail, ui_lblDetail, ui_editDetail, 
+				ui_btnOurvirDetail, ui_btnCreerApercu, ui_lblTags, ui_editTags, ui_lblNotes, ui_editNotes, ui_btnCreerApercuDetailAuto,
+				ui_btnCreerAperculAuto, ui_lblCreation, ui_editDateCreation, ui_lblDateDernierImport, ui_editDateDernierImport , ui_lblNbreImports,
+				ui_editNbreImports, ui_lblNbreVertex, ui_editNbreVertex )
+			 */
+			reagencer [roll_preferences.width, roll_preferences.height]
+			
+			actualiser()
+		)
+	)
+	
+	
+	
+	
+	
+	------- corps ------
+	fn ouvrirCheminBiblio  chemin:	=(
+		local fichier
+		
+		if chemin == unsupplied 
+			then	fichier = getOpenFileName  	caption:"Fichier max de l'asset:" \
+															filename:m_prt.general.fichierArbo \
+															types:"Labib(*.bib)|*.bib|All|*.*|"
+			else fichier = chemin
+		
+		if fichier != undefined and doesFileExist fichier	then (
+			m_prt.general.fichierArbo  = 	fichier
+			m_prt.enregistrer ()
+			
+			m_labib.arbo.fichierArbo = fichier
+ 			m_labib.arbo.charger ()
+			
+			m_labib.edit.setDossier m_labib.arbo.root
+			m_labib.edit.actualiser ()
+		)	
+		
+		actualiser ()
+		
+	)
+	
+	fn ouvrirCheminApercu  chemin:	=(
+		local fichier
+		
+		if chemin == unsupplied 
+			then	fichier = getSavePath  	caption:"Fichier max de l'asset:" \
+													initialDir:m_prt.general.dossierApercus
+			else fichier = chemin
+		
+		if fichier != undefined and doesFileExist fichier	then (				
+			m_prt.general.dossierApercus  = 	fichier
+			m_prt.enregistrer ()		
+		)	
+		actualiser ()
+		
+	)
+	fn ouvrirCheminProxy  chemin:	=(
+		local fichier
+		
+		if chemin == unsupplied 
+			then	fichier = getSavePath 	caption:"Fichier max de l'asset:" \
+													initialDir:m_prt.general.dossierProxy
+			else fichier = chemin
+		
+		if fichier != undefined and doesFileExist fichier	then (				
+			m_prt.general.dossierProxy  = 	fichier
+			m_prt.enregistrer ()		
+		)	
+		actualiser ()
+			
+	)
+	
+	
+	
+	
+	------------  Evenements	----------------------------------------------------------------------------------
+	
+	--- rollout ---
+
+	---- Drag ----
+	
+	---- Fermer ----
+	
+	
+	---- corps ----
+	
+	
+	
+-- 		m_labib.cmd.changerFichier 	(m_labib.edit.getSelection ())[1] 	_text
+		
+-- 		m_labib.cmd.changerFichier 	(m_labib.edit.getSelection ())[1] 	_text
+
+	on roll_preferences resized _taille 	do
+		reagencer 	_taille
+	on roll_preferences moved _pos 		do
+		m_prt.m_pos	= _pos
+	on roll_preferences lbuttondown _pos 	do
+		m_drag.demarrer ()
+	on roll_preferences lbuttonup _pos 	do
+		m_drag.arreter ()
+	on roll_preferences mouseMove _pos 	do
+		m_drag.suivreSouris ()
+	
+	
+	on ui_editApercus entered _text do ouvrirCheminApercu chemin:_text
+	on ui_btnOuvrirApercus pressed do ouvrirCheminApercu ()
+	
+	
+	on ui_editBiblio entered _text do ouvrirCheminBiblio chemin:_text
+	on ui_btnOuvrirBiblio pressed do ouvrirCheminBiblio ()
+	
+		
+	on ui_editProxy entered _text do ouvrirCheminProxy chemin:_text
+	on ui_btnOuvrirProxy pressed do ouvrirCheminProxy ()
+		
+		
+		
+	on ui_btnFermer mouseover do
+		etatBtnFermer #Survol
+	on ui_btnFermer mouseout do
+		etatBtnFermer #Repos
+	on ui_btnFermer mouseDown do
+		etatBtnFermer #Press
+	on ui_btnFermer mouseUp do
+		etatBtnFermer #Repos
+	on ui_btnFermer click do
+		m_prt.fermer ()
+)
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -217,20 +472,90 @@ struct str_preferences (
 		),
 	----------------------------------------------------------------------------------------------------------
 	
+		
+		
 	
 		------------ Les membres	----------------------------------------------------------------------------------
 	public
-		dossierScript	, 													---- le dossier du script ----
+		---- pointeurs ----
+		m_labib,
+		
+		dossierScript	, 															---- le dossier du script ----
 		fichierPrefs 			= dossierScript + "data\prefs.ini",		---- le fichier des preferences ----
-		fichierArbo				= dossierScript + "data\arbo.ini",		---- le fichier de l'arborescence ----
+-- 		fichierArbo				= dossierScript + "data\arbo.bib",		---- le fichier de l'arborescence ----
 	
 		
 		---- les structs des diferenetes preferences	----
 	public	
 		fenetre 		=  str_prefsFenPrincipale 	dossierScript:dossierScript,
 		infos		 	=  str_prefsFenInfos 		dossierScript:dossierScript,
-		apercus 		= 	str_prefsRendu 			dossierScript:dossierScript,
+		apercus 		= 	str_prefsApercus 			dossierScript:dossierScript,
 		general 		= 	str_prefsGenerales		dossierScript:dossierScript,
+		
+		------------  Pour la fenetre	----------------------------------------------------------------------------------
+	public
+		m_dialog				= roll_preferences ,		---- le rollout ----
+		
+		---- props de la fenetre -----
+		m_titre 				= "Labib | preferences",
+		m_pos 				= [100,100],
+		m_taille 				= [346, 104],
+		m_estOuvert 		= false,
+		
+		col_fenetreFond	= fenetre.col_fenetreFond, 	----  ----
+		col_fenetreTxt		= fenetre.col_fenetreTxt, 	----  ----
+	
+		--- images bouton fermer ---
+		m_icos_fermer= #( 					---- les images pour les icones du bouton de fermeture ----		
+									openBitMap fenetre.ico_btnFermer_R ,		-- Repos ----
+									openBitMap fenetre.ico_btnFermer_S ,		-- Survol ----
+									openBitMap fenetre.ico_btnFermer_P 		-- Pressé ----
+								),
+				
+		------------  Fonctions	----------------------------------------------------------------------------------
+	public
+		fn estOuvert = m_estOuvert,
+		
+		---- fenetre -----
+		
+		fn ouvrir =(
+			m_estOuvert = true
+			---- creation de la fenetre ----
+			createDialog m_dialog 	style:				#(#style_resizing) \
+											pos:					m_pos	\
+											width:				m_taille.x \
+											height:				m_taille.y \
+											lockHeight:			true
+-- 											bgcolor:				col_fenetreFond 	 \
+-- 											fgcolor:				col_fenetreTxt 	\
+											
+			---- initialisation de la fenetre ----
+			m_dialog.m_prt	 	= this
+			m_dialog.initialiser 	labib:m_labib 	prt:this
+			
+			
+		),
+		
+		fn fermer  enregistrer:true =(
+			
+			if enregistrer do
+				m_estOuvert = false
+			
+			--- Actiualiser position pour reouverture prochaine ----
+			try  m_pos = getDialogPos m_dialog  catch ()
+			
+			---- fermer la fenêtre ----
+			try destroydialog m_dialog catch ()
+			
+		),
+		
+		fn toggleOuverture =(
+			
+			if m_estOuvert
+				then fermer ()
+				else	ouvrir ()
+			
+		),
 		
 		------------ Les fonctions	----------------------------------------------------------------------------------
 	
@@ -242,6 +567,7 @@ struct str_preferences (
 			for propNom in propsNoms do 
 				if propNom != "dossierScript"
 					do setINISetting   fichierPrefs		_nomDatas   propNom  	( ( getProperty _datas	 propNom	)	as string )
+			
 		),
 		fn chargerDatas  _datas  _nomDatas	=(
 			
@@ -288,10 +614,10 @@ struct str_preferences (
 		),
 		fn reset = (
 			
-			fenetre 		=  prefsRollPrincipale	fichier:fichierPrefs	dossierScript:dossierScript
-			fenInfos	 	=  prefsRollInfos 			fichier:fichierPrefs	dossierScript:dossierScript
-			apercus 		= 	prefsApercus 			fichier:fichierPrefs	dossierScript:dossierScript
-	-- 		proxies	 	= 	prefsProxies 			fichier:fichierPrefs	dossierScript:dossierScript
+			fenetre 		=  str_prefsFenPrincipale 	dossierScript:dossierScript
+			infos		 	=  str_prefsFenInfos 		dossierScript:dossierScript
+			apercus 		= 	str_prefsApercus 			dossierScript:dossierScript
+			general 		= 	str_prefsGenerales		dossierScript:dossierScript
 			
 			enregistrer ()
 		), 
@@ -303,7 +629,8 @@ struct str_preferences (
 		
 		------------ Les evenements	----------------------------------------------------------------------------------
 		on create do (
-			charger()
+			charger ()
+			
 			debug "Structure crée."
 			
 		)

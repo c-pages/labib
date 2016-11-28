@@ -13,13 +13,6 @@
 
 
 
---------------------------------------------------------------------------------------------------------------------
--------Les scripts de corona				   ----------------------------------------------------------------------
---------------------------------------------------------------------------------------------------------------------
-global CoronaConverterSuppressGui = true
-include  "$scripts\CoronaRenderer\CoronaConverter_v1.29.ms"
-CoronaConverterSuppressGui = false
-
 
 
 --------------------------------------------------------------------------------------------------------------------
@@ -50,17 +43,18 @@ struct str_edition (
 	---- pointeurs ----
 	public 
 		m_labib,										---- la structure principale ---	
-		m_TV 		,								---- le treeview ---
-		m_LV 		,								---- le listview ---
-		m_tags 		,								---- le listview ---
-		m_recherche 		,								---- le listview ---
 		
 	private
 		m_prefs		= m_labib.prefs,			---- les preferences ---
-		m_arbo		= m_labib.arbo,			---- l'arborescence ---
-		m_apercus /* 	= m_labib.apercus */,		---- les apercus ----
-		m_fenetre	,								---- la fenetre ---
+		m_arbo		= m_labib.arbo,			---- l'arborescence ---		
+		m_fenetre	= m_labib.fenetre,		---- les apercus ----
+		m_apercus 	= m_labib.apercus,		---- la fenetre ---
 		
+	public 
+		m_TV 		,								---- le treeview ---
+		m_LV 		,								---- le listview ---
+		m_tags 		,								---- le listview ---
+		m_recherche 		,						---- le listview ---
 		
 	---- position dans la bib et selection -----
 		m_dossier,									---- Selectionné dans le treeview, et enfants affichés dans le listview ----
@@ -68,14 +62,14 @@ struct str_edition (
 		m_ndsAAfficher =#(),
 		
 	--- managers ----
-		m_chrono 	= str_chrono (),			---- manager pour chronometrer les operations ----
+		--  m_chrono 	= str_chrono (),				---- manager pour chronometrer les operations ----
 	public
 		m_hist ,										---- manager de l'historique ----
 		
 	private
 	---- drag ----
 		m_dragFlag 		= false,
-		m_dragNoeuds 	=#(),	-- les noeuds draggés ----
+		m_dragNoeuds 	=#(),				-- les noeuds draggés ----
 		
 	--------- conversion coronas ----------
 		m_coroConverter = CoronaConverter,
@@ -94,20 +88,6 @@ struct str_edition (
 	------------ Les fonctions	----------------------------------------------------------------------------------	
 	public
 		---- Fonctionnement ----
-		
-		fn filtrer 	_noeuds 	=(
-			local result = _noeuds
-			
-			--- recherche ---
-			if m_recherche.estActif() do
-				result =  m_recherche.getResultat 	noeuds:result
-			
-			---- tags ----
-			if m_tags.estActif () do
-				result =  m_tags.getResultat 	noeuds:result
-			
-			result			
-		),
 		
 		
 		
@@ -131,9 +111,11 @@ struct str_edition (
 		fn getNdsDrag = m_dragNoeuds,
 			
 		fn getNdsAAfficher =(
+			
+			debug "getNdsAAfficher"
+			debug "m_ndsAAfficher" var:m_ndsAAfficher param:#nom
+			
 			m_ndsAAfficher
--- 			_noeudAOuvrir = filtrer  _noeudAOuvrir.enfants
-
 		),
 		
 		fn getPressePapier = for n in m_pressePapier.enfants collect n,
@@ -181,7 +163,7 @@ struct str_edition (
 				
 				for noeudA in _noeudsA do
 					if noeudA != undefined do append m_selection noeudA
-						
+				
 				-- MAJ fenetre infos ---
 				m_labib.infos.afficher m_selection
 				
@@ -193,134 +175,86 @@ struct str_edition (
 		
 		
 	public
-		--- Initialisations ---
-		fn initialiser =(
-			
-			debug "initaliser"
-			
-			--- fenetre ----
-			m_fenetre	= m_labib.fenetre
-			m_fenetre.initialiser ()
-			
-			m_apercus 	= m_labib.apercus
-			
-			--- historique ----			
-			m_hist 			= str_historique 		m_dialog:m_fenetre.m_dialog		m_edit:this
-			
-		),		
-		fn majPointeursFenetre =(
-			
-			debug "majPointeursFenetre"
-			
-		--- maj pointeurs Listes dans edit ---
-			m_TV 			= m_fenetre.m_dialog.m_TV
-			m_LV 			= m_fenetre.m_dialog.m_LV
-			m_tags			= m_fenetre.m_dialog.m_tags
-			m_recherche	= m_fenetre.m_dialog.m_recherche
-			
-			m_hist.m_TV 	= m_TV
-			m_hist.m_LV 	= m_LV
-			
-			debug "majPointeursFenetre (fin)"
-			
-		),
 		
+		---- filtre -----	
 		
 		fn filtrerNoeuds =(
-			--- les filtres de recherche et tags ---
-			m_ndsAAfficher = filtrer  	m_dossier.enfants
-			debug "filtrerNoeuds" var:m_ndsAAfficher param:#nom
-		),
-		
-		--- ouvrir un dossier ---
-		fn ouvrir		_noeudAOuvrir 	enregistrer_historique:true		=(
 			
-			debug "ouvrir	---------------------------------------"
-			debug "_noeudAOuvrir" var:_noeudAOuvrir	 param:#nom
-			debug "m_dossier" var:m_dossier	 param:#nom
-			debug "enregistrer_historique" var:enregistrer_historique
+			local result = m_dossier.enfants
 			
-			if _noeudAOuvrir != undefined then (
-				
-				
--- 				-- si differnet du dossier courant--
--- 				if _noeudAOuvrir != m_dossier do (
-					 
-					---- on actualise la selection ---					
-					setDossier	_noeudAOuvrir
-					
-					viderSelection ()
-					
-					filtrerNoeuds ()
-					
-					debug "m_ndsAAfficher" var:m_ndsAAfficher param:#nom
-				
-					debug "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!	2	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-					----  on actualise les tags ----
-					m_labib.fenetre.m_dialog.actualiser ()
-				
-					debug "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!	3	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-				
-					---- on actualise la ListView  ---		
--- 					m_LV.actualiser 	noeudAAfficher:m_ndsAAfficher
--- 					m_LV.afficher _noeudAOuvrir
-					
-					debug "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!	4	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-					---- historique ---
-					if enregistrer_historique do m_hist.enregistrer  	_noeudAOuvrir
-					
--- 				)
-				
-				---- selection du premier element du LV (pour navigation clavier) ----------
-				m_LV.selectionnerPremier ()		
-				
-				--- actualiser la barre d'adresse ---
-				m_fenetre.m_dialog.setAdresseTexte 	m_dossier
-				
-				
-				
-			)
-			debug "(ouvrir) m_dossier Fin" var:m_dossier	 param:#nomUnique
-			debug "fin : ouvrir\n"
+			--- recherche ---
+			if m_recherche.estActif() do
+				result =  m_recherche.getResultat 	noeuds:result
+			
+			---- tags ----
+			m_tags.afficher result
+			if m_tags.estActif () do
+				result =  m_tags.getResultat 	noeuds:result
+			
+			---- on actualise la liste des noeuds ----
+			m_ndsAAfficher = result		
+			
 		),
 		
 		
 		fn actualiser =(
 			
-			viderSelection ()
-			
-			
+			debug "actualiser"
 			debug "m_ndsAAfficher" var:m_ndsAAfficher param:#nom
-		
-			debug "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!	2	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-			----  on actualise les tags ----
 			
+			----  on actualise les tags ----			
 			filtrerNoeuds ()
 			
-			m_labib.fenetre.m_dialog.actualiser 		() 
-		
-			debug "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!	3	!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-		
-			---- on actualise la ListView  ---		
--- 			m_LV.actualiser 	noeudAAfficher:m_ndsAAfficher
+			---- on actualise la fenetre ----
+			m_labib.fenetre.actualiser 		() 
 			
+		),
 		
+		fn actualiserListe =(
+			
+			----  on actualise les tags ----			
+			filtrerNoeuds ()
+			
+			---- on actualise la fenetre ----
+			m_labib.fenetre.actualiserListe 		() 
+			
 		),
 		
 		
 		
-		/* 
-		fn afficherRecherche vide:false =(
+		
+		fn logger _texte =(
+			m_fenetre.m_dialog.m_log.setTexte 	_texte
+		),
+		
+		
+		
+		
+		
+		--- ouvrir un dossier ---
+		fn ouvrir		_noeudAOuvrir 	enregistrer_historique:true		=(
 			
-			if not vide then (
-				---- on actualise la ListView  ---
-				m_LV.actualiser noeudAAfficher:m_arbo.recherche
-			) else (
-				ouvrir m_dossier
+			if _noeudAOuvrir != undefined then (
+				
+				---- on actualise le dossier courant ---					
+				setDossier	_noeudAOuvrir
+				
+				--- on vide la selection ---
+				viderSelection ()
+				
+				---- on actualise l'affichage ----
+				actualiser ()
+				
+				---- historique ---
+				if enregistrer_historique do m_hist.enregistrer  	_noeudAOuvrir
+				
+				---- selection du premier element du LV (pour navigation clavier) ----------
+				m_LV.selectionnerPremier ()
+				
 			)
-			
 		),
-		 */
+		
+		
 		
 		fn creerDossier 	nom:"Nouveau dossier" 	parent: 	=(
 			
@@ -330,7 +264,7 @@ struct str_edition (
 																parent:parent   
 			nvDossier
 		),
-		
+		 
 		fn inserer	_noeuds 	_noeudDest 	=(
 			debug "inserer"
 			
@@ -374,15 +308,53 @@ struct str_edition (
 		
 		
 		--------- conversion coronas ----------
+		fn relinkBitmapsInit =(
+			
+-- 			local dossiers = #("D:")
+			if doesFileExist ((getDir #userScripts)+"\\Relink Bitmaps\\C_Lib.mse") and doesFileExist ((getDir #userScripts)+"\\Relink Bitmaps\\Relink_Lib.mse") and doesFileExist ((getDir #userScripts)+"\\Relink Bitmaps\\Relink Bitmaps.mse") then ( 
+			   fileIn ((getDir #userScripts)+"\\Relink Bitmaps\\C_Lib.mse") quiet:true 
+			   fileIn ((getDir #userScripts)+"\\Relink Bitmaps\\Relink_Lib.mse") quiet:true 
+			   fileIn ((getDir #userScripts)+"\\Relink Bitmaps\\Relink Bitmaps.mse") quiet:true 
+			) else (
+			   MessageBox "Relink Bitmaps files are not in the default installation path.  Try reinstalling."
+			)
+			
+			
+		),
+		fn relinkBitmaps =(
+			
+			debug "relinkBitmaps()" 
+			
+			local dossiers = #(	"D:\01 - modeles 3D\00 - collections\ARCHMODELS\MAPS Evermotion" , 
+										"D:\00 - images", 
+										"D:\01 - modeles" )
+			
+			sceneRelinkBitmaps dossiers recursive:true
+			
+		),
+		
 		fn convertMateriauxScene =(
 			
--- 			show coronaConverter
+			debug "convertMateriauxScene - debut" 
+			
 			m_coroConverter.convertScene ()
+			
+			--- on relink les bitmaps manquantes -----
+			relinkBitmaps ()
+			
+			debug "convertMateriauxScene - fin" 
 		),
 		fn convertToProxy =(
 			
 -- 		m_coroProxyConverter = CoronaProxyConverter
 		),
+		
+		
+		
+		
+		
+		
+		
 		
 		fn faireApercus _noeuds =(
 			
@@ -399,7 +371,7 @@ struct str_edition (
 			
 			m_arbo.deplacer	_noeudsA 	_dossierDest 
 			
-			m_fenetre.m_dialog.actualiser ()
+-- 			m_fenetre.m_dialog.actualiser ()
 			
 			--- restauration etat du TV ---
 			m_TV.restaurer_etatItems ()
@@ -437,7 +409,8 @@ struct str_edition (
 			)
 						
 			--- actualiser ----
-			m_fenetre.actualiser ()
+			actualiser ()
+			
 			m_LV.selectionner 	_noeuds
 			
 			--- restauration etat du TV ---
@@ -448,7 +421,7 @@ struct str_edition (
 			if doesFileExist _nvFichier and getFilenameType _nvFichier == ".max" then (
 				_noeudCible.fichier = _nvFichier
 				
-				noeud.enregistrer ()
+				_noeudCible.enregistrer ()
 			)
 			
 			m_labib.infos.afficher 	m_selection
@@ -518,7 +491,7 @@ struct str_edition (
 			debug "nouvelAsset	---------------------------------------"
 			
 			--- sortie Listener --
-			m_chrono.demarrer ()
+			--  m_chrono.demarrer ()
 			
 			local nouvelElement 
 			
@@ -549,7 +522,7 @@ struct str_edition (
 				
 				--- sortie Listener --
 				ecrire ( "Asset créé: " + nouvelElement.nom )
-				m_chrono.ecrireDuree ()
+				--  m_chrono.ecrireDuree ()
 				
 				
 			)
@@ -568,7 +541,7 @@ struct str_edition (
 				
 				ecrire "Créer asset depuis dossier ..."
 				
-				m_chrono.demarrer ()
+				--  m_chrono.demarrer ()
 				
 				debug "Creer asset"
 				
@@ -604,7 +577,7 @@ struct str_edition (
 				
 				
 				ecrire ( "Dossier importer : " +  nouveauxElements.count as string + " assets crées." )
-				m_chrono.ecrireDuree ()
+				--  m_chrono.ecrireDuree ()
 				
 				m_LV.focus ()
 				
@@ -686,64 +659,55 @@ struct str_edition (
 		),
 		fn dragEnCours 		=(
 			m_dragFlag
+		),
+		
+		
+		--- Initialisations -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		fn initialiser =(
+			
+-- 			debug "initaliser"
+			
+			----- initialiser les scripts exterieurs --------------------
+			------- Corona	---------------
+			global CoronaConverterSuppressGui = true
+			include  "$scripts\CoronaRenderer\CoronaConverter_v1.29.ms"
+			CoronaConverterSuppressGui = false
+			
+			------- relinkBitmaps	  ---------------			
+			relinkBitmapsInit ()
+			
+			
+			
+			
+			--- fenetre ----
+			setDossier 		( m_arbo.getParNomUnique 	m_prefs.fenetre.dossierCourant )
+			m_ndsAAfficher 	= (getDossier()).enfants
+			debug "initaliser"
+			debug "m_ndsAAfficher" var:m_ndsAAfficher param:#nom
+-- 			m_selection 		= (getDossier()).enfants
+			
+			--- historique ----			
+			m_hist 			= str_historique 		m_dialog:m_fenetre.m_dialog		m_edit:this
+			
+		),		
+		fn majPointeursFenetre =(
+			
+			debug "majPointeursFenetre"
+			
+			--- maj pointeurs Listes dans edit ---
+			m_TV 			= m_fenetre.m_dialog.m_TV
+			m_LV 			= m_fenetre.m_dialog.m_LV
+			m_tags			= m_fenetre.m_dialog.m_tags
+			m_recherche	= m_fenetre.m_dialog.m_recherche
+			
+			m_hist.m_TV 	= m_TV
+			m_hist.m_LV 	= m_LV
+			
+			debug "majPointeursFenetre (fin)"
+			
 		)
 		
-		
-		
-		
-	/* 
-		-- Supprimer les fichiers non utilisés par la bibliotheques (images et proxy inutilisés) --
-		fn nettoyer  = (
-			
-			local listeFichiers
-			local listeElements 
-			
-				debug "nettoyer arborescence (images et proxy inutilisés)"
-			
-			listeFichiers = getFiles ( prefs.apercus.dossier + "\\*.jpg" )
-			
-				debug ("listeFichiers : " + listeFichiers.count as string ) 
-			
-			local listeElements = getElements()
-			for fichier in listeFichiers do ( 	
-	-- 				debug ("fichier : " + fichier as string ) 
-				present = false
-				if getFilenameFile fichier != nomApercuVide do (
-					for elem in listeElements do (
-						if getFilenameFile fichier == getFilenameFile elem.apercu  do 
-							present = true
-						if getFilenameFile fichier == getFilenameFile elem.detail  do 
-							present = true
-					)
-					if not present do (
-						debug ( " DELETE :" + fichier )
-						deleteFile fichier
-					)
-				)
-			)
-			
-			listeFichiers = getFiles ( prefs.proxies.dossier + "\\*.max" )
-			
-				debug ("listeFichiers : " + listeFichiers.count as string ) 
-			
-			for fichier in listeFichiers do ( 	
-				debug ("fichier : " + fichier as string ) 
-				present = false
-				for elem in listeElements do (
-					if getFilenameFile fichier == getFilenameFile elem.proxy  do 
-						present = true
-					if getFilenameFile fichier == ( "_" + getFilenameFile elem.detail ) do 
-						present = true
-				)
-				if not present do (
-					format " DELETE :%\n"  fichier
-					deleteFile fichier
-				)
-			)
-			
-		
-		)
-	*/
+	
 ) --- fin str_edition
 
 

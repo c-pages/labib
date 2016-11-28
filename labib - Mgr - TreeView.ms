@@ -38,8 +38,8 @@ struct str_treeViewMgr (
 		
 	------------ DEBUG	----------------------------------------------------------------------------------
 
--- 		m_debug = true,
-		m_debug = false,
+		m_debug = true,
+-- 		m_debug = false,
 		m_dbgPrefix ="TV",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
@@ -57,10 +57,11 @@ struct str_treeViewMgr (
 		m_prt,										---- le parent, le rollout ---- ( a initialiser ) ----	
 		m_ui, 										---- le treeView a controler -- ( a initialiser ) ----
 		m_TV,	
-		m_prefs	=	m_prt.m_prefs,			---- les m_prefs de labib ---
+		m_prefs		=	m_prt.m_prefs,			---- les m_prefs de labib ---
 -- 		m_arbo	=	m_prt.m_arbo,
-		m_edit	=	m_prt.m_prt.m_labib.edit,
-		m_cmd	=	m_prt.m_prt.m_labib.cmd,
+		m_edit		=	m_prt.m_prt.m_labib.edit,
+		m_apercus	=	m_prt.m_prt.m_labib.apercus,
+		m_cmd		=	m_prt.m_prt.m_labib.cmd,
 		
 		---- etats des items ---
 		m_etatItems = #(),
@@ -176,27 +177,6 @@ struct str_treeViewMgr (
 				creerItem 	enfant  	nouveauNoeudTV
 		
 		),
-		fn setDossierCourant	 	_noeudA		= (			
-			
-			debug "setDossierCourant"
-			debug "_noeudA" var:_noeudA	 param:#nom
-			
-			if _noeudA !=undefined do (
-				
-				---- on actualise Edit ----
-				m_edit.setDossier 		_noeudA
-				
--- 				---- on selectionne les items ----
--- 				if m_ui.SelectedNode !=  getItem		_noeudA
--- 					do m_ui.SelectedNode 	= getItem		_noeudA
--- 				if m_ui.SelectedNode != undefined 
--- 					do m_ui.SelectedNode.EnsureVisible()
-				
-				
-			)
-			
-			debug "m_edit.getDossier " var:(m_edit.getDossier () )	 param:#nom
-		),
 		fn selectionner	 	_noeudA		= (			
 			
 			debug "selectionner"
@@ -269,8 +249,9 @@ struct str_treeViewMgr (
 			 */
 			
 			restaurer_etatItems ()
-			
-			--  la selection --
+-- 			
+-- 			--  la selection --
+-- 			selectionner  ( m_edit.getDossier () )
 -- 			local dossierCourant 	= m_edit.getDossier ()	
 -- 			if dossierCourant.estDansLabib () do
 -- 				setDossierCourant 	dossierCourant 
@@ -332,20 +313,15 @@ struct str_treeViewMgr (
 		---- Souris ----
 		fn clq_down 			_arg			= (
 			
-			debug "clq_down"
-			local	noeudAClique = getNoeudA_at  _arg.x _arg.y 
-			debug "noeudAClique" var:noeudAClique param:#nom
-			
-			if noeudAClique != undefined do		setDossierCourant	noeudAClique
+			local	noeudAClique = getNoeudA_at  _arg.x _arg.y
 			
 			case _arg.button of (
 				(m_btnsDotNet.Left): 		m_edit.ouvrir 	noeudAClique
-				(m_btnsDotNet.Middle): 	()
+				(m_btnsDotNet.Middle): ()
 				(m_btnsDotNet.None): 	()
 				(m_btnsDotNet.Right): 	(
 					-- ouvrir noeud --
 					m_edit.ouvrir 			noeudAClique
--- 					selectionner	noeudAClique
 					-- menus --
 					m_prt.m_menus.arbo 	()
 				)
@@ -370,38 +346,28 @@ struct str_treeViewMgr (
 		
 		---- clavier ----		
 		fn key_up				_arg =(
+			
 			keyCode = _arg.KeyCode
-			show _arg
+			
 			local touches = dotnetclass  "System.Windows.Forms.Keys"
--- 			show _arg.KeyCode
--- 			actualiserSelection ()
 			
-			local dossierCourant  = m_edit.getDossier ()
--- 			
--- 			debug "dossierCourant" var:dossierCourant param:#nom
--- 			debug "_arg.Control" var:_arg.Control
--- 			
-			
+			local dossierCourant  = m_edit.getDossier ()			
 			
 			
 			case keyCode of (
 				
-				( touches.Tab ): 		(
-					debug "TAB"
-					if _arg.shift then m_prt.focusPrecedant ()
-									else  m_prt.focusSuivant ()
-				)
+				-- Tab : focus ----
+				( touches.Tab ): 	if _arg.shift		then m_prt.focusPrecedant ()
+															else  m_prt.focusSuivant ()
+				
 		 		-- renommer --
 				( touches.F2 ): 		if dossierCourant.estElemUtilisateur () do editerNom	dossierCourant
 				
 				-- supprimer --
 				( touches.Delete ): 	if dossierCourant.estElemUtilisateur ()	do m_edit.supprimer	dossierCourant
 			
-				
--- 				
 -- 				-- ouvrir  --	
 -- 				( touches.Enter ): 	m_edit.ouvrir		dossierCourant
-				
 				
 				-- fleches --
 				( touches.Left): 		m_edit.ouvrir		dossierCourant
@@ -409,12 +375,11 @@ struct str_treeViewMgr (
 				( touches.Up): 		m_edit.ouvrir		dossierCourant
 				( touches.Down ): 	m_edit.ouvrir		dossierCourant
 				
-				
-				
-				
 				-- undo /redo --
 				( touches.Z ): 		if _arg.Control do	m_cmd.defaire ()
 				( touches.Y ): 		if _arg.Control do	m_cmd.refaire ()
+				
+				( touches.Escape ): 		m_apercus.annuler ()
 				
 			)
 				

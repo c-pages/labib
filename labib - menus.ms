@@ -22,18 +22,16 @@
 rcMenu rc_fenLabib
 (
 	---- menu ----
-	subMenu "Edit"	(
-		menuItem m_nouveauDossier 	"Nouveau dossier" 
-		menuItem m_supprimer 				"Supprimer"					
-	)
-	subMenu "Vues" (
+-- 	subMenu "Edit"	(
+-- 		menuItem m_nouveauDossier 	"Nouveau dossier" 
+-- 		menuItem m_supprimer 				"Supprimer"					
+-- 	)
+	seperator sep01					
+-- 	subMenu "Vues" (
 		menuItem m_afficherInfos 			"Infos"  		
 		menuItem m_afficherApercus		"Création des aperçus" 
-	)
-	subMenu "Préferences"	(
 		menuItem m_preferences 			"Préferences" 
-		menuItem m_resetPreferences 	"Reinitialiser" 
-	)
+-- 	)
 	
 	---- evenements ----
 	
@@ -142,6 +140,7 @@ struct str_menus (
 					menuItem infos 		"Infos" 		checked:( labib.infos.estOuvert() )
 					menuItem apercu 	"Aperçu" 	checked:labib.prefs.fenetre.apercu
 					menuItem rendu	 	"Rendu" 		checked:labib.prefs.fenetre.rendu
+					menuItem prefs	 	"Préférences" 		checked:(labib.prefs.estOuvert ())
 -- 				)
 				
 				seperator sep5476
@@ -192,13 +191,13 @@ struct str_menus (
 				)
 				
 				on infos								picked do	labib.infos.toggleOuverture ()
-				on apercu							picked do	labib.fenetre.toggleApercu ()
-				on rendu							picked do	labib.fenetre.toggleRendu ()
+-- 				on apercu							picked do	labib.fenetre.toggleApercu ()
+-- 				on rendu							picked do	labib.fenetre.toggleRendu ()
+				on prefs								picked do	labib.prefs.toggleOuverture ()
 			
 				on affichSelec						picked do		for n in labib.edit.getSelection () do	labib.arbo.afficherNoeud	n
 				
 			)
-			
 			popUpMenu 	rcMenuElements
 			
 		),

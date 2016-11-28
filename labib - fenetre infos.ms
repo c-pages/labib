@@ -304,6 +304,8 @@ struct str_infos (
 		---- pointeurs ----
 		m_labib,
 		m_dialog				= roll_infos ,		---- le rollout ----
+		
+		---- props de la fenetre -----
 		m_titre 				= "Labib | Infos",
 		m_pos 				= [100,100],
 		m_taille 				= [300, 300],

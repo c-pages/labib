@@ -98,14 +98,11 @@ struct str_labib (
 	------------ Les structures	----------------------------------------------------------------------------------
 	public
 	
-		---- interface ----
-		prefs		= 	str_preferences 		dossierScript:dossierScript,		---- les préferences utilisateurs ----		
+		---- preferences ----
+		prefs		= 	str_preferences 		m_labib:this 	dossierScript:dossierScript,		---- les préferences utilisateurs ----		
 		
-		arbo		= 	str_arborescence 	fichierArbo:prefs.fichierArbo,		---- la gestion de l'arborescenece de la bibliotheque ----	
-		edit		= 	str_edition				m_labib:this,							---- les commandes utilisateurs,  l'edition proprement dite de la bibliotheque (creation d'un asset, import dans la scene ... ) ----
-
-		apercus	=	str_apercus 			m_labib:this,							---- la creation des apercus -----
-		cmd 		= 	str_commandesMgr 	m_edit:edit,
+		---- arborescence ----
+		arbo		= 	str_arborescence 	fichierArbo:prefs.general.fichierArbo,		---- la gestion de l'arborescenece de la bibliotheque ----	
 		
 		---- interfaces ----
 		menus	= str_menus (),														---- les menus RCMenu ----
@@ -113,6 +110,14 @@ struct str_labib (
 		
 		-- Fenetres secondaires --
 		infos = str_infos 	m_labib:this,
+		
+		---- editions ----
+		apercus	=	str_apercus 			m_labib:this,							---- la creation des apercus -----		
+		edit		= 	str_edition				m_labib:this,							---- les commandes utilisateurs,  l'edition proprement dite de la bibliotheque (creation d'un asset, import dans la scene ... ) ----
+		
+		---- commandes ----
+		cmd 		= 	str_commandesMgr 	m_edit:edit,
+		
 		
 		
 		---les actions --------
@@ -169,10 +174,18 @@ struct str_labib (
 		),
 	------------ Evenements 	----------------------------------------------------------------------------------
 	on create do (
-		--- initialiser ----	
+		
+		---- initialiser les pointeurs qui restent -----
+		fenetre.m_edit		= edit		
+		apercus.m_edit 	= edit
+		
+		--- initialiser Edition ----	
 		edit.initialiser ()
+		
+		---- output ----
 		ecrire "Structure Labib crée."		
 		debug "Structure crée."	
+		
 	) 
 	
 ) -- fin struct labib ----

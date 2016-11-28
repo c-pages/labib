@@ -145,7 +145,7 @@ struct str_recherche (
 		
 		fn actualiserResultats =(
 			
-			m_edit.actualiser ()
+			m_edit.actualiserListe ()
 			
 			-- la couleur passe en mode recherche --
 			if estActif() then
@@ -248,16 +248,22 @@ struct str_recherche (
 ----------	chrono						--------------------------
 ------------------------------------------------------------------------------
 struct str_chrono (
-	tempsDebut,
-	fn demarrer =(
-		tempsDebut = timeStamp ()
-	),
-	fn ecrireDuree = (
-		local tempsFin 	= timeStamp ()
-		local duree 		= ((tempsFin - tempsDebut) / 1000.0)
-		ecrire ( "Durée de l'opération : " + duree as string  + "s." )   
-	)
-
+	private
+		tempsDebut,
+		tempsFin,
+		duree,
+		fn arreter = (
+			tempsFin 	= timeStamp ()
+			duree 		= ((tempsFin - tempsDebut) / 1000.0)
+		),
+	public
+		fn demarrer =(
+			tempsDebut = timeStamp ()
+		),
+		fn getDuree =(
+			arreter ()
+			duree
+		)
 )
 
 

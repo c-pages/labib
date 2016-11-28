@@ -51,8 +51,9 @@ fn fetchPerso =(
 	)
 )
 fn holdPerso =(
-	debuger "hold perso"
+	debuger "hold perso - debut"
 	saveMaxFile fichierFetch quiet:true
+	debuger "hold perso - fin"
 )
 
 

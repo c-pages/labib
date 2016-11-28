@@ -658,7 +658,6 @@ struct str_arborescence (
 			recherche		= str_branche  	m_prt:this	nom:"RECHERCHE"	nomUnique:"RECHERCHE"
 			
 			indexUnique 	= 0
-			
 		),
 		
 	public
@@ -692,6 +691,8 @@ struct str_arborescence (
 			debug "chargement"
 			
 			initialiser()
+			
+-- 			fichierArbo = m_prefs.general.fichierArbo
 			
 			---- si existe pas on initialise le fichierArbo ----
 			if not doesFileExist fichierArbo then enregistrer ()

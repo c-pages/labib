@@ -39,7 +39,7 @@ struct str_apercus (
 		
 	public
 		m_labib,
-		m_edit = m_labib.edit,
+		m_edit,
 		
 		-- la CAMERA --
 		cameraApercu,
@@ -50,13 +50,14 @@ struct str_apercus (
 		-- pour IMPORT dans scene --
 		a_objetsImport 		= #(),
 		-- stockage de l'ancien moteur de rendu et ses parametres -
-		moteurRenduPrecedant,
+		m_moteurRenduPrecedant,
 		
 	public
 		BB_import,
 		centre_import,
 		longueurMax_import,
 		
+		m_annuler = false,
 		
 -- 	private
 	public
@@ -83,7 +84,35 @@ struct str_apercus (
 		),
 		
 		
+		fn calculerNbreVertex 	_asset	=	(
+			debug "calculerNbreVertex - debut"
+			
+			local nbrVertex = 0
+			for obj in objects where superClassOf obj == GeometryClass do (
+				local nodeSnapShot = snapshotAsMesh  obj
+				debug "nodeSnapShot" var:(getNumVerts  nodeSnapShot)
+				
+				try nbrVertex += getNumVerts  nodeSnapShot catch ()
+				delete nodeSnapShot
+			)
+			debug "nbrVertex" var:nbrVertex
+			_asset.nbrVertex = nbrVertex
+			
+			debug "calculerNbreVertex - fin"
+			
+		),
+		
+		
+		
+		
+		fn annuler =(
+			debug "ANNULER"
+			m_annuler = true
+		),
+		
 		fn calculerBB 	_objets	=	(
+			
+			debug "calculerBB"
 			
 			-- on calcul le bounding box de l'ensemble des objets --
 			BB_import = nodeLocalBoundingBox  _objets[1]
@@ -112,13 +141,15 @@ struct str_apercus (
 			hypot_1  = sqrt   ( BBLargeur*BBLargeur   + BBLongeur*BBLongeur)   
 			longueurMax_import = sqrt ( hypot_1*hypot_1 + BBHauteur*BBHauteur)
 			
-			
 			return BB_result
+			
 		),
 		
 		
 		fn importer		_fichier = (
-						
+			
+			debug "importer - debut"
+			
 			-- on vide les tableau --
 			a_objetsImport = #()
 			
@@ -135,9 +166,13 @@ struct str_apercus (
 			-- calcul du BB et du centre de l'import --
 			calculerBB  	a_objetsImport
 			
+			debug "importer - fin"
+			
 		),	--FIN Importer_Fichier_Pour_Edition
 		
 		fn poserCamera 	detail:false	 = (
+			
+			debug "poserCamera"
 			
 			local CameraPosX, distCam, ptCam
 			
@@ -170,6 +205,8 @@ struct str_apercus (
 		),
 		fn poserSol 		 = (
 			
+			debug "poserSol"
+			
 			TailleSol 	= longueurMax_import * 100
 			Extrusion 	= longueurMax_import * 50
 			
@@ -190,6 +227,8 @@ struct str_apercus (
 		),		
 		fn preparerLumieres		 =	(
 			
+			debug "preparerLumieres"
+			
 			posLum = 500 --longueurMax_import * 2
 						
 			-- creation de la lumiere pour l'apercu --
@@ -197,6 +236,8 @@ struct str_apercus (
 			soleilCorona.targeted = off
 			),
 		fn poserOrigine 		detail = (
+			
+			debug "poserOrigine"
 			
 			ptCam = point name:"point camera" 	pos:centre_import
 			cameraApercu.parent  = ptCam
@@ -218,14 +259,18 @@ struct str_apercus (
 			
 			-- on l'ajoute à la liste import pour le suppr à la fin --
 			append a_objetsImport ptCam
+			
 		),
 		fn preparerRendu 		detail:  =(
+			
+			debug "preparerRendu - debut"
 			
 			-- conversion des materiaux  --
 			m_edit.convertMateriauxScene ()
 			
+			
 			-- on s'occupe des lumieres -- 
-			preparerLumieres()
+			preparerLumieres ()
 			
 			-- la camera --
 			poserCamera 	detail:detail
@@ -240,9 +285,12 @@ struct str_apercus (
 			nomMoteur = classof renderers.current as string
 			
 			if ( findString nomMoteur "Corona" != 0 ) do (
-				moteurRenduPrecedant 								= renderers.current
+				m_moteurRenduPrecedant 								= renderers.current
 				renderers.current 										= execute m_labib.prefs.apercus.moteur
+				
 				renderers.current.adaptivity_targetError 		= if detail then m_labib.prefs.apercus.noiseLevelDetail else m_labib.prefs.apercus.noiseLevel
+-- 				renderers.current.adaptivity_targetError = 11.25
+				
 				renderers.current.denoise_blendAmount		= m_labib.prefs.apercus.denoiseAmount
 				renderers.current.denoise_filterType			= 2
 				
@@ -257,20 +305,27 @@ struct str_apercus (
 -- 				renderers.current.lockMax 							= true	---- bloquer max ? ----
 			)
 			
+			debug "preparerRendu - fin"
 		),
 		
 		
 		fn rendre detail:false	=(
-			debug "apercu->rendre"
+			
+			debug "rendre"
+			
 			local nomRendu 
-			local prefix = if not detail 	then ( "" + m_labib.prefs.apercus.nom )
-														else	( "" + m_labib.prefs.apercus.nomDetail )
+			local prefix = if not detail 	then m_labib.prefs.apercus.nom
+													else	m_labib.prefs.apercus.nomDetail
 			
 			nomRendu = m_labib.prefs.apercus.dossier + "\\" + ( creerNomRendu 	prefix ) + ".jpg"
 			
-			Rendu = 	render cameraApercu 			outputSize:m_labib.prefs.apercus.taille   \
-							outputfile:nomRendu 			vfb:false 			quiet:false					\
+			CoronaRenderer.CoronaFp.showVfB false
+			
+			Rendu = 	render cameraApercu 			outputSize:m_labib.prefs.apercus.taille   	\
+							outputfile:nomRendu 			vfb:false 			quiet:true					\
 							cancelled:&TestCancelled	 	missingExtFilesAction:#logmsg
+			
+-- 			CoronaRenderer.CoronaFp.showVfB true
 			
 -- 			display  Rendu
 			nomRendu
@@ -278,7 +333,7 @@ struct str_apercus (
 		
 		
 		fn remettreRenduInitial = (
-			renderers.current = moteurRenduPrecedant
+			renderers.current = m_moteurRenduPrecedant
 		),
 		
 		
@@ -308,6 +363,8 @@ struct str_apercus (
 						i = 1.
 						for elem in elems do (
 							
+							if m_annuler do break
+							
 -- 							if rollPrincipal.cancelled do continue
 							
 							pourcent = ( ( i - 1.) / elems.count * 100. )
@@ -315,12 +372,16 @@ struct str_apercus (
 							
 							if doesfileexist elem.fichier then( 
 -- 								m_labib.outils.viderScene()
+								
 								resetMaxFile #noPrompt
 								
 								
 -- 								elem.apercu = apercu.creer 	elem.fichier
 								
 								importer	elem.fichier
+								
+								calculerNbreVertex elem
+								
 								preparerRendu 	detail:detail
 								nomRenduApercu 	= rendre  detail:detail
 								if detail then 
@@ -369,104 +430,6 @@ struct str_apercus (
 		)
 		
 		
-		/* 
-		fn creerApercu elems = (
-				
--- 				---- debug ----
-				local  deb = true
-				
-				rollPrincipal = m_labib.m_rollPrincipal
-				
-				if elems.count > 0 do 
-					if querybox "voulez vous créer l'aperçu ?" do (
-						rollPrincipal.setProgress "Rendu aperçu ..." 0	
-						rollPrincipal.cancelled = false
-						
-						holdMaxFile() 
-						
-						i = 1.
-						for elem in elems do (
-							
-							if rollPrincipal.cancelled do continue
-							
-							pourcent = ( ( i - 1.) / elems.count * 100. )
-							rollPrincipal.setProgress ("Rendu aperçu " + ( i as integer )  as string + "/" + elems.count as string  ) 	pourcent
-							
-							if doesfileexist elem.fichier then( 
-								outils.viderScene()
-								resetMaxFile #noPrompt
-								
-								elem.apercu = apercu.creer 	elem.fichier
-								
-								rollPrincipal.AfficherElements 		rollPrincipal.noeudSelect					
-								rollPrincipal.afficherInfos()
-								
-							)	else format "elem : % n'as pas de fichier valide : %\n" elem.nom elem.fichier
-							i+=1
-						)
-						
-						
-						if rollPrincipal.cancelled then 
-							rollPrincipal.setProgress ("Rendu : " + ( i as integer )  as string + "/" + elems.count as string  + " aperçus. *Annulé*") 100
-						else 
-							rollPrincipal.setProgress ("Rendu : " + ( i as integer )  as string + "/" + elems.count as string  + " aperçus.") 100				
-						rollPrincipal.cancelled = false
-						
-						rollPrincipal.AfficherElements 	noeudSelect					
-						rollPrincipal.afficherInfos()
-
-						if not deb do 
-						fetchMaxFile quiet:true
-						
-						m_labib.arbo.ecrireFichier()
-						
-					)
-			),
-		
-			fn creerDetail  elems = (
-				
-				rollPrincipal = m_labib.m_rollPrincipal
-				
-				if elems.count > 0 do 
-					if querybox "voulez vous créer l'aperçu Détail?" do (
-						rollPrincipal.setProgress "Rendu détail ..." 0	
-						rollPrincipal.cancelled = false
-						
-						holdMaxFile() 
-						i=1.
-						for elem in elems do (
-							
-							if rollPrincipal.cancelled do continue
-							
-							pourcent = ( ( i - 1.) / elems.count * 100. )
-							rollPrincipal.setProgress ("Rendu détail " + ( i as integer )  as string + "/" + elems.count as string  ) 	pourcent
-							if doesfileexist elem.fichier then( 
-								outils.viderScene()
-								elem.detail = apercu.creer 	elem.fichier detail:true
-								rollPrincipal.AfficherElements m_rollPrincipal.noeudSelect					
-								rollPrincipal.afficherInfos()
-							)	else format "elem : % n'as pas de fichier valide : %\n" elem.nom elem.fichier
-							i+=1
-						)
-						
-						if rollPrincipal.cancelled then 
-							rollPrincipal.setProgress ("Rendu détail : " + elems.count   as string + " aperçus. *Annulé*") 100
-						else 
-							rollPrincipal.setProgress ("Rendu détail : " + elems.count   as string + " aperçus.") 100				
-						rollPrincipal.cancelled = false
-				
-						rollPrincipal.AfficherElements 	m_rollPrincipal.noeudSelect					
-						rollPrincipal.afficherInfos()
-						
-						fetchMaxFile quiet:true
-						
-						m_labib.arbo.ecrireFichier()
-						
-					)
-					
-			)	
-		, */
-
 
 ) -- fin struct Apercu --
 
