@@ -18,13 +18,200 @@
 
 
 ( 
+	
+
+------------------------------------------------------------------------------------------------------------------------------------------
+----	operations mathematiques 2D  ------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------
+struct str_math2D (
+	
+	----- les trucs a Dindon ------
+	fn bigmatrixMultExt k M = (
+		a=M.rows
+		b=M.columns 
+		matrice=bigmatrix a b
+		for i=1 to a do for j=1 to b do matrice[i][j]=M[i][j]*k
+		matrice
+	),
+
+	fn moins M = (
+		a=M.rows
+		b=M.columns 
+		matrice=bigmatrix a b
+		matrice=bigmatrixMultExt -1 M
+		matrice
+	),
+
+	fn bigmatrixMult M N=(
+		a=M.rows
+		b=M.columns 
+		c=N.columns 			
+		matrice=bigmatrix a c
+		for i=1 to a do for j=1 to c do (
+			matrice[i][j]=0
+			for k=1 to b do matrice[i][j]+=M[i][k]*N[k][j]					
+		)
+		matrice
+	),
+
+	
+	fn Matrice2Rotation2LEllipse  		_pt_ctr	 	_pt_axe		=(
+		
+		
+		local bmRotationEllipse	=	bigmatrix 2 2
+		local axe =_pt_axe 	- _pt_ctr		
+		local angleRot =atan  (axe[2]/axe[1])
+		
+		if  (axe[1] )<0 do angleRot =angleRot +180
+		
+		bmRotationEllipse[1][1]		=	cos 	angleRot
+		bmRotationEllipse[1][2]		=	-sin 	angleRot
+		bmRotationEllipse[2][1]		=	sin 	angleRot
+		bmRotationEllipse[2][2]		=	cos 	angleRot	
+		
+		bmRotationEllipse	
+		
+	),
+	
+	
+	
+	fn rotateVecteur 		_vect	_angle =(
+		local result =[0,0]
+		result.x = _vect.x * cos _angle 	- 	_vect.y * sin _angle
+		result.y = _vect.x * sin _angle 	+ 	_vect.y * cos _angle
+		result
+	),
+	
+	fn normPerpendiculaireADroite 		_droite_pt1		_droite_pt2	 =(
+		local result 		=	[0,0]
+		local vecDroite 	= _droite_pt2 - _droite_pt1
+		result	 				= 	normalize ( rotateVecteur 		vecDroite	90 )
+		
+		result
+	),
+	
+	
+	
+	fn produit 		_pt2D_1		_pt2D_	 =(
+		local result = dot [ _pt2D_1.x , _pt2D_1.y , 0 ]  [ _pt2D_.x , _pt2D_.y , 0 ]
+		result
+	),
+	
+	fn projectionPointSurDroite 		_droite_pt1		_droite_pt2		_ptAProjeter 	=(
+		
+		local result 				= [0,0]
+		local droite_coefDir
+		local droite_coordOrig
+		
+		--- droites verticales ----
+		if _droite_pt2.x == _droite_pt1.x then (
+			
+			result.x = _droite_pt1.x
+			result.y = _ptAProjeter.y
+
+		--- autres droite ----
+		)else (
+			
+			
+			local normal_perpendiculaire 	= normalize ( _droite_pt2 -  _droite_pt1  )
+			local normal_projection 		= normPerpendiculaireADroite  _droite_pt1  _droite_pt2
+			
+			local normal_1 		= 	normal_perpendiculaire
+			local normal_2 		=	normalize ( _ptAProjeter - _droite_pt1 )
+			local dotVec 			= 	dot2D  	normal_1 	normal_2
+			local	angleAlpha		=	acos dotVec
+			local distProjection 	= 	sin angleAlpha * ( distance _ptAProjeter 	_droite_pt1 )
+			
+			--- sens de la projection ---
+			local normal_C1 		= 	normPerpendiculaireADroite  _droite_pt1  _droite_pt2 
+			local normal_C2 		=	normalize (  _droite_pt1 - _ptAProjeter ) --normPerpendiculaireADroite   _droite_pt1  _ptAProjeter 
+			local dotVecC 		= 	dot2D  	normal_C1 	normal_C2
+			
+			if dotVecC<0 do normal_projection = -1 * normal_projection
+			
+			
+			local vecProjection 	= distProjection * normal_projection
+			result 					= _ptAProjeter + vecProjection
+			
+			
+		)
+		
+		result
+	)
+
+) --- fin struct Math 2D ------------
+
+
+------------------------------------------------------------------------------------------------------------------------------------------
+----	operations mathematiques 3D  ------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------
+struct str_math3D (
+	
+	
+	fn intersection_Droite_Plan 	_planRay	_droite_pt1			_droite_pt2 	=(
+				
+		local result 			= [0,0,0]
+		local plan_normal 	= _planRay.dir
+		local plan_point 		= _planRay.pos		
+		
+		--------------------------------------------------------------------------------
+		------ 	definition equation quartesienne du plan tel que:  		------------
+		------	plan_a x X + plan_b x Y + plan_c x Z + plan_d = 0 	------------
+		--------------------------------------------------------------------------------
+		local plan_a 	= plan_normal.x
+		local plan_b 	= plan_normal.y
+		local plan_c 	= plan_normal.z
+		local plan_d 	=  -1* ( plan_a * plan_point.x  + plan_b * plan_point.y  + plan_c * plan_point.z )
+		
+		--------------------------------------------------------------------------------
+		------ 	definition equation quartesienne de la droite tel que:  ------------
+		------   x = droite_a x droiteVec.x  + _droite_pt1.x			------------
+		------   y = droite_a x droiteVec.y  + _droite_pt1.y			------------
+		------   z = droite_a x droiteVec.z  + _droite_pt1.z			------------
+		--------------------------------------------------------------------------------
+		local droiteVec 	= _droite_pt2 - _droite_pt1
+		local	droite_a 	= -1 * 	( plan_a * _droite_pt1.x 		+ 		plan_b * _droite_pt1.y		+ 		plan_c * _droite_pt1.z		+ 		plan_d ) 	\
+										/ 	( plan_a * droiteVec.x 			+ 		plan_b * droiteVec.y		+ 		plan_c * droiteVec.z		)
+		
+		
+		result.x   = droite_a * droiteVec.x  	+ _droite_pt1.x
+		result.y   = droite_a * droiteVec.y  	+ _droite_pt1.y
+		result.z   = droite_a * droiteVec.z  	+ _droite_pt1.z
+		
+		result
+	)
+
+) --- fin struct Math 2D ------------
 
 
 
-	------------------------------------------------------------------------------------------------------------------------------------------
-	----	Structs 	Secondaires ------------------------------------------------------------------------------------------------------
-	------------------------------------------------------------------------------------------------------------------------------------------
-	---- Tableau ----------------------------------------------------------------------------------------------------------------------------------------------
+struct str_math (
+	D2 = str_math2D (),
+	D3 = str_math3D ()
+)
+global math = str_math()
+
+global math2D = str_math2D()
+global math3D = str_math3D()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	---- Tableau -----------------------
 	struct tableau_struct (
 		
 		-- 	Renvois true si  #premierTab  est égale à   #deuxiemeTab. --

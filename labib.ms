@@ -47,6 +47,7 @@ dossierScript = getdir #userScripts + "\\" + nomDossierScript + "\\"
 ------------------------------------------------------------------------------
 ----------	Fichiers annexes						--------------------------
 ------------------------------------------------------------------------------
+include "$userScripts\cp - labib\cp - GLOBAL\global - outils.ms"
 include "$userScripts\cp - labib\cp - GLOBAL\UI.ms"
 include "$userScripts\cp - labib\cp - GLOBAL\DragDialog.ms"
 

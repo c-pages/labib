@@ -205,6 +205,7 @@ rollout roll_infos "infos"  width:346 height:262
 	fn initialiser labib: prt: = (
 		
 		if labib != unsupplied and prt != unsupplied do (
+			
 			m_labib 	= labib
 			m_prt 	= prt
 			m_drag 	= str_drag 	m_prt:roll_infos		
@@ -212,11 +213,6 @@ rollout roll_infos "infos"  width:346 height:262
 			m_titre 	= str_label 	m_ui:ui_titre			m_texte:m_prt.m_titre
 			m_titre.setCouleur 	m_prt.col_fenetreTxt
 			
-			/* 
-			m_log 		= str_label 	m_ui:ui_log				m_texte:"..."
-			m_log.setPolice (str_policePetite())
-			m_log.setCouleur (color 200	200	200)
-			 */
 			
 			-- le bouton fermer --
 			ui_btnFermer.bitmap = m_prt.m_icos_fermer[1]	
@@ -276,8 +272,7 @@ rollout roll_infos "infos"  width:346 height:262
 		m_prt.fermer ()
 	
 	
-	---- corps ----
-	
+	---- corps ----	
 	on ui_editNom						entered 	_text do m_labib.cmd.renommer 			(m_labib.edit.getSelection ()) 		_text
 	on ui_editFichier 					entered 	_text do m_labib.cmd.changerFichier 	(m_labib.edit.getSelection ())[1] 	_text
 	on ui_btnOuvrirFichierMax 		pressed  do ouvrirFichierMax (m_labib.edit.getSelection ())[1]
