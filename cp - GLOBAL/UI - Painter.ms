@@ -342,6 +342,7 @@ struct str_painter (
 			bmp_rect = bitmap (abs taille.x ) (abs taille.y ) color:couleur
 			pos = [	amin 	#(pt_2.x ,	pt_2.x )		,	amin 	#(pt_2.y ,	pt_2.y )		]
 			pasteBitmap bmp_rect	m_bmpCourante 	[1,1]		pt_1
+			free bmp_rect
 		)
 	),
 	fn rect  				pt1 	pt2	 						couleur:m_couleurs.defaut		tiret:0 	espace:0	= (
@@ -485,12 +486,11 @@ struct str_painter (
 	----- ACTUALISATIONS	---------------	
 
 	fn	ui_refresh = (
-		
 		m_ui.bitmap = m_bmpCourante
 	),
 	fn clear =(
+-- 		free m_bmpCourante
 		m_bmpCourante = bitmap m_taille.x m_taille.y color:m_couleurs.fond
-
 	)
 	
 )	--	fin struct	---------------------------------------------------------------------------------------------

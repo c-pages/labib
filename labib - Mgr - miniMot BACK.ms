@@ -7,8 +7,10 @@ try destroydialog roll_miniMax catch ()
 	
 	include "$userScripts\cp - labib\cp - GLOBAL\UI - painter.ms"
 
-	global moteur
 	
+	
+
+global moteur
 
 	
 	
@@ -35,7 +37,7 @@ struct str_miniMax_btnRond (
 	private
 	-- 	m_painter = m_moteur.m_painter,
 		
-		m_pos 				= 	[0, 0, 0],
+		m_pos 				= 	[0,0],
 		m_rayonInteraction = 10,
 		
 		m_col_repos 		=	blue, 	--	m_painter.m_couleurs.repos			,
@@ -48,7 +50,7 @@ struct str_miniMax_btnRond (
 		
 	public
 		fn setPos 	_pos	= (		
-			m_pos = _pos
+			m_pos = math3D.asPt2 _pos
 		),
 		fn dessiner  _vue 	   = (
 			local couleur 
@@ -57,40 +59,20 @@ struct str_miniMax_btnRond (
 			else if b_survol 	then couleur = m_col_survol
 									else 	couleur = m_col_repos
 			
-			local posVue = _vue.posWorldToVue 	m_pos
-			
-			_vue.m_painter.pt 	posVue 	couleur:couleur
+			_vue.m_painter.pt 	m_pos 	couleur:couleur
 			
 		),
-		
-		fn dessinerBouton _vue 	   = (
-			debug "dessinerBouton"
-			local couleur 
+		fn checkSurvol 	_posMouse =(
 			
-			if b_press 			then couleur = m_col_press
-			else if b_survol 	then couleur = m_col_survol
-									else 	couleur = m_col_repos
-			
-			local posVue = _vue.posWorldToVue 	m_pos
-			
-			_vue.m_painter.pt 	posVue 	couleur:couleur
-			
-			_vue.m_moteur.refreshUIS _vue
-		),
-		
-		
-		
-		
-		fn checkSurvol 	_posMouse 	=(
-			
-			local posVue = ( m_moteur.getVueActive ()).posWorldToVue 		m_pos
 -- 			local b_survolBack = b_survol
-				debug "checkSurvol"
-				debug "posVue" var:posVue
-			local dist = distance _posMouse 	m_pos
+			local dist = distance _posMouse m_pos
 			
 			b_survol = dist < m_rayonInteraction
 -- 			
+-- 			if b_survolBack != b_survol do (
+-- 				m_moteur.demanderRedessiner ()
+-- 				debug "changement"
+-- 			)
 			
 			b_survol
 		),
@@ -138,21 +120,19 @@ struct str_miniMax_btnRond (
 		),
 		fn mouseMove 	_pos 		_vue	=(
 			
--- 			debug "mouseMove"
 			debug "mouseMove"
--- 			debug "TYPE VUE" 	var:(_vue.m_type)
--- 			debug "_pos" 			var:_pos
 			
-			local dist = distance  _pos 	m_pos	
-			debug "dist" 			var:dist	
+			local dist = distance  _pos 	m_pos		
 			local b_survolBack = b_survol
-			b_survol = checkSurvol 	_pos
+			b_survol = checkSurvol _pos
+			
 			/* 
 			--- si dans cercle on active le survol ---
 			if dist < m_rayonInteraction 
 				then b_survol = true
 				else b_survol = false
 			 */
+			
 			--- drag ---
 			if b_drag do
 				drag _pos
@@ -161,8 +141,7 @@ struct str_miniMax_btnRond (
 			--- si changement etat on redessine ---
 			if b_survolBack != b_survol do(
 				debug "mouseMove - CAHNGEMET"
-				dessinerBouton _vue
--- 				_vue.demanderRedessiner ()
+				_vue.demanderRedessiner ()
 			)
 			
 		)
@@ -498,13 +477,12 @@ struct str_miniMax_grille (
 				_vue.m_painter.grille  			( globalPos ) 	( globalTaille )	 					couleur:m_couleur_axes
 				
 				---- axes ----
-				_vue.m_painter.droite  			( globalPos ) 	(  globalPos + [0,10,0] )	 	couleur:( m_couleur_axes + [15,15,15] )
-				
+				_vue.m_painter.droite  			( globalPos ) 	(  globalPos + [0,10,0] )	 	couleur:m_couleur_axes
 				--- ligne de sol ----
--- 				if _vue.m_type == #plan then
--- 					_vue.m_painter.droite  			( globalPos ) 	(  globalPos + [10,0,0] )	 	couleur:m_couleur_axes
--- 				else
-					_vue.m_painter.droite  			( globalPos ) 	(  globalPos + [10,0,0] )	 	couleur:( m_couleur_axes + [15,15,15] )
+				if _vue.m_type == #plan then
+					_vue.m_painter.droite  			( globalPos ) 	(  globalPos + [10,0,0] )	 	couleur:m_couleur_axes
+				else
+					_vue.m_painter.droite  			( globalPos ) 	(  globalPos + [10,0,0] )	 	couleur:( m_couleur_axes + [20,20,20] )
 				
 			) else (
 				
@@ -740,8 +718,7 @@ struct str_miniMax_camera (
 				elem.mouseUp  	_pos	
 		),
 		fn mouseMove 	_pos 	_vue =(
-	
-			
+-- 			debug "mouseMove"
 			--- le FOV ----
 -- 			if m_boutonFOV.b_drag do actualiserFov ()
 			
@@ -833,7 +810,7 @@ struct str_miniMax_camera (
 				
 				
 				---- les boutons ----
-				m_boutonCam.setPos 	m_cameraPos
+				m_boutonCam.setPos 	vuePosCam
 				for elemInter in m_elementsInteractifs do
 					elemInter.dessiner 	_vue
 			)
@@ -881,18 +858,9 @@ struct str_miniMax_camera (
 
 
 
-
-
-
-
-
-
-
-
-
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-------------    VUES    -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+------------    VUES    ---------------------------------------------------------------
+----------------------------------------------------------------------------------------
 struct str_miniMax_vue (
 	
 	------------ DEBUG	----------------------------------------------------------------------------------
@@ -940,6 +908,13 @@ struct str_miniMax_vue (
 		b_panEnCours 				= false,
 		m_panPosSourisInitiale 		= [0,0],
 		m_panPosInitiale 				= [0,0],
+	
+	
+	
+	
+	
+	
+	
 	
 	public
 	---- transfomations ---------------			
@@ -1009,8 +984,7 @@ struct str_miniMax_vue (
 			)
 			
 			result	
-		),	
-		
+		),		
 		fn tailleWorldToVue 	_param =(
 			
 			local result = [0,0]
@@ -1058,10 +1032,7 @@ struct str_miniMax_vue (
 		),
 		
 		
-		fn estLaVueActive =(
-			if m_moteur.getVueActive () == this then true
-					else false
-		),
+		
 		
 		
 		fn getPos 			= m_pos,
@@ -1106,8 +1077,6 @@ struct str_miniMax_vue (
 				textUI += "§Pos: : " + m_pos as string
 			)
 			
-			if estLaVueActive () do 
-					textUI += "§ACTIVE"
 			m_painter.ecrire [5,5] 	textUI  	couleur:white
 		),
 		fn getFond =m_bmpFond ,
@@ -1122,10 +1091,13 @@ struct str_miniMax_vue (
 				
 				
 			--- soit on dessine sur le fond ----
-			if fond then (				
--- 				free m_bmpFond
+			if fond then (			
+				free m_bmpFond
 				m_bmpFond = m_painter.getBitmap () 
 			)	 
+			
+-- 			for elem in m_elementsInteractifs do
+-- 				elem.dessiner 	this	/* worldToLocal_plan */
 			
 		),
 		
@@ -1174,21 +1146,30 @@ struct str_miniMax_vue (
 		
 		fn alignerWorldToVue 	_pointWorld_AAligner	_pointVue_Destination	=(
 			
+-- 			debug "alignerWorldToVue"
+-- 			debug "_pointWorld_AAligner" var:_pointWorld_AAligner
+			
 			local pointVue  	= posWorldToVue		_pointWorld_AAligner
 			local vecDeplacement = ( _pointVue_Destination -	pointVue )
+-- 			debug "_pointVue_Destination" var:_pointVue_Destination
+-- 			debug "vecDeplacement" var:vecDeplacement
+			m_pos 				+= 	vecDeplacement --* m_echelle
 			
-			m_pos 				+= 	vecDeplacement 
+-- 			debug "m_pos - apres" var:m_pos
+-- 			demanderRedessiner()
 			
 		),
 		
-		/* 
+		
 		fn centrerWorldToVue 	_pointWorld	=(
-			local pointVue  = posWorldToVue		_pointWorld			
+-- 			debug "centrerWorldToVue"
+-- 			debug "_pointWorld" var:_pointWorld
+			local pointVue  = posWorldToVue		_pointWorld
+-- 			debug "pointVue" var:pointVue
 			m_pos += 	[m_ui.width/2	, m_ui.height/2 ]	- pointVue
-			
 			demanderRedessiner	fond:true
 		),
-		 */
+		
 		
 		---- zooom ------
 		fn zoomCommencer _pos =(
@@ -1209,11 +1190,26 @@ struct str_miniMax_vue (
 		
 		fn zoomer _pos =(
 			
+-- 			_pos = _pos  - m_ui.pos 
+			
 			local coefPasDuZoom = 1.0 / 200
 			
 			--- actualisation de l'echelle ---
 			local decallageEchelle 	= (	m_zoomPosSourisInitiale.y - _pos.y ) * coefPasDuZoom
 			local echelleTmp 		= m_zoomEchelleInitiale + decallageEchelle
+			
+			
+			debug "zoomer"
+			debug "decallageEchelle" var:decallageEchelle
+			
+			
+			
+-- 			debug "m_zoomPosSourisInitiale" var:m_zoomPosSourisInitiale
+-- 			
+-- 			debug "coefPasDuZoom" var:coefPasDuZoom
+-- 			debug "_pos" var:_pos
+			
+			
 			
 			--- limitations de l'echelle ---
 			if echelleTmp < 0.2 do echelleTmp = 0.2 
@@ -1228,6 +1224,7 @@ struct str_miniMax_vue (
 			
 			---- on actualise la vue ----
 			demanderRedessiner 	fond:true
+			
 			
 		),
 		
@@ -1246,9 +1243,14 @@ struct str_miniMax_vue (
 		
 		fn paner _pos =(
 			
+			debug "paner"
+			debug "paner" var:(	m_panPosSourisInitiale - _pos )
+			
 			local decallage = - (	m_panPosSourisInitiale - _pos ) / m_echelle
 			
 			m_pos = m_panPosInitiale + [decallage.x, decallage.y, 0]
+			
+-- 			debug "m_echelle" var:m_echelle
 			
 			demanderRedessiner 	fond:true
 			
@@ -1357,10 +1359,9 @@ struct str_miniMax_vue (
 			
 			if b_panEnCours do 
 				paner _pos
-			
+			/* 
 			for elem in m_moteur.getElementsInteractifs ()  do 
-				if elem.estInteractif () do 
-					elem.mouseMove 		_pos  	this
+				if elem.estInteractif () do elem.mouseMove 	_pos  this */
 			
 		)
 	
@@ -1368,9 +1369,9 @@ struct str_miniMax_vue (
 
 
 
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
 struct str_miniMax_MOTEUR (
 	
 	------------ DEBUG	----------------------------------------------------------------------------------
@@ -1393,21 +1394,15 @@ struct str_miniMax_MOTEUR (
 		m_elements 		=#(),
 		m_elementsFond 	=#(),
 		
--- 		b_aRedessiner 	= true,
+		b_aRedessiner 	= true,
 		
 		m_afficherUI 		= true,
 		
-		m_vueSurvol 		= undefined,
-		
 	public
 		---- accessions -----------
-		fn demanderRedessinerTout = (
-			for vue in m_vues do
-				vue.demanderRedessinerFond ()
-			this.dessiner ()
-		),
 		fn demanderRedessiner 	vue: = (
-			
+			debug "demanderRedessiner"
+			b_aRedessiner = true 
 			
 			if vue != unsupplied then
 				this.dessiner 	vue:vue
@@ -1448,6 +1443,9 @@ struct str_miniMax_MOTEUR (
 		),
 		
 		
+		------  Evenements	--------------------------------------------------------
+		
+		
 		
 		
 		fn survolUneVue  _pos =(
@@ -1457,31 +1455,6 @@ struct str_miniMax_MOTEUR (
 					do result = true
 			result
 		),
-		fn getVueActive = m_vueSurvol,
-		
-		fn actualiserVueActive 	_pos =(
-			
-			local vueSurvolBack = m_vueSurvol
-			m_vueSurvol = undefined
-			for vue in m_vues do
-				if vue.estDansLaVue _pos  do (
-					m_vueSurvol = vue
-					break
-				)
-			if m_vueSurvol != vueSurvolBack do (
-				debug "changement de vue"
-				demanderRedessiner ()
-			)
-			m_vueSurvol
-		),
-		
-		
-		
-		------  Evenements	--------------------------------------------------------
-		
-		
-		
-		
 		
 		--- bouton Milleu --------------
 		fn mouseMDble 	_pos =(		
@@ -1542,14 +1515,12 @@ struct str_miniMax_MOTEUR (
 					vue.mouseLDown 	_pos
 		),
 		
-		
 		--- deplacement --------------
 		fn mouseMove  _pos =(
 			
-			local vueActive = actualiserVueActive _pos
-			if vueActive != undefined do
-				vueActive.mouseMove 	_pos
-			
+			for vue in m_vues do
+				if vue.estDansLaVue _pos  do
+					vue.mouseMove 	_pos
 		),
 		
 		
@@ -1560,31 +1531,24 @@ struct str_miniMax_MOTEUR (
 -- 			for element in m_elements do
 -- 				element.actualiser()
 		),
-		fn refreshUIs _vue =(
-			
-			--- refraichir l'image de l'ui ---
--- 			for vue in m_vues do
-				_vue.rafraichir ()
-		),
+		
 		fn dessinerVue vue =(
 			-- vider l'image ---
 			vue.clear ()
 			
 			-- dessin ---
--- 			if vue.aBesoinDessinerfond () then (
-				
+			if vue.aBesoinDessinerfond () then (
 				vue.dessiner 	m_elementsFond  fond:true
 				vue.fondAJour ()
--- 				
--- 			)	else
--- 				vue.m_painter.setBitmap  ( vue.getFond () )
+			)	else
+				vue.m_painter.setBitmap  ( vue.getFond () )
 			
 			vue.dessiner 	m_elements
 			
 			if m_afficherUI do	vue.dessinerUI ()
 			
 			--- refraichir l'image de l'ui ---
-			refreshUIs vue
+			vue.rafraichir ()
 		),
 		
 		
@@ -1592,16 +1556,16 @@ struct str_miniMax_MOTEUR (
 			
 -- 			debug "dessiner"
 			
--- 			if b_aRedessiner do (
+			if b_aRedessiner do (
 				
 				if vue != unsupplied  then 
 					dessinerVue vue
 				else for vue in m_vues do
 					dessinerVue vue
 				
--- 				b_aRedessiner = false
+				b_aRedessiner = false
 				
--- 			)
+			)
 			
 		),		
 		
@@ -1671,6 +1635,31 @@ rollout roll_miniMax "labib - miniMax" width:440 height:440
 
 	------ FONCTIONS	----------------------------------------------------------------------------------------------------------------------------------------------------
 
+	
+	fn ouvrirRCMenu =(
+		------------    Menus RC     ------------------------------------
+		rcMenu menu_minMot (
+			
+			subMenu  "UI" (
+				menuItem afficherUI 		"Afficher UI" 	checked:(moteur.m_dialog.m_moteur.getAfficherUI()	)	-- labib.prefs.fenetre.fenInfos_estOuvert
+			)
+			subMenu  "Debug" (
+				menuItem debugMode 		"Debug mode" 		checked:DEBUG_MODE	
+-- 				menuItem debugPoint		"Point" 		
+			)
+			
+			on debugMode 		picked do	(
+				DEBUG_MODE = not DEBUG_MODE
+				moteur.m_dialog.m_moteur.demanderRedessiner ()
+			)
+			on afficherUI 			picked do	moteur.toggleAfficherUI ()
+-- 			on debugPoint 		picked do	moteur.debugVuePoint ()
+		)
+		popUpMenu menu_minMot
+	)
+	
+	
+	
 	fn actualiser =(
 		m_moteur.actualiser ()
 		m_moteur.dessiner ()
@@ -1708,11 +1697,11 @@ rollout roll_miniMax "labib - miniMax" width:440 height:440
 		
 		-------- Elements 		-----------------	
 		-- fond ---
-		m_moteur.ajouterElementFond 	( str_miniMax_sol 	m_moteur:m_moteur )
-		m_moteur.ajouterElementFond 	( str_miniMax_grille 	m_moteur:m_moteur )
+		m_moteur.ajouterElementFond 	( str_miniMax_sol 	m_moteur:this )
+		m_moteur.ajouterElementFond 	( str_miniMax_grille 	m_moteur:this )
 		
 		-- box ---
-		local BBox = str_miniMax_box 	m_moteur:m_moteur 	--m_centre:[0,0,0]  		m_taille:[20,40,80]
+		local BBox = str_miniMax_box 	m_moteur:this 	--m_centre:[0,0,0]  		m_taille:[20,40,80]
 		BBox.setTaille [20,40,80]
 		m_moteur.ajouterElement 		BBox
 		
@@ -1730,25 +1719,6 @@ rollout roll_miniMax "labib - miniMax" width:440 height:440
 	)
 	
 	
-	
-	fn ouvrirRCMenu =(
-		------------    Menus RC     ------------------------------------
-		rcMenu menu_minMot (
-			
-			subMenu  "UI" (
-				menuItem afficherUI 		"Afficher UI" 	checked:(moteur.m_dialog.m_moteur.getAfficherUI()	)	-- labib.prefs.fenetre.fenInfos_estOuvert
-			)
-			subMenu  "Debug" (
-				menuItem debugMode 		"Debug mode" 		checked:DEBUG_MODE	
--- 				menuItem debugPoint		"Point" 		
-			)
-			
-			on debugMode 		picked do	DEBUG_MODE = not DEBUG_MODE
-			on afficherUI 			picked do	moteur.toggleAfficherUI ()
--- 			on debugPoint 		picked do	moteur.debugVuePoint ()
-		)
-		popUpMenu menu_minMot
-	)
 	
 	/* 
 	fn makeFirst 	_pad =(
@@ -1874,7 +1844,7 @@ rollout roll_miniMax "labib - miniMax" width:440 height:440
 		m_moteur.mouseLDown 	_pos 
 		
 		---- Drag ----
-		if not 	m_moteur.survolUneVue 	_pos 	do
+		if not m_moteur.survolUneVue _pos do
 			m_drag.demarrer ()
 	)
 	local mousePosBack =[0,0]
@@ -2045,7 +2015,7 @@ struct str_miniMax (
 )
 
 
-global moteur = str_miniMax () -- m_labib:labib
+moteur = str_miniMax () -- m_labib:labib
 
 0
 

@@ -25,6 +25,11 @@
 ------------------------------------------------------------------------------------------------------------------------------------------
 struct str_math2D (
 	
+	fn asPt3 _pt2 =(
+		local result = [_pt3.x, _pt3.y,0]
+		result
+	),
+	
 	----- les trucs a Dindon ------
 	fn bigmatrixMultExt k M = (
 		a=M.rows
@@ -138,6 +143,7 @@ struct str_math2D (
 		
 		result
 	)
+	
 
 ) --- fin struct Math 2D ------------
 
@@ -147,6 +153,10 @@ struct str_math2D (
 ------------------------------------------------------------------------------------------------------------------------------------------
 struct str_math3D (
 	
+	fn asPt2 _pt3 =(
+		local result = [_pt3.x, _pt3.y]
+		result
+	),
 	
 	fn intersection_Droite_Plan 	_planRay	_droite_pt1			_droite_pt2 	=(
 				
@@ -179,8 +189,30 @@ struct str_math3D (
 		result.z   = droite_a * droiteVec.z  	+ _droite_pt1.z
 		
 		result
-	)
+	),
 
+	
+	fn anglesVecteurs 	v1  v2 =(
+		local	angleAlpha		=	acos(dot (normalize v1) (normalize v2))
+		angleAlpha
+	),
+	
+	-- 	renvois une matrice Rotation de la normal  --
+	fn rotate_X 	_normal  angleEnDeg 	= (
+		local result	=  (eulerAngles angleEnDeg 0 0) as matrix3 * ( matrixFromNormal _normal )
+		result
+	),
+	-- 	renvois une matrice Rotation de la normal  --
+	fn rotate_Y 	_normal    angleEnDeg 	= (
+		local result	=  (eulerAngles 0 angleEnDeg  0) as matrix3 * ( matrixFromNormal _normal )
+		result
+	),
+	-- 	renvois une matrice Rotation de la normal  --
+	fn rotate_Z 	_normal    angleEnDeg 	= (
+		local result	=  (eulerAngles 0 0 angleEnDeg ) as matrix3 * ( matrixFromNormal _normal )
+		result
+	)
+	
 ) --- fin struct Math 2D ------------
 
 
