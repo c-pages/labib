@@ -56,7 +56,7 @@ struct str_painter (
 	m_police 	= str_policePetite (),
 	
 --------- 	FONCTIONS	--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	fn getBitmap 			= m_bmpCourante,
+	fn getBitmap 			= copy m_bmpCourante,
 	fn setBitmap _bmp	= m_bmpCourante = copy _bmp,
 
 	

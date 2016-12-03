@@ -491,12 +491,12 @@ struct str_commandeCtrl (
 	------------ Les fonctions	----------------------------------------------------------------------------------	
 	
 	fn demarrerCommande =(
-		m_chrono.demarrer()
+-- 		m_chrono.demarrer()
 		setWaitCursor ()		
 	),
 	fn terminerCommande =(
-		local duree = m_chrono.getDuree () as string
-		ecrire ( "Durée de l'opération : " + duree + " s." )		
+-- 		local duree = m_chrono.getDuree () as string
+-- 		ecrire ( "Durée de l'opération : " + duree + " s." )		
 		setArrowCursor ()
 	),
 	

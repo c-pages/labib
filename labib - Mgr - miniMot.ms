@@ -32,6 +32,8 @@ struct str_miniMax_btnRond (
 		),
 	----------------------------------------------------------------------------------------------------------
 		m_moteur,
+		m_parent,
+		
 	private
 	-- 	m_painter = m_moteur.m_painter,
 		
@@ -47,6 +49,7 @@ struct str_miniMax_btnRond (
 		b_drag 				= 	false,
 		
 	public
+		fn getPos 	= m_pos,
 		fn setPos 	_pos	= (		
 			m_pos = _pos
 		),
@@ -75,7 +78,7 @@ struct str_miniMax_btnRond (
 			
 			_vue.m_painter.pt 	posVue 	couleur:couleur
 			
-			_vue.m_moteur.refreshUIS _vue
+			_vue.rafraichir()
 		),
 		
 		
@@ -83,87 +86,91 @@ struct str_miniMax_btnRond (
 		
 		fn checkSurvol 	_posMouse 	=(
 			
-			local posVue = ( m_moteur.getVueActive ()).posWorldToVue 		m_pos
--- 			local b_survolBack = b_survol
-				debug "checkSurvol"
-				debug "posVue" var:posVue
-			local dist = distance _posMouse 	m_pos
-			
-			b_survol = dist < m_rayonInteraction
--- 			
-			
+			local posVue 		= ( m_moteur.getVueActive ()).posWorldToVue 		m_pos
+			local dist 			= distance _posMouse 	posVue
+			local b_survol 	= dist < m_rayonInteraction
 			b_survol
+			
 		),
 
 		
 		
 		--drag ---
 		fn stopDrag  =(
-			debug "stopDragCamera"
 			
 			b_drag 	= false
 			b_press 	= false
+-- 			b_survol	= false
 			
-			m_moteur.demanderRedessiner ()
+			m_moteur.demanderRedessinerTout ()	--fond:false
+			
 		),
 		fn startDrag  =(
-			debug "startDragCamera"
+-- 			debug "startDragCamera"
 			
 			b_drag 	= true
 			
-			m_moteur.demanderRedessiner ()			
+			m_moteur.demanderRedessinerTout fond:false
+-- 			m_moteur.demanderRedessiner ()			
 		),
-		fn drag  _pos =(
+		fn drag  _pos 	_vue =(
 			
-			m_pos 		= _pos	
+			local posWorld = _vue.posVueToWorld		_pos	
+			case _vue.m_type of (
+				#plan: 	(
+					m_pos.x 		= posWorld.x
+					m_pos.y 		= posWorld.y
+				)
+				#face: 	(
+					m_pos.x 		= posWorld.x
+					m_pos.z 		= posWorld.z
+				)
+				#cote: 	(
+					m_pos.y 		= posWorld.y
+					m_pos.z 		= posWorld.z
+				)
+				#3D: 		(
+				)
+				
+			)				
 			
-			m_parent.Reangencer ()
-			m_moteur.demanderRedessiner ()		
+			
+			m_parent.replacerPoints ()
+			
 			
 		),
 		
 		
 		
 		--- fonctions event ---
-		fn mouseDown 	_pos 	=(
+		fn mouseLDown 	_pos 	_vue =(
 			if	b_survol do (
 				startDrag	()			
 				b_press 				= 	true
 			)
 		),
-		fn mouseUp 	_pos 	=(			
-
-			stopDrag	()		
-			b_press 				= 	false
+		fn mouseLUp 	_pos 	_vue =(	
+			if	b_drag do 
+				stopDrag	()		
 		),
-		fn mouseMove 	_pos 		_vue	=(
+		
+		fn mouseMove 	_pos 		_vue	= if _vue .m_type != #3D do (
 			
--- 			debug "mouseMove"
-			debug "mouseMove"
--- 			debug "TYPE VUE" 	var:(_vue.m_type)
--- 			debug "_pos" 			var:_pos
 			
 			local dist = distance  _pos 	m_pos	
-			debug "dist" 			var:dist	
+			
 			local b_survolBack = b_survol
 			b_survol = checkSurvol 	_pos
-			/* 
-			--- si dans cercle on active le survol ---
-			if dist < m_rayonInteraction 
-				then b_survol = true
-				else b_survol = false
-			 */
+			
 			--- drag ---
 			if b_drag do
-				drag _pos
+				drag 	_pos 	_vue 
 			
 			
 			--- si changement etat on redessine ---
-			if b_survolBack != b_survol do(
-				debug "mouseMove - CAHNGEMET"
-				dessinerBouton _vue
--- 				_vue.demanderRedessiner ()
-			)
+			if b_survolBack != b_survol do
+			m_moteur.demanderRedessinerTout fond:false
+-- 				dessinerBouton _vue
 			
 		)
 	
@@ -185,8 +192,8 @@ struct str_miniMax_box (
 	
 	
 	------------ DEBUG	----------------------------------------------------------------------------------
-		m_debug = true,
--- 		m_debug = false,
+-- 		m_debug = true,
+		m_debug = false,
 		m_dbgPrefix ="str_miniMax_box",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
@@ -266,6 +273,7 @@ struct str_miniMax_box (
 	public		
 		fn setCentre  _centre 	= (
 			m_centre 	= _centre
+			actualiserModel ()
 		),
 		fn setPos 		_pos 		= m_pos 		= _pos,
 		fn setTaille  	_taille 	= (
@@ -276,7 +284,7 @@ struct str_miniMax_box (
 		),
 		
 		fn dessiner  _vue 	=(
-			
+			/* 
 			----- DEBUG 3D ---------------
 			DEBUG_3D= false
 			if DEBUG_3D and  _vue.m_type == #3D do   (
@@ -299,11 +307,6 @@ struct str_miniMax_box (
 				debug_pt 		= point size:5	cross:off	axistripod:off	centermarker:off	box:on	transform:( cam.getMtrxRotation() )  wirecolor:blue
 				debug_pt.pos 	= cam.getCiblePos()
 				
-				/* 
-				local minCadre 	= [0,0,0]
-				minCadre.x 			= minCadre.y = - ( tan ( cam.getFOV() / 2 )  * cam.getDistFocale () )
-				local maxCadre 	= [0,0,0]
-				maxCadre.x 		= maxCadre.y = - minCadre.x */
 				
 				--- debug CADRE ----
 -- 				debug_pt 		= point name:"cadre" size:500	cross:on	axistripod:off	centermarker:off	box:off	pos:( cam.getCadre() ).minimum	   wirecolor:red
@@ -353,23 +356,8 @@ struct str_miniMax_box (
 				
 				
 				
-				/* 
-				local vueCentre 	= _vue.posWorldToVue 		m_centre
-				local vueTaille 	= _vue.tailleWorldToVue 		m_taille
-				
-				for segment in m_segments do (
-					local ptVue1 = _vue.posWorldToVue 	m_points[ segment[1] ]
-					local ptVue2 = _vue.posWorldToVue 	m_points[ segment[2] ]
-					_vue.m_painter.segment  ptVue1 ptVue2 couleur:[30,30,30]
-				)
-				
-				for pt in m_points do (
-					local ptVue = _vue.posWorldToVue pt
-					_vue.m_painter.pixel  ptVue couleur:white
-				) */
-				
 			) 
-				
+				 */
 			debug "dessiner"
 			
 -- 			if not _vue.m_type == #3D do  (
@@ -399,8 +387,8 @@ struct str_miniMax_box (
 struct str_miniMax_sol (
 	
 	------------ DEBUG	----------------------------------------------------------------------------------
-		m_debug = true,
--- 		m_debug = false,
+-- 		m_debug = true,
+		m_debug = false,
 		m_dbgPrefix ="str_miniMax_sol",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
@@ -463,8 +451,8 @@ struct str_miniMax_grille (
 	
 	
 	------------ DEBUG	----------------------------------------------------------------------------------
-		m_debug = true,
--- 		m_debug = false,
+-- 		m_debug = true,
+		m_debug = false,
 		m_dbgPrefix ="str_miniMax_grille",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
@@ -478,7 +466,7 @@ struct str_miniMax_grille (
 		m_taille 		= [50,50,50],	
 		
 		m_couleur_grille = [8,8,8],	
-		m_couleur_axes = [10,10,10],		
+		m_couleur_axes = [17,17,17],		
 		
 		m_estInteractif = false,
 	public		
@@ -495,22 +483,23 @@ struct str_miniMax_grille (
 				----------- dessin -----------
 -- 				---- grille ----
 			if _vue.m_type != #3D then (
-				_vue.m_painter.grille  			( globalPos ) 	( globalTaille )	 					couleur:m_couleur_axes
+				
+				_vue.m_painter.grille  			( globalPos ) 	( globalTaille )	 					couleur:( m_couleur_grille )
 				
 				---- axes ----
-				_vue.m_painter.droite  			( globalPos ) 	(  globalPos + [0,10,0] )	 	couleur:( m_couleur_axes + [15,15,15] )
+				_vue.m_painter.droite  			( globalPos ) 	(  globalPos + [0,10,0] )	 	couleur:m_couleur_axes
 				
 				--- ligne de sol ----
 -- 				if _vue.m_type == #plan then
 -- 					_vue.m_painter.droite  			( globalPos ) 	(  globalPos + [10,0,0] )	 	couleur:m_couleur_axes
 -- 				else
-					_vue.m_painter.droite  			( globalPos ) 	(  globalPos + [10,0,0] )	 	couleur:( m_couleur_axes + [15,15,15] )
+					_vue.m_painter.droite  			( globalPos ) 	(  globalPos + [10,0,0] )	 	couleur:m_couleur_axes
 				
 			) else (
 				
 				---- axes ----
-				_vue.m_painter.droite  			( globalPos ) 	globalPos2	 	couleur:m_couleur_grille
-				_vue.m_painter.droite  			( globalPos ) 	globalPos3	 	couleur:m_couleur_grille
+				_vue.m_painter.droite  			( globalPos ) 	globalPos2	 	couleur:m_couleur_axes
+				_vue.m_painter.droite  			( globalPos ) 	globalPos3	 	couleur:m_couleur_axes
 				
 			)
 		
@@ -533,6 +522,10 @@ struct str_miniMax_camera (
 		m_moteur,
 		
 		
+		m_vecX = [0,0,0],
+		m_vecY = [0,0,0],
+		m_vecZ = [0,0,0],
+		
 	private
 		m_estInteractif = true,
 		
@@ -548,27 +541,45 @@ struct str_miniMax_camera (
 		m_distFocal	= 100,
 		
 		--- elements interactifs ---
-		m_boutonCam 	= str_miniMax_btnRond 		m_moteur:m_moteur,
-		m_boutonCible 	= str_miniMax_btnRond 		m_moteur:m_moteur,
-		m_boutonFOV 		= str_miniMax_btnRond 		m_moteur:m_moteur,
+		m_boutonCam 	= str_miniMax_btnRond 		m_moteur:m_moteur		m_parent:this,
+		m_boutonCible 	= str_miniMax_btnRond 		m_moteur:m_moteur		m_parent:this,
+		m_boutonFOV 		= str_miniMax_btnRond 		m_moteur:m_moteur		m_parent:this,
 		
-		m_elementsInteractifs 	=#( /* m_boutonFOV,   m_boutonCible ,  */ m_boutonCam),		
+		m_elementsInteractifs 	=#( /* m_boutonFOV,*/   m_boutonCible ,   m_boutonCam),		
+-- 		m_elementsInteractifs 	=#( /* m_boutonFOV,   m_boutonCible ,  */ m_boutonCam),	
 		
 		--- couleurs ----
 		m_couleur_point 	= [250,250,250],
-		m_couleur_2 		= [20,20,20],
+		m_couleur_lignes 	= [20,20,20],
 		m_couleur_3 		= [70,70,70],
 		m_couleur_Survol = [255,255,70],
 		
 		
 		
+		m_points 		=#(),	--- la liste des points :		tableau de point3
+		m_segments 	=#(),	--- la liste des segments : 	tableau de point2 ayant pour valeurs x et y les index des points a relier
 		
+		
+	private
+		
+		
+		fn ajouterPoint 		_pt3 =(
+			append m_points _pt3
+			m_points.count
+		),
+		
+		fn ajouterSegment 	_IDpoint1  _IDpoint2	=(
+			append m_segments [ _IDpoint1 , _IDpoint2 ]
+			m_segments.count
+		),
+		
+		
+			
 	public
 		--- mutateurs ---
 		fn estInteractif = m_estInteractif,
 		
-		
-		fn getPos = m_cameraPos,
+		fn getPos 				= m_cameraPos,
 		fn setPos 		_pos 	= (
 			m_cameraPos 		= _pos
 			m_boutonCam.setPos m_cameraPos
@@ -585,7 +596,7 @@ struct str_miniMax_camera (
 		fn getPos 			= 	m_cameraPos,
 		fn getciblePos 	= 	m_ciblePos,
 		fn getFOV 			= 	m_FOV,
-		fn getDistFocale 	= m_distFocal,
+		fn getDistFocale 	= 	m_distFocal,
 		
 		
 		
@@ -598,14 +609,13 @@ struct str_miniMax_camera (
 			resultat
 		),
 		
-		fn getMtrxRotation 	=(	
-			local vecZ 		=	normalize ( m_cameraPos - m_ciblePos )			
-			local vecX 		= 	cross  vecZ [0,0,1]
-			local vecY 		= 	cross  vecX vecZ
+		fn getMtrxRotation 	=(
 			
-			local resultat 	= 	matrix3 vecX vecY vecZ  [0,0,0]		
+			m_vecZ 		=	normalize ( m_cameraPos - m_ciblePos )			
+			m_vecX 		= 	normalize ( cross  m_vecZ [0,0,1] )
+			m_vecY 		= 	normalize ( cross  m_vecX m_vecZ )
 			
-			debugPoint = point transform:resultat  axistripod:on bax:off cross:off center:off size:20 wirecolor:yellow
+			local resultat 	= 	matrix3 m_vecX 	m_vecY 	m_vecZ  [0,0,0]		
 			
 			resultat
 		),
@@ -613,7 +623,7 @@ struct str_miniMax_camera (
 		fn getMtrxRotationBACK 	=(	
 			local normalDuPlan 	=	normalize ( m_cameraPos - m_ciblePos )
 			
-			debugPoint = point transform:resultat  axistripod:on bax:off cross:off center:off size:20 wirecolor:yellow
+-- 			debugPoint = point transform:resultat  axistripod:on bax:off cross:off center:off size:20 wirecolor:yellow
 			
 			resultat
 		),
@@ -629,6 +639,24 @@ struct str_miniMax_camera (
 		),
 		
 		
+		
+		fn getNormAxe_Z_Vue 	=(	
+-- 			local resultat 			= 	[0,0,1] * getMtrxRotation ()
+-- 			resultat
+			m_vecZ
+		),
+		
+		fn getNormAxe_X_Vue 	=(	
+-- 			local resultat 			= 	[1,0,0] * getMtrxRotation ()
+-- 			resultat
+			m_vecX
+		),
+		fn getNormAxe_Y_Vue 	=(	
+-- 			local resultat 			= 	[0,1,0] * getMtrxRotation ()
+-- 			resultat
+			m_vecY
+		),
+		
 		fn getCadre 	=(	
 			struct Cadre (
 				maximum,
@@ -638,81 +666,19 @@ struct str_miniMax_camera (
 			minCadre.x 			= minCadre.y = - ( tan ( getFOV() / 2 )  * getDistFocale () )
 			local maxCadre 	= [0,0,0]
 			maxCadre.x 		= maxCadre.y = - minCadre.x 
-			local result = Cadre minimum:minCadre  maximum:maxCadre
+			local result 		= Cadre minimum:minCadre  maximum:maxCadre
 			result
 		),
 		
 		
 		
 		
-		
-		fn replacerPointFOV =(
-			/* 
--- 			debug "replacer Point FOV "
-			--- le point FOV ----
-			local normal 		= -1 * m_painter.normPerpendiculaireADroite  	m_ciblePos		m_cameraPos
-			local angleAlpha	= m_FOV / 2			
-			local dist 			= tan angleAlpha * distance 	m_ciblePos 	m_cameraPos			
-			local vec 			= normal * dist
-			local pos1 			= m_ciblePos + vec 
+		fn replacerPoints 	=(
 			
-			m_boutonFOV.setPos pos1 
+			m_cameraPos 	=	m_boutonCam.getPos 	()
+			m_ciblePos		=	m_boutonCible.getPos 	()
 			
-			---- le symetrique -----
-			
-			local normal 		=  m_painter.normPerpendiculaireADroite  	m_ciblePos		m_cameraPos
-			local angleAlpha	= m_FOV / 2			
-			local dist 			= tan angleAlpha * distance m_ciblePos 	m_cameraPos			
-			local vec 			= normal * dist
-			m_pt_symFOV 	= m_ciblePos + vec 
-			 */
-				
-		),
-		fn actualiserFov =(
-			
-			/* 
-			local FOVmim = 1
-			local FOVmax = 175
-			
-			local normPerpendiculaireADroite 	= m_painter.normPerpendiculaireADroite  	m_ciblePos		m_cameraPos 	
-			local ptProj_btnFOV_sur_PerpCible 	= m_painter.projectionPointSurDroite		m_ciblePos  	( m_ciblePos + normPerpendiculaireADroite * 10 )   m_boutonFOV.m_cameraPos
-			
-			local distOp	= distance m_ciblePos 	ptProj_btnFOV_sur_PerpCible
-			local distAdj 	= distance m_ciblePos	m_cameraPos 	
-			
-			local FOV = m_FOV
-			
-			if distAdj != 0 do
-				FOV = 2 * atan ( distOp / distAdj )
-						
-			--- limitations -------------
-			if FOV < FOVmim do FOV = FOVmim
-			if FOV > FOVmax do FOV = FOVmax
-			
-			--- on applique le fov ----
-			m_pad.changeFOV 	FOV
-			 */
--- 			m_pad.m_parent.actualiser ()
-		),
-		fn actualiserCameraPos =(
-			m_cameraPos = m_boutonCam.m_pos
-			m_pad.changeCameraPos 	m_cameraPos
-		),
-		fn actualiserCiblePos =(
-			m_cameraPos = m_boutonCible.m_pos
-			m_pad.changeCiblePos 	m_cameraPos
-		),
-		
-		
-		
-		fn Reangencer =(
--- 			debug "Reangencer "
-			if m_boutonFOV.b_drag do actualiserFov ()
-			if m_boutonCam.b_drag do actualiserCameraPos ()
-			if m_boutonCible.b_drag do actualiserCiblePos ()
--- 			actualiserFov ()
-			
-			replacerPointFOV ()
+			m_moteur.demanderRedessinerTout fond:false
 			
 		),
 		
@@ -720,24 +686,114 @@ struct str_miniMax_camera (
 		
 		
 		
+		
+		debug_distCible,
+		debug_demiCadre,
+		
+		
+		fn actualiserModel =(
+			
+			m_boutonCam.setPos 	m_cameraPos
+			m_boutonCible.setPos 	m_ciblePos
+			
+			--- on vide les tableaux ----
+			m_points 		=#()
+			m_segments 	=#()
+			
+			local distCible 	= ( distance m_cameraPos m_ciblePos )
+			local demiCadre 	=  distCible * tan ( m_FOV / 2 )
+			
+			debug_distCible 	= distCible
+			debug_demiCadre = demiCadre
+			getMtrxRotation ()
+-- 			debug "distCible" var:distCible
+-- 			debug "demiCadre" var:demiCadre
+			
+-- 			local normalAxeX = getNormAxe_X_Vue ()
+-- 			local normalAxeY = getNormAxe_Y_Vue ()
+-- 			local normalAxeZ = -getNormAxe_Z_Vue ()
+			
+			local normalAxeX =  m_vecX
+			local normalAxeY =  m_vecY
+			local normalAxeZ =  -m_vecZ 
+-- 			debug "normalAxeX" var:normalAxeX
+-- 			debug "normalAxeY" var:normalAxeY
+-- 			debug "normalAxeZ" var:normalAxeZ
+-- 			debug "demiCadre" var:demiCadre
+			------ on creer la géometrie --------
+			
+			local ptCoinTest = m_ciblePos
+-- 			ptCoinTest += distCible *  normalAxeZ
+			/* ptCoinTest += demiCadre *  normalAxeX
+			ptCoinTest += demiCadre *  normalAxeY
+			debug "ptCoinTest" var:ptCoinTest
+			ajouterPoint  ptCoinTest */
+			
+			
+			local ptCoin1 = m_ciblePos
+			ptCoin1 += demiCadre *  normalAxeX
+			ptCoin1 += demiCadre *  normalAxeY
+			ajouterPoint  ptCoin1
+			
+			local ptCoin2 = m_ciblePos
+			ptCoin2 -= demiCadre * normalAxeX
+			ptCoin2 += demiCadre * normalAxeY
+			ajouterPoint  ptCoin2
+			
+			local ptCoin3 = m_ciblePos
+			ptCoin3 -= demiCadre * normalAxeX
+			ptCoin3 -= demiCadre * normalAxeY
+			ajouterPoint  ptCoin3
+			
+			local ptCoin4 = m_ciblePos
+			ptCoin4 += demiCadre * normalAxeX
+			ptCoin4 -= demiCadre * normalAxeY
+			ajouterPoint  ptCoin4
+			
+			local pt0 = m_cameraPos
+			ajouterPoint  pt0
+			
+			local pt1 = m_ciblePos
+			ajouterPoint  pt1
+			
+			---- les segments ----
+			-- cadre ---
+			ajouterSegment 	1	2
+			ajouterSegment 	2	3
+			ajouterSegment 	3	4
+			ajouterSegment 	4	1
+			
+			--- croix --
+-- 			ajouterSegment 	1	3
+-- 			ajouterSegment 	2	4
+			
+			-- pyramide ---			
+			ajouterSegment 	1	5
+			ajouterSegment 	2	5
+			ajouterSegment 	3	5
+			ajouterSegment 	4	5
+			
+			--- cible ---		
+			ajouterSegment 	6	5
+		),
 		
 		
 		
 		
 		
 		--- fonctions event ---
-		fn mouseDown 	_pos 	=(	
+		fn mouseLDown 	_pos 	_vue =(	
 			
 			for elem in m_elementsInteractifs do
 				if elem.checkSurvol _pos do (
-					elem.mouseDown  	_pos	
+					elem.mouseLDown  	_pos	_vue
 					break
 				)
 		),
-		fn mouseUp 	_pos 	=(			
+		fn mouseLUp 	_pos 	_vue =(			
 
 			for elem in m_elementsInteractifs do
-				elem.mouseUp  	_pos	
+				elem.mouseLUp  	_pos	 _vue
 		),
 		fn mouseMove 	_pos 	_vue =(
 	
@@ -769,18 +825,32 @@ struct str_miniMax_camera (
 		---- dessin -----
 		fn dessiner  _vue 	   	   =(
 			
+			actualiserModel ()
+			
 			if _vue.m_type == #3D then  (
 				
 				
 			) else (
 				
+				
+-- 				for pt in m_points do (
+-- 					local ptVue = _vue.posWorldToVue 	pt
+-- 					_vue.m_painter.croix 	ptVue 			couleur:blue
+-- 				)
+				
+				for segment in m_segments do (
+					local ptVue1 = _vue.posWorldToVue 	m_points[ segment[1] ]
+					local ptVue2 = _vue.posWorldToVue 	m_points[ segment[2] ]
+					_vue.m_painter.segment  ptVue1 ptVue2 couleur:blue
+				)
+				
+				/* 
 				local vuePosCam 	= _vue.posWorldToVue 		m_cameraPos
 				local vuePosCible 	= _vue.posWorldToVue 		m_ciblePos
 				
 				--- axe principal ---
-				_vue.m_painter.segment 	vuePosCam 		vuePosCible	 		couleur:blue
--- 				_vue.m_painter.pt 	vuePosCam 				couleur:blue
-				_vue.m_painter.croix 	vuePosCible 			couleur:blue
+-- 				_vue.m_painter.segment 	vuePosCam 		vuePosCible	 		couleur:blue
+-- 				_vue.m_painter.croix 	vuePosCible 			couleur:blue
 				
 				
 				--- CADRE ------
@@ -830,10 +900,9 @@ struct str_miniMax_camera (
 				_vue.m_painter.segment 	( _vue.posWorldToVue m_cameraPos ) 		( _vue.posWorldToVue ptsCadre[3] ) 			couleur:blue
 				_vue.m_painter.segment 	( _vue.posWorldToVue m_cameraPos ) 		( _vue.posWorldToVue ptsCadre[4] ) 			couleur:blue
 				_vue.m_painter.segment 	( _vue.posWorldToVue m_cameraPos ) 		( _vue.posWorldToVue ptsCadre[1] ) 			couleur:blue
-				
+				 */
 				
 				---- les boutons ----
-				m_boutonCam.setPos 	m_cameraPos
 				for elemInter in m_elementsInteractifs do
 					elemInter.dessiner 	_vue
 			)
@@ -961,8 +1030,6 @@ struct str_miniMax_vue (
 			
 			result	
 		),		
-		
-		
 		fn posWorldToVue 	_param =(
 			
 			local result = [0,0]
@@ -987,7 +1054,7 @@ struct str_miniMax_vue (
 					result 		= 	result * ( inverse ( m_camera.getMtrxRotation () ) )
 				
 					--- on réaligne le coin haut gauche de l'image rendue sur le 0 ----
-					result.x +=   ((m_camera.getCadre ()).maximum).x
+					result.x -=   ((m_camera.getCadre ()).maximum).x
 					result.y =   - result.y
 					result.y +=   ((m_camera.getCadre ()).maximum).y
 					
@@ -995,7 +1062,7 @@ struct str_miniMax_vue (
 					result =   result *  m_ui.width / ( (m_camera.getCadre ()).maximum * 2)
 					/*  */
 					--- on gere le pan ( ou pas ? ) -----
-					result 	=   [ m_pos.x + result.x, m_pos.y + result.y ]  --* m_echelle
+					result 	=   [ m_pos.x - result.x, m_pos.y + result.y ]  --* m_echelle
 -- 					result =   [m_pos.x - result.x, m_pos.y - result.y ] *  m_ui.width / ( (m_camera.getCadre ()) .maximum * 2)
 					
 				
@@ -1010,7 +1077,6 @@ struct str_miniMax_vue (
 			
 			result	
 		),	
-		
 		fn tailleWorldToVue 	_param =(
 			
 			local result = [0,0]
@@ -1031,11 +1097,8 @@ struct str_miniMax_vue (
 			
 			result	
 		),
-		
-		
 		fn posVueToWorld 	_param =(
--- 			debug "posVueToWorld"
--- 			debug "_param" var:_param
+			
 			local result = [0,0,0]
 			
 			case m_type of (
@@ -1043,18 +1106,26 @@ struct str_miniMax_vue (
 					result =   [ _param.x / m_echelle - m_pos.x,  -( _param.y / m_echelle- m_pos.y) , 0 ]  
 				)
 				#cote: 	(
-					result =   [0 ,  _param.x / m_echelle - m_pos.x,  -( _param.y / m_echelle- m_pos.y) ]  
--- 					result =  - [0, m_pos.x - _param.x, (m_pos.y - _param.y) ] 
+					result =   [0 ,  _param.x / m_echelle - m_pos.x,  -( _param.y / m_echelle- m_pos.y) ] 
+					
 				)
 				#face: 	(
 					result =   [  _param.x / m_echelle - m_pos.x, 0,  -( _param.y / m_echelle- m_pos.y) ]  
--- 					result =  - [m_pos.x - _param.x , 0, (m_pos.y - _param.y) ]    / m_echelle
+					
 				)
 				#3Dera: 	() --	
 			)
 -- 			debug "result" var:result
 			result
 			
+		),
+		
+		
+		
+		
+-- 		m_camera,
+		fn setCamera _cam =(
+			m_camera = _cam
 		),
 		
 		
@@ -1098,34 +1169,41 @@ struct str_miniMax_vue (
 			)
 			--
 			
-			if DEBUG_MODE do (
+-- 			if true == false do (
 				if m_type == #3D then
 					textUI += "§FOV : " + m_camera.getFOV () as string
 				else 
 					textUI += "§Echelle : " + m_echelle as string
 				textUI += "§Pos: : " + m_pos as string
-			)
+-- 			)
+-- 			textUI += "§distCible: : " + m_camera.debug_distCible as string
+-- 			textUI += "§demiCadre: : " + m_camera.debug_demiCadre as string
+			
+-- 			textUI += "§m_vecX: : " + m_camera.m_vecX as string
+-- 			textUI += "§m_vecY: : " + m_camera.m_vecY as string
+-- 			textUI += "§m_vecZ: : " + m_camera.m_vecZ as string
 			
 			if estLaVueActive () do 
 					textUI += "§ACTIVE"
 			m_painter.ecrire [5,5] 	textUI  	couleur:white
 		),
+		
 		fn getFond =m_bmpFond ,
-		fn dessiner   _elements 	fond:false =(
+			
+		
+		fn dessiner   _elements 	surFond:false =(
 			
 			debug "dessiner"
-			debug "dessiner fond" var:fond
+			debug "surFond" var:surFond
 			
 			-- on dessine les trucs ---
 			for elem in _elements do
 				elem.dessiner 	this	/* worldToLocal_plan */
-				
-				
-			--- soit on dessine sur le fond ----
-			if fond then (				
--- 				free m_bmpFond
+			
+			--- on dessine sur le fond ? ----
+			if surFond then 
 				m_bmpFond = m_painter.getBitmap () 
-			)	 
+			
 			
 		),
 		
@@ -1283,16 +1361,24 @@ struct str_miniMax_vue (
 		fn mouseMUp 		_pos =(		
 			---- pos en repere local de l'ui ---
 			_pos -= m_ui.pos
+			
+			local toucheAltEnfoncee = keyboard.altPressed
 			if m_type 	!= #3D do
-				zoomArreter ()
-	-- 		debug "mouseMUp"
--- 			panArreter ()
+				if toucheAltEnfoncee then 				
+					zoomArreter ()
+				else
+					panArreter ()
 		),
 		fn mouseMDown 	_pos =(
 			---- pos en repere local de l'ui ---
 			_pos -= m_ui.pos
+			local toucheAltEnfoncee = keyboard.altPressed
 			if m_type 	!= #3D do
-				zoomCommencer _pos
+				if toucheAltEnfoncee then 				
+					zoomCommencer _pos
+				else
+					panCommencer _pos
+				
 -- 	-- 		debug "mouseRDown"
 -- 			panCommencer _pos
 		),
@@ -1301,23 +1387,23 @@ struct str_miniMax_vue (
 		--- bouton droite --------------
 		fn mouseRDble 	_pos =(		
 			---- pos en repere local de l'ui ---
-			_pos -= m_ui.pos
-			debug "mouseRDble"
+-- 			_pos -= m_ui.pos
+-- 			debug "mouseRDble"
 	-- 		m_moteur.mouseRDble 	_pos  
 		),
 		fn mouseRUp 		_pos =(
 			---- pos en repere local de l'ui ---
-			_pos -= m_ui.pos
--- 			if m_type 	!= 3D do
--- 				zoomArreter ()
+-- 			_pos -= m_ui.pos
+-- 			if m_type 	!= #3D do
+-- 				panArreter ()
 		),
 		fn mouseRDown 	_pos =(
 			---- pos en repere local de l'ui ---
-			_pos -= m_ui.pos
+-- 			_pos -= m_ui.pos
 			
-			debugVuePoint	_pos
--- 			if m_type 	!= 3D do
--- 				zoomCommencer _pos
+-- 			debugVuePoint	_pos
+-- 			if m_type 	!= #3D do
+-- 				panCommencer _pos
 		),
 		
 		
@@ -1334,6 +1420,13 @@ struct str_miniMax_vue (
 			_pos -= m_ui.pos
 			
 -- 			zoomArreter ()			
+			
+			
+			for elem in m_moteur.getElementsInteractifs ()  do 
+				if elem.estInteractif () do 
+					elem.mouseLUp 		_pos  	this
+			
+			
 			if m_type 	!= #3D do
 				panArreter ()
 		),
@@ -1341,9 +1434,13 @@ struct str_miniMax_vue (
 			---- pos en repere local de l'ui ---
 			_pos -= m_ui.pos
 			
+			for elem in m_moteur.getElementsInteractifs ()  do 
+				if elem.estInteractif () do 
+					elem.mouseLDown 		_pos  	this
+			
 -- 			zoomCommencer _pos
-			if m_type 	!= #3D do
-				panCommencer _pos
+-- 			if m_type 	!= #3D do
+-- 				panCommencer _pos
 		),
 		
 		--- deplacement --------------
@@ -1401,13 +1498,16 @@ struct str_miniMax_MOTEUR (
 		
 	public
 		---- accessions -----------
-		fn demanderRedessinerTout = (
-			for vue in m_vues do
-				vue.demanderRedessinerFond ()
-			this.dessiner ()
+		fn demanderRedessinerTout  fond:true		= (
+			debug "demanderRedessinerTout"
+-- 			if fond do
+-- 				for vue in m_vues do
+-- 					vue.demanderRedessinerFond ()
+			this.dessiner fond:fond
 		),
 		fn demanderRedessiner 	vue: = (
 			
+			debug "demanderRedessiner"
 			
 			if vue != unsupplied then
 				this.dessiner 	vue:vue
@@ -1422,7 +1522,17 @@ struct str_miniMax_MOTEUR (
 				if vue.m_type == _nomVue
 					do resultat = vue
 			resultat
-		),		
+		),	
+		
+		
+		m_camera,
+		fn setCamera _cam =(
+			for vue in m_vues 	do
+				vue.setCamera _cam
+		),
+		
+		
+		
 		fn toggleAfficherUI =(
 			m_afficherUI = not m_afficherUI
 			demanderRedessiner ()
@@ -1470,7 +1580,7 @@ struct str_miniMax_MOTEUR (
 				)
 			if m_vueSurvol != vueSurvolBack do (
 				debug "changement de vue"
-				demanderRedessiner ()
+-- 				demanderRedessiner ()
 			)
 			m_vueSurvol
 		),
@@ -1560,44 +1670,46 @@ struct str_miniMax_MOTEUR (
 -- 			for element in m_elements do
 -- 				element.actualiser()
 		),
-		fn refreshUIs _vue =(
-			
-			--- refraichir l'image de l'ui ---
--- 			for vue in m_vues do
-				_vue.rafraichir ()
-		),
-		fn dessinerVue vue =(
+		
+		
+		
+		
+		
+		
+		
+		fn dessinerVue 	_vue 	fond:true =(
 			-- vider l'image ---
-			vue.clear ()
+			_vue.clear ()
 			
-			-- dessin ---
--- 			if vue.aBesoinDessinerfond () then (
-				
-				vue.dessiner 	m_elementsFond  fond:true
-				vue.fondAJour ()
--- 				
--- 			)	else
--- 				vue.m_painter.setBitmap  ( vue.getFond () )
+			---------- dessin -----------
+			-- le fond --
+			if fond or _vue.m_type == #3D then
+				_vue.dessiner 	m_elementsFond  surFond:true
+			else
+				_vue.m_painter.setBitmap  ( _vue.getFond () )
 			
-			vue.dessiner 	m_elements
+			-- les elements restants --
+			_vue.dessiner 	m_elements
 			
-			if m_afficherUI do	vue.dessinerUI ()
+			-- l'UI --
+			if m_afficherUI do	_vue.dessinerUI ()
 			
 			--- refraichir l'image de l'ui ---
-			refreshUIs vue
+			_vue.rafraichir ()
 		),
 		
 		
-		fn dessiner 	vue:  =(
+		fn dessiner 	vue:  fond:true =(
 			
 -- 			debug "dessiner"
 			
 -- 			if b_aRedessiner do (
 				
-				if vue != unsupplied  then 
-					dessinerVue vue
-				else for vue in m_vues do
-					dessinerVue vue
+			if vue != unsupplied  then 
+				dessinerVue vue fond:fond
+			
+			else for vue in m_vues do
+				dessinerVue vue fond:fond
 				
 -- 				b_aRedessiner = false
 				
@@ -1647,8 +1759,8 @@ rollout roll_miniMax "labib - miniMax" width:440 height:440
 	
 	------ UI 	----------------------------------------------------------------------------------------------------------------------------------------------------
 	bitmap 'ui_painter_dessus' "" pos:[20,20] width:200 height:200 align:#left
-	bitmap 'ui_painter_face' "" pos:[220,20] width:200 height:200 align:#left
-	bitmap 'ui_painter_cote' "" pos:[20,220] width:200 height:200 align:#left
+	bitmap 'ui_painter_cote' "" pos:[220,20] width:200 height:200 align:#left
+	bitmap 'ui_painter_face' "" pos:[20,220] width:200 height:200 align:#left
 	bitmap 'ui_painter_camera' "" pos:[220,220] width:200 height:200 align:#left
 	
 	spinner 'spn_FOV' "" pos:[269,242] width:76 height:16 range:[0,175,50] align:#left	visible:false
@@ -1700,10 +1812,10 @@ rollout roll_miniMax "labib - miniMax" width:440 height:440
 		m_moteur = str_miniMax_MOTEUR 	m_dialog:roll_miniMax
 		
 		--- creation des vues ----
-		m_moteur.ajouterVue 	m_ui:ui_painter_dessus  	m_moteur:m_moteur		m_type:#plan   	m_pos:[100,100]  		m_echelle:1
-		m_moteur.ajouterVue 	m_ui:ui_painter_cote  		m_moteur:m_moteur		m_type:#cote  	m_pos:[100,175]  		m_echelle:1
-		m_moteur.ajouterVue 	m_ui:ui_painter_face  		m_moteur:m_moteur		m_type:#face  	m_pos:[100,175]  		m_echelle:1
-		m_moteur.ajouterVue  	m_ui:ui_painter_camera  	m_moteur:m_moteur		m_type:#3D  		m_pos:[0,0]  				m_echelle:1
+		m_moteur.ajouterVue 	m_ui:ui_painter_dessus  	m_moteur:m_moteur		m_type:#plan   	m_pos:[200,200]  		m_echelle:.5
+		m_moteur.ajouterVue 	m_ui:ui_painter_cote  		m_moteur:m_moteur		m_type:#cote  	m_pos:[200,350]  		m_echelle:.5
+		m_moteur.ajouterVue 	m_ui:ui_painter_face  		m_moteur:m_moteur		m_type:#face  	m_pos:[200,350]  		m_echelle:.5
+		m_moteur.ajouterVue  	m_ui:ui_painter_camera  	m_moteur:m_moteur		m_type:#3D  		m_pos:[0,0]  				m_echelle:.5
 		
 		
 		-------- Elements 		-----------------	
@@ -1713,14 +1825,15 @@ rollout roll_miniMax "labib - miniMax" width:440 height:440
 		
 		-- box ---
 		local BBox = str_miniMax_box 	m_moteur:m_moteur 	--m_centre:[0,0,0]  		m_taille:[20,40,80]
-		BBox.setTaille [20,40,80]
+		BBox.setTaille 		[20,40,80]
+		BBox.setCentre 	[10,20,0]
 		m_moteur.ajouterElement 		BBox
 		
 		-- camera ---
 		local tmp_camera = m_moteur.ajouterElement 	( str_miniMax_camera  	m_moteur:m_moteur )		
-		
+		m_moteur.setCamera tmp_camera
 		tmp_camera.setPos			[80,110,100]
-		tmp_camera.setciblePos	[0,0,30]
+		tmp_camera.setciblePos	[0,0,40]
 		tmp_camera.setFOV			50
 		
 		( m_moteur.getVue #3D ).setCamera 	tmp_camera
