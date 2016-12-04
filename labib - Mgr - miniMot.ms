@@ -373,7 +373,7 @@ struct str_miniMax_box (
 			
 			for pt in m_points do (
 				local ptVue = _vue.posWorldToVue pt
-				_vue.m_painter.pixel  ptVue couleur:m_couleur_points
+				_vue.m_painter.croix  ptVue couleur:m_couleur_points taille:3
 			)
 				
 -- 			)
@@ -451,8 +451,8 @@ struct str_miniMax_grille (
 	
 	
 	------------ DEBUG	----------------------------------------------------------------------------------
--- 		m_debug = true,
-		m_debug = false,
+		m_debug = true,
+-- 		m_debug = false,
 		m_dbgPrefix ="str_miniMax_grille",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
@@ -498,9 +498,53 @@ struct str_miniMax_grille (
 			) else (
 				
 				---- axes ----
-				_vue.m_painter.droite  			( globalPos ) 	globalPos2	 	couleur:m_couleur_axes
-				_vue.m_painter.droite  			( globalPos ) 	globalPos3	 	couleur:m_couleur_axes
+-- 				_vue.m_painter.droite  			( globalPos ) 	globalPos2	 	couleur:m_couleur_axes
+-- 				_vue.m_painter.droite  			( globalPos ) 	globalPos3	 	couleur:m_couleur_axes
 				
+				
+				
+				--- grille ----
+				local nbreCases 	= 3
+				local ptMin 		= [ -nbreCases * m_taille.x, -nbreCases * m_taille.y, 0]
+				local segX 			= [0, 2 * nbreCases * m_taille.y, 0]
+				local segY 			= [ 2 * nbreCases * m_taille.x, 0, 0]
+				ptX = ptMin
+				for x=-nbreCases to nbreCases do (
+					local pt1 = _vue.posWorldToVue ptX
+					local pt2 = _vue.posWorldToVue ( ptX + segX )
+					
+-- 					debug "x" var:x
+-- 					debug "ptX" var:ptX
+-- 					debug "( ptX + segX )" var:( ptX + segX )
+-- 					debug "pt1" var:pt1
+-- 					debug "pt2" var:pt2
+					local couleur
+					if x==0 	or x==-nbreCases or x==nbreCases
+						then couleur = m_couleur_axes
+						else 	couleur = m_couleur_grille
+					_vue.m_painter.segment  	pt1	pt2 	couleur:couleur
+					ptX += [m_taille.x, 0, 0]
+-- 				_vue.m_painter.droite  			( globalPos ) 	globalPos3	 	couleur:m_couleur_axes
+				)
+				ptY = ptMin
+				for y=-nbreCases to nbreCases do (
+					local pt1 = _vue.posWorldToVue ptY
+					local pt2 = _vue.posWorldToVue ( ptY + segY )
+					
+-- 					debug "x" var:x
+-- 					debug "ptX" var:ptX
+-- 					debug "( ptX + segX )" var:( ptX + segX )
+-- 					debug "pt1" var:pt1
+-- 					debug "pt2" var:pt2
+					
+					local couleur
+					if y==0 	or y==-nbreCases or y==nbreCases
+						then couleur = m_couleur_axes
+						else 	couleur = m_couleur_grille
+					_vue.m_painter.segment  	pt1	pt2 	couleur:couleur
+					ptY += [0, m_taille.y, 0]
+-- 				_vue.m_painter.droite  			( globalPos ) 	globalPos3	 	couleur:m_couleur_axes
+				)
 			)
 		
 		)
@@ -1012,7 +1056,7 @@ struct str_miniMax_vue (
 	
 	public
 	---- transfomations ---------------			
-		fn posWorldToVue3D_DEBUG 	_param =(
+	/* 	fn posWorldToVue3D_DEBUG 	_param =(
 			
 			local result = [0,0]
 			
@@ -1029,7 +1073,9 @@ struct str_miniMax_vue (
 			result.y -=   ((m_camera.getCadre ()).maximum).y
 			
 			result	
-		),		
+		),		 */
+		
+		
 		fn posWorldToVue 	_param =(
 			
 			local result = [0,0]
@@ -1051,18 +1097,20 @@ struct str_miniMax_vue (
 					
 					--- on retire la tranformation de la camera -------
 					result 		= 	result * ( inverse ( m_camera.getMtrxTranslation () ) )
-					result 		= 	result * ( inverse ( m_camera.getMtrxRotation () ) )
+				 	result 		= 	result * ( inverse ( m_camera.getMtrxRotation () ) )
 				
 					--- on réaligne le coin haut gauche de l'image rendue sur le 0 ----
 					result.x -=   ((m_camera.getCadre ()).maximum).x
 					result.y =   - result.y
 					result.y +=   ((m_camera.getCadre ()).maximum).y
-					
+				
 					--- on met l'image rendue à l'echelle de celle de l'UI -----
 					result =   result *  m_ui.width / ( (m_camera.getCadre ()).maximum * 2)
-					/*  */
+				
 					--- on gere le pan ( ou pas ? ) -----
 					result 	=   [ m_pos.x - result.x, m_pos.y + result.y ]  --* m_echelle
+				
+				 
 -- 					result =   [m_pos.x - result.x, m_pos.y - result.y ] *  m_ui.width / ( (m_camera.getCadre ()) .maximum * 2)
 					
 				
@@ -1071,7 +1119,6 @@ struct str_miniMax_vue (
 -- 					_param.y += camCadre.minimum.y
 					
 				)	
-				
 				
 			)
 			
@@ -1183,8 +1230,9 @@ struct str_miniMax_vue (
 -- 			textUI += "§m_vecY: : " + m_camera.m_vecY as string
 -- 			textUI += "§m_vecZ: : " + m_camera.m_vecZ as string
 			
-			if estLaVueActive () do 
-					textUI += "§ACTIVE"
+-- 			if estLaVueActive () do 
+-- 					textUI += "§ACTIVE"
+				
 			m_painter.ecrire [5,5] 	textUI  	couleur:white
 		),
 		

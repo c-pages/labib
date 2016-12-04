@@ -159,7 +159,7 @@ struct str_math3D (
 	),
 	
 	fn intersection_Droite_Plan 	_planRay	_droite_pt1			_droite_pt2 	=(
-				
+		
 		local result 			= [0,0,0]
 		local plan_normal 	= _planRay.dir
 		local plan_point 		= _planRay.pos		
@@ -180,8 +180,12 @@ struct str_math3D (
 		------   z = droite_a x droiteVec.z  + _droite_pt1.z			------------
 		--------------------------------------------------------------------------------
 		local droiteVec 	= _droite_pt2 - _droite_pt1
-		local	droite_a 	= -1 * 	( plan_a * _droite_pt1.x 		+ 		plan_b * _droite_pt1.y		+ 		plan_c * _droite_pt1.z		+ 		plan_d ) 	\
-										/ 	( plan_a * droiteVec.x 			+ 		plan_b * droiteVec.y		+ 		plan_c * droiteVec.z		)
+		local	droite_a 
+		if ( plan_a * droiteVec.x 			+ 		plan_b * droiteVec.y		+ 		plan_c * droiteVec.z		) == 0 then 
+			droite_a 	= 1 
+		else
+			droite_a 	= -1 * 	( plan_a * _droite_pt1.x 		+ 		plan_b * _droite_pt1.y		+ 		plan_c * _droite_pt1.z		+ 		plan_d ) 	\
+									/ 	( plan_a * droiteVec.x 			+ 		plan_b * droiteVec.y		+ 		plan_c * droiteVec.z		)
 		
 		
 		result.x   = droite_a * droiteVec.x  	+ _droite_pt1.x

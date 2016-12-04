@@ -193,7 +193,45 @@ struct str_painter (
 		--PAD_painter_roll.log_rayon = sqrt ( d.x^2 +  d.y^2)
 	),
 	fn segment 		pt_1 	pt_2  						couleur:m_couleurs.defaut		tiret:0 	espace:0	= (
+		/* 
+		--- on recalle les point dans l'image ----
+		local a = ( pt_1.y - pt_2.y ) /  ( pt_1.x * (  1 +  pt_2.x ) )
+		local b = pt_1.y - a * pt_1.x
+		if pt_1.x< 0 do (
+			pt_1.x = 0
+			pt_1.y = b
+		)
+		if pt_1.y< 0 do (
+			pt_1.y = 0
+			pt_1.x =  -b / a
+		)
+		if pt_1.x>m_taille.x do (
+			pt_1.x = m_taille.x 
+			pt_1.y = a * pt_1.x  + b
+		)
+		if pt_1.y>m_taille.y do (
+			pt_1.y = m_taille.y 
+			pt_1.x = ( pt_1.y  - b ) / a
+		)
 		
+		if pt_2.x< 0 do (
+			pt_2.x = 0
+			pt_2.y = b
+		)
+		if pt_2.y< 0 do (
+			pt_2.y = 0
+			pt_2.x =  -b / a
+		)
+		if pt_2.x>m_taille.x do (
+			pt_2.x = m_taille.x 
+			pt_2.y = a * pt_1.x  + b
+		)
+		if pt_2.y>m_taille.y do (
+			pt_2.y = m_taille.y 
+			pt_2.x = ( pt_1.y  - b ) / a
+		)
+		
+		 */
 		local D = pt_1 - pt_2
 		local i_tiret 	= 0
 		local i_espace = 0
@@ -219,6 +257,7 @@ struct str_painter (
 						
 						if b_ecrire do 
 							setPixels m_bmpCourante 	[x, y] 	#(couleur)
+						
 					) else  for x = pt_2.x to pt_1.x do (
 						y =  pt_2.y + D.y/D.x * (x - pt_2.x)
 						
@@ -488,9 +527,9 @@ struct str_painter (
 	fn	ui_refresh = (
 		m_ui.bitmap = m_bmpCourante
 	),
-	fn clear =(
+	fn vider 	couleur:m_couleurs.fond	=(
 -- 		free m_bmpCourante
-		m_bmpCourante = bitmap m_taille.x m_taille.y color:m_couleurs.fond
+		m_bmpCourante = bitmap m_taille.x m_taille.y 	color:couleur
 	)
 	
 )	--	fin struct	---------------------------------------------------------------------------------------------
