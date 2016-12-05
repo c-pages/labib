@@ -158,6 +158,23 @@ struct str_math3D (
 		result
 	),
 	
+	fn getMtrxRotation  _vecteur	=(
+		
+		---- attention au cas Z vertical ----
+		local vecZ 		=	normalize ( _vecteur )			
+		local vecX 		= 	normalize ( cross  vecZ [0,0,1] )
+		local vecY 		= 	normalize ( cross  vecX vecZ )
+		
+		local resultat 	= 	matrix3 vecX 	vecY 	vecZ  [0,0,0]		
+		
+		resultat
+	),
+	
+	fn getMtrxTranslation 	_vecteur  =(	
+		local resultat 			= 	transMatrix  _vecteur
+		resultat
+	),
+	
 	fn intersection_Droite_Plan 	_planRay	_droite_pt1			_droite_pt2 	=(
 		
 		local result 			= [0,0,0]
