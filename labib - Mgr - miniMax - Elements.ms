@@ -73,6 +73,7 @@ struct str_miniMax_noeud (
 		--- Maths ------------------------------------------------------------------------
 		fn localToWorld 	_pt3 = _pt3 + m_pos - m_centre,
 		
+	public	
 		--- Geometrie ------------------------------------------------------------------------
 		fn viderGeo =(
 			m_points 		= #()
@@ -148,13 +149,13 @@ struct str_miniMax_noeud (
 			if not nd.dessiner _vue do (
 				
 				for segment in m_segments do (
-					local ptVue1 = _vue.posWorldToVue 	(  localToWorld  m_points[ segment[1] ]  ) 
-					local ptVue2 = _vue.posWorldToVue 	(  localToWorld  m_points[ segment[2] ] )
+					local ptVue1 = _vue.worldToVue 	(  localToWorld  m_points[ segment[1] ]  ) 
+					local ptVue2 = _vue.worldToVue 	(  localToWorld  m_points[ segment[2] ] )
 					_vue.m_painter.segment  ptVue1 ptVue2 	couleur:m_couleur_lignes
 				)
 				
 				for pt in m_points do (
-					local ptVue = _vue.posWorldToVue (  localToWorld  pt )
+					local ptVue = _vue.worldToVue (  localToWorld  pt )
 					_vue.m_painter.cercle  ptVue  3	couleur:m_couleur_points 
 				)
 				
@@ -216,7 +217,7 @@ struct str_miniMax_btnRond (
 -- 			m_moteur.demanderRedessiner ()			
 		),
 		fn drag  _pos 	_vue =(
-			
+			/* 
 			local posWorld = _vue.posVueToWorld		_pos	
 			case _vue.m_type of (
 				#plan: 	(
@@ -235,7 +236,7 @@ struct str_miniMax_btnRond (
 				)
 				
 			)				
-			
+			 */
 			
 			m_parent.replacerPoints ()
 			
@@ -246,7 +247,7 @@ struct str_miniMax_btnRond (
 		----- Tests ------------------------------------------------------------------------
 		fn checkSurvol 		_posMouse 	=(
 			
-			local posVue 		= ( m_moteur.getVueActive ()).posWorldToVue 		m_pos
+			local posVue 		= ( m_moteur.getVueActive ()).worldToVue 		m_pos
 			local dist 			= distance _posMouse 	posVue
 			local b_survol 	= dist < m_rayonInteraction
 			b_survol
@@ -276,7 +277,7 @@ struct str_miniMax_btnRond (
 			if	b_drag do 
 				stopDrag	()		
 		),		
-		fn mouseMove 	_pos 		_vue	= if _vue .m_type != #3D do (
+		fn mouseMove 	_pos 		_vue	=  (
 			
 			
 			local dist = distance  _pos 	m_pos	
@@ -307,7 +308,7 @@ struct str_miniMax_btnRond (
 			else if b_survol 	then couleur 	= m_coul_survol
 									else 	couleur 	= m_coul_repos
 			
-			local posVue = _vue.posWorldToVue 	( m_prt.getPos() )
+			local posVue = _vue.worldToVue 	( m_prt.getPos() )
 			
 			_vue.m_painter.pt 	posVue 	couleur:couleur
 			
@@ -408,10 +409,10 @@ struct str_miniMax_nd_camera (
 		--- geometrie ------------------------------------------------------------------------
 		fn dessiner _vue =(
 			
-			local ptCam = _vue.posWorldToVue 	( m_prt.getPos ()  ) 
+			local ptCam = _vue.worldToVue 	( m_prt.getPos ()  ) 
 -- 			_vue.m_painter.croix  ptCam 	couleur:( m_prt.getCouleur_lignes () )		taille:3
 			
-			local ptCible = _vue.posWorldToVue 	m_ciblePos
+			local ptCible = _vue.worldToVue 	m_ciblePos
 -- 			_vue.m_painter.croix  ptCible 	couleur:( m_prt.getCouleur_lignes () )		taille:3
 			
 -- 			_vue.m_painter.segment ptCam ptCible 	couleur:( m_prt.getCouleur_lignes () )		taille:3

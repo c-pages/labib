@@ -114,43 +114,77 @@ rollout roll_miniMax "labib - miniMax" width:440 height:440
 			local b_face 	= false
 			local b_cote 	= false
 			local b_3D 		= false
+			local b_cam	= false
+			local b_camEnabled	= false
 			
-			-- menu ---
-			subMenu  "Afficher" (
-				menuItem afficherUI 		"UI" 		checked:( miniMax.m_dialog.m_moteur.getAfficherUI()	)
-				menuItem afficherGrille 		"Grille" 	checked:( miniMax.m_dialog.m_moteur.getAfficherGrille()	)
+			fn estVueActive 	_nomVue =(
+				local vueActive = miniMax.m_moteur.getActiveVue ()
+				result = vueActive.getNom () == _nomVue
 			)
-			subMenu  "Vue" (
-				menuItem vuePlan 		"Plan"		checked:b_plan
-				menuItem vueFace 		"Face"	checked:b_face
-				menuItem vueCote 		"Coté"	checked:b_cote
-				menuItem vueCamera 	"3D"		checked:b_3D
+			
+			---- menu ---------------------------
+			
+-- 			subMenu  "Vue" (
 				
-				separator s01
-				menuItem basculeMaximiser 		"Maximiser" 	checked:( miniMax.m_dialog.m_moteur.getMaximiser()	)
+				menuItem vuePlan 		"Plan"			checked:( estVueActive "Plan" 	)
+				menuItem vueFace 		"Face"		checked:( estVueActive "Face" 	)
+				menuItem vueCote 		"Coté"		checked:( estVueActive "Coté" 	)
+				menuItem vue3D 			"3D"			checked:( estVueActive "3D" 	)
+				menuItem vueCamera 	"Camera"	checked:( estVueActive "Caméra" 	) 		enabled:b_camEnabled
+-- 			)
+		
+			separator s05
+			
+			subMenu  "Affichage" (
+				menuItem afficherInfos		"Infos" 		checked:( miniMax.m_moteur.getAfficherInfos()	)
+				menuItem afficherGrille 		"Grille" 	checked:( miniMax.m_moteur.getAfficherGrille()	)
 			)
 			
+			
+-- 			separator s01
+			menuItem basculeMaximiser 		"Maximiser" 	checked:( miniMax.m_dialog.m_moteur.getMaximiser()	)
+			
+			separator s02
 			subMenu  "Debug" (
+				
 				menuItem debugMode 		"Debug mode" 		checked:DEBUG_MODE	
 				
 			)
 			
 			--- evenement ---
-			on debugMode 		picked do	DEBUG_MODE = not DEBUG_MODE
-			on afficherUI 			picked do	miniMax.toggleAfficherUI ()
+			on debugMode 	picked do	DEBUG_MODE = not DEBUG_MODE
+			on afficherInfos 	picked do	miniMax.m_moteur.toggleInfos ()
 			
-			on basculeMaximiser	picked do	miniMax.toggleMaximiserVue ()
+			on vuePlan 		picked do	miniMax.m_moteur.setActiveVueType #plan
+			on vueFace 		picked do	miniMax.m_moteur.setActiveVueType #face
+			on vueCote 		picked do	miniMax.m_moteur.setActiveVueType #cote
+			on vue3D 			picked do	miniMax.m_moteur.setActiveVueType #3D
+			on vueCamera 	picked do	miniMax.m_moteur.setActiveVueType #3D
 			
+			
+			on basculeMaximiser	picked do	miniMax.m_moteur.toggleMaximiserVue ()
+			
+			
+			
+			/* 
 			--- initialisation
 			on menu_minMot 	open do (
-				local vueActive = miniMax.getActiveVue ()
-				case vueActive.getType () of (
-					#Plan: 	b_plan 	= true
-					#Face: 	b_face 	= true
-					#Cote: 	b_Cote 	= true
-					#3D: 		b_3D 	= true
+				local vueActive = miniMax.m_moteur.getActiveVue ()
+				debug "menu_minMot"
+				debug "vueActive.getType ()" var:( vueActive.getType () )
+				case vueActive.getType () as name of (
+					"plan": 		b_plan 	= true
+					#face: 		b_face 	= true
+					#cote: 		b_Cote 	= true
+					#3D: 			b_3D 	= true
+					#camera: 	b_cam 	= true
 				)
-			)
+				
+				debug "b_plan" var:b_plan
+				debug "b_face" var:b_face
+				debug "b_Cote" var:b_Cote
+				debug "b_3D" 	var:b_3D
+			) */
 			
 		)
 		popUpMenu menu_minMot
@@ -202,7 +236,6 @@ rollout roll_miniMax "labib - miniMax" width:440 height:440
 	
 	
 	------------  Evenements	----------------------------------------------------------------------------------
-	
 	--- rollout ---
 	on roll_miniMax moved			_pos 		do	m_prt.m_pos	= _pos
 	on roll_miniMax resized			_taille 	do	redimensionner 	_taille
@@ -237,8 +270,8 @@ rollout roll_miniMax "labib - miniMax" width:440 height:440
 	
 	on roll_miniMax mouseMove 		_pos 	do	sourisBouge 					_pos
 
-			
-			
+	
+	
 ) -- fin rollout ---
 
 
@@ -331,23 +364,19 @@ struct str_miniMax (
 		
 		
 		
-		
-		---- Affichage  -------------------------------------------
-		fn toggleAfficherUI 		=	m_dialog.m_moteur.toggleUI (),		
-		fn toggleAfficherGrille 	=	m_dialog.m_moteur.toggleGrille (),	
-		fn toggleMaximiserVue 	=	m_dialog.m_moteur.toggleMaximiserVue (),
-		
-		
-		
 		---- Initialiser  -------------------------------------------
 		fn initialiser =(
 			
 			---- les UIs  ----
-			m_moteur.ajouterControle 		m_dialog.ui_painter_1	type:#plan
-			m_moteur.ajouterControle 		m_dialog.ui_painter_2	type:#face
-			m_moteur.ajouterControle 		m_dialog.ui_painter_3	type:#cote
-			m_moteur.ajouterControle 		m_dialog.ui_painter_4	type:#3D
+			m_moteur.ajouterVue 		m_dialog.ui_painter_1	type:#plan		
+			m_moteur.ajouterVue 		m_dialog.ui_painter_2	type:#face		
+			m_moteur.ajouterVue 		m_dialog.ui_painter_3	type:#cote		
+			m_moteur.ajouterVue 		m_dialog.ui_painter_4	type:#3D		
 			
+			
+			--- creation des element des base ----
+			m_moteur.creer.box  		pos:[0,0,0] 	taille:[50,40,80] 	centre:[0 ,0 ,0 ] 	coulLignes:[30,30,30]  	coulPts:white	
+			m_moteur.creer.camera  	pos:[0,0,0] 	cible:[0,0,40] 		FOV:75			 	coulLignes:blue  			coulPts:blue
 			
 			--- Premiere actualisation ----
 			m_dialog.actualiser ()

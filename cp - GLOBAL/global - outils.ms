@@ -232,7 +232,50 @@ struct str_math3D (
 	fn rotate_Z 	_normal    angleEnDeg 	= (
 		local result	=  (eulerAngles 0 0 angleEnDeg ) as matrix3 * ( matrixFromNormal _normal )
 		result
+	),
+	
+-- 	fn distancePtPlan 	_pt 	_matrxPlan 
+	
+	fn projectionOrthoSurPlan  _ptAProjeter  	_matrxPlan  =(
+		
+		local result 
+		local planRay 	= ray  [0,0,0] [0,0,0]
+		local position  = _matrxPlan.translationPart
+		local direction = [0,0,1] * _matrxPlan.rotationPart
+		local pt2 		= _ptAProjeter + direction
+		
+		planRay.pos 	= position
+		planRay.dir 		= direction
+		
+		
+		result 			= intersection_Droite_Plan 	planRay  _ptAProjeter	pt2 
+		
+		result
 	)
+	
+	/* 
+	plan = $
+	ptsAProj = selection as array	
+	matrixPlan = plan.transform
+	select ptsAProj
+	*/	
+	/*
+	
+	
+	
+	try delete result catch ()
+	result = #()
+	for pt in ptsAProj do (
+		local posProj = math.D3.projectionOrthoSurPlan  pt.pos   plan.transform
+		append result ( point wirecolor:blue pos: posProj size:5 )
+	)	
+	select result
+	
+	
+	
+	
+	*/
+	
 	
 ) --- fin struct Math 2D ------------
 
