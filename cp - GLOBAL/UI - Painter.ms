@@ -14,7 +14,6 @@ struct str_painter (
 	----------------------------------------------------------------------------------------------------------
 	
 	private
-		
 		---- 	la taille	----
 		m_taille 		= 	[256, 256],
 		
@@ -29,58 +28,60 @@ struct str_painter (
 		m_couleurEncre 	= white,
 		
 	public
-		
 		--------- 	la taille	--------------------------------------------
 		fn setTaille 	_taille =(
-			m_taille = _taille
+			m_taille = copy  _taille
 			this.initBitmap ()
+		),		
+		fn getTaille 	=(
+			m_taille
 		),
 		
 		--------- 	la bitmap	--------------------------------------------
 		fn getBitmap 										= copy m_bmp,
 		fn pasteToBitmap 	_bmp						= m_bmp = copy _bmp,
 		fn setBitmap			_bmp						= m_bmp = _bmp,
+		fn displayBitmap									= display m_bmp,
+		fn initBitmap 	couleur:m_couleurFond		= m_bmp = bitmap 	m_taille.x 	m_taille.y 	color:couleur,
 		
-		fn initBitmap 	couleur:m_couleurFond		= m_bmp = bitmap m_taille.x m_taille.y 	color:couleur,
-		
+		fn clear 			couleur:m_couleurFond		= initBitmap 	couleur:couleur,
 		
 		
 		----- 	DESSIN	--------------------------------------------	
-
+		
 		fn ecrire 			_posOrigine 	_txt	 			couleur:m_couleurEncre	 	= (
 			
-				local 	pos 		= [0,0]
+			local 	pos 		= [0,0]
 			
-				---- pour chaque charactere du texte ----
-				for idCharac = 1 to 	_txt.count do (
-					local characAEcrire 	= _txt[ idCharac ]
-					local characPolice 	= m_police.get  characAEcrire
-	-- 				format "CHAR : %\n" characPolice
-					if characAEcrire == "§" then (
-						pos.x =  0
-						pos.y += m_police.lignes +  m_police.ecart 
-					) else (
+			---- pour chaque charactere du texte ----
+			for idCharac = 1 to 	_txt.count do (
+				local characAEcrire 	= _txt[ idCharac ]
+				local characPolice 	= m_police.get  characAEcrire
+-- 				format "CHAR : %\n" characPolice
+				if characAEcrire == "§" then (
+					pos.x =  0
+					pos.y += m_police.lignes +  m_police.ecart 
+				) else (
+					
+					---- pour chaque ligne ----
+					for index_ligne = 1 to m_police.lignes do (
 						
-						---- pour chaque ligne ----
-						for index_ligne = 1 to m_police.lignes do (
+						local charac_ligne = characPolice[	index_ligne ]
+						
+						---- pour chaque pixel de la ligne ----
+						for index_pix = 1 to  charac_ligne.count do (
 							
-							local charac_ligne = characPolice[	index_ligne ]
+							local 	val 		= charac_ligne [ index_pix ]
+							local 	pos_rep 	= _posOrigine + pos +[ index_pix , index_ligne]
 							
-							---- pour chaque pixel de la ligne ----
-							for index_pix = 1 to  charac_ligne.count do (
-								
-								local 	val 		= charac_ligne [ index_pix ]
-								local 	pos_rep 	= _posOrigine + pos +[ index_pix , index_ligne]
-								
-								---- on dessine le pixel, ou pas ... ---
-								if val >0 do 	setPixels 	m_bmp 	pos_rep  	#( couleur )
-								
-							)
+							---- on dessine le pixel, ou pas ... ---
+							if val >0 do 	setPixels 	m_bmp 	pos_rep  	#( couleur )
+							
 						)
-						pos +=  [ 		(characPolice[1].count ) + m_police.ecart , 0]
 					)
+					pos +=  [ 		(characPolice[1].count ) + m_police.ecart , 0]
 				)
-				
+			)
 			
 		),
 		fn droite				pt_1 	pt_2  						couleur:m_couleurEncre		= (
@@ -380,7 +381,6 @@ struct str_painter (
 		),
 		fn grille  			_centre  	_ecart	 			couleur:m_couleurEncre		= (
 			
-			taille			= [	m_bmp.width	,	m_bmp.height ]	
 			ecart_x 		=  _ecart
 			ecart_y 		=  _ecart
 			
@@ -390,7 +390,7 @@ struct str_painter (
 				posX -= ecart_x
 			)
 			posX = _centre.x
-			while posX < taille.x  do ( 
+			while posX < m_taille.x  do ( 
 				droite 	( [ posX  , 	0 ]  )	([ posX, 	m_taille.y ] ) 		couleur:couleur
 				posX += ecart_x
 			)
@@ -400,7 +400,7 @@ struct str_painter (
 				posY -= ecart_y
 			)
 			posY = _centre.y
-			while posY < taille.y  do ( 
+			while posY < m_taille.y  do ( 
 				droite 	( [ 0 , posY  ]  )	([m_taille.x ,  posY ] ) 		couleur:couleur
 				posY += ecart_y
 			)

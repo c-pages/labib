@@ -37,8 +37,8 @@ struct str_miniMax_noeud (
 	
 	private
 	------------ DEBUG	----------------------------------------------------------------------------------
-		m_debug = true,
--- 		m_debug = false,
+-- 		m_debug = true,
+		m_debug = false,
 		m_dbgPrefix ="noeud",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
@@ -68,10 +68,40 @@ struct str_miniMax_noeud (
 		m_couleur_lignes  = gray,
 		m_couleur_points = white,
 		
+		----- BB de l'element -----
+		m_localBB = #( [0,0,0], [0,0,0] ),
 		
 	private
 		--- Maths ------------------------------------------------------------------------
-		fn localToWorld 	_pt3 = _pt3 + m_pos - m_centre,
+		fn ptNdToWorld	_pt3 				= _pt3 + m_pos - m_centre,
+		fn ptNdToVue 		_vue	_pt3 		= _vue.worldToVue 	(  ptNdToWorld   _pt3  ) ,
+		
+	public	
+		----- BB de l'element -----
+		fn getBB		= (
+			
+			local resultat = #( [1e9,1e9,1e9], [-1e9,-1e9,-1e9] )
+			
+			for ptLocal in m_points do (
+				
+				local pt = ptNdToWorld 	ptLocal
+				
+				if pt.x < resultat[1].x do 	resultat[1].x = pt.x
+				if pt.y < resultat[1].y do 	resultat[1].y = pt.y
+				if pt.z < resultat[1].z do 	resultat[1].z = pt.z
+				
+				if pt.x > resultat[2].x do 	resultat[2].x = pt.x
+				if pt.y > resultat[2].y do 	resultat[2].y = pt.y
+				if pt.z > resultat[2].z do 	resultat[2].z = pt.z
+				
+			)
+			debug "get BB" var:resultat
+			resultat
+		),
+		
+-- 		fn setLocalBB 	_bb = m_localBB = _bb,
+		
+		
 		
 	public	
 		--- Geometrie ------------------------------------------------------------------------
@@ -149,13 +179,13 @@ struct str_miniMax_noeud (
 			if not nd.dessiner _vue do (
 				
 				for segment in m_segments do (
-					local ptVue1 = _vue.worldToVue 	(  localToWorld  m_points[ segment[1] ]  ) 
-					local ptVue2 = _vue.worldToVue 	(  localToWorld  m_points[ segment[2] ] )
+					local ptVue1 = ptNdToVue   	_vue		m_points[ segment[1] ] 
+					local ptVue2 = ptNdToVue   	_vue		m_points[ segment[2] ] 
 					_vue.m_painter.segment  ptVue1 ptVue2 	couleur:m_couleur_lignes
 				)
 				
 				for pt in m_points do (
-					local ptVue = _vue.worldToVue (  localToWorld  pt )
+					local ptVue = ptNdToVue   	_vue	 pt 
 					_vue.m_painter.cercle  ptVue  3	couleur:m_couleur_points 
 				)
 				
@@ -166,8 +196,6 @@ struct str_miniMax_noeud (
 
 	
 ) --- fin struct ------------------------------------------------------------------------
-
-
 
 ----------------------------------------------------------------------------------------
 ------------    elements primaires des PADS     ------------------------------------
@@ -318,9 +346,6 @@ struct str_miniMax_btnRond (
 ) --- fin struct ------------------------------------------------------------------------
 
 
-
-
-	
 ------------------------------------------------------------------------------------------------------------------------------
 -----  *.nd : Structure portant les parametres propres à chaque elements 	------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------
@@ -379,12 +404,12 @@ struct str_miniMax_nd_box (
 			m_prt.ajouterSegment 	7	3
 			m_prt.ajouterSegment 	8	4
 			
+			
+			---- la boundingBox 
 		)
 		
 		
 )  --- fin struct ------------------------------------------------------------------------
-
-
 
 --- CAMERA ---
 struct str_miniMax_nd_camera (

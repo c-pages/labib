@@ -160,13 +160,21 @@ struct str_math3D (
 	
 	fn getMtrxRotation  _vecteur	=(
 		
+		local resultat
+		
 		---- attention au cas Z vertical ----
-		local vecZ 		=	normalize ( _vecteur )			
-		local vecX 		= 	normalize ( cross  vecZ [0,0,1] )
-		local vecY 		= 	normalize ( cross  vecX vecZ )
+		if _vecteur.x != 0 and _vecteur.y != 0 then (
+			
+			result = matrixFromNormal 	_vecteur
+			
+		) else (
 		
-		local resultat 	= 	matrix3 vecX 	vecY 	vecZ  [0,0,0]		
-		
+			local vecZ 		=	normalize ( _vecteur )			
+			local vecX 		= 	normalize ( cross  vecZ [0,0,1] )
+			local vecY 		= 	normalize ( cross  vecX vecZ )
+			
+			resultat 	= 	matrix3 vecX 	vecY 	vecZ  [0,0,0]		
+		)
 		resultat
 	),
 	

@@ -69,39 +69,41 @@ struct str_miniMax_MOTEUR (
 			local nvVue			= str_miniMax_vue m_moteur:this
 			nvVue.setControle 		_controle  
 			
-			
 			case type of (
 				#plan: (
 						if nom == unsupplied do	nom = "Plan"							
 						nvVue.setNom 		nom
-						nvVue.setNorm 		[0,0,1]
+						nvVue.setNormal 		[0,0,1]
 						nvVue.setProjection #ortho
 					)
 				#face: (
 						if nom == unsupplied do	nom = "Face"							
 						nvVue.setNom 		nom
-						nvVue.setNorm 		[-1,0,0]
+						nvVue.setNormal 		[-1,0,0]
 						nvVue.setProjection #ortho
 					)
 				#cote: (
 						if nom == unsupplied do	nom = "Coté"							
 						nvVue.setNom 		nom
-						nvVue.setNorm 		[0,1,0]
+						nvVue.setNormal 		[0,1,0]
 						nvVue.setProjection #ortho
 					)
 				#3D: (
 						if nom == unsupplied do	nom = "3D"							
 						nvVue.setNom 		nom
-						nvVue.setNorm 		[1,0,0]
+						nvVue.setNormal 		[1,0,0]
 						nvVue.setProjection #perspective
 					)
 				#camera: (
 						if nom == unsupplied do	nom = "Caméra"							
 						nvVue.setNom 		nom
-						nvVue.setNorm 		[1,0,0]
+						nvVue.setNormal 		[1,0,0]
 						nvVue.setProjection #perspective
 					)
 			)
+			
+			--- on active la vue ---
+			m_vueActive = nvVue
 			
 			--- ajout dans la liste des vues ---
 			append 	m_vues 		nvVue
@@ -125,7 +127,9 @@ struct str_miniMax_MOTEUR (
 			
 		),
 		fn getActiveVue = m_vueActive,
-			
+		fn getVue _id =(
+			m_vues[_id]
+		),
 		fn setActiveVueType  _type =(
 			local controle = m_vueActive.getControle ()
 			
@@ -199,6 +203,29 @@ struct str_miniMax_MOTEUR (
 			result
 		),
 		
+		
+		fn getWorldBB =(
+			
+			local resultat 	= #( [1e9,1e9,1e9], [-1e9,-1e9,-1e9] )
+			
+			for elem in m_elements do (
+				
+				local elemBB 	= 	elem.getBB ()			
+				
+				
+				if elemBB[1].x < resultat[1].x do 	resultat[1].x = elemBB[1].x
+				if elemBB[1].y < resultat[1].y do 	resultat[1].y = elemBB[1].y
+				if elemBB[1].z < resultat[1].z do 	resultat[1].z = elemBB[1].z
+				
+				if elemBB[2].x > resultat[2].x do 	resultat[2].x = elemBB[2].x
+				if elemBB[2].y > resultat[2].y do 	resultat[2].y = elemBB[2].y
+				if elemBB[2].z > resultat[2].z do 	resultat[2].z = elemBB[2].z
+				
+			)
+			
+			
+			resultat
+		),
 		
 		------  Evenements Souris	--------------------------------------------------------
 		--- Deplacement --------------
