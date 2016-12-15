@@ -9,17 +9,6 @@ include "$userScripts\cp - labib\labib - Mgr - minimax - Vue.ms"
 include "$userScripts\cp - labib\labib - Mgr - minimax - Elements.ms"	
 
 
-
-
-
-
-
-
-
-
-
-
-
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --------------- Moteur	------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -91,13 +80,15 @@ struct str_miniMax_MOTEUR (
 				#3D: (
 						if nom == unsupplied do	nom = "3D"							
 						nvVue.setNom 		nom
-						nvVue.setNormal 		[1,0,0]
+						nvVue.setNormal 		[0.341771,-0.233515,-0.910309]--[-0.57735,-0.57735,-0.57735] -- [-0.653682,-0.653682,-0.381314]
+						nvVue.setPos 			[100,100,100]
 						nvVue.setProjection #perspective
 					)
 				#camera: (
 						if nom == unsupplied do	nom = "Caméra"							
 						nvVue.setNom 		nom
-						nvVue.setNormal 		[1,0,0]
+						nvVue.setNormal 		[-0.57735,-0.57735,-0.57735]
+						nvVue.setPos 			[100,100,100]
 						nvVue.setProjection #perspective
 					)
 			)
@@ -141,13 +132,16 @@ struct str_miniMax_MOTEUR (
 			this.actualiser 	vue:nvVue
 			
 		),
-		
+		fn recadrerVues =(
+			for vue in m_vues do vue.recadrerWolrd()
+		),
 		
 		
 		---- Elements --------------------------------------------------------	
 		fn getElements 		= m_elements,
 		fn ajouterElement 	_element =(
 			append m_elements 	_element
+			recadrerVues ()
 			_element
 		),
 		
@@ -155,7 +149,7 @@ struct str_miniMax_MOTEUR (
 		
 		---- Affichage --------------------------------------------------------
 		fn getAfficherInfos 	= m_afficherInfos,
-		fn getAfficherGrille 	= m_afficherInfos,
+		fn getAfficherGrille 	= m_afficherGrille,
 		fn getMaximiser 		= m_maximiser,
 		
 		fn toggleInfos =(
@@ -164,7 +158,7 @@ struct str_miniMax_MOTEUR (
 		),
 		fn toggleGrille =(
 			m_afficherGrille = not m_afficherGrille
-			dessiner ()
+			this.dessiner ()
 		),
 		fn toggleMaximiserVue 	=(
 			
@@ -203,7 +197,7 @@ struct str_miniMax_MOTEUR (
 			result
 		),
 		
-		
+		---- Bounding box --------
 		fn getWorldBB =(
 			
 			local resultat 	= #( [1e9,1e9,1e9], [-1e9,-1e9,-1e9] )
@@ -222,10 +216,24 @@ struct str_miniMax_MOTEUR (
 				if elemBB[2].z > resultat[2].z do 	resultat[2].z = elemBB[2].z
 				
 			)
-			
+			resultat[2] =  resultat[2] - resultat[1] 
 			
 			resultat
 		),
+		fn getWorldBCube =(
+			local result 		= #( [0,0,0], [0,0,0] )
+			local worldBB 		= getWorldBB ()
+			local grdCote 		= amax  #( worldBB[2].x, worldBB[2].y, worldBB[2].z )
+			local BCubeTaille = [ grdCote, grdCote, grdCote ]
+			local BCubePos 	= worldBB[1] - ( BCubeTaille -  worldBB[2]  ) /2
+			
+			result= #( BCubePos, BCubeTaille )
+			
+			result
+		),
+		
+		
+		
 		
 		------  Evenements Souris	--------------------------------------------------------
 		--- Deplacement --------------

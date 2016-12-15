@@ -10,19 +10,11 @@
 	les methodes d'édition de la bibliotheque (importer dans la scene, nouvel asset ...)
 ##########################################################################################################################*/
 
+global CoronaConverter, sceneRelinkBitmaps
 
-
-
-
-
---------------------------------------------------------------------------------------------------------------------
-------- Les composites de l'arborescence ----------------------------------------------------------------------
---------------------------------------------------------------------------------------------------------------------
-
-----------------------------------------------------------
--- un élément  est une feuille (composite) 			--
--- peut representer une image, un fichier max ...	--
-----------------------------------------------------------
+------------------------------------------------------------------------------------------------
+----  EDITION	----------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------
 struct str_edition (
 
 	------------ DEBUG	----------------------------------------------------------------------------------
@@ -72,8 +64,10 @@ struct str_edition (
 		m_dragNoeuds 	=#(),				-- les noeuds draggés ----
 		
 	--------- conversion coronas ----------
+		/* 
 		m_coroConverter = CoronaConverter,
-		m_coroProxyConverter = CoronaProxyConverter,
+		m_coroProxyConverter = CoronaProxyConverter, 
+		*/
 -- 					CoronaConverter.convertScene ()
 
 	public  -- DEBUG sinon private ---
@@ -308,19 +302,7 @@ struct str_edition (
 		
 		
 		--------- conversion coronas ----------
-		fn relinkBitmapsInit =(
-			
--- 			local dossiers = #("D:")
-			if doesFileExist ((getDir #userScripts)+"\\Relink Bitmaps\\C_Lib.mse") and doesFileExist ((getDir #userScripts)+"\\Relink Bitmaps\\Relink_Lib.mse") and doesFileExist ((getDir #userScripts)+"\\Relink Bitmaps\\Relink Bitmaps.mse") then ( 
-			   fileIn ((getDir #userScripts)+"\\Relink Bitmaps\\C_Lib.mse") quiet:true 
-			   fileIn ((getDir #userScripts)+"\\Relink Bitmaps\\Relink_Lib.mse") quiet:true 
-			   fileIn ((getDir #userScripts)+"\\Relink Bitmaps\\Relink Bitmaps.mse") quiet:true 
-			) else (
-			   MessageBox "Relink Bitmaps files are not in the default installation path.  Try reinstalling."
-			)
-			
-			
-		),
+
 		fn relinkBitmaps =(
 			
 			debug "relinkBitmaps()" 
@@ -328,6 +310,9 @@ struct str_edition (
 			local dossiers = #(	"D:\01 - modeles 3D\00 - collections\ARCHMODELS\MAPS Evermotion" , 
 										"D:\00 - images", 
 										"D:\01 - modeles" )
+			
+			if sceneRelinkBitmaps == undefined do 
+				this.initRelinkBitmaps ()
 			
 			sceneRelinkBitmaps dossiers recursive:true
 			
@@ -337,7 +322,17 @@ struct str_edition (
 			
 			debug "convertMateriauxScene - debut" 
 			
-			m_coroConverter.convertScene ()
+			
+-- 			show CoronaConverter
+			
+			if CoronaConverter == undefined do 
+				this.initCoronaConvert()
+			
+			CoronaConverter.convertScene ()
+			
+			
+			
+-- 			m_coroConverter.convertScene ()
 			
 			--- on relink les bitmaps manquantes -----
 			relinkBitmaps ()
@@ -345,7 +340,7 @@ struct str_edition (
 			debug "convertMateriauxScene - fin" 
 		),
 		fn convertToProxy =(
-			
+			CoronaProxyConverter
 -- 		m_coroProxyConverter = CoronaProxyConverter
 		),
 		
@@ -440,7 +435,7 @@ struct str_edition (
 			)
 			
 			
-			m_labib.fenetre.m_dialog.afficherTags 		m_ndsAAfficher 
+-- 			m_labib.fenetre.m_dialog.afficherTags 		m_ndsAAfficher 
 			m_fenetre.actualiser ()
 			
 			--- restauration etat du TV ---
@@ -668,13 +663,14 @@ struct str_edition (
 -- 			debug "initaliser"
 			
 			----- initialiser les scripts exterieurs --------------------
+			/* 
 			------- Corona	---------------
 			global CoronaConverterSuppressGui = true
 			include  "$scripts\CoronaRenderer\CoronaConverter_v1.29.ms"
 			CoronaConverterSuppressGui = false
-			
+			 */
 			------- relinkBitmaps	  ---------------			
-			relinkBitmapsInit ()
+-- 			relinkBitmapsInit ()
 			
 			
 			
@@ -689,7 +685,41 @@ struct str_edition (
 			--- historique ----			
 			m_hist 			= str_historique 		m_dialog:m_fenetre.m_dialog		m_edit:this
 			
-		),		
+		),
+		
+		fn initRelinkBitmaps =(
+	debug "initRelinkBitmaps"
+			
+-- 			local dossiers = #("D:")
+			if doesFileExist ((getDir #userScripts)+"\\Relink Bitmaps\\C_Lib.mse") and doesFileExist ((getDir #userScripts)+"\\Relink Bitmaps\\Relink_Lib.mse") and doesFileExist ((getDir #userScripts)+"\\Relink Bitmaps\\Relink Bitmaps.mse") then ( 
+			   fileIn ((getDir #userScripts)+"\\Relink Bitmaps\\C_Lib.mse") quiet:true 
+			   fileIn ((getDir #userScripts)+"\\Relink Bitmaps\\Relink_Lib.mse") quiet:true 
+			   fileIn ((getDir #userScripts)+"\\Relink Bitmaps\\Relink Bitmaps.mse") quiet:true 
+			) else (
+			   MessageBox "Relink Bitmaps files are not in the default installation path.  Try reinstalling."
+			)
+			
+			
+		),
+		fn initCoronaConvert = (
+			debug "initCoronaConvert"
+			srchDir = GetDir #scripts
+			scripts = getfiles (srchDir + "\\CoronaRenderer\\" + "CoronaConverter_v*.ms")
+			global  CoronaConverterSuppressGui = true
+			if scripts.count != 0 then(
+				sort scripts
+				latest = scripts[scripts.count]
+				filein latest
+			)
+			else(
+				messageBox @"No CoronaConverter script file found in Scripts\CoronaRenderer directory" title:"Error" 
+			)
+			CoronaConverterSuppressGui = false
+
+			debug "initCoronaConvert FIN" var:CoronaConverter
+		),
+
+		
 		fn majPointeursFenetre =(
 			
 			debug "majPointeursFenetre"

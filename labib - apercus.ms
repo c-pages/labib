@@ -90,7 +90,7 @@ struct str_apercus (
 			local nbrVertex = 0
 			for obj in objects where superClassOf obj == GeometryClass do (
 				local nodeSnapShot = snapshotAsMesh  obj
-				debug "nodeSnapShot" var:(getNumVerts  nodeSnapShot)
+-- 				debug "nodeSnapShot" var:(getNumVerts  nodeSnapShot)
 				
 				try nbrVertex += getNumVerts  nodeSnapShot catch ()
 				delete nodeSnapShot

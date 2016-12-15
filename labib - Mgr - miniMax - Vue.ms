@@ -32,21 +32,21 @@ struct str_miniMax_vue (
 		m_fenPos		= [0,0],
 		m_fenTaille		= [400,400],
 		
-		--- pour affichage ---
-		m_echelle		= 1,			--- n'est pas utilisé dans les calculs, seulement pour avoir un retour --------------
+		m_cameraMiniMax,
+		
 		
 		--- Parametres  vue ---------
-		m_pos 			= [0,0,0],
+		m_pos 				= [0,0,0],
 		m_normal			= [0,0,1],
 		
 		---- Perpsective ----
-		m_distFocal	= 100,
+		m_distFocal	= 10,
 		m_FOV 			= 50,
 		m_FOVmin 		= 5,
 		m_FOVmax 		= 160,
 		
 		--- Grille ----
-		m_tailleGrille	= [25,25,25],
+		m_tailleGrille	= [20,20,20],
 		
 		--- Bitmap ------
 		m_bmpFond,	 									--- l'image sur laquelle on dessine les fond (pour ne pas avoir a les redessiner tout le temps ) ---------
@@ -68,7 +68,7 @@ struct str_miniMax_vue (
 		m_couleurFond			= 	[2,2,2],
 		m_couleurTextes			= 	[200,200,200],
 		m_couleurVueActive		= 	[200,200,200],
-		m_couleurGrille			= 	[10,10,10],
+		m_couleurGrille			= 	[4,4,4],
 		m_couleurAxes			= 	[20,20,20],
 		
 		---- pan ----
@@ -81,79 +81,23 @@ struct str_miniMax_vue (
 		
 	public
 		
-		----- Couleur ------------------------------------------------------------------------------------------------------------
-		fn setCouleurfond  _coul = m_couleurFond = _coul ,
-		
-		----- Parametres  ------------------------------------------------------------------------------------------------------------
-		fn activer			= 		m_active = true,
-		fn desactiver		= 		m_active = false,			
-		fn cacher			= 		m_visible = m_Controle.visible 	= false,
-		fn montrer			= 		m_visible = m_Controle.visible 	= true,
-		
-		fn setNom 	_nom = m_nom = _nom,
-		fn setID			_id	= m_ID = _id,
-		fn setProjection  	_type 	=	m_projection = _type,
-		fn setNormal  		_norm 	= 	m_normal = _norm,
-		
-		
-		
-		---- fenetre ------------------------------------------------------------
-		fn setPos _pos  	= ( 
-			m_fenPos = _pos 
-			this.dessiner () 
-		),
-		fn getPos 			= m_fenPos,
-		fn setTaille 	_taille 	=(
-			m_fenTaille =  _taille
-			this.dessiner () 
-		),
-		
-		
-		
-		
-		----- Controle ------------------------------------------------------------------------------------------------------------
-		fn rafraichirContoleur =	m_controle.bitmap = m_painter.getBitmap (),
-		fn setPosControle 	_pos		=	m_Controle.pos 	= 	_pos,
-		fn setTailleControle 	_taille	=(				
-			m_Controle.width		= _taille.x
-			m_controle.height	= _taille.y
-			
-			--- maj du painter ---
-			m_painter.setTaille 	_taille			
-		),		
-		fn getTailleControle	= [ m_controle.width, m_controle.height] ,
-		fn setControle			_controle = (
-			m_controle = _controle
-			
-			--- maj du painter ---
-			m_fenTaille = [m_controle.width, m_controle.height ]	
-			
-			m_painter.setTaille 		m_fenTaille
-		),
-		fn getControle	= m_controle,
-		
-		
-		----- Accesseurs divers ------------------------------------------------------------------------------------------------------------
-		fn getFond 		= m_bmpFond,
-		fn getID				= m_ID,
-		fn getUI				= m_controle,
-		fn getNom			= m_nom,
-		
-		fn estActive 		= m_active,
-		fn estVisible 		= m_visible,
-		
-		
-		
 		---- MATHS --------------------------------------------------------------------------------------------------------------------
-		fn getPlanProjection =(
+		fn posSourisToUI 	&_pos =  _pos -= m_controle.pos,
+		fn getProjectionPlan_ray =(
 			local resultat 	=	ray [0,0,0] [1,0,0]
 			resultat.dir 		=	m_normal 
-			resultat.pos 	=	m_pos - resultat.dir * m_distFocal
+			resultat.pos 	=	m_pos + resultat.dir * m_distFocal
 			resultat
 		),
-		fn getProjectionMtrx =(
-			local resultat 	=	matrixFromNormal m_normal
+		fn getProjectionPlan_mtrx 	=(
+			local resultat 	=	math.D3.getMtrxRotation	 m_normal
 			resultat.pos 	= 	m_pos
+			resultat
+		),
+		fn getEchelle =(
+			local resultat  = 1
+			if m_fenTaille.x != 0 do
+				resultat	= m_controle.width / m_fenTaille.x
 			resultat
 		),
 		
@@ -162,20 +106,17 @@ struct str_miniMax_vue (
 		fn planToVueTaille _param =(
 			
 			local result 	= _param
+			
 			--- on met l'image rendue à l'echelle de celle de l'UI -----			
 			result  =   result *  m_controle.width / m_fenTaille.x
+			
 			result
 		),
 		fn planToVuePos _param =(
-			local result  = _param		
-			/* 	
-			local demiLargeur	= tan ( m_FOV  / 2 )  * m_distFocal	
-			
-			--- on réaligne le coin haut gauche de l'image rendue sur le 0 ----
-			result.x -=   demiLargeur
-			result.y =   - result.y
-			result.y +=   demiLargeur
-			*/
+			local result  = _param	
+		
+			---- on inverse pour se mettre dans le repere bitmap ( Y vers le bas )----
+			result.y = - result.y
 			
 			--- on gere le pan ( ou pas ? ) -----
 			result.x 	-=   m_fenPos.x
@@ -185,10 +126,11 @@ struct str_miniMax_vue (
 		),
 		fn planToVue 	_paramPlan = (
 			
-			local result 	= planToVuePos _paramPlan 
+			local result 	= 	planToVuePos 		_paramPlan 
 			result 			=  planToVueTaille	result
 			
 			result
+			
 		),
 		fn worldToPlan 	_paramWorld = (
 			
@@ -196,22 +138,15 @@ struct str_miniMax_vue (
 			
 			--- projection sur plan focale Camera ----
 			case m_projection of (
-				#ortho:				(
-					result		=	math3D.projectionOrthoSurPlan 		_paramWorld			( getProjectionMtrx() )
-				)
-				#perspective:		(
-					result		=	math3D.intersection_Droite_Plan 	(getPlanProjection () )		m_pos 	_paramWorld
-				)
+				#ortho:				result		=	math3D.projectionOrthoSurPlan 		_paramWorld			( getProjectionPlan_mtrx() )
+				#perspective:		result		=	math3D.intersection_Droite_Plan 	( getProjectionPlan_ray () )	m_pos 	_paramWorld		
 			)
 			
-			--- on inverse le Z ------
-			result.z = -result.z
-			
 			--- on retire la tranformation de la camera -------
-			local mtrxPlanRotat 			= math.D3.getMtrxRotation 		m_normal
-			local mtrxPlanTranslate 	= math.D3.getMtrxTranslation 	m_pos			
-			result 	*= inverse mtrxPlanTranslate
-			result 	*= inverse mtrxPlanRotat
+			local mtrxPlanRotat 			= math.D3.getMtrxRotation 		m_normal			
+			local mtrxPlanTranslate 	= math.D3.getMtrxTranslation 	m_pos				
+			result 	*= 	mtrxPlanTranslate
+			result 	*= 	inverse  mtrxPlanRotat
 			
 			-- on le passe en 2D ---
 			result 	=   [ result.x, result.y ]
@@ -221,11 +156,51 @@ struct str_miniMax_vue (
 		---- global ----
 		fn worldToVue 	_paramWorld  =(
 			
-			local paramPlan 	= worldToPlan 	_paramWorld 
-			local result 		= planToVue 		paramPlan 
+			local result  = [0,0]
+			 
+			result 	= worldToPlan 	_paramWorld 
+			/*result		= planToVue 		result 
+			
+			
+			--- On recadre si vue perspective -----
+			if m_projection == #perspective do (		
+				result.x = -result.x				
+				result.x += m_controle.width	/2
+				result.y += m_controle.height/2
+			)
+			 */
+			
 			
 			result	
 		),	
+		
+		
+		/* 
+		fn posWorldToVue3D_DEBUG 	_param =(
+			
+			local result = [0,0]
+			
+			--- projection sur plan focale Camera ----
+			local rayPlanProj 	=	getProjectionPlan_ray ()				
+			result					=	math3D.intersection_Droite_Plan 	rayPlanProj		m_pos	 	_param
+			
+			--- on retire la tranformation de la camera -------
+			result 		= 	result * ( inverse ( m_camera.getMtrxTranslation () ) )
+			result 		= 	result * ( inverse ( m_camera.getMtrxRotation () ) )
+			
+			--- on réaligne le coine haut gauche de l'image rendue sur le 0 ----
+			result.x +=   ((m_camera.getCadre ()).maximum).x
+			result.y -=   ((m_camera.getCadre ()).maximum).y
+			
+			result	
+		),	
+		 */
+		
+		
+		
+		
+		
+		
 		
 		
 		
@@ -251,8 +226,7 @@ struct str_miniMax_vue (
 			result
 		),
 		fn vueToPlan	_paramVue =(
-			local result = [0,0,0]
-			result 		= [_paramVue.x,_paramVue.y,0]
+			local result = [_paramVue.x,_paramVue.y,0]
 			
 			--- on met à l'echelle de world -----			
 			 result  =   vueToPlanTaille result 
@@ -265,25 +239,11 @@ struct str_miniMax_vue (
 			
 			result
 		),
-		
+		---- global ----
 		fn vueToWorld 	_paramVue =(
 			
-			local result = [0,0,0]
-			/* 
-			case m_type of (
-				#Plan: 	(
-					result =   [ _paramVue.x / m_echelle - m_fenPos.x,  -( _paramVue.y / m_echelle- m_fenPos.y) , 0 ]  
-				)
-				#Cote: 	(
-					result =   [0 ,  _param.x / m_echelle - m_fenPos.x,  -( _param.y / m_echelle- m_fenPos.y) ] 
-					
-				)
-				#Face: 	(
-					result =   [  _param.x / m_echelle - m_fenPos.x, 0,  -( _param.y / m_echelle- m_fenPos.y) ]  
-					
-				)
-				#3D: 	() --	
-			) */
+			local result = vueToPlan _paramVue
+			
 			result
 			
 		),
@@ -291,7 +251,94 @@ struct str_miniMax_vue (
 		
 		
 		
-		fn posSourisToUI 	&_pos =  _pos -= m_controle.pos,
+			
+		
+		
+		----- Camera minimax ------------------------------------------------------------------------------------------------------------
+		fn matchCameraMinimax = (
+			m_pos 		= m_cameraMiniMax.getPos()
+			debug "m_normal" var:m_normal
+			debug "(m_cameraMiniMax.getRotation() )" var:(m_cameraMiniMax.getRotation() )
+-- 			m_normal 	= (m_cameraMiniMax.getRotation() )
+			m_FOV 		= m_cameraMiniMax.nd.getFOV()
+		),
+		fn setCameraMiniMax 		_cam =(
+			m_cameraMiniMax 	= _cam
+			matchCameraMinimax ()
+		),
+		
+		
+		
+		
+		----- Couleur ------------------------------------------------------------------------------------------------------------
+		fn setCouleurfond  _coul = m_couleurFond = _coul ,
+		
+		----- Parametres  ------------------------------------------------------------------------------------------------------------
+		fn activer			= 		m_active = true,
+		fn desactiver		= 		m_active = false,			
+		fn cacher			= 		m_visible = m_Controle.visible 	= false,
+		fn montrer			= 		m_visible = m_Controle.visible 	= true,
+		
+		fn setNom 	_nom = m_nom = _nom,
+		fn setID			_id	= m_ID = _id,
+		fn setProjection  	_type 	=	m_projection = _type,
+		fn setNormal  		_norm 	= 	m_normal = _norm,
+		
+		
+		
+		---- fenetre ------------------------------------------------------------
+		fn setFenPos _pos  	= ( 
+			m_fenPos = _pos 
+-- 			this.dessiner () 
+		),
+		fn getFenPos 			= m_fenPos,
+		fn setFenTaille 	_taille 	=(
+			m_fenTaille =  _taille
+			this.dessiner () 
+		),
+		fn centrer		_pos =(
+			m_fenPos.x = _pos.x - m_fenTaille.x / 2
+			m_fenPos.y = _pos.y + m_fenTaille.y / 2
+			this.dessiner ()
+		),
+		
+		--- point de vue -----
+		fn setPos _pos =(
+			m_pos = _pos
+		),
+		
+		----- Controle ------------------------------------------------------------------------------------------------------------
+		fn rafraichirContoleur =	m_controle.bitmap = m_painter.getBitmap (),
+		fn setPosControle 	_pos		=	m_Controle.pos 	= 	_pos,
+		fn setTailleControle 	_taille	=(				
+			m_Controle.width		= _taille.x
+			m_controle.height	= _taille.y
+			
+			--- maj du painter ---
+			m_painter.setTaille 	_taille			
+		),		
+		fn getTailleControle	= [ m_controle.width, m_controle.height] ,
+		fn setControle			_controle = (
+			m_controle = _controle
+			
+			--- maj du painter ---
+			m_fenTaille = [m_controle.width, m_controle.height ]	
+			
+			m_painter.setTaille 		m_fenTaille
+		),
+		fn getControle	= m_controle,
+		
+		----- Accesseurs divers ------------------------------------------------------------------------------------------------------------
+		fn getFond 		= m_bmpFond,
+		fn getID				= m_ID,
+		fn getUI				= m_controle,
+		fn getNom			= m_nom,
+		
+		fn estActive 		= m_active,
+		fn estVisible 		= m_visible,
+		
+		
+		
 		
 		
 		
@@ -394,6 +441,15 @@ struct str_miniMax_vue (
 			
 			debug "Dessiner"
 			
+			--- on actualise la taille de la fenetre si renud 3D -----
+			if m_projection == #perspective do (
+				local largeur	= tan ( m_FOV /2  )  * m_distFocal	* 2
+				m_fenTaille = [largeur, largeur]
+				
+				
+				
+			)
+			
 			-- on vide le painter ---
 			m_painter.clear 	couleur:m_couleurFond
 			
@@ -419,10 +475,12 @@ struct str_miniMax_vue (
 			---- les infos -----
 			if m_moteur.getAfficherInfos () do (
 				textUI += "§Pos: : " + m_fenPos as string
-				if m_type == #3D then
+				if m_projection == #perspective then (
 					textUI += "§FOV : " + m_FOV as string 
-				else 
-					textUI += "§Echelle : " + m_echelle as string 
+					textUI += "§norm : " + m_normal as string 
+					
+				) else 
+					textUI += "§Echelle : " + ( getEchelle() ) as string 
 			)
 			
 			---- ecriture du texte sur le painter -----
@@ -447,7 +505,6 @@ struct str_miniMax_vue (
 			
 			m_fenPos 			= [0,0]
 			m_fenTaille 		= [200,200]
-			m_echelle 			= 1
 			
 			--- Parametres  3D ---------
 			m_pos 	= [50,50,50]
@@ -470,12 +527,6 @@ struct str_miniMax_vue (
 			m_zoomTailleInit				=	m_fenTaille
 			
 			b_zoomEnCours 				= 	true
-			/* 
-			m_zoomPtACentrerWorld 	= 	posVueToWorld  m_zoomPosSourisInitiale
-			m_zoomEchelleInitiale		=	m_echelle
-			m_zoomPosInitiale			=	m_fenPos
-			m_zoomFOVInitiale			=	m_FOV
-			 */
 		),		
 		fn zoomArreter  =(
 			b_zoomEnCours = false
@@ -489,52 +540,78 @@ struct str_miniMax_vue (
 			
 			if m_FOV < m_FOVmin 		do m_FOV = m_FOVmin
 			if m_FOV > m_FOVmax 	do m_FOV = m_FOVmax
-			 */
+			
 			---- on actualise la vue ----
 			dessiner ()
-			
+			 */
 		),
 		fn zoomer2D _pos =(
 			
-			local coefPasDuZoom = 1.0 / 200
+			local coefZoom = 2
+			
 			
 			--- actualisation de l'echelle ---
-			local decallage	= - (	m_zoomPosSourisInitiale.y - _pos.y ) * 2 * [1,1]
-			m_fenTaille = m_zoomTailleInit + decallage
+			local ecart	= - (	m_zoomPosSourisInitiale.y - _pos.y ) * coefZoom * [1,1]
 			
+			
+			debug "ecart" var:ecart
+			
+			
+-- 			local posWorldSouris = vueToPlan 	m_zoomPosSourisInitiale			
+			local decallagePos = -ecart /2
+			decallagePos.y = -decallagePos.y
+			
+			debug "decallagePos" var:decallagePos
+			
+			m_fenPos = m_zoomPosInit + decallagePos
+			
+			 
+			
+			
+-- 			ecart 		= vueToPlanTaille ecart
+			
+			m_fenTaille = m_zoomTailleInit + ecart
 			
 			---- on actualise la vue ----
 			dessiner ()
 			
 		),
-		fn zoomAll =(
+		fn recadrerWolrd =(
 			
 			debug "zoom All"
 			
-			debug1  = m_painter.getTaille()
+			if m_projection == #ortho do (
 			
-			
-			local BBworld = m_moteur.getWorldBB ()
-			
-			
-			debug "BBworld" 	var:BBworld
-			
-			local BBPlan = #( worldToPlan  BBworld[1] , worldToPlan  BBworld[2] )
-		
-			
-			debug "BBPlan" 	var:BBPlan
-			
-			m_fenTaille.x 	= abs ( BBPlan[2].x - BBPlan[1].x )
-			m_fenTaille.y 	= m_fenTaille.x 
-			m_fenPos.x 	= BBPlan[1].x
-			m_fenPos.y 	= BBPlan[1].y + m_fenTaille.y
-			
-			debug "m_fenPos" 	var:m_fenPos
-			debug "m_fenTaille" 	var:m_fenTaille
-			
-			---- on actualise la vue ----
-			dessiner ()
-			
+	-- 			local BBworld = m_moteur.getWorldBB ()
+				local BCubeworld = m_moteur.getWorldBCube ()
+				
+				
+				debug "BCubeworld" 	var:BCubeworld
+				
+				local BBPlan = #( worldToPlan  BCubeworld[1] , worldToPlan  BCubeworld[2] )
+				local coefMargeBB = 1./2.
+				local margeBB = abs ( BBPlan[2].x ) * coefMargeBB * [1,1]
+				
+				local tailleFenetre =  BBPlan[2] -- abs ( BBPlan[2].x  - BBPlan[1].x  ) 
+				
+-- 				tailleFenetre = [tailleFenetre, tailleFenetre,tailleFenetre]
+				debug "tailleFenetre" 	var:tailleFenetre
+				debug "BBPlan" 	var:BBPlan
+				
+				m_fenTaille.x 	= tailleFenetre.x + margeBB.x
+				m_fenTaille.y 	= m_fenTaille.x 
+				
+				local centre = BCubeworld[1] + BCubeworld[2]/2
+				centre = worldToPlan  centre
+	-- 			centre.y = - centre.y
+				debug "centre" 	var:centre
+				
+				centrer	centre
+				
+				
+				---- on actualise la vue ----
+				dessiner ()
+			)
 		),
 		
 		
@@ -555,7 +632,7 @@ struct str_miniMax_vue (
 			b_panEnCours = false
 		),		
 		fn paner3D _pos =(
-			
+			/* 
 			local decallage 				= -(	m_panPosSourisInitiale - _pos )	
 			local toucheCtrEnfoncee 	= keyboard.controlPressed 
 			
@@ -580,14 +657,16 @@ struct str_miniMax_vue (
 				m_ciblePos 		= m_panCiblePosInitiale 	+ decallage
 			)
 			dessiner ()
-			
+			 */
 		),
 		fn paner2D _pos =(
-			local decallage = - (	m_panPosSourisInitiale - _pos ) --/ m_echelle
-			debug "decallage - 1 " var:decallage
-			decallage = vueToPlanTaille decallage
-			debug "decallage - 2 " var:decallage
-			m_fenPos = m_panPosInitiale + [-decallage.x, decallage.y, 0]
+			
+			--- le decallage a la bonne echelle -----
+			local ecart = - (	m_panPosSourisInitiale - _pos ) 			
+			ecart = vueToPlanTaille ecart
+			
+			--- on deplace la fenetre -----
+			m_fenPos = m_panPosInitiale + [-ecart.x, ecart.y, 0]
 			
 			dessiner ()
 		),
@@ -596,7 +675,7 @@ struct str_miniMax_vue (
 		------  SOURIS	--------------		
 		------  Evenements	--------------------------------------------------------
 		--- bouton Milleu --------------
-		fn mouseMDble 	_pos =(
+		fn mouseMDble 	_pos = if m_projection == #ortho do (
 			
 			--- on active la vue ---
 			demanderActivation ()
@@ -604,7 +683,7 @@ struct str_miniMax_vue (
 			---- pos en repere local de l'ui ---
 			posSourisToUI 	&_pos
 			
-			zoomAll ()
+			recadrerWolrd ()
 		),
 		fn mouseMUp 		_pos =(		
 			--- on active la vue ---
@@ -709,21 +788,20 @@ struct str_miniMax_vue (
 			---- pos en repere local de l'ui ---
 			posSourisToUI 	&_pos
 			
+			--- zoom ----
 			if b_zoomEnCours do 
-				if m_type == #3D 
-					then zoomer3D _pos
-					else zoomer2D _pos
+				if m_projection == #ortho
+					then zoomer2D _pos
+					else zoomer3D _pos
 				
 			
+			--- pan ----
 			if b_panEnCours do 
-				if m_type == #3D 
-					then paner3D _pos
-					else paner2D _pos
-			/* 
-			for elem in m_moteur.getElementsInteractifs ()  do 
-				if elem.estInteractif () do 
-					elem.mouseMove 		_pos  	this
-			 */
+-- 				if m_projection == #ortho
+					/* then */ paner2D _pos
+				/* 	else paner3D _pos */
+			
+				
 		)
 	
 		

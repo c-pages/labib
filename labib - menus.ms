@@ -170,7 +170,7 @@ struct str_menus (
 				)
 				on supprimer 						picked do 	labib.cmd.supprimer 	( labib.edit.getSelection () ) 
 				
-				on faireAprecus 					picked do 	labib.edit.faireApercus 	( labib.edit.getSelection () ) 
+				on faireAprecus 					picked do 	labib.cmd.faireApercus 	( labib.edit.getSelection () ) 
 				
 				on undoMenu 						picked do 		labib.cmd.defaire()
 				on redoMenu 						picked do 		labib.cmd.refaire()
@@ -181,9 +181,6 @@ struct str_menus (
 				on affichage_GrandeIcone		picked do	labib.fenetre.changerAffichage  #grandeIcone
 				on affichage_petitIcone		picked do	labib.fenetre.changerAffichage  #petitIcone
 				on affichage_tuile				picked do	labib.fenetre.changerAffichage  #tuile
-				
-				
-				
 				
 				on afficherDossiers 				picked do 	(
 					labib.prefs.fenetre.afficherDossier = not labib.prefs.fenetre.afficherDossier

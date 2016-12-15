@@ -27,6 +27,11 @@ struct str_painter (
 		m_couleurFond 	= black,
 		m_couleurEncre 	= white,
 		
+	private
+		fn estDansLimage _pt =(
+			_pt.x >=0 and _pt.x < m_bmp.width and _pt.y >=0 and _pt.y < m_bmp.height
+		),
+		
 	public
 		--------- 	la taille	--------------------------------------------
 		fn setTaille 	_taille =(
@@ -215,110 +220,116 @@ struct str_painter (
 				pt_2.x = ( pt_1.y  - b ) / a
 			)
 			
-			 */
-			local D = pt_1 - pt_2
-			local i_tiret 	= 0
-			local i_espace = 0
-			
-			if abs D.x > abs D.y
-				then (
-					if D.x < 0 
-						then for x = pt_1.x to pt_2.x do (
-							y =  pt_1.y + D.y/D.x * (x - pt_1.x)
-							
-							local b_ecrire = true
-							if tiret != 0 then (
-								if i_tiret <= tiret 	then (
-									i_tiret += 1
-								) else	if i_espace <= espace 	then (
-									i_espace += 1
-									b_ecrire = false
-								) else (
-									i_tiret = 0
-									i_espace = 0
-								)
-							)  
-							
-							if b_ecrire do 
+			*/
+			 
+-- 			if estDansLimage pt_1 and estDansLimage pt_2 do (
+				
+				local D = pt_1 - pt_2
+				local i_tiret 	= 0
+				local i_espace = 0
+				
+				if abs D.x > abs D.y
+					then (
+						if D.x < 0 
+							then for x = pt_1.x to pt_2.x do (
+								y =  pt_1.y + D.y/D.x * (x - pt_1.x)
+								
+								local b_ecrire = true
+								if tiret != 0 then (
+									if i_tiret <= tiret 	then (
+										i_tiret += 1
+									) else	if i_espace <= espace 	then (
+										i_espace += 1
+										b_ecrire = false
+									) else (
+										i_tiret = 0
+										i_espace = 0
+									)
+								)  
+								
+								if b_ecrire do 
+									setPixels m_bmp 	[x, y] 	#(couleur)
+								
+							) else  for x = pt_2.x to pt_1.x do (
+								y =  pt_2.y + D.y/D.x * (x - pt_2.x)
+								
+								local b_ecrire = true
+								if tiret != 0 then (
+									if i_tiret <= tiret 	then (
+										i_tiret += 1
+									) else	if i_espace <= espace 	then (
+										i_espace += 1
+										b_ecrire = false
+									) else (
+										i_tiret = 0
+										i_espace = 0
+									)
+								)  
+								
+								if b_ecrire do 
 								setPixels m_bmp 	[x, y] 	#(couleur)
-							
-						) else  for x = pt_2.x to pt_1.x do (
-							y =  pt_2.y + D.y/D.x * (x - pt_2.x)
-							
-							local b_ecrire = true
-							if tiret != 0 then (
-								if i_tiret <= tiret 	then (
-									i_tiret += 1
-								) else	if i_espace <= espace 	then (
-									i_espace += 1
-									b_ecrire = false
-								) else (
-									i_tiret = 0
-									i_espace = 0
-								)
-							)  
-							
-							if b_ecrire do 
-							setPixels m_bmp 	[x, y] 	#(couleur)
-					)
-				) else (
-					if D.y < 0 
-						then for y = pt_1.y to pt_2.y do (
-							x =  pt_1.x + D.x/D.y * (y - pt_1.y)
-							
-							local b_ecrire = true
-							if tiret != 0 then (
-								if i_tiret <= tiret 	then (
-									i_tiret += 1
-								) else	if i_espace <= espace 	then (
-									i_espace += 1
-									b_ecrire = false
-								) else (
-									i_tiret = 0
-									i_espace = 0
-								)
-							)  
-							
-							if b_ecrire do 
-							setPixels m_bmp 	[x, y] 	#(couleur)
-						) else for y = pt_2.y to pt_1.y do (
-							
-							x =  pt_2.x + D.x/D.y * (y - pt_2.y)
-							local b_ecrire = true
-							if tiret != 0 then (
-								if i_tiret <= tiret 	then (
-									i_tiret += 1
-								) else	if i_espace <= espace 	then (
-									i_espace += 1
-									b_ecrire = false
-								) else (
-									i_tiret = 0
-									i_espace = 0
-								)
-							)  
-							
-							if b_ecrire do 
-							setPixels m_bmp 	[x, y] 	#(couleur)
 						)
-			)
+					) else (
+						if D.y < 0 
+							then for y = pt_1.y to pt_2.y do (
+								x =  pt_1.x + D.x/D.y * (y - pt_1.y)
+								
+								local b_ecrire = true
+								if tiret != 0 then (
+									if i_tiret <= tiret 	then (
+										i_tiret += 1
+									) else	if i_espace <= espace 	then (
+										i_espace += 1
+										b_ecrire = false
+									) else (
+										i_tiret = 0
+										i_espace = 0
+									)
+								)  
+								
+								if b_ecrire do 
+								setPixels m_bmp 	[x, y] 	#(couleur)
+							) else for y = pt_2.y to pt_1.y do (
+								
+								x =  pt_2.x + D.x/D.y * (y - pt_2.y)
+								local b_ecrire = true
+								if tiret != 0 then (
+									if i_tiret <= tiret 	then (
+										i_tiret += 1
+									) else	if i_espace <= espace 	then (
+										i_espace += 1
+										b_ecrire = false
+									) else (
+										i_tiret = 0
+										i_espace = 0
+									)
+								)  
+								
+								if b_ecrire do 
+								setPixels m_bmp 	[x, y] 	#(couleur)
+							)
+				)
+-- 			) -- fin if est dans l'image
+				
 			--PAD_painter_roll.log_rayon = sqrt ( d.x^2 +  d.y^2)
 		),
 		fn cercle  			ctre		R 	  						couleur:m_couleurEncre		= (
 			
 	-- 		ctre = 	repere_pad_bmp	ctre
+			if estDansLimage ctre do (
 			
-			
-			for	x=  (ctre.x - R*(cos 45) ) to  (ctre.x + R*(cos 45) )  do (
-				y  =	sqrt (R^2 - (x-ctre.x)^2)	+ctre.y
-							setPixels m_bmp 	[x, y] 	#(couleur)
-				y  =	- sqrt (R^2 - (x-ctre.x)^2)	+ctre.y
-							setPixels m_bmp 	[x, y] 	#(couleur)
-			)
-			for	y=  (ctre.y - R*(cos 45) ) to  (ctre.y + R*(cos 45) )  do (
-				x  =	sqrt (R^2 - (y-ctre.y)^2)	+ctre.x
-							setPixels m_bmp 	[x, y] 	#(couleur)
-				x  =	- sqrt (R^2 - (y-ctre.y)^2)	+ctre.x
-							setPixels m_bmp 	[x, y] 	#(couleur)
+				for	x=  (ctre.x - R*(cos 45) ) to  (ctre.x + R*(cos 45) )  do (
+					y  =	sqrt (R^2 - (x-ctre.x)^2)	+ctre.y
+								setPixels m_bmp 	[x, y] 	#(couleur)
+					y  =	- sqrt (R^2 - (x-ctre.x)^2)	+ctre.y
+								setPixels m_bmp 	[x, y] 	#(couleur)
+				)
+				for	y=  (ctre.y - R*(cos 45) ) to  (ctre.y + R*(cos 45) )  do (
+					x  =	sqrt (R^2 - (y-ctre.y)^2)	+ctre.x
+								setPixels m_bmp 	[x, y] 	#(couleur)
+					x  =	- sqrt (R^2 - (y-ctre.y)^2)	+ctre.x
+								setPixels m_bmp 	[x, y] 	#(couleur)
+				)
 			)
 		),
 		fn ovale 			CTR 	ptAxe	 r_A2 	  		couleur:m_couleurEncre		= (
