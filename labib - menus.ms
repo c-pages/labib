@@ -116,12 +116,16 @@ struct str_menus (
 				seperator sep0353
 				
 				subMenu  "Affichage" (
+					
+					menuItem 	affichage_GrandeIcone	"Grandes icones"			checked:( labib.prefs.fenetre.affichageLV == #grandeIcone )
+					menuItem	affichage_details 			"Détails"						checked:( labib.prefs.fenetre.affichageLV == #details )
+					/* 
 					menuItem	affichage_details 			"Détails"						checked:( labib.prefs.fenetre.affichageLV == #details )
 					menuItem	affichage_liste 			"Liste"						checked:( labib.prefs.fenetre.affichageLV == #liste )
 					menuItem 	affichage_GrandeIcone	"Grandes icones"			checked:( labib.prefs.fenetre.affichageLV == #grandeIcone )
 					menuItem 	affichage_petitIcone		"Petites icones"			checked:( labib.prefs.fenetre.affichageLV == #petitIcone )
 					menuItem 	affichage_tuile				"Tuile"						checked:( labib.prefs.fenetre.affichageLV == #tuile )
-					
+					 */
 					seperator sep20
 					menuItem	afficherDossiers		"Afficher les dossiers"	checked:labib.prefs.fenetre.afficherDossier 
 				)

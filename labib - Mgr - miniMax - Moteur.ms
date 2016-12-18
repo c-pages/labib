@@ -141,7 +141,7 @@ struct str_miniMax_MOTEUR (
 		fn getElements 		= m_elements,
 		fn ajouterElement 	_element =(
 			append m_elements 	_element
-			recadrerVues ()
+-- 			recadrerVues ()
 			_element
 		),
 		

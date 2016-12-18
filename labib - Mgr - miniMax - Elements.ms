@@ -357,6 +357,15 @@ struct str_miniMax_btnRond (
 --- BOITE ---
 struct str_miniMax_nd_box (
 	
+	------------ DEBUG	----------------------------------------------------------------------------------
+		m_debug = true,
+-- 		m_debug = false,
+		m_dbgPrefix ="miniMax - btnRond",
+		fn debug 	_txt  var:	 param:    =(
+			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+		),
+	----------------------------------------------------------------------------------------------------------
+		
 	
 		m_DEBUGNode,
 		

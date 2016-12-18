@@ -107,7 +107,8 @@ struct str_miniMax_vue (
 			
 			local result 	= _param
 			
-			--- on met l'image rendue à l'echelle de celle de l'UI -----			
+			--- on met l'image rendue à l'echelle de celle de l'UI -----	
+			if m_fenTaille.x != 0 do		
 			result  =   result *  m_controle.width / m_fenTaille.x
 			
 			result
@@ -127,7 +128,7 @@ struct str_miniMax_vue (
 		fn planToVue 	_paramPlan = (
 			
 			local result 	= 	planToVuePos 		_paramPlan 
-			result 			=  planToVueTaille	result
+-- 			result 			=  planToVueTaille	result
 			
 			result
 			
@@ -159,8 +160,8 @@ struct str_miniMax_vue (
 			local result  = [0,0]
 			 
 			result 	= worldToPlan 	_paramWorld 
-			/*result		= planToVue 		result 
-			
+-- 			result		= planToVue 		result 
+			/*
 			
 			--- On recadre si vue perspective -----
 			if m_projection == #perspective do (		
@@ -378,6 +379,7 @@ struct str_miniMax_vue (
 		----- DESSIN ------------------------------------------------------------------------------------------------------------		
 		fn dessinerGrille   =(
 			
+			debug "dessinerGrille - 1 "
 			----------- global to vue -----------
 			local globalPos 	= worldToVue 	[0,0,0]
 			
@@ -435,6 +437,7 @@ struct str_miniMax_vue (
 				
 			)
 		
+			debug "dessinerGrille - FIN"
 		),
 		
 		fn dessiner   = if estVisible ()  do (
@@ -453,6 +456,7 @@ struct str_miniMax_vue (
 			-- on vide le painter ---
 			m_painter.clear 	couleur:m_couleurFond
 			
+			debug "Dessiner - 1 clear"
 			
 			----------- DESSIN  ------
 			--- le fond ----
@@ -460,6 +464,7 @@ struct str_miniMax_vue (
 				dessinerGrille  ()
 			
 			
+			debug "Dessiner - 2 Grille"
 			-------- les elements -------
 			for elem in m_moteur.getElements () do (
 				
@@ -467,6 +472,7 @@ struct str_miniMax_vue (
 				
 			)
 			
+			debug "Dessiner - 3 elements"
 			-------- UI -------				
 			--- le Titre de la vue ---
 			local textUI = getNom ()
@@ -486,13 +492,17 @@ struct str_miniMax_vue (
 			---- ecriture du texte sur le painter -----
 			m_painter.ecrire [5,5] 	textUI  	couleur:m_couleurTextes
 			
+			debug "Dessiner - 4 UI"
 			
 			-- cadre active ---
-			if estActive () do	m_painter.rect	 [2,2] ( [m_controle.width,m_controle.height] - [3,3] ) 	couleur:m_couleurVueActive
+			if estActive () do	( m_painter.rect	 [2,2] ( [m_controle.width,m_controle.height] - [3,3] ) 	couleur:m_couleurVueActive
 			
+			debug "Dessiner - 5 Actif"
+			)
 			----------- fin DESSIN  ------
 			rafraichirContoleur ()
 			
+			debug "Dessiner - FIN"
 			
 		),
 		

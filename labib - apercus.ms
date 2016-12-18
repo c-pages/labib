@@ -83,7 +83,7 @@ struct str_apercus (
 			nouveauNom  
 		),
 		
-		
+		---- INFOS sur l'assets ------------
 		fn calculerNbreVertex 	_asset	=	(
 			debug "calculerNbreVertex - debut"
 			
@@ -103,12 +103,6 @@ struct str_apercus (
 		),
 		
 		
-		
-		
-		fn annuler =(
-			debug "ANNULER"
-			m_annuler = true
-		),
 		
 		fn calculerBB 	_objets	=	(
 			
@@ -144,6 +138,18 @@ struct str_apercus (
 			return BB_result
 			
 		),
+		
+		
+		
+		
+		
+		
+		
+		fn annuler =(
+			debug "ANNULER"
+			m_annuler = true
+		),
+		
 		
 		
 		fn importer		_fichier = (
