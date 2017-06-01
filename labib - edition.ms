@@ -64,6 +64,7 @@ struct str_edition (
 	--- managers ----
 		--  m_chrono 	= str_chrono (),				---- manager pour chronometrer les operations ----
 	public
+	
 		m_hist ,										---- manager de l'historique ----
 		
 	private
@@ -166,8 +167,8 @@ struct str_edition (
 				for noeudA in _noeudsA do
 					if noeudA != undefined do append m_selection noeudA
 				
-				-- MAJ fenetre infos ---
-				m_labib.infos.afficher m_selection
+				-- MAJ fenetre proprietes ---
+				m_labib.proprietes.afficher m_selection
 				
 			)
 			debug "(setSelection) _noeudsA" var:m_selection param:#nomUnique
@@ -470,7 +471,7 @@ struct str_edition (
 				_noeudCible.enregistrer ()
 			)
 			
-			m_labib.infos.afficher 	m_selection
+			m_labib.proprietes.afficher 	m_selection
 
 		),
 		fn setTags  	_noeudsCibles _nvTags =(

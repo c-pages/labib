@@ -89,14 +89,14 @@ struct str_apercus (
 			nouveauNom  
 		),
 		
-		
+		---- INFOS sur l'assets ------------
 		fn calculerNbreVertex 	_asset	=	(
 			debug "calculerNbreVertex - debut"
 			
 			local nbrVertex = 0
 			for obj in objects where superClassOf obj == GeometryClass do (
 				local nodeSnapShot = snapshotAsMesh  obj
-				debug "nodeSnapShot" var:(getNumVerts  nodeSnapShot)
+-- 				debug "nodeSnapShot" var:(getNumVerts  nodeSnapShot)
 				
 				try nbrVertex += getNumVerts  nodeSnapShot catch ()
 				delete nodeSnapShot
@@ -109,12 +109,6 @@ struct str_apercus (
 		),
 		
 		
-		
-		
-		fn annuler =(
-			debug "ANNULER"
-			m_annuler = true
-		),
 		
 		fn calculerBB 	_objets	=	(
 			
@@ -150,6 +144,18 @@ struct str_apercus (
 			return BB_result
 			
 		),
+		
+		
+		
+		
+		
+		
+		
+		fn annuler =(
+			debug "ANNULER"
+			m_annuler = true
+		),
+		
 		
 		
 		fn importer		_fichier = (

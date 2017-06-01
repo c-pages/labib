@@ -10,7 +10,7 @@ clearListener ()
 
 -- labib.ouvrir 	()
 /*
-labib.ouvrir 	()
+	labib.ouvrir 	()
 	Global 	labib = fileIn "$userScripts\labib\labib.ms" 
 	labib.ouvrir 	()
 	scene vertex
@@ -42,6 +42,7 @@ toolTip:""
 			else 	labib.ouvrir 	()
 		
 	)
+	
 	on isChecked return try ( labib.estOuvert () )  catch	( false )	
 	
 )

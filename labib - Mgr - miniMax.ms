@@ -6,6 +6,10 @@ try destroydialog roll_miniMax catch ()
 ---- le nanager principal du miniMax -----
 global miniMax	= undefined
 	
+-- 	-------------------- ! ! ! ! ! ! ! !  DEBUG ATTENTION ! ! ! ! ! ! --------------------
+-- 	delete objects
+-- 	clearSelection ()
+-- 	-------------------- ! ! ! ! ! ! ! !  DEBUG ATTENTION ! ! ! ! ! ! --------------------
 
 	/* 
 	( miniMax.m_moteur.getElements())[1]
@@ -144,7 +148,7 @@ rollout roll_miniMax "labib - miniMax" width:440 height:440
 			
 			subMenu  "Affichage" (
 				menuItem afficherInfos		"Infos" 		checked:( miniMax.m_moteur.getAfficherInfos()	)
-				menuItem afficherGrille 		"Grille" 	checked:( miniMax.m_moteur.getAfficherGrille()	)
+				menuItem afficherGrille 		"Grille" 		checked:( miniMax.m_moteur.getAfficherGrille()	)
 			)
 			
 			
@@ -161,6 +165,7 @@ rollout roll_miniMax "labib - miniMax" width:440 height:440
 			--- evenement ---
 			on debugMode 	picked do	DEBUG_MODE = not DEBUG_MODE
 			on afficherInfos 	picked do	miniMax.m_moteur.toggleInfos ()
+			on afficherGrille 	picked do	miniMax.m_moteur.toggleGrille ()
 			
 			on vuePlan 		picked do	miniMax.m_moteur.setActiveVueType #plan
 			on vueFace 		picked do	miniMax.m_moteur.setActiveVueType #face
@@ -172,26 +177,6 @@ rollout roll_miniMax "labib - miniMax" width:440 height:440
 			on basculeMaximiser	picked do	miniMax.m_moteur.toggleMaximiserVue ()
 			
 			
-			
-			/* 
-			--- initialisation
-			on menu_minMot 	open do (
-				local vueActive = miniMax.m_moteur.getActiveVue ()
-				debug "menu_minMot"
-				debug "vueActive.getType ()" var:( vueActive.getType () )
-				case vueActive.getType () as name of (
-					"plan": 		b_plan 	= true
-					#face: 		b_face 	= true
-					#cote: 		b_Cote 	= true
-					#3D: 			b_3D 	= true
-					#camera: 	b_cam 	= true
-				)
-				
-				debug "b_plan" var:b_plan
-				debug "b_face" var:b_face
-				debug "b_Cote" var:b_Cote
-				debug "b_3D" 	var:b_3D
-			) */
 			
 		)
 		popUpMenu menu_minMot
@@ -307,7 +292,7 @@ struct str_miniMax (
 		
 		---- props de la fenetre -----
 		m_titre 				= "Labib | miniMax",
-		m_pos 				= [800,100],
+		m_pos 				= [200,100],
 		m_taille 				= [440, 440],
 		m_estOuvert 		= false,
 		
@@ -376,14 +361,20 @@ struct str_miniMax (
 			
 			---- les UIs  ----
 			m_moteur.ajouterVue 		m_dialog.ui_painter_1	type:#plan		
-			m_moteur.ajouterVue 		m_dialog.ui_painter_2	type:#face		
-			m_moteur.ajouterVue 		m_dialog.ui_painter_3	type:#cote		
-			m_moteur.ajouterVue 		m_dialog.ui_painter_4	type:#3D		
-			
+			m_moteur.ajouterVue 		m_dialog.ui_painter_2	type:#cote
+			m_moteur.ajouterVue 		m_dialog.ui_painter_3	type:#face		
+			vueCam = m_moteur.ajouterVue 		m_dialog.ui_painter_4	type:#3D
 			
 			--- creation des element des base ----
+<<<<<<< HEAD
 			m_moteur.creer.box  		pos:[0,0,0] 	taille:[60,40,80] 	centre:[0 ,0 ,0 ] 	coulLignes:[30,30,30]  	coulPts:white	
 -- 			m_moteur.creer.camera  	pos:[0,0,0] 	cible:[0,0,40] 		FOV:75			 	coulLignes:blue  			coulPts:blue
+=======
+			BB = m_moteur.creer.box  pos:[0,0,0] 	taille:[60,40,80] 	centre:[0 ,0 ,0 ] 	coulLignes:[50,50,50]  	coulPts:white	
+-- 			BB.setRotation 	[0,-0.173648,0.984808]
+			cam = m_moteur.creer.camera  	pos:[120,120,120] 	cible:[0,0,50] 		FOV:75			 	coulLignes:blue  			coulPts:blue
+			vueCam.setCameraMiniMax 	cam
+>>>>>>> 7bcd840ce6d921800a60fdc2903438d9c925d9c3
 			
 			
 			--- Premiere actualisation ----

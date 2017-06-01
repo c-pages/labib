@@ -70,7 +70,8 @@ include "$userScripts\cp - labib\labib - Mgr - ListView Tags.ms"
 
 include "$userScripts\cp - labib\labib - menus.ms"
 
-include "$userScripts\cp - labib\labib - fenetre infos.ms"
+-- include "$userScripts\cp - labib\labib - fenetre infos.ms"
+include "$userScripts\cp - labib\labib - fenetre proprietes.ms"
 include "$userScripts\cp - labib\labib - fenetre rendu.ms"
 
 
@@ -110,7 +111,7 @@ struct str_labib (
 		fenetre	= str_fenLabib				m_labib:this,							---- le manager de la fenetre principale (en post car boucle infernale avec edit sinon ) ----
 		
 		-- Fenetres secondaires --
-		infos = str_infos 	m_labib:this,
+		proprietes = str_proprietes 		m_labib:this,
 		
 		---- editions ----
 		apercus	=	str_apercus 			m_labib:this,							---- la creation des apercus -----		

@@ -43,7 +43,9 @@ struct str_element (
 		fichier					= "",										---- l'adresse du fichier vers l'asset original ----
 		proxy						= "",										---- l'adresse du fichier max contenant le proxy ----
 		apercu					= "",										----  ----
-		detail						= "",										----  ----
+		detail_1					= "",										----  ----
+		detail_2					= "",										----  ----
+		detail_3					= "",										----  ----
 		tags						= "",										----  ----
 		commentaires			= "",										----  ----
 		dateCreation 			= getLocalTime(),					---- Date de création de l'asset ----
@@ -165,15 +167,20 @@ struct str_element (
 		fn getNbrImports 			= 	nbrImports as string,
 		fn getDateDernierImport 	= 	dateToString 	dateDernierImport,
 		fn getDateCreation 			= 	dateToString 	dateCreation,
-		fn getAProxy 					= 	if doesfileExist proxy then "oui" else "non",
-		fn getAVueDetail 				= 	if doesfileExist detail then "oui" else "non",
+		fn getAProxy 					= 	if doesfileExist proxy 	then "oui" else "non",
+		fn getAVuedetail_1 			= 	doesfileExist detail_1, 	 -- if doesfileExist detail_1 	then "oui" else "non",
+		fn getAVuedetail_2 			= 	doesfileExist detail_2, 	 -- if doesfileExist detail_2 	then "oui" else "non",
+		fn getAVuedetail_3 			= 	doesfileExist detail_3, 	 -- if doesfileExist detail_3 	then "oui" else "non",
+		fn getAVueDetail				= if getAVuedetail_1 () or  getAVuedetail_2 () or  getAVuedetail_3 () then "oui" else "non",
 		fn getTags						=	tags,
 		fn getTagsArray				=	getTagsAsArray(),
 		fn getNom						=	nom,
 		fn getCommentaires			=	commentaires,
 		fn getFichier					=	fichier,
 		fn getApercu					=	apercu,
-		fn getDetail					=	detail,
+		fn getdetail_1					=	detail_1,
+		fn getdetail_2					=	detail_2,
+		fn getdetail_3					=	detail_3,
 		
 		
 		
@@ -328,11 +335,16 @@ struct str_branche (
 		fn getDateDernierImport 	= "",
 		fn getDateCreation 			= "",
 		fn getAProxy 					= "",
-		fn getAVueDetail 				= "",
+		fn getAVuedetail_1 			= false,
+		fn getAVuedetail_2 			= false,
+		fn getAVuedetail_3 			= false,
+		fn getAVueDetail				= "",
 			
 		fn getFichier					=	"",
 		fn getApercu					=	"",
-		fn getDetail					=	"",
+		fn getdetail_1					=	"",
+		fn getdetail_2					=	"",
+		fn getdetail_3					=	"",
 		
 		fn getTagsArray			recursif:true =(
 			local tagsArray =#()
@@ -501,7 +513,9 @@ struct str_arborescence (
 					setINISetting   fichierArbo	_noeud.nomUnique   "type"  				( _noeud.type		as string	)
 					setINISetting   fichierArbo	_noeud.nomUnique   "fichier"  			( _noeud.fichier		as string	)
 					setINISetting   fichierArbo	_noeud.nomUnique   "apercu"  			( _noeud.apercu	as string	)
-					setINISetting   fichierArbo	_noeud.nomUnique   "detail"  				( _noeud.detail		as string	)
+					setINISetting   fichierArbo	_noeud.nomUnique   "detail_1"  				( _noeud.detail_1		as string	)
+					setINISetting   fichierArbo	_noeud.nomUnique   "detail_2"  				( _noeud.detail_2		as string	)
+					setINISetting   fichierArbo	_noeud.nomUnique   "detail_3"  				( _noeud.detail_3		as string	)
 					setINISetting   fichierArbo	_noeud.nomUnique   "commentaires"  	( _noeud.commentaires		as string	)
 					setINISetting   fichierArbo	_noeud.nomUnique   "tags"  				( _noeud.tags		as string	)
 					setINISetting   fichierArbo	_noeud.nomUnique   "proxy"  				( _noeud.proxy		as string	)					
@@ -605,7 +619,9 @@ struct str_arborescence (
 						
 						nouveauNoeud.commentaires	= getINISetting   fichierArbo	_nomUnique   "commentaires"
 						nouveauNoeud.tags 				= getINISetting   fichierArbo	_nomUnique   "tags"
-						nouveauNoeud.detail 			= getINISetting   fichierArbo	_nomUnique   "detail"
+						nouveauNoeud.detail_1 		= getINISetting   fichierArbo	_nomUnique   "detail_1"
+						nouveauNoeud.detail_2 		= getINISetting   fichierArbo	_nomUnique   "detail_2"
+						nouveauNoeud.detail_3 		= getINISetting   fichierArbo	_nomUnique   "detail_3"
 						nouveauNoeud.proxy 			= getINISetting   fichierArbo	_nomUnique   "proxy"
 						
 						nouveauNoeud.dateCreation 			= execute ( getINISetting   fichierArbo	_nomUnique   "dateCreation" )

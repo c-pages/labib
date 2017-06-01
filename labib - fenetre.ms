@@ -595,26 +595,85 @@ rollout roll_labib  "Labib" width:296 height:296
 	
 	--------- le treeView ---------
 	on ui_TV 	mouseDown 			_arg 	do  	m_TV.clq_down  				_arg
-	on ui_TV 	mouseUp 	_sender 	_arg 	do 	m_TV.clq_up 					_arg
-	on ui_TV 	DragOver 	_sender	_arg	do	m_TV.drag_checkSurvol  	_arg
-	on ui_TV 	DragDrop 				_arg 	do	m_TV.drag_recevoir 			_arg
-	on ui_TV 	ItemDrag 				_arg 	do	m_TV.drag_demarrer 		_arg
-	on ui_TV 	AfterLabelEdit			_arg 	do  	m_TV.renommer				_arg
-	on ui_TV 	keyup  					_arg 	do  	m_TV.key_up					_arg
+	on ui_TV 	mouseUp 	_sender 		_arg 	do 	m_TV.clq_up 					_arg
+	on ui_TV 	DragOver 	_sender		_arg	do	m_TV.drag_checkSurvol  	_arg
+	on ui_TV 	DragDrop 					_arg 	do	m_TV.drag_recevoir 			_arg
+		
+	on ui_TV 	ItemDrag 	_sender		_arg 	do	m_TV.drag_demarrer 		_arg
+
+		
+	on ui_TV 	AfterLabelEdit				_arg 	do  	m_TV.renommer				_arg
+	on ui_TV 	keyup  						_arg 	do  	m_TV.key_up					_arg
 		
 	
+	
+	LOCAL TEST_VARIABLE = "pas actualiser"
+	
 	--------- le listView ---------
-	on ui_LV 	mouseDown 			_arg 	do  	m_LV.clq_down				_arg
+-- 	on ui_LV 	mouseDown 	_sender		_arg 	do  	m_LV.clq_down				_arg
+		
+ 	on ui_LV 	mouseDown 	_sender		_arg 	do  	(
+		
+		debug "----DRAGANDDROP ---"
+		
+		m_LV.clq_down				_arg
+		
+		/* 
+-- 		theIniFile = getdir #maxData  + "3dsmax.ini" 
+
+-- 		theKeys = getIniSetting theIniFile "FileList" 
+
+-- 		maxfilearray = for o in theKeys where o != "MaxFiles" collect ; getIniSetting theIniFIle "FileList" o 
+
+		intnum = dotnetobject "System.Int32" 0
+
+-- 		filenamestring= dotnetobject "System.string" "C:\Users\Windows\AppData\Local\Autodesk\3dsMax\2017 - 64bit\ENU\scripts\cp - Labib\data\labib_modeEdition.max"
+		filenamestring= dotnetobject "System.string" "CodeSecret"
+		
+		TEST_VARIABLE = "CodeSecret"
+		
+		dropfile = dotnetobject "System.String[]" 1
+
+		dropfile.setvalue filenamestring intnum
+
+		DataObj = dotnetobject "DataObject" ((dotnetclass "DataFormats").filedrop) dropfile
+
+		_sender.dodragdrop Dataobj ((dotnetclass "DragDropEffects").Copy) */
+		
+)
+
+
+	
+	
 	on ui_LV 	mouseUp 	_sender	_arg 	do 	m_LV.clq_up 					_arg 
+	
+
+
+	on ui_LV 	ItemDrag 	_sender		_arg 	do	(
+		
+		m_LV.drag_demarrer 		_arg
+		
+		show _sender
+		
+		debug "################### FIN DU DRAG #################"
+		debug "TEST_VARIABLE" var:TEST_VARIABLE
+		
+	) 
+	
 	on ui_LV	MouseWheel 			_arg 	do  	if keyboard.controlPressed do m_LV.zoomer 	_arg.delta
 	on ui_LV 	DoubleClick				_arg 	do  	m_LV.clq_double 				_arg 	
 	on ui_LV 	DragOver 	_sender	_arg 	do	m_LV.drag_checkSurvol  	_arg
 	on ui_LV 	DragDrop 				_arg 	do	m_LV.drag_recevoir 			_arg
-	on ui_LV 	itemDrag 	_sender 	_arg 	do 	m_LV.drag_demarrer 		_arg 	
+-- 		
+-- 	on ui_LV 	itemDrag 	_sender 	_arg 	do 	m_LV.drag_demarrer 		_arg 	
+		
+		
 	on ui_LV 	lostFocus 	_sender 	_arg 	do  	if dragFlag == true do	m_edit.importer_viewport ()
 	on ui_LV 	AfterLabelEdit			_arg 	do  	m_LV.renommer				_arg		
 	on ui_LV 	BeforeLabelEdit		_arg 	do  	m_LV.debutRenommage ()
 	on ui_LV 	keyup  					_arg 	do  	m_LV.key_up					_arg
+	
+	
 	
 	--- tags ----
 	on ui_tags  ItemChecked  _arg do (
@@ -623,12 +682,19 @@ rollout roll_labib  "Labib" width:296 height:296
 			m_tags.updateChecked ()
 			m_edit.actualiserListe ()
 		)
+		
 	)
 	on ui_tags 	mouseUp 			_arg 	do  	m_tags.clq_up  				_arg
 	
 	------- recherche ---------------
 	on ui_recherche 	keyup  					_arg 	do  	m_recherche.key_up			_arg
 	on ui_recherche 	mouseUp 	_sender	_arg 	do 	m_recherche.clq_up 		_arg 
+	
+	
+	
+	
+-- 	on droppable _window   node: do window == #viewport --format "C'EST  UN DROP #1 ! : point%  	window%\n" _point 	_window
+-- 	on drop 	_window   item  do format "C'EST  UN DROP #2 ! :  	window%\n"  	_window
 	
 ) -- fin rollout
 
@@ -676,7 +742,7 @@ struct str_fenLabib (
 		col_fenetreFond			= m_prefs.fenetre.col_fenetreFond, 	----  couleur max (68 68 68)----
 		col_fenetreTxt				= m_prefs.fenetre.col_fenetreTxt , 	----  ----
 -- 		---- structures des fenetres secondaires ---
--- 		m_infos = str_infos 	m_labib:m_labib,
+-- 		m_proprietes = str_proprietes 	m_labib:m_labib,
 -- 		m_fen_apercu,
 -- 		m_fen_rendu,
 
@@ -735,7 +801,7 @@ struct str_fenLabib (
 			
 			
 			-- les fenetres secondaires --
-			if m_labib.infos.estOuvert() 	do m_labib.infos.ouvrir()			
+			if m_labib.proprietes.estOuvert() 	do m_labib.proprietes.ouvrir()			
 			if m_labib.rendu.estOuvert() 	do m_labib.rendu.ouvrir()
 			
 			---- maj des preferences ----	
@@ -761,7 +827,7 @@ struct str_fenLabib (
 			
 			debug "fermeture"
 			
-			m_labib.infos.fermer 		enregistrer:false
+			m_labib.proprietes.fermer 		enregistrer:false
 			m_labib.rendu.fermer 	enregistrer:false
 			
 			---- maj des preferences ----	

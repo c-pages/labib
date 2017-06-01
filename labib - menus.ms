@@ -28,7 +28,7 @@ rcMenu rc_fenLabib
 -- 	)
 	seperator sep01					
 -- 	subMenu "Vues" (
-		menuItem m_afficherInfos 			"Infos"  		
+		menuItem m_afficherproprietes 			"proprietes"  		
 		menuItem m_afficherApercus		"Création des aperçus" 
 		menuItem m_preferences 			"Préferences" 
 -- 	)
@@ -55,6 +55,15 @@ struct str_menus (
 	
 	
 	public 	
+		fn apercus = (			
+			format "APERCU\n"
+			/* rcMenu rcMenuElements
+			(
+				
+			) */
+			
+		),
+		
 		fn elements = (			
 			rcMenu rcMenuElements
 			(
@@ -138,7 +147,7 @@ struct str_menus (
 				
 					seperator sep26548
 -- 				subMenu  "Fenêtres" (
-					menuItem infos 		"Infos" 		checked:( labib.infos.estOuvert() )
+					menuItem proprietes 		"Propriétés" 		checked:( labib.proprietes.estOuvert() )
 -- 					menuItem apercu 	"Aperçu" 	checked:labib.prefs.fenetre.apercu
 					menuItem rendu	 	"Rendu" 				checked:( labib.rendu.estOuvert() )
 					menuItem prefs	 	"Préférences" 		checked:(labib.prefs.estOuvert ())
@@ -147,7 +156,7 @@ struct str_menus (
 				seperator sep5476
 				
 				subMenu  "Debug" (
-					menuItem affichSelec 		"print selection" 	--	checked:labib.prefs.fenetre.fenInfos_estOuvert
+					menuItem affichSelec 		"print selection" 	--	checked:labib.prefs.fenetre.fenproprietes_estOuvert
 					menuItem debugMode 		"Debug mode" 		checked:DEBUG_MODE		
 				)
 				
@@ -194,7 +203,7 @@ struct str_menus (
 					labib.fenetre.actualiser ()
 				)
 				
-				on infos								picked do	labib.infos.toggleOuverture ()
+				on proprietes								picked do	labib.proprietes.toggleOuverture ()
 -- 				on apercu							picked do	labib.apercus.toggleOuverture ()
 				on rendu							picked do	labib.rendu.toggleOuverture ()
 				on prefs								picked do	labib.prefs.toggleOuverture ()
@@ -341,7 +350,7 @@ struct str_menus (
 				seperator sep02
 				
 -- 				subMenu "Fenêtres" (
-					menuItem afficherInfos 			"Infos"  				checked:labib.prefs.fenetre.infos
+					menuItem afficherproprietes 			"proprietes"  				checked:labib.prefs.fenetre.proprietes
 					menuItem afficherApercus			"Aperçus" 
 					menuItem afficherPreferences 	"Préferences" 
 -- 				)
@@ -367,7 +376,7 @@ struct str_menus (
 				
 				
 				
-				on afficherInfos				picked do	labib.toggleInfos ()
+				on afficherproprietes				picked do	labib.toggleproprietes ()
 				
 				on site 			picked do	labib.ouvrirSiteInternet ()
 			)
