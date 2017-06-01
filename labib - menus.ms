@@ -117,12 +117,16 @@ struct str_menus (
 				seperator sep0353
 				
 				subMenu  "Affichage" (
+					
+					menuItem 	affichage_GrandeIcone	"Grandes icones"			checked:( labib.prefs.fenetre.affichageLV == #grandeIcone )
+					menuItem	affichage_details 			"Détails"						checked:( labib.prefs.fenetre.affichageLV == #details )
+					/* 
 					menuItem	affichage_details 			"Détails"						checked:( labib.prefs.fenetre.affichageLV == #details )
 					menuItem	affichage_liste 			"Liste"						checked:( labib.prefs.fenetre.affichageLV == #liste )
 					menuItem 	affichage_GrandeIcone	"Grandes icones"			checked:( labib.prefs.fenetre.affichageLV == #grandeIcone )
 					menuItem 	affichage_petitIcone		"Petites icones"			checked:( labib.prefs.fenetre.affichageLV == #petitIcone )
 					menuItem 	affichage_tuile				"Tuile"						checked:( labib.prefs.fenetre.affichageLV == #tuile )
-					
+					 */
 					seperator sep20
 					menuItem	afficherDossiers		"Afficher les dossiers"	checked:labib.prefs.fenetre.afficherDossier 
 				)
@@ -171,10 +175,14 @@ struct str_menus (
 				)
 				on supprimer 						picked do 	labib.cmd.supprimer 	( labib.edit.getSelection () ) 
 				
+<<<<<<< HEAD
 				
 -- 				on faireAprecus 					picked do 	labib.edit.faireApercus 	( labib.edit.getSelection () ) 
 				on mode_Edition 					picked do labib.edit.toggleModeEdition ()
 				
+=======
+				on faireAprecus 					picked do 	labib.cmd.faireApercus 	( labib.edit.getSelection () ) 
+>>>>>>> 7bcd840ce6d921800a60fdc2903438d9c925d9c3
 				
 				on undoMenu 						picked do 		labib.cmd.defaire()
 				on redoMenu 						picked do 		labib.cmd.refaire()
@@ -185,9 +193,6 @@ struct str_menus (
 				on affichage_GrandeIcone		picked do	labib.fenetre.changerAffichage  #grandeIcone
 				on affichage_petitIcone		picked do	labib.fenetre.changerAffichage  #petitIcone
 				on affichage_tuile				picked do	labib.fenetre.changerAffichage  #tuile
-				
-				
-				
 				
 				on afficherDossiers 				picked do 	(
 					labib.prefs.fenetre.afficherDossier = not labib.prefs.fenetre.afficherDossier

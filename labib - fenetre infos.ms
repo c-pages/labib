@@ -43,54 +43,51 @@ rollout roll_infos "infos"  width:346 height:262
 	
 	
 	------------  UI	----------------------------------------------------------------------------------		
-	label 'ui_lblNom' "Nom : " pos:[20,20] width:36 height:17 align:#left
-	edittext 'ui_editNom' "" pos:[126,20] width:200 height:17 align:#left bold:true
+	label ui_lblNom "Nom : " pos:[20,20] width:36 height:17
+	edittext ui_editNom "" pos:[126,20] width:200 height:17 bold:true
 	
-	label 'ui_lblTags' "Mots clés :" pos:[20,38] width:53 height:17 align:#left
-	edittext 'ui_editTags' "" pos:[126,38] width:200 height:17 align:#left
+	label ui_lblTags "Mots clés :" pos:[20,59] width:53 height:17
+	edittext ui_editTags "" pos:[126,59] width:200 height:17
 	
+	label ui_lblFichier "Fichier : " pos:[20,39] width:44 height:17
+	edittext ui_editFichier "" pos:[126,39] width:177 height:17
+	button ui_btnOuvrirFichierMax "..." pos:[309,39] width:17 height:17 toolTip:"Choisir le fichier .max de référence de cet asset."
 	
-	label 'ui_lblFichier' "Fichier : " pos:[20,56] width:44 height:17 align:#left
-	edittext 'ui_editFichier' "" pos:[126,56] width:181 height:17 align:#left
-	button 'ui_btnOuvrirFichierMax' "..." pos:[307,56] width:20 height:20 toolTip:"Choisir le fichier .max de référence de cet asset." align:#left
+	/* 
+	label ui_lblApercu "Aperçu :" pos:[20,74] width:44 height:17
+	edittext ui_editApercu "" pos:[126,74] width:139 height:17
 	
-	label 'ui_lblApercu' "Aperçu :" pos:[20,75] width:44 height:17 align:#left
-	edittext 'ui_editApercu' "" pos:[126,75] width:138 height:17 align:#left
+	button ui_btnOurvirApercu "..." pos:[271,74] width:17 height:17 toolTip:"Choisir l'image servant d'aperçu à cet asset (200px X 200px)."
+	button ui_btnCreerApercu "R" pos:[290,74] width:17 height:17 toolTip:"Créer l'aperçu"
+	button ui_btnCreerAperculAuto "O" pos:[309,74] width:17 height:17 toolTip:"Créer l'aperçu"
 	
-	button 'ui_btnOurvirApercu' 		"..." pos:[269,75] width:20 height:20 toolTip:"Choisir l'image servant d'aperçu à cet asset (200px X 200px)." align:#left
-	button 'ui_btnCreerApercu' 		"R" pos:[288,75] width:20 height:20 toolTip:"Créer l'aperçu" align:#left
-	button 'ui_btnCreerAperculAuto' "O" pos:[307,75] width:20 height:20 toolTip:"Créer l'aperçu" align:#left
-		
-	label 'ui_lblDetail' "Détail :" pos:[20,94] width:44 height:17 align:#left
-	edittext 'ui_editDetail' "" pos:[126,94] width:138 height:17 align:#left
+	label ui_lblDetail "Détail :" pos:[20,92] width:44 height:17
+	edittext ui_editDetail "" pos:[126,92] width:139 height:17
 	
-	button 'ui_btnOurvirDetail' "..." pos:[269,74] width:20 height:20 toolTip:"Choisir l'image servant d'aperçu détail à cet asset (200px X 200px)." align:#left
-	button 'ui_btnCreerDetail' "R" pos:[288,74] width:20 height:20 toolTip:"Création automatique de l'aperçu détail de cet asset." align:#left
-	button 'ui_btnCreerApercuDetailAuto' "O" pos:[307,74] width:20 height:20 toolTip:"Création automatique de l'aperçu détail de cet asset." align:#left
+	button ui_btnOurvirDetail "..." pos:[271,92] width:17 height:17 toolTip:"Choisir l'image servant d'aperçu détail à cet asset (200px X 200px)."
+	button ui_btnCreerDetail "R" pos:[290,92] width:17 height:17 toolTip:"Création automatique de l'aperçu détail de cet asset."
+	button ui_btnCreerApercuDetailAuto "O" pos:[309,92] width:17 height:17 toolTip:"Création automatique de l'aperçu détail de cet asset."
+	*/
 	
-	
-	label 'ui_lblNotes' "Notes :" pos:[20,189] width:46 height:17 align:#left		
-		
-	edittext 'ui_editNotes' "" pos:[126,189] width:200 height:56 align:#left
+	label 		ui_lblNotes 		"Notes :" pos:[20,78] width:46 height:17		
 	
 	
-	label 'ui_lblCreation' "Date de création :" pos:[20,113] width:91 height:17 align:#left
-	edittext 'ui_editDateCreation' "" pos:[126,113] width:200 height:17 align:#left readOnly:true
-	label 'ui_lblDateDernierImport' "Date dernier import :" pos:[20,132] width:109 height:17 align:#left
-	edittext 'ui_editDateDernierImport' "" pos:[126,132] width:200 height:17 align:#left readOnly:true
 	
-	label 'ui_lblNbreImports' "Nombre d'imports :" pos:[20,151] width:109 height:17 align:#left
-	edittext 'ui_editNbreImports' "" pos:[126,151] width:200 height:17 align:#left readOnly:true
+	edittext 	ui_editNotes	"" pos:[126,78] width:200 height:56
 	
-	label 'ui_lblNbreVertex' "Nombre de points :" pos:[20,170] width:109 height:17 align:#left
-	edittext 'ui_editNbreVertex' "" pos:[126,170] width:200 height:17 align:#left readOnly:true
+	
+	
+	
 	
 	---- le bouton pour fermer la fenetre ----
-	ImgTag 'ui_btnFermer' "X" pos:[326,0] width:20 height:20 toolTip:"Fermer" style:#bmp_center align:#left
+	ImgTag ui_btnFermer "X" pos:[326,0] width:20 height:20 toolTip:"Fermer" style:#bmp_center
 	
-	ImgTag 'ui_titre' "" pos:[128,4] width:66 height:18 align:#left
+	ImgTag ui_titre "" pos:[128,4] width:66 height:18
 	
-
+	label ui_lbl_apercus "Aperçus: " pos:[22,141] width:60 height:17
+	
+	ImgTag ui_mgr_apercus "" pos:[130,138] width:196 height:151
+	
 	
 	------------  Fonctions	----------------------------------------------------------------------------------
 	---- Gere l'état du bouton  -----
@@ -148,19 +145,32 @@ rollout roll_infos "infos"  width:346 height:262
 		) else (
 			
 			for ui in m_uis do ui.enabled=false
+				
+			if _assets.count == 0 then (
+				ui_editFichier.text 					= 	""
+-- 				ui_editApercu.text 					= 	""
+-- 				ui_editDetail.text 					= 	""
+				ui_editTags.text 						= 	""
+				ui_editNotes.text 					=	""
+				ui_editDateCreation.text 			=  ""
+				ui_editDateDernierImport.text 	= 	""
+				ui_editNbreImports.text 			= 	""
+				ui_editNbreVertex.text 				= 	""
+			) else (
 			
-			local listeNoms = for asset in _assets collect asset.nom
-			ui_editNom.text = checkUnite 	listeNoms
-			ui_lblNom.enabled = true
-			ui_editNom.enabled = true
-			
-			local listeTags = for asset in _assets collect asset.getTags()
-			ui_editTags.text = checkUnite 	listeTags
-			ui_lblTags.enabled = true
-			ui_editTags.enabled = true
-			
-			ui_btnCreerApercu.enabled = true
-			ui_btnCreerDetail.enabled = true
+				local listeNoms = for asset in _assets collect asset.nom
+				ui_editNom.text = checkUnite 	listeNoms
+				ui_lblNom.enabled = true
+				ui_editNom.enabled = true
+				
+				local listeTags = for asset in _assets collect asset.getTags()
+				ui_editTags.text = checkUnite 	listeTags
+				ui_lblTags.enabled = true
+				ui_editTags.enabled = true
+				
+-- 				ui_btnCreerApercu.enabled = true
+-- 				ui_btnCreerDetail.enabled = true
+			)
 		)
 		
 	)
@@ -170,16 +180,16 @@ rollout roll_infos "infos"  width:346 height:262
 		
 		m_prt.m_taille = _taille
 		
-		local LargeurEdit = 145
-		local LargeurBtn = 20
+		local LargeurEdit = 148
+		local LargeurBtn = 17
 		local	decalXBtn1 = 34
 		local	decalXBtn2 = decalXBtn1 + LargeurBtn
 		local	decalXBtn3 = decalXBtn1 + 2* LargeurBtn
 		
 		ui_editNom.width 					= 	_taille.x - ( LargeurEdit )
 		ui_editFichier.width 					= 	_taille.x - ( LargeurEdit + LargeurBtn )
-		ui_editApercu.width 					= 	_taille.x - ( LargeurEdit + 3 * LargeurBtn )
-		ui_editDetail.width 					= 	_taille.x - ( LargeurEdit + 3 * LargeurBtn )
+-- 		ui_editApercu.width 					= 	_taille.x - ( LargeurEdit + 3 * LargeurBtn )
+-- 		ui_editDetail.width 					= 	_taille.x - ( LargeurEdit + 3 * LargeurBtn )
 		ui_editTags.width 					= 	_taille.x - ( LargeurEdit )
 		ui_editDateCreation.width 			=  _taille.x - ( LargeurEdit )
 		ui_editDateDernierImport.width 	= 	_taille.x - ( LargeurEdit )
@@ -187,16 +197,23 @@ rollout roll_infos "infos"  width:346 height:262
 		ui_editNbreVertex.width 			= 	_taille.x - ( LargeurEdit )
 		ui_editNotes.width 					=	_taille.x - ( LargeurEdit )
 		ui_editNotes.height 					=	_taille.y - ( 206 )
+<<<<<<< HEAD
 		
 		
 		ui_btnOuvrirFichierMax.pos.x			=	_taille.x - ( decalXBtn1 )		
+=======
+
+
+		ui_btnOuvrirFichierMax.pos.x			=	_taille.x - ( decalXBtn1 )	
+/* 		
+>>>>>>> 7bcd840ce6d921800a60fdc2903438d9c925d9c3
 		ui_btnOurvirApercu.pos.x				=	_taille.x - ( decalXBtn3 )
 		ui_btnCreerApercu.pos.x				=	_taille.x - ( decalXBtn2 )
 		ui_btnCreerAperculAuto.pos.x			=	_taille.x - ( decalXBtn1 )		
 		ui_btnOurvirDetail.pos.x					=	_taille.x - ( decalXBtn3 )
 		ui_btnCreerDetail.pos.x					=	_taille.x - ( decalXBtn2 )
 		ui_btnCreerApercuDetailAuto.pos.x	=	_taille.x - ( decalXBtn1 )
-		
+		 */
 		ui_btnFermer.pos.x						=	_taille.x - ( LargeurBtn )
 		
 	)
@@ -219,9 +236,13 @@ rollout roll_infos "infos"  width:346 height:262
 			
 			-- creation de la liste des uis ---
 			m_uis = #(
-				ui_lblNom, ui_editNom, ui_lblFichier, ui_editFichier, ui_btnOuvrirFichierMax, ui_lblApercu, ui_editApercu, ui_btnOurvirApercu , ui_btnCreerDetail, ui_lblDetail, ui_editDetail, 
-				ui_btnOurvirDetail, ui_btnCreerApercu, ui_lblTags, ui_editTags, ui_lblNotes, ui_editNotes, ui_btnCreerApercuDetailAuto,
-				ui_btnCreerAperculAuto, ui_lblCreation, ui_editDateCreation, ui_lblDateDernierImport, ui_editDateDernierImport , ui_lblNbreImports,
+				ui_lblNom, ui_editNom, ui_lblFichier, ui_editFichier, ui_btnOuvrirFichierMax, 
+-- 				ui_lblApercu, ui_editApercu, ui_btnOurvirApercu , ui_btnCreerDetail, ui_lblDetail, ui_editDetail, 
+-- 				ui_btnOurvirDetail, ui_btnCreerApercu, 
+				ui_lblTags, ui_editTags, ui_lblNotes, ui_editNotes, 
+-- 				ui_btnCreerApercuDetailAuto,
+-- 				ui_btnCreerAperculAuto, 
+				ui_lblCreation, ui_editDateCreation, ui_lblDateDernierImport, ui_editDateDernierImport , ui_lblNbreImports,
 				ui_editNbreImports, ui_lblNbreVertex, ui_editNbreVertex )
 			
 			reagencer [roll_infos.width, roll_infos.height]

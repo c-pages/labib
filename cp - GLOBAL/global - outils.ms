@@ -171,7 +171,7 @@ struct str_math3D (
 		) else (
 		
 			local vecZ 		=	normalize ( _vecteur )			
-			local vecX 		= 	normalize ( cross  vecZ [0,0,1] )
+			local vecX 		= 	normalize ( cross  vecZ [1,0,0] )
 			local vecY 		= 	normalize ( cross  vecX vecZ )
 			
 			resultat 	= 	matrix3 vecX 	vecY 	vecZ  [0,0,0]		
@@ -191,7 +191,7 @@ struct str_math3D (
 		local plan_point 		= _planRay.pos		
 		
 		--------------------------------------------------------------------------------
-		------ 	definition equation quartesienne du plan tel que:  		------------
+		------ 	 equation quartesienne du plan 	------------
 		------	plan_a x X + plan_b x Y + plan_c x Z + plan_d = 0 	------------
 		--------------------------------------------------------------------------------
 		
@@ -201,7 +201,7 @@ struct str_math3D (
 		local plan_d 	=  -1* ( plan_a * plan_point.x  + plan_b * plan_point.y  + plan_c * plan_point.z )
 		
 		--------------------------------------------------------------------------------
-		------ 	definition equation quartesienne de la droite tel que:  ------------
+		------ 	 equation quartesienne de la droite :  ------------
 		------   x = droite_a x droiteVec.x  + _droite_pt1.x			------------
 		------   y = droite_a x droiteVec.y  + _droite_pt1.y			------------
 		------   z = droite_a x droiteVec.z  + _droite_pt1.z			------------
@@ -259,6 +259,18 @@ struct str_math3D (
 		
 		
 		result 			= intersection_Droite_Plan 	planRay  _ptAProjeter	pt2 
+		
+		result
+	),
+	fn eulerToNormal 	_eulerAngle =(
+		local result = [0,0,1]
+		if classof _eulerAngle != eulerangles do _eulerAngle = _eulerAngle as eulerangles
+		local matrxX = rotate_X 	result 	_eulerAngle.x
+		result *= matrxX
+		local matrxY = rotate_X 	result 	_eulerAngle.y
+		result *= matrxY
+		local matrxZ = rotate_X 	result 	_eulerAngle.z
+		result *= matrxZ
 		
 		result
 	)

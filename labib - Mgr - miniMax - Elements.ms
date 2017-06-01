@@ -37,8 +37,8 @@ struct str_miniMax_noeud (
 	
 	private
 	------------ DEBUG	----------------------------------------------------------------------------------
--- 		m_debug = true,
-		m_debug = false,
+		m_debug = true,
+-- 		m_debug = false,
 		m_dbgPrefix ="noeud",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
@@ -53,8 +53,8 @@ struct str_miniMax_noeud (
 	private		
 		--- transformation ---
 		m_pos 		= [0,0,0],
-		m_rotation 	= [0,0,0],
-		m_centre 	= [20,20,0],
+		m_rotation 	= [0,0,1],
+		m_centre 	= [0,0,0],
 		
 		--- geometrie ---
 		m_points 		=#(),	--- la liste des points :		tableau de point3
@@ -73,8 +73,12 @@ struct str_miniMax_noeud (
 		
 	private
 		--- Maths ------------------------------------------------------------------------
-		fn ptNdToWorld	_pt3 				= _pt3 + m_pos - m_centre,
-		fn ptNdToVue 		_vue	_pt3 		= _vue.worldToVue 	(  ptNdToWorld   _pt3  ) ,
+		fn ptNdToWorld	_pt3 				= (
+			_pt3 *= ( math.D3.getMtrxRotation  m_rotation  )
+			_pt3 += m_pos - m_centre
+			_pt3
+		),
+		fn ptNdToVue 		_vue	_pt3 		= 		_vue.worldToVue 	(  ptNdToWorld   _pt3  ) 	,
 		
 	public	
 		----- BB de l'element -----
@@ -121,13 +125,13 @@ struct str_miniMax_noeud (
 		
 	public	
 		---- Transformation ------------------------------------------------------------------------
-		fn setPos  			_pos 		= m_pos 		= _pos,
-		fn setRotation  	_rot 		= m_rotation 	= _rot,
-		fn setCentre  		_ctr 		= m_centre 	= _ctr,
+		fn setPos  			_pos 	= m_pos 		= _pos,
+		fn setRotation  	_rot 	= 	m_rotation 	= 	_rot,
+		fn setCentre  		_ctr 	= m_centre 	= _ctr,
 		
-		fn getPos  				= m_pos,
-		fn getRotation  		= m_rotation,
-		fn getCentre  			= m_centre,
+		fn getPos  			= m_pos,
+		fn getRotation  	= m_rotation,
+		fn getCentre  		= m_centre,
 		
 		
 	public	
@@ -186,7 +190,7 @@ struct str_miniMax_noeud (
 				
 				for pt in m_points do (
 					local ptVue = ptNdToVue   	_vue	 pt 
-					_vue.m_painter.cercle  ptVue  3	couleur:m_couleur_points 
+					_vue.m_painter.pixel  ptVue  	couleur:m_couleur_points 
 				)
 				
 			)
@@ -353,6 +357,18 @@ struct str_miniMax_btnRond (
 --- BOITE ---
 struct str_miniMax_nd_box (
 	
+	------------ DEBUG	----------------------------------------------------------------------------------
+		m_debug = true,
+-- 		m_debug = false,
+		m_dbgPrefix ="miniMax - btnRond",
+		fn debug 	_txt  var:	 param:    =(
+			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+		),
+	----------------------------------------------------------------------------------------------------------
+		
+	
+		m_DEBUGNode,
+		
 		m_prt,
 	private
 		m_taille = [0,0,0],
@@ -367,6 +383,17 @@ struct str_miniMax_nd_box (
 		--- geometrie ---
 		fn dessiner _vue =false,
 		fn actualiser =(
+			
+			
+			--- debug 3D ------------
+			if m_DEBUGNode != undefined do	delete m_DEBUGNode			
+			local debPos = (m_prt.getPos () ) + [ m_taille.y /2, m_taille.x /2, 0 ] 
+			m_DEBUGNode = box pos:debPos 	length:m_taille.x 	width:m_taille.y 	height:m_taille.z  pivot:[0,0,0]
+			pivot
+			--- debug 3D ------------
+			
+			
+			
 			
 			--- creation de la geometrie d'une boite ---
 			debug "actua_box"
@@ -416,6 +443,8 @@ struct str_miniMax_nd_camera (
 	
 		m_prt,
 	
+		m_DEBUGNode,
+		
 	private
 		m_ciblePos 		= [0,0,0],
 		m_FOV 			= 0,
@@ -424,11 +453,17 @@ struct str_miniMax_nd_camera (
 		
 	public
 		--- Mutateurs ------------------------------------------------------------------------
-		fn setCiblePos  	_pos 	= ( m_ciblePos = _pos ;	this.actualiser	() ),	
+		fn setCiblePos  	_pos 	= ( 
+			m_ciblePos = _pos 
+			m_prt.setRotation  ( normalize ( m_ciblePos - m_prt.getPos()  ) )
+			this.actualiser	()
+		),	
 		fn setFOV  			_fov	= ( m_FOV = _fov ;	this.actualiser	() ),	
 		
 		--- Acesseurs ------------------------------------------------------------------------
-		fn getCiblePos  	= m_ciblePos,
+		fn getCiblePos  	= (
+			m_ciblePos
+		),
 		fn getFOV  		= m_FOV,
 		
 		--- geometrie ------------------------------------------------------------------------

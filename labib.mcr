@@ -42,6 +42,7 @@ toolTip:""
 			else 	labib.ouvrir 	()
 		
 	)
+	
 	on isChecked return try ( labib.estOuvert () )  catch	( false )	
 	
 )
