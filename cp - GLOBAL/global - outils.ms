@@ -163,10 +163,11 @@ struct str_math3D (
 		local resultat
 		
 		---- attention au cas Z vertical ----
-		if _vecteur.x != 0 and _vecteur.y != 0 then (
+		if _vecteur.x == 0 and _vecteur.y == 0 then (
 			
-			result = matrixFromNormal 	_vecteur
+			resultat = matrixFromNormal 	_vecteur
 			
+		---- les autres cas  ----
 		) else (
 		
 			local vecZ 		=	normalize ( _vecteur )			
@@ -193,6 +194,7 @@ struct str_math3D (
 		------ 	definition equation quartesienne du plan tel que:  		------------
 		------	plan_a x X + plan_b x Y + plan_c x Z + plan_d = 0 	------------
 		--------------------------------------------------------------------------------
+		
 		local plan_a 	= plan_normal.x
 		local plan_b 	= plan_normal.y
 		local plan_c 	= plan_normal.z

@@ -106,7 +106,8 @@ struct str_menus (
 				
 				seperator sep086546
 				
-				menuItem faireAprecus 				"Apercus"
+-- 				menuItem faireAprecus 				"Apercus"
+				menuItem mode_Edition 				"Mode Edition"
 				
 				seperator sep08
 				
@@ -138,8 +139,8 @@ struct str_menus (
 					seperator sep26548
 -- 				subMenu  "Fenêtres" (
 					menuItem infos 		"Infos" 		checked:( labib.infos.estOuvert() )
-					menuItem apercu 	"Aperçu" 	checked:labib.prefs.fenetre.apercu
-					menuItem rendu	 	"Rendu" 		checked:labib.prefs.fenetre.rendu
+-- 					menuItem apercu 	"Aperçu" 	checked:labib.prefs.fenetre.apercu
+					menuItem rendu	 	"Rendu" 				checked:( labib.rendu.estOuvert() )
 					menuItem prefs	 	"Préférences" 		checked:(labib.prefs.estOuvert ())
 -- 				)
 				
@@ -170,7 +171,10 @@ struct str_menus (
 				)
 				on supprimer 						picked do 	labib.cmd.supprimer 	( labib.edit.getSelection () ) 
 				
-				on faireAprecus 					picked do 	labib.edit.faireApercus 	( labib.edit.getSelection () ) 
+				
+-- 				on faireAprecus 					picked do 	labib.edit.faireApercus 	( labib.edit.getSelection () ) 
+				on mode_Edition 					picked do labib.edit.toggleModeEdition ()
+				
 				
 				on undoMenu 						picked do 		labib.cmd.defaire()
 				on redoMenu 						picked do 		labib.cmd.refaire()
@@ -191,8 +195,8 @@ struct str_menus (
 				)
 				
 				on infos								picked do	labib.infos.toggleOuverture ()
--- 				on apercu							picked do	labib.fenetre.toggleApercu ()
--- 				on rendu							picked do	labib.fenetre.toggleRendu ()
+-- 				on apercu							picked do	labib.apercus.toggleOuverture ()
+				on rendu							picked do	labib.rendu.toggleOuverture ()
 				on prefs								picked do	labib.prefs.toggleOuverture ()
 			
 				on affichSelec						picked do		for n in labib.edit.getSelection () do	labib.arbo.afficherNoeud	n

@@ -91,13 +91,15 @@ struct str_miniMax_MOTEUR (
 				#3D: (
 						if nom == unsupplied do	nom = "3D"							
 						nvVue.setNom 		nom
-						nvVue.setNormal 		[1,0,0]
+						nvVue.setNormal 		[-0.57735,-0.57735,-0.57735]
+						nvVue.setPos 			[100,100,100]
 						nvVue.setProjection #perspective
 					)
 				#camera: (
 						if nom == unsupplied do	nom = "Caméra"							
 						nvVue.setNom 		nom
-						nvVue.setNormal 		[1,0,0]
+						nvVue.setNormal 		[-0.57735,-0.57735,-0.57735]
+						nvVue.setPos 			[100,100,100]
 						nvVue.setProjection #perspective
 					)
 			)
@@ -203,7 +205,7 @@ struct str_miniMax_MOTEUR (
 			result
 		),
 		
-		
+		---- Bounding box --------
 		fn getWorldBB =(
 			
 			local resultat 	= #( [1e9,1e9,1e9], [-1e9,-1e9,-1e9] )
@@ -226,6 +228,19 @@ struct str_miniMax_MOTEUR (
 			
 			resultat
 		),
+		fn getWorldBCube =(
+			local result 		= #( [0,0,0], [0,0,0] )
+			local worldBB 		= getWorldBB ()
+			local grdCote 		= amax  #( worldBB[2].x, worldBB[2].y, worldBB[2].z )
+			local BCubeTaille = [ grdCote, grdCote, grdCote ]
+			local BCubePos 	= worldBB[1] - ( BCubeTaille - worldBB[2] ) /2
+			result= #( BCubePos, BCubeTaille )
+			
+			result
+		),
+		
+		
+		
 		
 		------  Evenements Souris	--------------------------------------------------------
 		--- Deplacement --------------

@@ -49,13 +49,19 @@ struct str_apercus (
 		
 		-- pour IMPORT dans scene --
 		a_objetsImport 		= #(),
+
 		-- stockage de l'ancien moteur de rendu et ses parametres -
 		m_moteurRenduPrecedant,
 		
+		-- les axes de rotation de la camera--
+		m_rotateCam_X = 0,
+		m_rotateCam_Y = 0,
+		m_distanceDecallage = 0,
+		
 	public
 		BB_import,
-		centre_import,
-		longueurMax_import,
+		m_centre_import,
+		m_longueurMax_import,
 		
 		m_annuler = false,
 		
@@ -132,14 +138,14 @@ struct str_apercus (
 			)
 			
 			-- on calcul quelques données utils pour la mise en place de la scene de rendu --
-			centre_import = [ ( BB_import[2].x - BB_import[1].x )/2 + BB_import[1].x, ( BB_import[2].y - BB_import[1].y )/2 +BB_import[1].y, ( BB_import[2].z - BB_import[1].z  )/2 + BB_import[1].z ]
+			m_centre_import = [ ( BB_import[2].x - BB_import[1].x )/2 + BB_import[1].x, ( BB_import[2].y - BB_import[1].y )/2 +BB_import[1].y, ( BB_import[2].z - BB_import[1].z  )/2 + BB_import[1].z ]
 			
 			--- la longueur max ---
 			BBLargeur	=	BB_import[2].x - BB_import[1].x
 			BBLongeur	=	BB_import[2].y - BB_import[1].y
 			BBHauteur	=	BB_import[2].z - BB_import[1].z
 			hypot_1  = sqrt   ( BBLargeur*BBLargeur   + BBLongeur*BBLongeur)   
-			longueurMax_import = sqrt ( hypot_1*hypot_1 + BBHauteur*BBHauteur)
+			m_longueurMax_import = sqrt ( hypot_1*hypot_1 + BBHauteur*BBHauteur)
 			
 			return BB_result
 			
@@ -176,17 +182,19 @@ struct str_apercus (
 			
 			local CameraPosX, distCam, ptCam
 			
-			marge 	= longueurMax_import * 0
+-- 			m_centre_import = [0,0,0]
+			ptCam	= point name:"pt_camApercu"	pos:m_centre_import
 			
-			distCam 	= longueurMax_import * m_labib.prefs.apercus.coefDistance
+			marge 	= m_longueurMax_import * 0			
+			distCam 	= m_longueurMax_import * m_labib.prefs.apercus.coefDistance + m_distanceDecallage
 			
-			CameraPosX = centre_import.x  + distCam 
-			CameraPosY = centre_import.y 
-			CameraPosZ = centre_import.z			
+			CameraPosX = m_centre_import.x  + distCam 
+			CameraPosY = m_centre_import.y 
+			CameraPosZ = m_centre_import.z
 			
-			TargetX =  centre_import.x
-			TargetY =  centre_import.y
-			TargetZ =  centre_import.z		
+			TargetX =  m_centre_import.x
+			TargetY =  m_centre_import.y
+			TargetZ =  m_centre_import.z		
 			
 			if ( not detail ) then
 				Capture_FOV = m_labib.prefs.apercus.angleVue
@@ -194,6 +202,19 @@ struct str_apercus (
 				Capture_FOV = m_labib.prefs.apercus.angleVueDetail
 			
 			cameraApercu =  Targetcamera fov:Capture_FOV pos:[CameraPosX,CameraPosY,CameraPosZ] name:"Camera_apercu" orthoProjection:false target:(Targetobject transform:(matrix3 [1,0,0] [0,1,0] [0,0,1] [TargetX,TargetY, TargetZ] ) name:"TargetCapture") 
+			
+			--- on parent la cam et la lumiere au point ---
+			cameraApercu.parent = ptCam
+			cameraApercu.target.parent = ptCam
+			soleilCorona.parent = ptCam
+			
+			-- on tourne le point parent pour orienter comme il faut ---
+			local posBack = ptCam.pos
+			in coordsys local rotate ptCam (angleaxis m_rotateCam_Y [0,1,0])
+			in coordsys world rotate ptCam (angleaxis m_rotateCam_X [0,0,1])
+			
+			
+			
 			viewport.setCamera cameraApercu
 			cameraApercu.type = #free			
 			
@@ -207,10 +228,10 @@ struct str_apercus (
 			
 			debug "poserSol"
 			
-			TailleSol 	= longueurMax_import * 100
-			Extrusion 	= longueurMax_import * 50
+			TailleSol 	= m_longueurMax_import * 100
+			Extrusion 	= m_longueurMax_import * 50
 			
-			sol = Plane 	length:TailleSol 		width:TailleSol 		pos:[centre_import.x,centre_import.y,BB_import[1].z + Extrusion ] 		isSelected:off   lengthsegs:2 widthsegs:2
+			sol = Plane 	length:TailleSol 		width:TailleSol 		pos:[m_centre_import.x,m_centre_import.y,BB_import[1].z + Extrusion ] 		isSelected:off   lengthsegs:2 widthsegs:2
 			
 			converttopoly Sol
 			sol.EditablePoly.SetSelection #Face #{1..16}
@@ -229,30 +250,30 @@ struct str_apercus (
 			
 			debug "preparerLumieres"
 			
-			posLum = 500 --longueurMax_import * 2
+			posLum = 500 --m_longueurMax_import * 2
 						
 			-- creation de la lumiere pour l'apercu --
-			soleilCorona = CoronaSun targeted:on name:"Soleil_apercu" pos:[centre_import.x + 5*posLum ,centre_import.y + 5*posLum, centre_import.z + 10*posLum] isSelected:off  target:(Targetobject transform:(matrix3 [1,0,0] [0,1,0] [0,0,1] [centre_import.x,centre_import.y, centre_import.z] ) name:"TargetLumiereCapture") 
+			soleilCorona = CoronaSun targeted:on name:"Soleil_apercu" pos:[m_centre_import.x + 5*posLum ,m_centre_import.y + 5*posLum, m_centre_import.z + 10*posLum] isSelected:off  target:(Targetobject transform:(matrix3 [1,0,0] [0,1,0] [0,0,1] [m_centre_import.x,m_centre_import.y, m_centre_import.z] ) name:"TargetLumiereCapture") 
 			soleilCorona.targeted = off
 			),
 		fn poserOrigine 		detail = (
 			
 			debug "poserOrigine"
 			
-			ptCam = point name:"point camera" 	pos:centre_import
+			ptCam = point name:"point camera" 	pos:m_centre_import
 			cameraApercu.parent  = ptCam
 			soleilCorona.parent = ptCam
 			
 			if not detail then (
 				
 				in coordsys world rotate ptCam ( eulerAngles m_labib.prefs.apercus.rotX 		 m_labib.prefs.apercus.rotY  	m_labib.prefs.apercus.rotZ )
-				ptCam.pos = centre_import
+				ptCam.pos = m_centre_import
 				in coordsys local 	move cameraApercu  [  m_labib.prefs.apercus.transX  ,  m_labib.prefs.apercus.transY ,  m_labib.prefs.apercus.transZ  ]
 				
 			) else (
 				
 				in coordsys world rotate ptCam ( eulerAngles m_labib.prefs.apercus.rotXDetail 		 m_labib.prefs.apercus.rotYDetail  	m_labib.prefs.apercus.rotZDetail )
-				ptCam.pos = centre_import
+				ptCam.pos = m_centre_import
 				in coordsys local 	move cameraApercu  [  m_labib.prefs.apercus.transXDetail  ,  m_labib.prefs.apercus.transYDetail ,  m_labib.prefs.apercus.transZDetail  ]
 				
 			)
@@ -285,24 +306,37 @@ struct str_apercus (
 			nomMoteur = classof renderers.current as string
 			
 			if ( findString nomMoteur "Corona" != 0 ) do (
+				
+				debug "par là - 1"
+				
 				m_moteurRenduPrecedant 								= renderers.current
-				renderers.current 										= execute m_labib.prefs.apercus.moteur
+				renderers.current 										= CoronaRenderer() --execute m_labib.prefs.apercus.moteur
+				
+				debug "par là - 2"
 				
 				renderers.current.adaptivity_targetError 		= if detail then m_labib.prefs.apercus.noiseLevelDetail else m_labib.prefs.apercus.noiseLevel
 -- 				renderers.current.adaptivity_targetError = 11.25
 				
+				debug "par là - 3"
+				
 				renderers.current.denoise_blendAmount		= m_labib.prefs.apercus.denoiseAmount
 				renderers.current.denoise_filterType			= 2
+				
+				debug "par là - 4"
 				
 				renderers.current.colorMap_simpleExposure 			= m_labib.prefs.apercus.exposition
 				renderers.current.colorMap_highlightCompression	= m_labib.prefs.apercus.highlightCompress
 				renderers.current.colorMap_colorTemp						= m_labib.prefs.apercus.temperatureRendu
 				renderers.current.colorMap_contrast						= m_labib.prefs.apercus.contraste
 				
+				debug "par là - 5"
+				
 -- 				renderers.current.vfb_type							= if m_labib.prefs.apercus.afficherVFB then 2	else 0 ---- 0:pour cacher le VFB corona  ----
 				renderers.current.bg_texmap						= CoronaSky()
 				renderers.current.bg_source						= 1
 -- 				renderers.current.lockMax 							= true	---- bloquer max ? ----
+				debug "par là - 6"
+				
 			)
 			
 			debug "preparerRendu - fin"
@@ -346,18 +380,15 @@ struct str_apercus (
 		fn creer		elems 	detail:false	= (
 			
 -- 				---- debug ----
--- 				local  deb = true
 				local nomRenduApercu
+			
+				-- on s'assure qu'elems soit un tableau
 				toArray &elems
 			
--- 				rollPrincipal = m_labib.m_rollPrincipal
 				
 				if elems.count > 0 do 
 					if querybox "voulez vous créer les aperçus ?" do (
--- 						rollPrincipal.setProgress "Rendu aperçu ..." 0	
--- 						rollPrincipal.cancelled = false
-						
--- 						holdMaxFile() 
+
 						holdPerso ()
 						
 						i = 1.

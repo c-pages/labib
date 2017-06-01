@@ -29,7 +29,8 @@
 	- Mise en place globale ( mise au propre du travail durant l'été)
 	- Une interface souple et simple
 ########################################################################################################################*/
-destroydialog roll_fenetreType catch ()
+-- destroydialog roll_fenetreType catch ()
+(
 ------------------------------------------------------------------------------
 ----------	Fenetre								 -------------------------
 ------------------------------------------------------------------------------
@@ -43,7 +44,13 @@ rollout roll_fenetreType  "fenetreType" width:296 height:296
 	---- Structures ----
 	local m_drag			---- la structure gerant le drag de la fenetre ----
 	
+	--- ctro des imgtags ---
+	local m_titre
+	
 	------------  UI	----------------------------------------------------------------------------------		
+	
+	ImgTag 'ui_titre' "" pos:[128,4] width:66 height:18 align:#left
+	
 	---- le bouton pour fermer la fenetre ----
 	ImgTag ui_btnFermer "X" pos:[276,0] width:20 height:20 toolTip:"Fermer" style:#bmp_center
 	
@@ -51,24 +58,33 @@ rollout roll_fenetreType  "fenetreType" width:296 height:296
 	---- Gere l'état du bouton  -----
 	fn etatBtnFermer		_etat =(
 		case _etat of (
-			#Repos : 	ui_btnFermer.bitmap = openBitmap 	m_prefs.fenetre.ico_btnFermer_S
-			#Survol : 	ui_btnFermer.bitmap = openBitmap 	m_prefs.fenetre.ico_btnFermer_R
-			#Press : 	ui_btnFermer.bitmap = openBitmap 	m_prefs.fenetre.ico_btnFermer_P
+			#Repos : 	ui_btnFermer.bitmap = m_prt.m_icos_fermer[1]
+			#Survol : 	ui_btnFermer.bitmap = m_prt.m_icos_fermer[2]
+			#Press : 	ui_btnFermer.bitmap = m_prt.m_icos_fermer[3]
 		)
 	)
+	
 	---- Initialisation de la fenetre  -----
-	fn initialiser = (	
+	fn initialiser  ptr_Labib= (
+		-- se raccrocher à labib --
+		m_prt = ptr_Labib
+		
+		-- le titre --
+		m_titre 	= str_label 	m_ui:ui_titre			m_texte:m_prt.m_titre
+		m_titre.setCouleur 	m_prt.col_fenetreTxt
+		
 		-- le drag --
 		m_drag 		= str_drag 	m_prt:roll_fenetreType
+		
 		-- le bouton fermer --
 		ui_btnFermer.bitmap = m_prt.m_icos_fermer[1]	
+		
 	)
 	
 	------------  Evenements	----------------------------------------------------------------------------------
 	---- Fenetre -----
-	/* 	--- a décommenter ---		
-	on roll_fenetreType moved			_pos 	do	m_prefs.fenetre.fenetreType_pos	= _pos	
-	*/
+	on roll_fenetreType moved			_pos 	do	m_prt.m_pos	= _pos	
+		
 	---- Drag ----
 	on roll_fenetreType lbuttondown	_pos 	do	m_drag.demarrer ()
 	on roll_fenetreType lbuttonup 		_pos 	do	m_drag.arreter ()
@@ -90,49 +106,61 @@ struct str_fenetreType (
 	
 		------------  Membres	----------------------------------------------------------------------------------
 	public
+		
 		---- pointeurs ----
-		m_labib	,		-- ( a remplir a la creation )		---- pointeur vers la structure principale ----
-		m_prefs			= m_labib.prefs			,		---- pointeur vers les preferences ----
-		m_dialog			= roll_fenetreType ,		---- le rollout ----
-		m_icos_fermer = #( 					---- les images pour les icones du bouton de fermeture ----
-									openBitMap m_prefs.fenetre.ico_btnFermer_R ,		-- Repos ----
-									openBitMap m_prefs.fenetre.ico_btnFermer_S ,		-- Survol ----
-									openBitMap m_prefs.fenetre.ico_btnFermer_P 		-- Pressé ----
+		m_labib,
+		m_dialog				= roll_fenetreType ,		---- le rollout ----
+		
+		---- props de la fenetre -----
+		m_titre 				= "Labib | fenetreType",
+		m_pos 				= [100,100],
+		m_taille 				= [300, 300],
+		m_estOuvert 		= false,
+		
+		col_fenetreFond	= m_labib.prefs.fenetre.col_fenetreFond, 	----  ----
+		col_fenetreTxt		= m_labib.prefs.fenetre.col_fenetreTxt, 	----  ----
+	
+		--- images bouton fermer ---
+		m_icos_fermer= #( 					---- les images pour les icones du bouton de fermeture ----		
+									openBitMap m_labib.prefs.fenetre.ico_btnFermer_R ,		-- Repos ----
+									openBitMap m_labib.prefs.fenetre.ico_btnFermer_S ,		-- Survol ----
+									openBitMap m_labib.prefs.fenetre.ico_btnFermer_P 		-- Pressé ----
 								),
 		
 		------------  Fonctions	----------------------------------------------------------------------------------
 	public
+		fn estOuvert = m_estOuvert,
 		fn ouvrir =(			
+			m_estOuvert 		= true
 			---- creation de la fenetre ----
-			createDialog m_dialog 	bgcolor:				m_prefs.fenetre.col_fenetreFond 	 \
-											fgcolor:				m_prefs.fenetre.col_fenetreTxt 	\
+			createDialog m_dialog 	bgcolor:				col_fenetreFond	 \
+											fgcolor:				col_fenetreTxt 	\
 											style:				#(#style_resizing) \
 											lockHeight:			true	\
-											lockWidth:			true	/* \	--- a décommenter ---								
-											pos:					m_prefs.fenetre.fenetreType_pos	  */
+											lockWidth:			true	 \									
+											pos:					m_pos	
 			
 			---- initialisation de la fenetre ----
-			m_dialog.m_prefs 	= m_prefs
-			m_dialog.m_prt	 	= this
-			m_dialog.initialiser ()
-			
-			---- maj des preferences ----	
-			/* 	--- a décommenter ---		
-			m_prefs.fenetre.fenetreType_estOuvert = true
-			*/
+			m_dialog.initialiser this
+	
 		),
 		
 		fn fermer  silence:false =(		---- silence : fermer sans modifier l'état des preferences ---
+			m_estOuvert 		= false
 			---- maj des preferences ----	
 			if not silence do (
-				/* 	--- a décommenter ---		
-				m_prefs.fenetre.fenetreType_estOuvert 	= false
-				m_prefs.fenetre.fenetreType_pos			= getdialogpos m_dialog
-				*/
 			)
 			
 			---- fermer la fenêtre ----
 			try destroydialog m_dialog catch ()
+		),
+		
+		fn toggleOuverture =(
+			
+			if m_estOuvert
+				then fermer ()
+				else	ouvrir ()
+			
 		)
 		
 		------------  Evenements	----------------------------------------------------------------------------------
@@ -140,5 +168,7 @@ struct str_fenetreType (
 )
 
 
-fenetreType 	=	str_fenetreType m_labib:Labib
+fenetreType 	=	str_fenetreType 	m_labib:Labib
 fenetreType.ouvrir ()
+
+)

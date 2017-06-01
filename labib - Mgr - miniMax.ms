@@ -14,7 +14,7 @@ global miniMax	= undefined
 	
 	vue1 			= miniMax.m_moteur.getVue 1
 	vue1.setPos [ -100,50]
-	
+	vue1.centrer [50,40]
 	
 	*/
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -382,8 +382,9 @@ struct str_miniMax (
 			
 			
 			--- creation des element des base ----
-			m_moteur.creer.box  		pos:[0,0,0] 	taille:[50,40,80] 	centre:[0 ,0 ,0 ] 	coulLignes:[30,30,30]  	coulPts:white	
+			m_moteur.creer.box  		pos:[0,0,0] 	taille:[60,40,80] 	centre:[0 ,0 ,0 ] 	coulLignes:[30,30,30]  	coulPts:white	
 -- 			m_moteur.creer.camera  	pos:[0,0,0] 	cible:[0,0,40] 		FOV:75			 	coulLignes:blue  			coulPts:blue
+			
 			
 			--- Premiere actualisation ----
 			m_dialog.actualiser ()

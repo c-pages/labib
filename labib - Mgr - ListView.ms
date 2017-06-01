@@ -654,6 +654,7 @@ struct str_listViewMgr (
 					(m_btnsDotNet.Middle): 		()
 					(m_btnsDotNet.None): 		()
 					(m_btnsDotNet.Right): 		(
+						debug "Bouton DROIT"
 						actualiserSelection () 
 						m_prt.m_menus.elements ()
 					)
@@ -776,7 +777,13 @@ struct str_listViewMgr (
 			m_ui.AllowColumnReorder	= true
 			m_ui.BackColor 				= toCouleurDotnet	m_col_uiFond
 			m_ui.ForeColor 				= toCouleurDotnet   m_col_txt
-			
+			/* 
+			--image fond --
+			m_ui.BackgroundImageLayout = (dotnetclass "System.Windows.Forms.ImageLayout").tile
+			local fichierFond 					= GetDir #userScripts + "\cp - Labib\data\img\Labib_fondDotnet.jpg"
+			m_ui.BackgroundImage			= (dotnetclass "System.Drawing.Image").FromFile( fichierFond )
+			m_ui.Refresh()
+			 */
 		)
 		
 		

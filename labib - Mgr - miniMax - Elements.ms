@@ -379,7 +379,7 @@ struct str_miniMax_nd_box (
 			
 			---- les points ----
 			m_prt.ajouterPoint  ( [ 0 , 0 , 0 ] )
-			m_prt.ajouterPoint  ( [ taille.x , 0 , 0 ] )
+			 m_prt.ajouterPoint  ( [ taille.x , 0 , 0 ] )
 			m_prt.ajouterPoint  ( [ taille.x , taille.y , 0 ] )
 			m_prt.ajouterPoint  ( [ 0 , taille.y , 0 ] )
 			

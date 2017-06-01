@@ -67,9 +67,20 @@ labib.ouvrir ()
 
 
 debuger "" var:(labib.edit.getSelection ()) param:#nom
+showmethods labib.fenetre.m_dialog.m_LV.m_ui.BackgroundImage
+show  labib.fenetre.m_dialog.m_LV.m_ui.BackgroundImageLayout
+show labib.fenetre.m_dialog.m_LV.m_ui
+labib.fenetre.m_dialog.m_LV.m_ui.ResetBackColor() ()
 
+show labib.fenetre.m_dialog.m_LV.m_ui.borderstyle
+ labib.fenetre.m_dialog.m_LV.m_ui.BackgroundImageLayout =  (dotnetclass "System.Windows.Forms.ImageLayout").zoom
+ 
+ 
+ 
+ 
 
 labib.cmd.defaire()
+
 
 labib.fenetre.m_dialog.m_TV.stocker_etatItems ()
 labib.fenetre.m_dialog.m_TV.restaurer_etatItems ()

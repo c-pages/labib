@@ -162,7 +162,7 @@ struct str_prefsApercus (
 	convertToCoronaMats 		= true,
 	
 	-- parametres du moteur de rendu --
-	moteur							= "Corona_1_5__hotfix_1()",	-- execute ( ( filterString moteur ":")[1] +"()" )
+-- 	moteur							= "Corona_1_5__hotfix_1()",	-- execute ( ( filterString moteur ":")[1] +"()" )
 	taille								= [256,256],	
 	coefDistance					= 1.7,
 	

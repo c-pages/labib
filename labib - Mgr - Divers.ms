@@ -301,7 +301,7 @@ struct str_historique (
 		fn enregistrer 	 _noeudAEnregistrer	=(
 			
 			debug "enregistrer"
-			debug "_noeudAEnregistrer" var:_noeudAEnregistrer	param:#nomUnique
+			debug "_noeudAEnregistrer" 	var:_noeudAEnregistrer	param:#nomUnique
 			
 			-- on enregistre si noeud courant est differents --
 			if _noeudAEnregistrer != m_pile[1] do ( 
@@ -366,7 +366,7 @@ struct str_historique (
 ------------------------------------------------------------------------------
 struct str_drag (
 	
-	m_prt, 
+	m_prt, --- le rollout a drager
 	
 	posOrigineSouris 		= [0,0],
 	posOrigineFenetre 	= [0,0],
@@ -383,6 +383,7 @@ struct str_drag (
 	fn suivreSouris 	 	=(
 		if enCours  do (			
 			local ecart = ( mouse.screenpos  - posOrigineSouris )
+-- 			if not m_prt.inViewport do
 			SetDialogPos  m_prt	( posOrigineFenetre + ecart )
 		)
 	)

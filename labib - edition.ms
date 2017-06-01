@@ -72,10 +72,12 @@ struct str_edition (
 		m_dragNoeuds 	=#(),				-- les noeuds draggés ----
 		
 	--------- conversion coronas ----------
-		m_coroConverter = CoronaConverter,
-		m_coroProxyConverter = CoronaProxyConverter,
--- 					CoronaConverter.convertScene ()
-
+		m_coroConverter 		= CoronaConverter,
+		m_coroProxyConverter 	= CoronaProxyConverter,
+		
+	public
+	m_modeAppercus = false,
+	
 	public  -- DEBUG sinon private ---
 	---- copier coller ---
 		m_pressePapier = str_branche 	nom:"pressePapier" 	\
@@ -111,7 +113,7 @@ struct str_edition (
 		fn getNdsDrag = m_dragNoeuds,
 			
 		fn getNdsAAfficher =(
-			
+				
 			debug "getNdsAAfficher"
 			debug "m_ndsAAfficher" var:m_ndsAAfficher param:#nom
 			
@@ -288,26 +290,7 @@ struct str_edition (
 		),
 		
 		
-		--- Actions utilisateur ---------------------------------
-		---- importation ----
-		fn importer		_noeudsAImporter	=(
-			debug "importer dans la scene"
-			debug "noeuds" var:_noeudsAImporter param:#nom
-		),
-		fn importer_viewport 							= (
-			debug "Importation dans la scene"
-			debug "noeuds importés" var:( for n in m_LV.m_selection collect n.nom )
-		),
-		fn ouvrirDansExplorer _noeud =(
-			ShellLaunch "explorer.exe" ("/e,/select,\"" +  _noeud.fichier + "\"")
-		),
-		fn ouvrirFichier _noeud =(
-			local check = checkForSave()
-			if check do loadMaxFile  _noeud.fichier
-		),
-		
-		
-		--------- conversion coronas ----------
+		--------- conversion et recherche de maps  ----------
 		fn relinkBitmapsInit =(
 			
 -- 			local dossiers = #("D:")
@@ -337,6 +320,10 @@ struct str_edition (
 			
 			debug "convertMateriauxScene - debut" 
 			
+			if m_coroConverter == undefined do (
+				m_coroConverter 		= CoronaConverter
+				m_coroProxyConverter 	= CoronaProxyConverter
+			)
 			m_coroConverter.convertScene ()
 			
 			--- on relink les bitmaps manquantes -----
@@ -350,16 +337,75 @@ struct str_edition (
 		),
 		
 		
+		--- Actions utilisateur ---------------------------------
+		---- importation ----
+		fn importer		_noeudsAImporter	=(
+			debug "importer dans la scene"
+			debug "noeuds" var:_noeudsAImporter param:#nom
+		),
+		fn importer_viewport 							= (
+			debug "Importation dans la scene"
+			debug "noeuds importés" var:( for n in m_LV.m_selection collect n.nom )
+		),
+		fn ouvrirDansExplorer _noeud =(
+			ShellLaunch "explorer.exe" ("/e,/select,\"" +  _noeud.fichier + "\"")
+		),
+		fn ouvrirFichier _noeud =(
+			local check = checkForSave()
+			if check do loadMaxFile  _noeud.fichier
+		),
 		
 		
 		
 		
-		
-		
-		fn faireApercus _noeuds =(
+		-------- MODE EDITION ----------		
+		fn activer_ModeApercus =(
 			
-				m_apercus.creer 	_noeuds
--- 		m_coroProxyConverter = CoronaProxyConverter
+			local basculer = true
+			
+			-- si on a un fichier ouvert ----
+			if getSaveRequired() do
+			if not querybox "Passer en mode Edition de Labib ? (cela va fermer la scene max actuellement ouverte)" do 
+				basculer = false
+			
+			if basculer do (
+				-- on charge le fichier max du mode appercus ----
+				local fichierMax_modeAppercu = ( GetDir #userScripts ) + "\cp - labib\data\labib_modeEdition.max"
+				loadMaxFile fichierMax_modeAppercu
+				doesFileExist fichierMax_modeAppercu
+				
+				m_modeAppercus = true
+				
+			)
+		),
+		fn desactiver_ModeApercus =(
+			
+			setSaveRequired false
+			resetMaxFile #noPrompt
+			m_modeAppercus = false
+		),
+		
+		
+		
+		fn toggleModeEdition=(
+			if m_modeAppercus then 
+				desactiver_ModeApercus ()
+			else 
+				activer_ModeApercus ()
+		),
+		
+		
+		
+		
+		
+		fn faireApercus 	_noeuds =(
+			
+			activer_ModeApercus ()
+			
+			m_apercus.creer 		_noeuds
+			
+			desactiver_ModeApercus ()
+			
 		),
 		
 		
@@ -433,18 +479,18 @@ struct str_edition (
 			--- etat inital du TV ----
 			m_TV.stocker_etatItems ()
 			
-			
 			for noeud in _noeudsCibles do (
 				noeud.setTags  	_nvTags
 				noeud.enregistrer ()
 			)
 			
 			
-			m_labib.fenetre.m_dialog.afficherTags 		m_ndsAAfficher 
+-- 			m_labib.fenetre.m_dialog.afficherTags 		m_ndsAAfficher 
 			m_fenetre.actualiser ()
 			
 			--- restauration etat du TV ---
 			m_TV.restaurer_etatItems ()
+			
 		),
 		
 		
@@ -670,13 +716,13 @@ struct str_edition (
 			----- initialiser les scripts exterieurs --------------------
 			------- Corona	---------------
 			global CoronaConverterSuppressGui = true
-			include  "$scripts\CoronaRenderer\CoronaConverter_v1.29.ms"
+			include  "$scripts\CoronaRenderer\coronaConverter_v1.34.ms"
 			CoronaConverterSuppressGui = false
 			
 			------- relinkBitmaps	  ---------------			
 			relinkBitmapsInit ()
 			
-			
+			popoi = "$scripts\CoronaRenderer\coronaConverter_v1.34.ms"
 			
 			
 			--- fenetre ----
@@ -687,7 +733,8 @@ struct str_edition (
 -- 			m_selection 		= (getDossier()).enfants
 			
 			--- historique ----			
-			m_hist 			= str_historique 		m_dialog:m_fenetre.m_dialog		m_edit:this
+			m_hist 			= str_historique 		m_dialog:m_fenetre.m_dialog		m_edit:this			
+-- 			m_hist.enregistrer  	m_prefs.fenetre.dossierCourant
 			
 		),		
 		fn majPointeursFenetre =(

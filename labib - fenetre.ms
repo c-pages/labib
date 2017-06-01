@@ -700,7 +700,7 @@ struct str_fenLabib (
 			
 			-- afficher barre titre ou pas --
 			if m_prefs.fenetre.afficherTitre
-				then 	style = #( #style_titlebar  ,    #style_sysmenu, #style_resizing  , #style_minimizebox , #style_maximizebox  ) 
+				then style = #( #style_titlebar  ,    #style_sysmenu, #style_resizing  , #style_minimizebox , #style_maximizebox  ) 
 				else 	style = #( #style_resizing ) 
 			
 			-- la position, si est en bandeau ou pas --
@@ -735,9 +735,9 @@ struct str_fenLabib (
 			
 			
 			-- les fenetres secondaires --
-			if m_labib.infos.estOuvert() 	
-				do m_labib.infos.ouvrir()
-				
+			if m_labib.infos.estOuvert() 	do m_labib.infos.ouvrir()			
+			if m_labib.rendu.estOuvert() 	do m_labib.rendu.ouvrir()
+			
 			---- maj des preferences ----	
 			m_prefs.fenetre.fenLabib_estOuvert = true
 			
@@ -746,9 +746,14 @@ struct str_fenLabib (
 			m_dialog.initialiser ()
 			
 			---- actualiser l'edition ----
-			m_edit.actualiser ()
+			m_edit.ouvrir (m_edit.getDossier ())
+-- 			m_edit.actualiser ()
 			
-			m_dialog.m_TV.selectionner  ( m_edit.getDossier () )
+-- 			m_dialog.m_TV.selectionner  ( m_edit.getDossier () )
+			
+			--- on enregistre pour le gestionnaire de viewport----
+			registerViewWindow m_dialog
+			
 			
 			m_edit.logger "Ouverture de Labib"
 		),
@@ -756,7 +761,8 @@ struct str_fenLabib (
 			
 			debug "fermeture"
 			
-			m_labib.infos.fermer enregistrer:false
+			m_labib.infos.fermer 		enregistrer:false
+			m_labib.rendu.fermer 	enregistrer:false
 			
 			---- maj des preferences ----	
 			m_prefs.fenetre.fenLabib_estOuvert 	= false

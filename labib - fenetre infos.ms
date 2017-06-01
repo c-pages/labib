@@ -187,8 +187,8 @@ rollout roll_infos "infos"  width:346 height:262
 		ui_editNbreVertex.width 			= 	_taille.x - ( LargeurEdit )
 		ui_editNotes.width 					=	_taille.x - ( LargeurEdit )
 		ui_editNotes.height 					=	_taille.y - ( 206 )
-
-
+		
+		
 		ui_btnOuvrirFichierMax.pos.x			=	_taille.x - ( decalXBtn1 )		
 		ui_btnOurvirApercu.pos.x				=	_taille.x - ( decalXBtn3 )
 		ui_btnCreerApercu.pos.x				=	_taille.x - ( decalXBtn2 )
@@ -278,7 +278,7 @@ rollout roll_infos "infos"  width:346 height:262
 	on ui_btnOuvrirFichierMax 		pressed  do ouvrirFichierMax (m_labib.edit.getSelection ())[1]
 	on ui_editApercu 				entered 	_text do ()
 	on ui_btnOurvirApercu 			pressed  do ()
-	on ui_btnCreerApercu 			pressed  do ()
+	on ui_btnCreerApercu 			pressed  do m_labib.edit.faireApercus 	( m_labib.edit.getSelection () ) 
 	on ui_btnCreerAperculAuto 	pressed  do ()
 	on ui_editDetail 					entered 	_text do ()
 	on ui_btnOurvirDetail 			pressed  do ()

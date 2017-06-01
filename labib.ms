@@ -1,4 +1,4 @@
-/*
+				/*
 #######################################################################################################################
 	Christophe Pages (http://www.c-pages.fr) 	
 ##########################################################################################################################
@@ -71,6 +71,7 @@ include "$userScripts\cp - labib\labib - Mgr - ListView Tags.ms"
 include "$userScripts\cp - labib\labib - menus.ms"
 
 include "$userScripts\cp - labib\labib - fenetre infos.ms"
+include "$userScripts\cp - labib\labib - fenetre rendu.ms"
 
 
  include "$userScripts\cp - labib\labib - fenetre.ms"
@@ -86,7 +87,6 @@ struct str_labib (
 	
 	
 		------------ DEBUG	----------------------------------------------------------------------------------
-		
 		m_debug = false,
 		m_dbgPrefix ="LABIB",
 		fn debug 	_txt  var:	 param:    =(
@@ -123,7 +123,7 @@ struct str_labib (
 		
 		---les actions --------
 		
- 		rendu,																				---- la gestion des rendus des apercus ----		
+ 		rendu		= 	str_rendu 	m_labib:this,																	---- la gestion des rendus des apercus ----		
 		
 	------------ Fonctions		----------------------------------------------------------------------------------
 	--- Edition ----	
@@ -165,7 +165,7 @@ struct str_labib (
 				tmp_herb = creerDossier  "Herbes" 	parent:tmp_veget
 			tmp_vehi = creerDossier  "Véhicules"
 				tmp_voit = creerDossier  "Voitures" 	parent:tmp_vehi
-				tmp_voit = creerDossier  "Vélos" 	parent:tmp_vehi
+				tmp_voit = creerDossier  "2 roues" 		parent:tmp_vehi
 			tmp_perso = creerDossier  "Personnages"
 				tmp_hom = creerDossier  "Hommes" 	parent:tmp_perso
 				tmp_fem = creerDossier  "Femmes" 	parent:tmp_perso

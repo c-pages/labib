@@ -185,11 +185,11 @@ struct apercu_struct (
 )
 
 
-
+*/
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 ----------	Le rollout des rendus  ---------------------------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
-rollout rollRendu "Rendu" width:377 height:206
+rollout roll_rendu "Rendu" width:377 height:206
 (
 	------------  MEMBRES	----------------------------------------------------------------------------------
 	local m_labib
@@ -256,13 +256,13 @@ rollout rollRendu "Rendu" width:377 height:206
 	-- comportement --
 	-- action --
 	
-	on rollRendu moved pos 	do
+	on roll_rendu moved pos 	do
 		m_labib.prefs.fenetre.posRendu	= pos
-	on rollRendu lbuttondown pos 	do
+	on roll_rendu lbuttondown pos 	do
 		drag.demarrer ()
-	on rollRendu lbuttonup pos 	do
+	on roll_rendu lbuttonup pos 	do
 		drag.arreter ()
-	on rollRendu mouseMove pos 	do
+	on roll_rendu mouseMove pos 	do
 		drag.suivreSouris ()
 	on ui_btnFermer mouseover do
 		ui_btnFermer.bitmap = openBitmap prefs.fenetre.ico_btnFermer_S
@@ -278,9 +278,9 @@ rollout rollRendu "Rendu" width:377 height:206
 
 
 
-struct rendu_struct (
+struct str_rendu (
 	m_labib,
-	m_dialog = rollRendu ,
+	m_dialog = roll_rendu ,
 	
 	fn ouvrir =(
 		m_labib.prefs.fenetre.rendu = true
@@ -304,10 +304,15 @@ struct rendu_struct (
 			m_labib.prefs.fenetre.posRendu	= getDialogPos m_dialog
 		)
 		try destroyDialog m_dialog catch ()
+	),	
+	fn toggleOuverture =(
+		
+		if m_estOuvert
+			then fermer ()
+			else	ouvrir ()
+		
 	)
-	
-	
 )
 
 
- */
+ 
