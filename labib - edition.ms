@@ -76,12 +76,27 @@ struct str_edition (
 		m_dragNoeuds 	=#(),				-- les noeuds draggés ----
 		
 	--------- conversion coronas ----------
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> a82c23bbf290df6838b8b5829228e174571f7557
 		m_coroConverter 		= CoronaConverter,
 		m_coroProxyConverter 	= CoronaProxyConverter,
 		
 	public
 	m_modeAppercus = false,
 	
+<<<<<<< HEAD
+=======
+=======
+		/* 
+		m_coroConverter = CoronaConverter,
+		m_coroProxyConverter = CoronaProxyConverter, 
+		*/
+-- 					CoronaConverter.convertScene ()
+
+>>>>>>> 7bcd840ce6d921800a60fdc2903438d9c925d9c3
+>>>>>>> a82c23bbf290df6838b8b5829228e174571f7557
 	public  -- DEBUG sinon private ---
 	---- copier coller ---
 		m_pressePapier = str_branche 	nom:"pressePapier" 	\
@@ -293,9 +308,16 @@ struct str_edition (
 		),
 		
 		
+<<<<<<< HEAD
 		--------- conversion et recherche de maps  ----------
 		fn relinkBitmapsInit =(
 			/* 
+=======
+<<<<<<< HEAD
+		--------- conversion et recherche de maps  ----------
+		fn relinkBitmapsInit =(
+			
+>>>>>>> a82c23bbf290df6838b8b5829228e174571f7557
 -- 			local dossiers = #("D:")
 			if doesFileExist ((getDir #userScripts)+"\\Relink Bitmaps\\C_Lib.mse") and doesFileExist ((getDir #userScripts)+"\\Relink Bitmaps\\Relink_Lib.mse") and doesFileExist ((getDir #userScripts)+"\\Relink Bitmaps\\Relink Bitmaps.mse") then ( 
 			   fileIn ((getDir #userScripts)+"\\Relink Bitmaps\\C_Lib.mse") quiet:true 
@@ -304,9 +326,38 @@ struct str_edition (
 			) else (
 			   MessageBox "Relink Bitmaps files are not in the default installation path.  Try reinstalling."
 			)
+<<<<<<< HEAD
 			 */
 			
 		),
+=======
+			
+			
+		),
+=======
+		--- Actions utilisateur ---------------------------------
+		---- importation ----
+		fn importer		_noeudsAImporter	=(
+			debug "importer dans la scene"
+			debug "noeuds" var:_noeudsAImporter param:#nom
+		),
+		fn importer_viewport 							= (
+			debug "Importation dans la scene"
+			debug "noeuds importés" var:( for n in m_LV.m_selection collect n.nom )
+		),
+		fn ouvrirDansExplorer _noeud =(
+			ShellLaunch "explorer.exe" ("/e,/select,\"" +  _noeud.fichier + "\"")
+		),
+		fn ouvrirFichier _noeud =(
+			local check = checkForSave()
+			if check do loadMaxFile  _noeud.fichier
+		),
+		
+		
+		--------- conversion coronas ----------
+
+>>>>>>> 7bcd840ce6d921800a60fdc2903438d9c925d9c3
+>>>>>>> a82c23bbf290df6838b8b5829228e174571f7557
 		fn relinkBitmaps =(
 			/* 
 			debug "relinkBitmaps()" 
@@ -323,11 +374,31 @@ struct str_edition (
 			
 			debug "convertMateriauxScene - debut" 
 			
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> a82c23bbf290df6838b8b5829228e174571f7557
 			if m_coroConverter == undefined do (
 				m_coroConverter 		= CoronaConverter
 				m_coroProxyConverter 	= CoronaProxyConverter
 			)
 			m_coroConverter.convertScene ()
+<<<<<<< HEAD
+=======
+=======
+			
+-- 			show CoronaConverter
+			
+			if CoronaConverter == undefined do 
+				this.initCoronaConvert()
+			
+			CoronaConverter.convertScene ()
+			
+			
+			
+-- 			m_coroConverter.convertScene ()
+>>>>>>> 7bcd840ce6d921800a60fdc2903438d9c925d9c3
+>>>>>>> a82c23bbf290df6838b8b5829228e174571f7557
 			
 			--- on relink les bitmaps manquantes -----
 			relinkBitmaps ()

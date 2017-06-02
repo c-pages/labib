@@ -224,10 +224,20 @@ struct str_menus (
 				)
 				on supprimer 						picked do 	labib.cmd.supprimer 	( labib.edit.getSelection () ) 
 				
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> a82c23bbf290df6838b8b5829228e174571f7557
 				
 -- 				on faireAprecus 					picked do 	labib.edit.faireApercus 	( labib.edit.getSelection () ) 
 				on mode_Edition 					picked do labib.edit.toggleModeEdition ()
 				
+<<<<<<< HEAD
+=======
+=======
+				on faireAprecus 					picked do 	labib.cmd.faireApercus 	( labib.edit.getSelection () ) 
+>>>>>>> 7bcd840ce6d921800a60fdc2903438d9c925d9c3
+>>>>>>> a82c23bbf290df6838b8b5829228e174571f7557
 				
 				on undoMenu 						picked do 		labib.cmd.defaire()
 				on redoMenu 						picked do 		labib.cmd.refaire()
