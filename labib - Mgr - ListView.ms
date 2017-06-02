@@ -123,9 +123,9 @@ struct str_listViewMgr (
 				---- les differentes infos ---
 				nvItem.text 			= noeud.nom
 				
-				nvItem.subItems.add 	( noeud.getNbrVertex () )
-				nvItem.subItems.add 	( noeud.getDateDernierImport () )
-				nvItem.subItems.add 	( noeud.getNbrImports ()   )
+				nvItem.subItems.add 	( noeud.getNbrVertex () as string)
+				nvItem.subItems.add 	( noeud.getDateDernierImport ()  )
+				nvItem.subItems.add 	( noeud.getNbrImports ()   as string)
 				nvItem.subItems.add 	( noeud.getAProxy ()  )
 				nvItem.subItems.add 	( noeud.getAVueDetail ()   )		
 				nvItem.subItems.add 	( noeud.getDateCreation ()  )
@@ -504,7 +504,7 @@ struct str_listViewMgr (
 					m_ui.columns.add "Détail" 70
 					m_ui.columns.add "Date de création" 130
 					
-					m_ui.columns.add "Emplacement" 130
+					m_ui.columns.add "Fichier" 130
 					m_ui.columns.add "Tags" 130				
 					m_ui.columns.add "Lien" 130
 					m_ui.columns.add "Détail" 70
@@ -568,7 +568,7 @@ struct str_listViewMgr (
 					do _arg.Effect=m_dragDropEffect.none
 			
 			
-		),	
+		),	 
 		fn drag_demarrer 	_arg =(
 			debug "drag_demarrer"
 			
@@ -577,7 +577,15 @@ struct str_listViewMgr (
 			
 			--- demarrage du drag ----
 			m_ui.doDragDrop 		_arg.item 		m_dragDropEffect.Move	
-			
+			/* 
+			--- pour dragger dans viewport		
+			intnum = dotnetobject "System.Int32" 0
+			filenamestring= dotnetobject "System.string" "C:\Users\Windows\AppData\Local\Autodesk\3dsMax\2017 - 64bit\ENU\scripts\cp - Labib\data\labib_modeEdition.max"
+			dropfile = dotnetobject "System.String[]" 1
+			dropfile.setvalue filenamestring intnum 
+			DataObj = dotnetobject "DataObject" ((dotnetclass "DataFormats").Text) dropfile
+			m_ui.dodragdrop Dataobj ((dotnetclass "DragDropEffects").Copy)
+			 */
 		),
 		fn drag_recevoir 	_arg =(
 			
@@ -585,6 +593,10 @@ struct str_listViewMgr (
 		
 			local posDrop	= m_ui.PointToClient 	m_ui.MousePosition
 			local noeudDest = getNoeudA_at 	posDrop.x 	posDrop.y
+			
+			debug "noeudDest" var:noeudDest
+			debug "m_edit.getNdsDrag()" var:(m_edit.getNdsDrag())
+			
 			if noeudDest != undefined do (
 				---- si dépose dans "retour" ---
 				if noeudDest.nomUnique == "RETOUR" 
@@ -671,11 +683,11 @@ struct str_listViewMgr (
 			debug "clq_double"
 			
 			local noeudClique = (m_edit.getSelection ())[1]
-			debug "noeudClique" var:noeudClique param:#nom
-			debug "classOf noeudClique" var: ( classOf noeudClique )
+-- 			debug "noeudClique" var:noeudClique param:#nom
+-- 			debug "classOf noeudClique" var: ( classOf noeudClique )
 			
 			case classOf noeudClique of (
-				str_element: 	() --m_edit.importer_scene 	noeudClique
+				str_element: 	m_cmd.importer noeudClique --m_edit.importer_scene 	noeudClique
 				str_branche:	ouvrir		noeudClique
 			) 
 			
@@ -746,8 +758,35 @@ struct str_listViewMgr (
 				
 		),
 		
+-- 		m_classe_ordreInverse = false,
 		
-		 
+		
+		------ trie des colonnes -----
+		fn classerColonnes _idColonne =(
+			m_edit.classerColonnes 	_idColonne
+			actualiser () 
+			/* local elemsAClasser = ( getDossier() ).enfants
+			local arbo = m_edit.m_arbo
+			case _idColonne  of (
+				0: arbo.classerNoms				elemsAClasser	ordreInverse:m_classe_ordreInverse
+				1: arbo.classerVertex			elemsAClasser	ordreInverse:m_classe_ordreInverse
+				2: arbo.classerNbrImports		elemsAClasser	ordreInverse:m_classe_ordreInverse
+				3: arbo.classerNbrImports		elemsAClasser	ordreInverse:m_classe_ordreInverse
+				4: arbo.classerNbrImports		elemsAClasser	ordreInverse:m_classe_ordreInverse
+				5: arbo.classerNbrImports		elemsAClasser	ordreInverse:m_classe_ordreInverse
+				6: arbo.classerCreation			elemsAClasser	ordreInverse:m_classe_ordreInverse
+				7: arbo.classerNbrImports		elemsAClasser	ordreInverse:m_classe_ordreInverse
+				8: arbo.classerNbrImports		elemsAClasser	ordreInverse:m_classe_ordreInverse
+			)
+			
+			m_classe_ordreInverse = not m_classe_ordreInverse
+			*/
+			
+		),
+		
+		
+		
+		
 		
 		
 		---- Initialisation ----
@@ -785,8 +824,6 @@ struct str_listViewMgr (
 			m_ui.Refresh()
 			 */
 		)
-		
-		
 		
 )	--- fin struct listView ----
 

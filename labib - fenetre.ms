@@ -607,68 +607,31 @@ rollout roll_labib  "Labib" width:296 height:296
 		
 	
 	
-	LOCAL TEST_VARIABLE = "pas actualiser"
-	
+
 	--------- le listView ---------
--- 	on ui_LV 	mouseDown 	_sender		_arg 	do  	m_LV.clq_down				_arg
+	on ui_LV 	mouseDown 	_sender		_arg 	do  	m_LV.clq_down				_arg
 		
- 	on ui_LV 	mouseDown 	_sender		_arg 	do  	(
-		
-		debug "----DRAGANDDROP ---"
-		
-		m_LV.clq_down				_arg
-		
-		/* 
--- 		theIniFile = getdir #maxData  + "3dsmax.ini" 
-
--- 		theKeys = getIniSetting theIniFile "FileList" 
-
--- 		maxfilearray = for o in theKeys where o != "MaxFiles" collect ; getIniSetting theIniFIle "FileList" o 
-
-		intnum = dotnetobject "System.Int32" 0
-
--- 		filenamestring= dotnetobject "System.string" "C:\Users\Windows\AppData\Local\Autodesk\3dsMax\2017 - 64bit\ENU\scripts\cp - Labib\data\labib_modeEdition.max"
-		filenamestring= dotnetobject "System.string" "CodeSecret"
-		
-		TEST_VARIABLE = "CodeSecret"
-		
-		dropfile = dotnetobject "System.String[]" 1
-
-		dropfile.setvalue filenamestring intnum
-
-		DataObj = dotnetobject "DataObject" ((dotnetclass "DataFormats").filedrop) dropfile
-
-		_sender.dodragdrop Dataobj ((dotnetclass "DragDropEffects").Copy) */
-		
-)
 
 
-	
-	
-	on ui_LV 	mouseUp 	_sender	_arg 	do 	m_LV.clq_up 					_arg 
+	on ui_LV 	mouseUp 	_sender	_arg 	do 	(
+		m_LV.clq_up 					_arg 
+	)
 	
 
-
-	on ui_LV 	ItemDrag 	_sender		_arg 	do	(
-		
-		m_LV.drag_demarrer 		_arg
-		
-		show _sender
-		
-		debug "################### FIN DU DRAG #################"
-		debug "TEST_VARIABLE" var:TEST_VARIABLE
-		
-	) 
-	
 	on ui_LV	MouseWheel 			_arg 	do  	if keyboard.controlPressed do m_LV.zoomer 	_arg.delta
 	on ui_LV 	DoubleClick				_arg 	do  	m_LV.clq_double 				_arg 	
 	on ui_LV 	DragOver 	_sender	_arg 	do	m_LV.drag_checkSurvol  	_arg
 	on ui_LV 	DragDrop 				_arg 	do	m_LV.drag_recevoir 			_arg
 -- 		
--- 	on ui_LV 	itemDrag 	_sender 	_arg 	do 	m_LV.drag_demarrer 		_arg 	
-		
-		
-	on ui_LV 	lostFocus 	_sender 	_arg 	do  	if dragFlag == true do	m_edit.importer_viewport ()
+	on ui_LV 	itemDrag 	_sender 	_arg 	do 	m_LV.drag_demarrer 		_arg 	
+	
+	
+	on ui_LV 	lostFocus 	_sender 	_arg 	do  	if dragFlag == true do	(
+		debug "par là !!!!<-------------------------------------"
+		m_edit.importer_viewport ()
+	)
+	
+	
 	on ui_LV 	AfterLabelEdit			_arg 	do  	m_LV.renommer				_arg		
 	on ui_LV 	BeforeLabelEdit		_arg 	do  	m_LV.debutRenommage ()
 	on ui_LV 	keyup  					_arg 	do  	m_LV.key_up					_arg
@@ -684,14 +647,21 @@ rollout roll_labib  "Labib" width:296 height:296
 		)
 		
 	)
-	on ui_tags 	mouseUp 			_arg 	do  	m_tags.clq_up  				_arg
+	on ui_tags 	mouseUp 						_arg 	do  	m_tags.clq_up  				_arg
 	
 	------- recherche ---------------
 	on ui_recherche 	keyup  					_arg 	do  	m_recherche.key_up			_arg
 	on ui_recherche 	mouseUp 	_sender	_arg 	do 	m_recherche.clq_up 		_arg 
 	
 	
-	
+	on ui_LV ColumnClick	 _arg 	do  (
+		
+		m_LV.classerColonnes	_arg.Column 
+		debug "arg.Column  " var:_arg.Column  
+		
+		
+		
+	)
 	
 -- 	on droppable _window   node: do window == #viewport --format "C'EST  UN DROP #1 ! : point%  	window%\n" _point 	_window
 -- 	on drop 	_window   item  do format "C'EST  UN DROP #2 ! :  	window%\n"  	_window

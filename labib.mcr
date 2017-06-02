@@ -18,14 +18,16 @@ clearListener ()
 
 	
 try ( 	
--- 	labib.fermer()
+	labib.fermer()	
+) catch  ()
+try ( 	
 	destroydialog labib.fenetre.m_dialog		
 ) catch  ()
-
 	
 macroScript Labib
 category:"#CPages"
 toolTip:""
+icon:#("Labib", 1)
 (
 
 	global labib
@@ -47,7 +49,7 @@ toolTip:""
 	
 )
 
--- 	labib.ouvrir 	()
+--labib.ouvrir 	()
 
 /*
 labib.prefs.fermer()
@@ -68,12 +70,12 @@ labib.ouvrir ()
 
 
 debuger "" var:(labib.edit.getSelection ()) param:#nom
-showmethods labib.fenetre.m_dialog.m_LV.m_ui.BackgroundImage
+showmethods labib.fenetre.m_dialog.m_LV.m_ui
 show  labib.fenetre.m_dialog.m_LV.m_ui.BackgroundImageLayout
-show labib.fenetre.m_dialog.m_LV.m_ui
+showmethods labib.fenetre.m_dialog.m_LV.m_ui.columns
 labib.fenetre.m_dialog.m_LV.m_ui.ResetBackColor() ()
 
-show labib.fenetre.m_dialog.m_LV.m_ui.borderstyle
+show labib.fenetre.m_dialog.m_LV.m_ui
  labib.fenetre.m_dialog.m_LV.m_ui.BackgroundImageLayout =  (dotnetclass "System.Windows.Forms.ImageLayout").zoom
  
  

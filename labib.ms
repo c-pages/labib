@@ -77,6 +77,7 @@ include "$userScripts\cp - labib\labib - fenetre rendu.ms"
 
  include "$userScripts\cp - labib\labib - fenetre.ms"
 
+include "$userScripts\cp - labib\labib - manipNodes.ms"
 include "$userScripts\cp - labib\labib - edition.ms"
 
 include "$userScripts\cp - labib\labib - Mgr - Commandes.ms"	

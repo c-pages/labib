@@ -50,6 +50,9 @@ struct str_edition (
 		m_fenetre	= m_labib.fenetre,		---- les apercus ----
 		m_apercus 	= m_labib.apercus,		---- la fenetre ---
 		
+		m_manips   = str_manipNodes (),	--- Pour manipuler les nodes, BB, centre etc..
+		
+		
 	public 
 		m_TV 		,								---- le treeview ---
 		m_LV 		,								---- le listview ---
@@ -273,7 +276,6 @@ struct str_edition (
 			
 			--- etat inital du TV ----
 			m_TV.stocker_etatItems ()
-			
 			toArray 	&_noeuds
 			for n in _noeuds do (
 				debug "n" var:n param:#nom
@@ -293,7 +295,7 @@ struct str_edition (
 		
 		--------- conversion et recherche de maps  ----------
 		fn relinkBitmapsInit =(
-			
+			/* 
 -- 			local dossiers = #("D:")
 			if doesFileExist ((getDir #userScripts)+"\\Relink Bitmaps\\C_Lib.mse") and doesFileExist ((getDir #userScripts)+"\\Relink Bitmaps\\Relink_Lib.mse") and doesFileExist ((getDir #userScripts)+"\\Relink Bitmaps\\Relink Bitmaps.mse") then ( 
 			   fileIn ((getDir #userScripts)+"\\Relink Bitmaps\\C_Lib.mse") quiet:true 
@@ -302,11 +304,11 @@ struct str_edition (
 			) else (
 			   MessageBox "Relink Bitmaps files are not in the default installation path.  Try reinstalling."
 			)
-			
+			 */
 			
 		),
 		fn relinkBitmaps =(
-			
+			/* 
 			debug "relinkBitmaps()" 
 			
 			local dossiers = #(	"D:\01 - modeles 3D\00 - collections\ARCHMODELS\MAPS Evermotion" , 
@@ -314,7 +316,7 @@ struct str_edition (
 										"D:\01 - modeles" )
 			
 			sceneRelinkBitmaps dossiers recursive:true
-			
+			 */
 		),
 		
 		fn convertMateriauxScene =(
@@ -338,12 +340,88 @@ struct str_edition (
 		),
 		
 		
+		
+		
+		
+		
+		
+		---- IMPORTATION ----
+		--- Actions interne ---------------------------------
+		fn importerNoeud _noeud =(
+			
+			local nodesImport
+			---- on merge le fichier ---
+			mergeMAXFile   _noeud.fichier 	 #autoRenameDups  #renameMtlDups mergedNodes:&nodesImport   quiet:true  
+			
+			-- on met a jour quelques infos
+			_noeud.setNouvelImport()
+			
+			--- on lie à un dummy parent ----		
+			dummyParent = Dummy name:(_noeud.nom + "_labib")	 pos:( m_manips.calculerCentre 	nodesImport ) scale:( ( m_manips.calculerTaillesBB 	nodesImport ) /10 )
+			for obj in nodesImport do 
+				if obj.parent == undefined do obj.parent = dummyParent
+			
+ 			select dummyParent
+			append nodesImport  dummyParent
+			nodesImport
+			
+		),
+		
+		
+		
+		
 		--- Actions utilisateur ---------------------------------
-		---- importation ----
 		fn importer		_noeudsAImporter	=(
+			
+			local nodesImport = #()
+			local dummiesImport = #()
+			
 			debug "importer dans la scene"
 			debug "noeuds" var:_noeudsAImporter param:#nom
+			
+			toArray 	&_noeudsAImporter
+			local decallageX 	= 0
+			local ecart 		= 20
+			local tailleDuGroupe = [0,0,0]
+			
+			for noeud in _noeudsAImporter do (
+				
+				decallageX += tailleDuGroupe.x / 2
+				
+				local nvNodes 	= importerNoeud 	noeud
+				local leDummy 	= nvNodes[ nvNodes.count]
+				tailleDuGroupe 	= m_manips.calculerTaillesBB 	nvNodes
+				
+				decallageX += tailleDuGroupe.x / 2 + ecart
+				
+				leDummy.pos 		= [decallageX,0,tailleDuGroupe.z / 2]
+				
+				append dummiesImport 	leDummy
+				append nodesImport 	nvNodes
+			)
+			
+			-- le dummy de l'import si plusieurs noeud importés -------			
+-- 			local centreGlobal 	= m_manips.calculerCentre 		nodesImport
+-- 			local TailleGlobal 		= ( m_manips.calculerTaillesBB 	nodesImport ) / 10
+-- 			
+-- 			debug "centreGlobal" var:centreGlobal
+-- 			debug "TailleGlobal" var:TailleGlobal
+-- 			
+-- 			local dummyGlobal= Dummy name: "Import_labib"	 pos:centreGlobal		 scale:TailleGlobal
+-- 			for dum in dummiesImport do 
+-- 				dum.parent = dummyGlobal	
+			select dummiesImport
+			
+			
+			--- maj de l'interface
+			actualiser ()
+			m_LV.selectionner _noeudsAImporter
+			nodesImport
 		),
+		
+		
+		
+		
 		fn importer_viewport 							= (
 			debug "Importation dans la scene"
 			debug "noeuds importés" var:( for n in m_LV.m_selection collect n.nom )
@@ -534,7 +612,12 @@ struct str_edition (
 			nouveauNoeud
 			
 		),
-		fn nouvelAsset 				=(
+		
+		
+		
+		
+		
+		fn nouvelAsset 	fichierSource:			=(
 			debug "nouvelAsset	---------------------------------------"
 			
 			--- sortie Listener --
@@ -543,11 +626,13 @@ struct str_edition (
 			local nouvelElement 
 			
 			---- fenetre de pointage de fichier ----
-			local	fichierSource = 	getOpenFileName  	caption:				"Fichier source du nouvel asset" \
-																		types:				"model (*.max)|*.max|All Files (*.*)|*.*|"	\
-																		historyCategory:	"labib"	\
-																		filename:			( m_prefs.general.dossierNouvelAsset +"\\" )	\
-																		historyCategory:	"Labib"
+			if fichierSource ==unsupplied  do
+				fichierSource = 	getOpenFileName  	caption:				"Fichier source du nouvel asset" \
+																	types:				"model (*.max)|*.max|All Files (*.*)|*.*|"	\
+																	historyCategory:	"labib"	\
+																	filename:			( m_prefs.general.dossierNouvelAsset +"\\" )	\
+																	historyCategory:	"Labib"
+			
 			if 	fichierSource != undefined  do (
 				
 				debug "Importer " var:fichierSource
@@ -561,7 +646,8 @@ struct str_edition (
 																			type:#vide	
 				
 				---- creation de l'apercu ----
-				m_apercus.creer 	nouvelElement
+				if querybox "voulez vous créer les aperçus maintenant?" do
+					m_apercus.creer 	nouvelElement
 				
 				---- actualise l'UI ----
 				m_fenetre.actualiser ()
@@ -576,6 +662,7 @@ struct str_edition (
 			debug "fin : nouvelAsset\n"
 			nouvelElement
 		),		
+		
 		fn nouvelAsset_dossier 	=(
 			
 			debug "\nnouvelAsset_dossier	---------------------------------------"
@@ -611,7 +698,8 @@ struct str_edition (
 				(  getDossier () ).enregistrer ()
 				
 				---- creation de l'apercu ----
-				m_apercus.creer 	nouveauxElements
+				if querybox "voulez vous créer les aperçus maintenant?" do
+					m_apercus.creer 	nouveauxElements
 				
 				m_fenetre.actualiser ()			
 				m_fenetre.selectionnerLV 	nouveauxElements
@@ -709,6 +797,31 @@ struct str_edition (
 		),
 		
 		
+		
+		
+		m_classe_ordreInverse = false,			
+		------ trie des colonnes -----
+		fn classerColonnes _idColonne =(
+			
+			local elemsAClasser = ( getDossier() ).enfants
+			case _idColonne  of (
+				0: m_arbo.classerNoms				elemsAClasser	ordreInverse:m_classe_ordreInverse
+				1: m_arbo.classerVertex			elemsAClasser	ordreInverse:m_classe_ordreInverse
+				2: m_arbo.classerDernierImport	elemsAClasser	ordreInverse:m_classe_ordreInverse
+				3: m_arbo.classerNbrImports		elemsAClasser	ordreInverse:m_classe_ordreInverse
+				4: m_arbo.classerNbrImports		elemsAClasser	ordreInverse:m_classe_ordreInverse
+				5: m_arbo.classerNbrImports		elemsAClasser	ordreInverse:m_classe_ordreInverse
+				6: m_arbo.classerCreation			elemsAClasser	ordreInverse:m_classe_ordreInverse
+				7: m_arbo.classerFichiers			elemsAClasser	ordreInverse:m_classe_ordreInverse
+				8: m_arbo.classerTags				elemsAClasser	ordreInverse:m_classe_ordreInverse
+			)
+			
+			m_classe_ordreInverse = not m_classe_ordreInverse
+			
+		),
+		
+			
+			
 		--- Initialisations -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		fn initialiser =(
 			

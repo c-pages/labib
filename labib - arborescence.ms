@@ -163,8 +163,8 @@ struct str_element (
 		),
 		
 		----- accesseurs -----
-		fn getNbrVertex 				= 	nbrVertex as string,
-		fn getNbrImports 			= 	nbrImports as string,
+		fn getNbrVertex 				= 	nbrVertex ,
+		fn getNbrImports 			= 	nbrImports ,
 		fn getDateDernierImport 	= 	dateToString 	dateDernierImport,
 		fn getDateCreation 			= 	dateToString 	dateCreation,
 		fn getAProxy 					= 	if doesfileExist proxy 	then "oui" else "non",
@@ -183,7 +183,13 @@ struct str_element (
 		fn getdetail_3					=	detail_3,
 		
 		
-		
+		fn setNouvelImport =(
+			
+			dateDernierImport = getLocalTime()
+			nbrImports += 1
+			
+			enregistrer ()
+		),
 		
 		--- tests ---
 		fn estRecherche 		=	nomUnique == "RECHERCHE",
@@ -330,8 +336,22 @@ struct str_branche (
 		
 		
 		----- accesseurs -----
-		fn getNbrVertex 				= "",
-		fn getNbrImports 			= "",
+		fn getNbrVertex 				= (
+			
+			local nbrVertex =0
+			for enfant in enfants do 
+				nbrVertex += enfant.getNbrVertex ()
+			nbrVertex
+			
+		),
+		fn getNbrImports 			=(
+			
+			local nbrImports =0
+			for enfant in enfants do 
+				nbrImports += enfant.getNbrImports ()
+			nbrImports
+			
+		),
 		fn getDateDernierImport 	= "",
 		fn getDateCreation 			= "",
 		fn getAProxy 					= "",
@@ -417,6 +437,13 @@ struct str_branche (
 
 
 
+
+
+
+
+
+
+
 --------------------------------------------------------------
 -------  L'ARBORESCENCE -------------------------------
 --------------------------------------------------------------
@@ -480,7 +507,7 @@ struct str_arborescence (
 			enregistrer_indexUnique ()
 			return prefixNomUnique_branche 	+ indexUnique as string
 		),
-			
+		
 		fn creerNomUnique_element 	= (
 			indexUnique += 1 
 			enregistrer_indexUnique ()
@@ -870,32 +897,32 @@ struct str_arborescence (
 		fn sortParNbrImports 		elem1  elem2 = (
 			case of
 			(
-				(elem1.nbrImports < elem2.nbrImports): -1
-				(elem1.nbrImports > elem2.nbrImports): 1
+				(elem1.getNbrImports() < elem2.getNbrImports()): -1
+				(elem1.getNbrImports() > elem2.getNbrImports()): 1
 				default: 0
 			)
 		),
 		fn sortParNbrImportsInv 	elem1  elem2 = (
 			case of
 			(
-				(elem1.nbrImports < elem2.nbrImports): 1
-				(elem1.nbrImports > elem2.nbrImports): -1
+				(elem1.getNbrImports() < elem2.getNbrImports()): 1
+				(elem1.getNbrImports() > elem2.getNbrImports()): -1
 				default: 0
 			)
 		),
 		fn sortParVertex 				elem1  elem2 = (
 			case of
 			(
-				(elem1.nbrVertex < elem2.nbrVertex): -1
-				(elem1.nbrVertex > elem2.nbrVertex): 1
+				(elem1.getNbrVertex() < elem2.getNbrVertex()): -1
+				(elem1.getNbrVertex() > elem2.getNbrVertex()): 1
 				default: 0
 			)
 		),
 		fn sortParVertexInv 			elem1  elem2 = (
 			case of
 			(
-				(elem1.nbrVertex < elem2.nbrVertex): 1
-				(elem1.nbrVertex > elem2.nbrVertex): -1
+				(elem1.getNbrVertex() < elem2.getNbrVertex()): 1
+				(elem1.getNbrVertex() > elem2.getNbrVertex()): -1
 				default: 0
 			)
 		),
@@ -915,7 +942,23 @@ struct str_arborescence (
 				default: 0
 			)
 		),
-		fn compareDate 				elem1  elem2 = (
+		fn sortParTags 				elem1  elem2 = (
+			case of
+			(
+				(elem1.getTags () < elem2.getTags ()): -1
+				(elem1.getTags () > elem2.getTags ()): 1
+				default: 0
+			)
+		),		
+		fn sortParTagsInv 			elem1  elem2 = (
+			case of
+			(
+				(elem1.getTags () < elem2.getTags ()): 1
+				(elem1.getTags () > elem2.getTags ()): -1
+				default: 0
+			)
+		),
+		fn compareDateCreation 				elem1  elem2 = (
 			
 			for i= 1 to elem1.dateCreation.count	 do 
 			(
@@ -936,47 +979,112 @@ struct str_arborescence (
 -- 				(elem1.nom > elem2.nom): 1
 -- 				default: 0
 -- 			) 
-			return compareDate elem1  elem2
+			return compareDateCreation elem1  elem2
 		),
 		fn sortParCreationInv 		elem1  elem2 = (
-			return compareDate elem1  elem2
+			return compareDateCreation elem2  elem1
+		),
+		fn compareDateDernierImport 				elem1  elem2 = (
+			
+			for i= 1 to elem1.dateCreation.count	 do 
+			(
+				
+				case of
+				(
+					(elem1.dateDernierImport[i] < elem2.dateDernierImport[i]): return -1
+					(elem1.dateDernierImport[i] > elem2.dateDernierImport[i]): return 1
+-- 					default: if  i != elem1.dateCreation.count  then continue else 0
+				)
+			)
+			0
 		),
 		
+		fn sortParDernierImport 			elem1  elem2 = (
+-- 			case of
+-- 			(
+-- 				(elem1.nom < elem2.nom): -1
+-- 				(elem1.nom > elem2.nom): 1
+-- 				default: 0
+-- 			) 
+			return compareDateDernierImport elem1  elem2
+		),
+		fn sortParDernierImportInv 		elem1  elem2 = (
+			return compareDateDernierImport elem2  elem1
+		),
 		
-		
+		fn sortParFichier 				elem1  elem2 = (
+			case of
+			(
+				(elem1.fichier < elem2.fichier): -1
+				(elem1.fichier > elem2.fichier): 1
+				default: 0
+			)
+		),		
+		fn sortParFichierInv 			elem1  elem2 = (
+			case of
+			(
+				(elem1.fichier < elem2.fichier): 1
+				(elem1.fichier > elem2.fichier): -1
+				default: 0
+			)
+		),
 		
 		
 	public
 		fn classerCreation 		_elements 	ordreInverse:false	 = (
 			case ordreInverse of (
-				false:	qsort 	_elements 	sortParCreation
-				true:		qsort 	__elements 	sortParCreationInv
+				false:	qsort 	_elements 		sortParCreation
+				true:	qsort 	_elements 		sortParCreationInv
 			)
--- 			enregistrer()
+			enregistrer()
 -- 			afficher()
 		),
 		fn classerNbrImports 	_elements 	ordreInverse:false	 = (
 			case ordreInverse of (
-				false:	qsort 	_elements 	sortParNbrImports
+				false:		qsort 	_elements 	sortParNbrImports
 				true:		qsort 	_elements 	sortParNbrImportsInv
 			)
--- 			enregistrer()
+			enregistrer()
 -- 			afficher()
 		),
 		fn classerVertex 			_elements 	ordreInverse:false	 = (
 			case ordreInverse of (
 				false:	qsort 	_elements 	sortParVertex
 				true:		qsort 	_elements 	sortParVertexInv
-			)
--- 			enregistrer()
+			) 
+			enregistrer()
 -- 			afficher()
 		),
 		fn classerNoms 			_elements 	ordreInverse:false	 = (
 			case ordreInverse of (
-				false:	qsort 	_elements 	sortParNom
+				false:		qsort 	_elements 	sortParNom
 				true:		qsort 	_elements 	sortParNomInv
 			)
--- 			enregistrer()
+			enregistrer()
+-- 			afficher()
+		),
+		fn classerTags 			_elements 	ordreInverse:false	 = (
+			case ordreInverse of (
+				false:		qsort 	_elements 	sortParTags
+				true:		qsort 	_elements 	sortParTagsInv
+			)
+			enregistrer()
+-- 			afficher()
+		),
+		fn classerFichiers 			_elements 	ordreInverse:false	 = (
+			case ordreInverse of (
+				false:		qsort 	_elements 	sortParFichier
+				true:		qsort 	_elements 	sortParFichierInv
+			)
+			enregistrer()
+-- 			afficher()
+		),
+		fn classerDernierImport 		_elements 	ordreInverse:false	 = (
+			case ordreInverse of (
+				false:	qsort 	_elements 		sortParDernierImport
+				true:	qsort 	__elements 	sortParDernierImportnv
+			)
+			enregistrer()
 -- 			afficher()
 		),
 	

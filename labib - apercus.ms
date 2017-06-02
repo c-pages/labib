@@ -390,12 +390,26 @@ struct str_apercus (
 			
 				-- on s'assure qu'elems soit un tableau
 				toArray &elems
-			
+				local resultQuery = #no
+				local fichierOuvert = maxFileName 
 				
-				if elems.count > 0 do 
-					if querybox "voulez vous créer les aperçus ?" do (
+				besoinDeSauvegarder = getSaveRequired() 
+				if besoinDeSauvegarder do (
+					resultQuery = yesNoCancelBox  "Sauvegarder ?"
+					if resultQuery == #yes do 
+						if fichierOuvert != "" then
+							saveMaxFile fichierOuvert
+						else (
+							theName = getMAXSaveFileName ()
+							--If the result is not undefined, we can actually save the file:
+							if theName != undefined do saveMaxFile theName
+						)
+				)
+				
+				if elems.count > 0 and  resultQuery != #cancel  do (
+-- 					if querybox "voulez vous créer les aperçus ?" do (
 
-						holdPerso ()
+-- 						holdPerso ()
 						
 						i = 1.
 						for elem in elems do (
@@ -407,7 +421,7 @@ struct str_apercus (
 							pourcent = ( ( i - 1.) / elems.count * 100. )
 -- 							rollPrincipal.setProgress ("Rendu aperçu " + ( i as integer )  as string + "/" + elems.count as string  ) 	pourcent
 							
-							if doesfileexist elem.fichier then( 
+							if doesfileexist elem.fichier then ( 
 -- 								m_labib.outils.viderScene()
 								
 								resetMaxFile #noPrompt
@@ -451,8 +465,9 @@ struct str_apercus (
 -- 						m_labib.arbo.ecrireFichier()
 						
 					)
-					
-						fetchPerso ()
+					if fichierOuvert != "" do
+						loadMaxFile  fichierOuvert
+-- 					fetchPerso ()
 					
 -- 					
 -- 			importer 	_fichier

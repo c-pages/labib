@@ -75,7 +75,7 @@ struct str_prefsFenPrincipale (
 	afficherTitre 	= false,
 	afficherDossier = true,
 
-	tailleApercusLV = 100,		-- taille affiché des apercus dans le LV --
+	tailleApercusLV = 70,		-- taille affiché des apercus dans le LV --
 	
 	---- Couleurs ----
 	-- des rollouts --

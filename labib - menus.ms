@@ -19,6 +19,22 @@
 -------declaration (a voir comment pas la faire en global)  ------------------------------------------
 ------------------------------------------------------------- ------------------------------------------
 
+
+
+--------------------------------------------------------------------------------
+------ ajouter un menu quad ctrl+shft+RMB dans le viewport ----
+macroScript Labib_mcr_nouvelAsset
+category:"#CPages"
+buttonText:"Creer nouvel asset de la sélection."
+toolTip:""
+(
+	format "Creer nouvel asset de la sélection.\n"
+	labib.cmd.nvlAssetSelec (selection as array)
+)
+
+
+
+
 rcMenu rc_fenLabib
 (
 	---- menu ----
@@ -40,6 +56,8 @@ rcMenu rc_fenLabib
 
 
 
+
+
 -------------------------------------------------------------
 ------- le struct ------------------------------------------
 -------------------------------------------------------------
@@ -47,13 +65,38 @@ struct str_menus (
 	
 	------------ DEBUG	----------------------------------------------------------------------------------
 	private
-		m_debug = false,
+		m_debug = true,
+		m_dbgPrefix ="menus",
 		fn debug 	_txt  var:	 param:    =(
-			if m_debug do ::debuger 	_txt  var:var	 param:param
+			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
 		),
 	----------------------------------------------------------------------------------------------------------
 	
+		----- le menu quad RMB --------
+		fn ajouterMenuRMB =(
+			debug "ajouterMenuRMB"
+			monQuad = menuMan.createQuadMenu "Labib" "Labib" "quad2Name" "quad3Name" "quad4Name"
+			menuMan.setViewportRightClickMenu #shiftAndControlPressed  monQuad
+			menu1DuQuad = monQuad.getMenu 1
+			testItem = menuMan.createActionItem "Labib_mcr_nouvelAsset" "#CPages"
+			menu1DuQuad.addItem testItem -1
+		),
+		fn retirerMenuRMB =(
+			debug "retirerMenuRMB"
+			quadVide = menuMan.createQuadMenu "name" "quad1Name" "quad2Name" "quad3Name" "quad4Name"
+			menuMan.setViewportRightClickMenu #shiftAndControlPressed  quadVide
+		),
 	
+		
+		fn init_quadMenu=(
+			debug "init_quadMenu"
+-- 			quadmenu = menuMan.findQuadMenu "Labib"
+-- 			if quadmenu == undefined do 
+-- 			debug "quadmenu" var:(menuMan.getQuadMenuName quadmenu)
+			
+			ajouterMenuRMB()
+		),
+		
 	public 	
 		fn apercus = (			
 			format "APERCU\n"
@@ -70,7 +113,7 @@ struct str_menus (
 				------------ DEBUG	----------------------------------------------------------------------------------
 
 				local m_debug = false
-				fn debug 	_txt  var:	 param:    =(
+				fn debug 	_txt  		var:	 	param:    =(
 					if m_debug do ::debuger 	_txt  var:var	 param:param
 				)
 				fn estRetour =(
@@ -127,24 +170,25 @@ struct str_menus (
 				
 				subMenu  "Affichage" (
 					menuItem	affichage_details 			"Détails"						checked:( labib.prefs.fenetre.affichageLV == #details )
-					menuItem	affichage_liste 			"Liste"						checked:( labib.prefs.fenetre.affichageLV == #liste )
-					menuItem 	affichage_GrandeIcone	"Grandes icones"			checked:( labib.prefs.fenetre.affichageLV == #grandeIcone )
-					menuItem 	affichage_petitIcone		"Petites icones"			checked:( labib.prefs.fenetre.affichageLV == #petitIcone )
-					menuItem 	affichage_tuile				"Tuile"						checked:( labib.prefs.fenetre.affichageLV == #tuile )
+-- 					menuItem	affichage_liste 			"Liste"						checked:( labib.prefs.fenetre.affichageLV == #liste )
+					menuItem 	affichage_GrandeIcone	"Icones"			checked:( labib.prefs.fenetre.affichageLV == #grandeIcone )
+-- 					menuItem 	affichage_petitIcone		"Petites icones"			checked:( labib.prefs.fenetre.affichageLV == #petitIcone )
+-- 					menuItem 	affichage_tuile				"Tuile"						checked:( labib.prefs.fenetre.affichageLV == #tuile )
 					
 					seperator sep20
 					menuItem	afficherDossiers		"Afficher les dossiers"	checked:labib.prefs.fenetre.afficherDossier 
 				)
-				subMenu  "Trier par" (
+				
+				/* subMenu  "Trier par" (
 					menuItem	trier_croissant 	"Ordre croissant"			checked:true
 					menuItem	trier_decroissant 	"Ordre décroissant"	
 					seperator sep10
-					menuItem	trier_nom 			"Noms"					checked:true
+					menuItem	trier_nom 			"Noms"						checked:true
 					menuItem	trier_date 			"Date"	
 					menuItem	trier_nbrVertex 	"Nombre de vertex"
 					menuItem	trier_nbrImports 	"Nombre d'imports"	
 				)
-				
+				 */
 					seperator sep26548
 -- 				subMenu  "Fenêtres" (
 					menuItem proprietes 		"Propriétés" 		checked:( labib.proprietes.estOuvert() )
@@ -383,7 +427,9 @@ struct str_menus (
 			popUpMenu rcFenetre
 		),
 	---------- evenements ----------------------------
-		on create do 
-			debug "<menu>		Structure crée."
+		on create do (
+			debug "Structure crée."
+			init_quadMenu ()
+		)
 )
 

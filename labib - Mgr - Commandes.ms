@@ -170,6 +170,8 @@ struct 	cmd_deplacer  (
 			m_edit.deplacer 	m_noeudsCibles 	m_ndOrigine 
 		)
 )
+
+
 struct 	cmd_couper  (	
 	---- membres --------------------------------
 	public
@@ -442,6 +444,57 @@ struct 	cmd_nvxAssets  (
 		)
 )
 
+struct 	cmd_nvlAssetSelec  (
+	---- membres --------------------------------
+	public
+		m_edit,
+	private
+		m_nouvelAsset,
+		m_dossier,
+		m_fichierAsset,
+	
+	---- fonctions  --------------------------------
+	public
+		fn getCibles = m_noeudsCibles,
+		
+		fn logger _typeCmd = (
+			local logOut = "" 
+			case _typeCmd of (
+				#executer:	()
+				#annuler:	logOut = "Annuler: "
+				#refaire:		logOut = "Refaire: "
+			)
+			
+			logOut += "Nouvel asset. depuis la sélection" 
+			
+			m_edit.logger logOut
+		),
+		
+		fn executer 	p1:  =(
+			m_noeudsCibles = p1
+			
+			--- creation du fichier MAX----
+			m_fichierAsset = getSaveFileName   caption:"Enregistrer l'asset sous..." /* 	historyCategory:Labib_assets  */	types:"3ds Max(*.max)|All|*.*|"
+			
+			local chemin 	= getFilenamePath m_fichierAsset
+			local fichier 	= getFilenameFile  m_fichierAsset
+			m_fichierAsset = chemin + "\\" + fichier + ".max"
+			
+			saveNodes m_noeudsCibles m_fichierAsset quiet:true
+			
+			-- ajout dans la biblio ---
+			m_dossier 			= m_edit.getDossier()
+			m_nouvelAsset 	= m_edit.nouvelAsset 	fichierSource:m_fichierAsset
+			
+		),
+		fn refaire 	=(			
+			m_edit.inserer	m_nouvelAsset 	m_dossier
+		),
+		fn defaire =(
+			m_edit.supprimer		m_nouvelAsset
+		)
+)
+
 
 
 ----importation ----
@@ -633,6 +686,7 @@ struct str_commandesMgr (
 		cmdMgr_nvDossier		= str_commandeCtrl m_edit:m_edit,
 		cmdMgr_nvlAsset			= str_commandeCtrl m_edit:m_edit,
 		cmdMgr_nvxAssets		= str_commandeCtrl m_edit:m_edit,
+		cmdMgr_nvlAssetSelec	= str_commandeCtrl m_edit:m_edit,
 
 		cmdMgr_importer			= str_commandeCtrl m_edit:m_edit,
 	
@@ -679,6 +733,7 @@ struct str_commandesMgr (
 		fn	nvDossier 											=	executer 	cmdMgr_nvDossier,
 		fn	nvlAsset 											=	executer 	cmdMgr_nvlAsset ,
 		fn	nvxAssets 											=	executer 	cmdMgr_nvxAssets,
+		fn	nvlAssetSelec 	_nodes							=	executer 	cmdMgr_nvlAssetSelec 		p1:_nodes,
 	
 		fn	importer 		_ndsAImporter					=	executer 	cmdMgr_importer				p1:_ndsAImporter,
 		
@@ -702,6 +757,7 @@ struct str_commandesMgr (
 			cmdMgr_nvDossier.setCommande		( cmd_nvDossier 			m_edit:m_edit )
 			cmdMgr_nvlAsset.setCommande			( cmd_nvlAsset 			m_edit:m_edit )
 			cmdMgr_nvxAssets.setCommande		( cmd_nvxAssets 		m_edit:m_edit )
+			cmdMgr_nvlAssetSelec.setCommande	( cmd_nvlAssetSelec	m_edit:m_edit )
 			
 			cmdMgr_importer.setCommande			( cmd_importer 			m_edit:m_edit )
 			cmdMgr_faireApercus.setCommande	( cmd_faireApercus 		m_edit:m_edit )

@@ -184,8 +184,8 @@ rollout roll_proprietes "Propriétés"  width:800 height:400
 				ui_editNotes.text 					=	selectionNoeud.commentaires
 				ui_editDateCreation.text 			=  selectionNoeud.getDateCreation ()
 				ui_editDateDernierImport.text 	= 	selectionNoeud.getDateDernierImport ()
-				ui_editNbreImports.text 			= 	selectionNoeud.getNbrImports () 
-				ui_editNbreVertex.text 				= 	selectionNoeud.getNbrVertex ()
+				ui_editNbreImports.text 			= 	selectionNoeud.getNbrImports () as string
+				ui_editNbreVertex.text 				= 	selectionNoeud.getNbrVertex ()   as string
 				
 				--- les appercus ---
 				local appercu_global = selectionNoeud.getApercu()
