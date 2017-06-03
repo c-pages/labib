@@ -165,12 +165,12 @@ struct str_menus (
 				menuItem nouveauDossier 		"Nouveau dossier"
 				menuItem nouvelAsset 				"Nouvel asset"
 				menuItem nouvelAssetDossier 	"Nouveaux assets depuis un dossier"
-				
+				/* 
 				seperator sep086546
 				
 -- 				menuItem faireAprecus 				"Apercus"
 				menuItem mode_Edition 				"Mode Edition"
-				
+				 */
 				seperator sep08
 				
 				menuItem undoMenu 		"Undo"		enabled:( labib.cmd.aDesUndo () )
@@ -201,14 +201,20 @@ struct str_menus (
 				 */
 					seperator sep26548
 -- 				subMenu  "Fenêtres" (
-					menuItem proprietes 		"Propriétés" 		checked:( labib.proprietes.estOuvert() )
--- 					menuItem apercu 	"Aperçu" 	checked:labib.prefs.fenetre.apercu
-					menuItem rendu	 	"Rendu" 				checked:( labib.rendu.estOuvert() )
-					menuItem prefs	 	"Préférences" 		checked:(labib.prefs.estOuvert ())
--- 				)
+					menuItem apercus 		"Aperçus" 				checked:( labib.apercus.estOuvert() )
+					menuItem proprietes 	"Propriétés" 		checked:( labib.proprietes.estOuvert() )
+				
+				subMenu  "Rendus" (
+					menuItem rendre	 	"Rendre" 			
+					menuItem rendus	 	"Gérer les rendus" 				checked:( labib.rendus.estOuvert() )
+				)
 				
 				seperator sep5476
 				
+				menuItem prefs	 	"Préférences" 			checked:(labib.prefs.estOuvert ())
+				
+				seperator sep54768
+						
 				subMenu  "Debug" (
 					menuItem affichSelec 		"print selection" 	--	checked:labib.prefs.fenetre.fenproprietes_estOuvert
 					menuItem debugMode 		"Debug mode" 		checked:DEBUG_MODE		
@@ -260,9 +266,9 @@ struct str_menus (
 					labib.fenetre.actualiser ()
 				)
 				
-				on proprietes								picked do	labib.proprietes.toggleOuverture ()
--- 				on apercu							picked do	labib.apercus.toggleOuverture ()
-				on rendu							picked do	labib.rendu.toggleOuverture ()
+				on proprietes						picked do	labib.proprietes.toggleOuverture ()
+				on apercus							picked do	labib.apercus.toggleOuverture ()
+				on rendus							picked do	labib.rendus.toggleOuverture ()
 				on prefs								picked do	labib.prefs.toggleOuverture ()
 			
 				on affichSelec						picked do		for n in labib.edit.getSelection () do	labib.arbo.afficherNoeud	n
@@ -441,7 +447,7 @@ struct str_menus (
 		),
 	---------- evenements ----------------------------
 		on create do (
-			debug "Structure crée."
+			debug "Structure créée."
 			init_quadMenu ()
 		)
 )

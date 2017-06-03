@@ -75,7 +75,7 @@ struct str_prefsFenPrincipale (
 	afficherTitre 	= false,
 	afficherDossier = true,
 
-	tailleApercusLV = 70,		-- taille affiché des apercus dans le LV --
+	tailleApercusLV = 50,		-- taille affiché des apercus dans le LV --
 	
 	---- Couleurs ----
 	-- des rollouts --
@@ -146,7 +146,7 @@ struct str_prefsFenInfos (
 ------------------------------------------------------------------------------
 -- Les preferences actives pour les rendus des  aperçus				--
 ------------------------------------------------------------------------------
-struct str_prefsApercus (
+struct str_prefsRendus (
 	
 	------------ Les membres	----------------------------------------------------------------------------------
 	public
@@ -489,7 +489,7 @@ struct str_preferences (
 	public	
 		fenetre 		=  str_prefsFenPrincipale 	dossierScript:dossierScript,
 		infos		 	=  str_prefsFenInfos 		dossierScript:dossierScript,
-		apercus 		= 	str_prefsApercus 			dossierScript:dossierScript,
+		rendus 		= 	str_prefsRendus 			dossierScript:dossierScript,
 		general 		= 	str_prefsGenerales		dossierScript:dossierScript,
 		
 		------------  Pour la fenetre	----------------------------------------------------------------------------------
@@ -594,7 +594,7 @@ struct str_preferences (
 			debug "enregistrement"
 			
 			enregistrerDatas  fenetre		"fenetre"
-			enregistrerDatas  apercus		"apercus"
+			enregistrerDatas  rendus		"rendus"
 			enregistrerDatas  infos			"infos"
 			
 		),
@@ -608,7 +608,7 @@ struct str_preferences (
 			---- sinon on charge ----
 			) else (
 				chargerDatas  fenetre		"fenetre"
-				chargerDatas  apercus		"apercus"
+				chargerDatas  rendus		"rendus"
 				chargerDatas  infos			"infos"
 			)
 		),
@@ -616,13 +616,13 @@ struct str_preferences (
 			
 			fenetre 		=  str_prefsFenPrincipale 	dossierScript:dossierScript
 			infos		 	=  str_prefsFenInfos 		dossierScript:dossierScript
-			apercus 		= 	str_prefsApercus 			dossierScript:dossierScript
+			rendus 		= 	str_prefsRendus 			dossierScript:dossierScript
 			general 		= 	str_prefsGenerales		dossierScript:dossierScript
 			
 			enregistrer ()
 		), 
 		fn resetApercus = (
-			apercus 			= 	prefsApercus 		fichier:fichier
+			rendus 			= 	str_prefsRendus 		dossierScript:dossierScript
 			enregistrer ()
 		),
 		
@@ -631,7 +631,7 @@ struct str_preferences (
 		on create do (
 			charger ()
 			
-			debug "Structure crée."
+			debug "Structure créée."
 			
 		)
 		

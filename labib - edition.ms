@@ -28,7 +28,7 @@ struct str_edition (
 	------------ DEBUG	----------------------------------------------------------------------------------
 		m_debug = true,
 -- 		m_debug = false,
-		m_dbgPrefix ="edit",
+		m_dbgPrefix ="edition",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
 		),
@@ -45,10 +45,10 @@ struct str_edition (
 		m_labib,										---- la structure principale ---	
 		
 	private
-		m_prefs		= m_labib.prefs,			---- les preferences ---
-		m_arbo		= m_labib.arbo,			---- l'arborescence ---		
-		m_fenetre	= m_labib.fenetre,		---- les apercus ----
-		m_apercus 	= m_labib.apercus,		---- la fenetre ---
+		m_prefs					= m_labib.prefs,				---- les preferences ---
+		m_arbo					= m_labib.arbo,				---- l'arborescence ---		
+		m_fenetre				= m_labib.fenetre,			---- les apercus ----
+		m_gestionRendus 	= m_labib.gestionRendus,	---- creer m_gestionRendus ---
 		
 		m_manips   = str_manipNodes (),	--- Pour manipuler les nodes, BB, centre etc..
 		
@@ -80,7 +80,7 @@ struct str_edition (
 		m_coroProxyConverter 	= CoronaProxyConverter,
 		
 	public
-	m_modeAppercus = false,
+		m_modeAppercus = false,
 	
 	public  -- DEBUG sinon private ---
 	---- copier coller ---
@@ -481,7 +481,7 @@ struct str_edition (
 			
 			activer_ModeApercus ()
 			
-			m_apercus.creer 		_noeuds
+			m_gestionRendus.creer 		_noeuds
 			
 			desactiver_ModeApercus ()
 			
@@ -646,8 +646,8 @@ struct str_edition (
 																			type:#vide	
 				
 				---- creation de l'apercu ----
-				if querybox "voulez vous créer les aperçus maintenant?" do
-					m_apercus.creer 	nouvelElement
+				if querybox "voulez vous crééer les aperçus maintenant?" do
+					m_gestionRendus.creer 	nouvelElement
 				
 				---- actualise l'UI ----
 				m_fenetre.actualiser ()
@@ -673,7 +673,7 @@ struct str_edition (
 			local nouveauxElements = #()
 			if dossierSource != undefined do (
 				
-				ecrire "Créer asset depuis dossier ..."
+				ecrire "crééer asset depuis dossier ..."
 				
 				--  m_chrono.demarrer ()
 				
@@ -698,8 +698,8 @@ struct str_edition (
 				(  getDossier () ).enregistrer ()
 				
 				---- creation de l'apercu ----
-				if querybox "voulez vous créer les aperçus maintenant?" do
-					m_apercus.creer 	nouveauxElements
+				if querybox "voulez vous crééer les aperçus maintenant?" do
+					m_gestionRendus.creer 	nouveauxElements
 				
 				m_fenetre.actualiser ()			
 				m_fenetre.selectionnerLV 	nouveauxElements
@@ -711,7 +711,7 @@ struct str_edition (
 				
 				
 				
-				ecrire ( "Dossier importer : " +  nouveauxElements.count as string + " assets crées." )
+				ecrire ( "Dossier importer : " +  nouveauxElements.count as string + " assets créées." )
 				--  m_chrono.ecrireDuree ()
 				
 				m_LV.focus ()
@@ -866,8 +866,15 @@ struct str_edition (
 			
 			debug "majPointeursFenetre (fin)"
 			
-		)
+		),
 		
+		------------  Evenements	----------------------------------------------------------------------------------
+
+		
+		on create do (		
+			---- output ----
+			debug "Structure créée."	
+		) 
 	
 ) --- fin str_edition
 

@@ -471,7 +471,7 @@ struct str_listViewMgr (
 				else  delta = -20
 				
 			local tailleMin 		= 40
-			local tailleMax 	= m_prefs.apercus.taille.x
+			local tailleMax 	= m_prefs.rendus.taille.x
 			m_prefs.fenetre.tailleApercusLV += delta
 			
 			if  m_prefs.fenetre.tailleApercusLV < tailleMin do 
@@ -480,7 +480,7 @@ struct str_listViewMgr (
 				m_prefs.fenetre.tailleApercusLV = tailleMax 
 			
 			m_ui.LargeImageList.imageSize	= dotNetObject "System.Drawing.Size" 	m_prefs.fenetre.tailleApercusLV 		m_prefs.fenetre.tailleApercusLV
-			
+			debug "m_prefs.fenetre.tailleApercusLV " var:m_prefs.fenetre.tailleApercusLV 
 			actualiser ()
 			
 		),

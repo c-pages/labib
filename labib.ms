@@ -61,7 +61,7 @@ include "$userScripts\cp - labib\labib - Outils divers.ms"
 include "$userScripts\cp - labib\labib - preferences.ms"
 include "$userScripts\cp - labib\labib - arborescence.ms"	
 
-include "$userScripts\cp - labib\labib - apercus.ms"
+-- include "$userScripts\cp - labib\labib - rendus.ms"
 
 include "$userScripts\cp - labib\labib - Mgr - Divers.ms"
 include "$userScripts\cp - labib\labib - Mgr - TreeView.ms"
@@ -70,13 +70,14 @@ include "$userScripts\cp - labib\labib - Mgr - ListView Tags.ms"
 
 include "$userScripts\cp - labib\labib - menus.ms"
 
--- include "$userScripts\cp - labib\labib - fenetre infos.ms"
 include "$userScripts\cp - labib\labib - fenetre proprietes.ms"
+include "$userScripts\cp - labib\labib - fenetre vues.ms"
 include "$userScripts\cp - labib\labib - fenetre rendu.ms"
-
+include "$userScripts\cp - labib\labib - fenetre apercus.ms"
 
  include "$userScripts\cp - labib\labib - fenetre.ms"
 
+include "$userScripts\cp - labib\labib - gestion rendus.ms"
 include "$userScripts\cp - labib\labib - manipNodes.ms"
 include "$userScripts\cp - labib\labib - edition.ms"
 
@@ -97,6 +98,8 @@ struct str_labib (
 	----------------------------------------------------------------------------------------------------------
 	
 	
+		
+		
 	
 	------------ Les structures	----------------------------------------------------------------------------------
 	public
@@ -112,20 +115,25 @@ struct str_labib (
 		fenetre	= str_fenLabib				m_labib:this,							---- le manager de la fenetre principale (en post car boucle infernale avec edit sinon ) ----
 		
 		-- Fenetres secondaires --
-		proprietes = str_proprietes 		m_labib:this,
+		proprietes 	= 	str_proprietes 		m_labib:this,							---- la fenetre de creation des proprietes -----
+		apercus		=	str_apercus 		m_labib:this,							--- la fenetre des appercus
+		vues					= 	str_vues						m_labib:this,
+ 		rendus		= 	str_rendus 			m_labib:this,							---- la fenetre de creation des apercus -----
 		
 		---- editions ----
-		apercus	=	str_apercus 			m_labib:this,							---- la creation des apercus -----		
-		edit		= 	str_edition				m_labib:this,							---- les commandes utilisateurs,  l'edition proprement dite de la bibliotheque (creation d'un asset, import dans la scene ... ) ----
+ 		gestionRendus		= 	str_gestionRendus 		m_labib:this,			---- la creation des apercus -----
+		edit					= 	str_edition					m_labib:this,			---- les commandes utilisateurs,  l'edition proprement dite de la bibliotheque (creation d'un asset, import dans la scene ... ) ----
 		
 		---- commandes ----
 		cmd 		= 	str_commandesMgr 	m_edit:edit,
 		
 		
 		
-		---les actions --------
 		
- 		rendu		= 	str_rendu 	m_labib:this,																	---- la gestion des rendus des apercus ----		
+		
+		
+		
+		---les actions --------
 		
 	------------ Fonctions		----------------------------------------------------------------------------------
 	--- Edition ----	
@@ -179,15 +187,14 @@ struct str_labib (
 	on create do (
 		
 		---- initialiser les pointeurs qui restent -----
-		fenetre.m_edit		= edit		
-		apercus.m_edit 	= edit
+		fenetre.m_edit				= edit		
+		gestionRendus.m_edit 	= edit
 		
 		--- initialiser Edition ----	
 		edit.initialiser ()
 		
 		---- output ----
-		ecrire "Structure Labib crée."		
-		debug "Structure crée."	
+		debug "Structure créée."	
 		
 	) 
 	

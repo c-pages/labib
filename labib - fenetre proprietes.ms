@@ -12,7 +12,7 @@
 ------------------------------------------------------------------------------
 ----------	Fenetre								 -------------------------
 ------------------------------------------------------------------------------
-rollout roll_proprietes "Propriétés"  width:800 height:400
+rollout roll_proprietes "Propriétés"  width:345 height:255
 (
 	
 	
@@ -45,53 +45,64 @@ rollout roll_proprietes "Propriétés"  width:800 height:400
 	
 	------------  UI	----------------------------------------------------------------------------------		
 	
-	label 'ui_lblNom' "Nom : " pos:[282,20] width:36 height:17 align:#left
-	edittext 'ui_editNom' "" pos:[388,20] width:200 height:17 bold:true align:#left
+	label 'ui_lblNom' "Nom : " pos:[18,21] width:36 height:17 align:#left
+	edittext 'ui_editNom' "" pos:[124,21] width:200 height:17 bold:true align:#left
 	
-	label 'ui_lblTags' "Mots clés :" pos:[282,58] width:53 height:17 align:#left
-	edittext 'ui_editTags' "" pos:[388,58] width:200 height:17 align:#left
-	
-	
-	label 'ui_lblFichier' "Fichier : " pos:[282,39] width:44 height:17 align:#left
-	edittext 'ui_editFichier' "" pos:[388,39] width:181 height:17 align:#left
-	button 'ui_btnOuvrirFichierMax' "..." pos:[570,38] width:19 height:19 toolTip:"Choisir le fichier .max de référence de cet asset." align:#left
+	label 'ui_lblTags' "Mots clés :" pos:[18,59] width:53 height:17 align:#left
+	edittext 'ui_editTags' "" pos:[124,59] width:200 height:17 align:#left
 	
 	
+	label 'ui_lblFichier' "Fichier : " pos:[18,40] width:44 height:17 align:#left
+	edittext 'ui_editFichier' "" pos:[124,40] width:181 height:17 align:#left
+	button 'ui_btnOuvrirFichierMax' "..." pos:[306,39] width:19 height:19 toolTip:"Choisir le fichier .max de référence de cet asset." align:#left
 	
-	label 'ui_lblNotes' "Notes :" pos:[282,169] width:46 height:17 align:#left		
+	
+	
+	label 'ui_lblNotes' "Notes :" pos:[18,170] width:46 height:17 align:#left		
 		
 		
+		
+		
+		
 	
 	
-	edittext 'ui_editNotes' "" pos:[388,169] width:200 height:56 align:#left
+	edittext 'ui_editNotes' "" pos:[124,170] width:200 height:56 align:#left
 	
 	
-	label 'ui_lblCreation' "Date de création :" pos:[282,93] width:91 height:17 align:#left
-	edittext 'ui_editDateCreation' "" pos:[388,93] width:200 height:17 readOnly:true align:#left
-	label 'ui_lblDateDernierImport' "Date dernier import :" pos:[282,112] width:109 height:17 align:#left
-	edittext 'ui_editDateDernierImport' "" pos:[388,112] width:200 height:17 readOnly:true align:#left
+	label 'ui_lblCreation' "Date de création :" pos:[18,94] width:91 height:17 align:#left
+	edittext 'ui_editDateCreation' "" pos:[124,94] width:200 height:17 readOnly:true align:#left
+	label 'ui_lblDateDernierImport' "Date dernier import :" pos:[18,113] width:109 height:17 align:#left
+	edittext 'ui_editDateDernierImport' "" pos:[124,113] width:200 height:17 readOnly:true align:#left
 	
-	label 'ui_lblNbreImports' "Nombre d'imports :" pos:[282,131] width:109 height:17 align:#left
-	edittext 'ui_editNbreImports' "" pos:[388,131] width:200 height:17 readOnly:true align:#left
+	label 'ui_lblNbreImports' "Nombre d'imports :" pos:[18,132] width:109 height:17 align:#left
+	edittext 'ui_editNbreImports' "" pos:[124,132] width:200 height:17 readOnly:true align:#left
 	
-	label 'ui_lblNbreVertex' "Nombre de points :" pos:[282,150] width:109 height:17 align:#left
-	edittext 'ui_editNbreVertex' "" pos:[388,150] width:200 height:17 readOnly:true align:#left
+	label 'ui_lblNbreVertex' "Nombre de points :" pos:[18,151] width:109 height:17 align:#left
+	edittext 'ui_editNbreVertex' "" pos:[124,151] width:200 height:17 readOnly:true align:#left
 	
 	---- le bouton pour fermer la fenetre ----
 	ImgTag 'ui_btnFermer' "X" pos:[326,0] width:20 height:20 toolTip:"Fermer" style:#bmp_center align:#left
 	
-	ImgTag 'ui_titre' "" pos:[17,4] width:66 height:18 align:#left
+	ImgTag 'ui_titre' "" pos:[15,4] width:66 height:18 align:#left
 	
 	
+	/* 
 	bitmap 'bmp_Affichage' "" pos:[16,24] width:256 height:256 align:#left	
 	
 	
-	checkbutton 'btn_global' "" pos:[16,287] width:50 height:50 align:#left	
 	
-	checkbutton 'btn_detail_1' "" pos:[116,287] width:50 height:50 align:#left
-	checkbutton 'btn_detail_2' "" pos:[169,287] width:50 height:50 align:#left
-	checkbutton 'btn_detail_3' "" pos:[222,287] width:50 height:50 align:#left
-	/* 
+	checkbutton 'btn_apercu_1' "" pos:[30,282] width:45 height:45 align:#left	
+	
+	
+	checkbutton 'btn_apercu_3' "" pos:[122,282] width:45 height:45 align:#left
+	checkbutton 'btn_apercu_4' "" pos:[168,282] width:45 height:45 align:#left
+	checkbutton 'btn_apercu_5' "" pos:[214,282] width:45 height:45 align:#left
+	
+	
+	checkbutton 'btn_apercu_2' "" pos:[76,282] width:45 height:45 align:#left
+	button 'btn_slider_D' ">" pos:[260,282] width:13 height:45 align:#left
+	button 'btn_slider_G' "<" pos:[16,282] width:13 height:45 align:#left
+	
 	label 'lbl_' "Globale" pos:[18,336] width:45 height:15 align:#left
 	label 'lbl28' "Détail 1" pos:[118,336] width:40 height:15 align:#left
 	label 'lbl29' "Détail 2" pos:[171,336] width:40 height:15 align:#left
@@ -187,33 +198,33 @@ rollout roll_proprietes "Propriétés"  width:800 height:400
 				ui_editDateDernierImport.text 	= 	selectionNoeud.getDateDernierImport ()
 				ui_editNbreImports.text 			= 	selectionNoeud.getNbrImports () as string
 				ui_editNbreVertex.text 				= 	selectionNoeud.getNbrVertex ()   as string
-				
+				/* 
 				--- les appercus ------------------------
-				local ap_global 	= selectionNoeud.getApercu	()
-				local ap_detail_1 = selectionNoeud.getdetail_1	()
-				local ap_detail_2 = selectionNoeud.getdetail_2	()
-				local ap_detail_3 = selectionNoeud.getdetail_3	()
+				local ap_1 			= selectionNoeud.getApercu	()
+-- 				local ap_detail_1 = selectionNoeud.getdetail_1	()
+-- 				local ap_detail_2 = selectionNoeud.getdetail_2	()
+-- 				local ap_detail_3 = selectionNoeud.getdetail_3	()
 				
-				btn_global.enabled 		= true
-				btn_detail_1.enabled 	= true
-				btn_detail_2.enabled 	= true
-				btn_detail_3.enabled 	= true
+				btn_apercu_1.enabled 		= true
+-- 				btn_detail_1.enabled 	= true
+-- 				btn_detail_2.enabled 	= true
+-- 				btn_detail_3.enabled 	= true
 				
 				-- le tooltip avec l'adresse de l'image --
-				btn_global.toolTip 	= "" 
-				btn_detail_1.toolTip 	= ""
-				btn_detail_2.toolTip 	= ""
-				btn_detail_3.toolTip 	= ""
+				btn_apercu_1.toolTip 	= "" 
+-- 				btn_detail_1.toolTip 	= ""
+-- 				btn_detail_2.toolTip 	= ""
+-- 				btn_detail_3.toolTip 	= ""
 				
 				-- on affiche les apercus dans les boutons, ou pas ---
-				if ap_global == "" then (
-					btn_global.images  = undefined -- GetDir #userScripts + "\cp - Labib\data\img\apVide.jpg"	
-					btn_global.toolTip 	= "Créer aperçu global"	
+				if ap_1 == "" then (
+					btn_apercu_1.images  = undefined -- GetDir #userScripts + "\cp - Labib\data\img\apVide.jpg"	
+					btn_apercu_1.toolTip 	= "Créer aperçu global"	
 				)	else (
-					btn_global.toolTip 	= "Aperçu global : " + ap_global
-					btn_global.images 	= #(openBitMap ap_global, undefined, 1,1,1,1,1 )
-				)
-				
+					btn_apercu_1.toolTip 	= "Aperçu global : " + ap_1
+					btn_apercu_1.images 	= #(openBitMap ap_1, undefined, 1,1,1,1,1 )
+				) */
+				/* 
 				
 				if ap_detail_1 == "" then (
 					btn_detail_1.images = undefined -- GetDir #userScripts + "\cp - Labib\data\img\apVide.jpg"		
@@ -253,13 +264,13 @@ rollout roll_proprietes "Propriétés"  width:800 height:400
 				
 				-- l'appercu en grand -----
 				case m_id_apercuAAfficher of (
-					0: bmp_Affichage.fileName = ap_global
-					1: bmp_Affichage.fileName = ap_detail_1
+					0: bmp_Affichage.fileName = ap_1
+					/* 1: bmp_Affichage.fileName = ap_detail_1
 					2: bmp_Affichage.fileName = ap_detail_2
-					3: bmp_Affichage.fileName = ap_detail_3
+					3: bmp_Affichage.fileName = ap_detail_3 
 				)
 				
-				
+				*/
 			) else (
 				
 				for ui in m_uis do ui.enabled	= false
@@ -271,19 +282,21 @@ rollout roll_proprietes "Propriétés"  width:800 height:400
 				ui_editTags.text 		= checkUnite 	listeTags
 				ui_lblTags.enabled 	= true
 				ui_editTags.enabled 	= true
-				
+				/* 
 				-- on les affoche dans les boutons ---
-				btn_global.images 	= undefined 
-				btn_detail_1.images 	= undefined 
-				btn_detail_2.images 	= undefined 
-				btn_detail_3.images 	= undefined 
+				btn_apercu_1.images 	= undefined 
+				btn_apercu_2.images 	= undefined 
+				btn_apercu_3.images 	= undefined 
+				btn_apercu_4.images 	= undefined 
+				btn_apercu_5.images 	= undefined 
 				
-				btn_global.enabled 		= false
-				btn_detail_1.enabled 	= false
-				btn_detail_2.enabled 	= false
-				btn_detail_3.enabled 	= false
+				btn_apercu_1.enabled 	= false
+				btn_apercu_2.enabled 	= false
+				btn_apercu_3.enabled 	= false
+				btn_apercu_4.enabled 	= false
+				btn_apercu_5.enabled 	= false
 				
-				bmp_Affichage.fileName = ""
+				bmp_Affichage.fileName = "" */
 				
 			)
 			
@@ -451,6 +464,14 @@ rollout roll_proprietes "Propriétés"  width:800 height:400
 ------------------------------------------------------------------------------
 struct str_proprietes (
 	
+	------------ DEBUG	----------------------------------------------------------------------------------
+	m_debug = true,
+	m_dbgPrefix ="proprietes",
+	fn debug 	_txt  var:	 param:    =(
+		if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+	),
+	----------------------------------------------------------------------------------------------------------
+	
 		------------  Membres	----------------------------------------------------------------------------------
 	public
 		---- pointeurs ----
@@ -460,7 +481,7 @@ struct str_proprietes (
 		---- props de la fenetre -----
 		m_titre 				= "Labib | Propriétés",
 		m_pos 				= [100,100],
-		m_taille 				= [800, 400],
+		m_taille 				= [345, 255],
 		m_estOuvert 		= false,
 		
 		col_fenetreFond	= m_labib.prefs.fenetre.col_fenetreFond, 	----  ----
@@ -489,7 +510,8 @@ struct str_proprietes (
 			createDialog m_dialog 	style:				#(#style_resizing) \
 											pos:					m_pos	\
 											width:				m_taille.x \
-											height:				m_taille.y 
+											height:				m_taille.y /* \
+											lockHeight:			true */
 -- 											bgcolor:				col_fenetreFond 	 \
 -- 											fgcolor:				col_fenetreTxt 	\
 											
@@ -520,9 +542,12 @@ struct str_proprietes (
 				then fermer ()
 				else	ouvrir ()
 			
-		)
+		),
 		
-		
+		on create do (		
+			---- output ----
+			debug "Structure créée."	
+		) 
 		
 		
 		------------  Evenements	----------------------------------------------------------------------------------

@@ -54,7 +54,7 @@ rollout roll_labib  "Labib" width:296 height:296
 	
 	------------  UI	----------------------------------------------------------------------------------
 	
-	ImgTag 'ui_barreAdresse' "" 	pos:[200 + m_ecartUI, 3 ] width:66 height:18 align:#left
+	ImgTag 'ui_barreAdresse' "" 	pos:[/* 200 +  */m_ecartUI, 3 ] width:66 height:18 align:#left
 	
 	
 	local 	ui_slider_H  		 	= 	str_btnVirtuel					pos:		[200, m_ecartUI] \
@@ -158,7 +158,8 @@ rollout roll_labib  "Labib" width:296 height:296
 		ui_LV.height			= tailleRollout.y - 2* m_ecartUI		
 		ui_btnFermer.pos		= [ tailleRollout.x - 1 *m_ecartUI	, 0 ]
 		
-		ui_barreAdresse.pos.x = ui_LV.pos.x - 2
+-- 		ui_barreAdresse.pos.x = ui_LV.pos.x - 2
+		ui_barreAdresse.pos.x = ui_TV.pos.x - 2
 		ui_log.pos.y = tailleRollout.y - m_ecartUI + 2
 		ui_log.pos.x = ui_barreAdresse.pos.x
 		
@@ -685,7 +686,7 @@ struct str_fenLabib (
 	------------ DEBUG	----------------------------------------------------------------------------------
 
 		m_debug = true,
-		m_dbgPrefix ="str_fenetre",
+		m_dbgPrefix ="fenêtre",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
 		),
@@ -772,7 +773,8 @@ struct str_fenLabib (
 			
 			-- les fenetres secondaires --
 			if m_labib.proprietes.estOuvert() 	do m_labib.proprietes.ouvrir()			
-			if m_labib.rendu.estOuvert() 	do m_labib.rendu.ouvrir()
+			if m_labib.rendus.estOuvert() 		do m_labib.rendus.ouvrir()		
+			if m_labib.apercus.estOuvert() 		do m_labib.apercus.ouvrir()
 			
 			---- maj des preferences ----	
 			m_prefs.fenetre.fenLabib_estOuvert = true
@@ -798,7 +800,8 @@ struct str_fenLabib (
 			debug "fermeture"
 			
 			m_labib.proprietes.fermer 		enregistrer:false
-			m_labib.rendu.fermer 	enregistrer:false
+			m_labib.rendus.fermer 			enregistrer:false
+			m_labib.apercus.fermer 		enregistrer:false
 			
 			---- maj des preferences ----	
 			m_prefs.fenetre.fenLabib_estOuvert 	= false
@@ -835,7 +838,7 @@ struct str_fenLabib (
 		
 		------------  Evenements	----------------------------------------------------------------------------------
 		on create do (
-			debug "Structure crée."
+			debug "Structure créée."
 			
 		) 
 		

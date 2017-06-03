@@ -26,6 +26,7 @@ try (
 	
 macroScript Labib
 category:"#CPages"
+buttonText:"Labib"
 toolTip:""
 icon:#("Labib", 1)
 (
@@ -37,7 +38,7 @@ icon:#("Labib", 1)
 	
 	labib.prefs.reset()
 	
-	on execute do 	(
+	 on execute do 	(
 		
 		if ( labib.estOuvert () )	
 			then	labib.fermer	()
@@ -45,9 +46,35 @@ icon:#("Labib", 1)
 		
 	)
 	
-	on isChecked return try ( labib.estOuvert () )  catch	( false )	
+	on isChecked return try ( labib.estOuvert () )  catch	( false )	 
 	
 )
+
+macroScript Labib_rechargerStructs
+category:"#CPages"
+buttonText:"Labib - reload"
+
+(
+	
+	try ( 	
+		labib.fermer()	
+	) catch  ()
+	try ( 	
+		destroydialog labib.fenetre.m_dialog		
+	) catch  ()
+
+	clearListener ()
+	global labib
+	
+	fileIn	 "$userScripts\cp - labib\labib.ms" 
+-- 	fileIn "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib.ms" 
+	
+	labib.prefs.reset()
+	labib.ouvrir 	()
+
+)
+
+
 
 --labib.ouvrir 	()
 
