@@ -41,9 +41,10 @@ rollout roll_proprietes "Propriétés"  width:800 height:400
 	--- liste des uis ----
 	local m_uis	=#()
 	
+	local m_id_apercuAAfficher = 0
 	
-		------------  UI	----------------------------------------------------------------------------------		
-		
+	------------  UI	----------------------------------------------------------------------------------		
+	
 	label 'ui_lblNom' "Nom : " pos:[282,20] width:36 height:17 align:#left
 	edittext 'ui_editNom' "" pos:[388,20] width:200 height:17 bold:true align:#left
 	
@@ -82,19 +83,19 @@ rollout roll_proprietes "Propriétés"  width:800 height:400
 	ImgTag 'ui_titre' "" pos:[17,4] width:66 height:18 align:#left
 	
 	
-	bitmap 'bmp_Affichage' "Bitmap" pos:[16,24] width:256 height:256 align:#left	
+	bitmap 'bmp_Affichage' "" pos:[16,24] width:256 height:256 align:#left	
 	
 	
-	checkbutton 'btn_global' "Bitmap" pos:[16,287] width:50 height:50 align:#left	
+	checkbutton 'btn_global' "" pos:[16,287] width:50 height:50 align:#left	
 	
-	checkbutton 'btn_detail_1' "Bitmap" pos:[116,287] width:50 height:50 align:#left
-	checkbutton 'btn_detail_2' "Bitmap" pos:[169,287] width:50 height:50 align:#left
-	checkbutton 'btn_detail_3' "Bitmap" pos:[222,287] width:50 height:50 align:#left
-	
-	label 'lbl27' "Global" pos:[18,336] width:45 height:15 align:#left
+	checkbutton 'btn_detail_1' "" pos:[116,287] width:50 height:50 align:#left
+	checkbutton 'btn_detail_2' "" pos:[169,287] width:50 height:50 align:#left
+	checkbutton 'btn_detail_3' "" pos:[222,287] width:50 height:50 align:#left
+	/* 
+	label 'lbl_' "Globale" pos:[18,336] width:45 height:15 align:#left
 	label 'lbl28' "Détail 1" pos:[118,336] width:40 height:15 align:#left
 	label 'lbl29' "Détail 2" pos:[171,336] width:40 height:15 align:#left
-	label 'lbl30' "Détail 3" pos:[224,336] width:40 height:15 align:#left
+	label 'lbl30' "Détail 3" pos:[224,336] width:40 height:15 align:#left */
 	/* 
 	
 	------------  UI	----------------------------------------------------------------------------------		
@@ -187,15 +188,76 @@ rollout roll_proprietes "Propriétés"  width:800 height:400
 				ui_editNbreImports.text 			= 	selectionNoeud.getNbrImports () as string
 				ui_editNbreVertex.text 				= 	selectionNoeud.getNbrVertex ()   as string
 				
-				--- les appercus ---
-				local appercu_global = selectionNoeud.getApercu()
-				debug "appercu_global"  var:appercu_global
+				--- les appercus ------------------------
+				local ap_global 	= selectionNoeud.getApercu	()
+				local ap_detail_1 = selectionNoeud.getdetail_1	()
+				local ap_detail_2 = selectionNoeud.getdetail_2	()
+				local ap_detail_3 = selectionNoeud.getdetail_3	()
 				
-				if appercu_global == "" do
-					appercu_global = GetDir #userScripts + "\cp - Labib\data\img\apVide.jpg"
+				btn_global.enabled 		= true
+				btn_detail_1.enabled 	= true
+				btn_detail_2.enabled 	= true
+				btn_detail_3.enabled 	= true
 				
-				btn_global.images = #(openBitMap appercu_global, undefined, 1,1,1,1,1 )
-				bmp_Affichage.fileName = appercu_global
+				-- le tooltip avec l'adresse de l'image --
+				btn_global.toolTip 	= "" 
+				btn_detail_1.toolTip 	= ""
+				btn_detail_2.toolTip 	= ""
+				btn_detail_3.toolTip 	= ""
+				
+				-- on affiche les apercus dans les boutons, ou pas ---
+				if ap_global == "" then (
+					btn_global.images  = undefined -- GetDir #userScripts + "\cp - Labib\data\img\apVide.jpg"	
+					btn_global.toolTip 	= "Créer aperçu global"	
+				)	else (
+					btn_global.toolTip 	= "Aperçu global : " + ap_global
+					btn_global.images 	= #(openBitMap ap_global, undefined, 1,1,1,1,1 )
+				)
+				
+				
+				if ap_detail_1 == "" then (
+					btn_detail_1.images = undefined -- GetDir #userScripts + "\cp - Labib\data\img\apVide.jpg"		
+					btn_detail_1.toolTip 	= "Créer aperçu détail 1"
+					btn_detail_2.toolTip 	= ""
+					
+					-- 
+					btn_detail_2.enabled = false
+					
+				)	else (
+
+					btn_detail_1.toolTip 	= "Aperçu détail 1 : " + ap_detail_1
+					btn_detail_1.images 	= #(openBitMap ap_detail_1, undefined, 1,1,1,1,1 )
+					btn_detail_2.toolTip 	= "Créer aperçu détail 2"
+					
+				)
+				
+				if ap_detail_2 == "" then (
+					btn_detail_2.images = undefined -- GetDir #userScripts + "\cp - Labib\data\img\apVide.jpg"		
+					
+					btn_detail_3.toolTip 	= ""
+					
+					-- 
+					btn_detail_3.enabled = false
+					
+				)	else (
+					btn_detail_2.images 	= #(openBitMap ap_detail_2, undefined, 1,1,1,1,1 )
+				)
+				
+				if ap_detail_3 == "" then (
+					btn_detail_3.images = undefined -- GetDir #userScripts + "\cp - Labib\data\img\apVide.jpg"
+					btn_detail_3.toolTip 	= "Aperçu détail 3"
+				)	else (
+					btn_detail_3.images 	= #(openBitMap ap_detail_3, undefined, 1,1,1,1,1 )
+				)
+				
+				
+				-- l'appercu en grand -----
+				case m_id_apercuAAfficher of (
+					0: bmp_Affichage.fileName = ap_global
+					1: bmp_Affichage.fileName = ap_detail_1
+					2: bmp_Affichage.fileName = ap_detail_2
+					3: bmp_Affichage.fileName = ap_detail_3
+				)
 				
 				
 			) else (
@@ -209,6 +271,19 @@ rollout roll_proprietes "Propriétés"  width:800 height:400
 				ui_editTags.text 		= checkUnite 	listeTags
 				ui_lblTags.enabled 	= true
 				ui_editTags.enabled 	= true
+				
+				-- on les affoche dans les boutons ---
+				btn_global.images 	= undefined 
+				btn_detail_1.images 	= undefined 
+				btn_detail_2.images 	= undefined 
+				btn_detail_3.images 	= undefined 
+				
+				btn_global.enabled 		= false
+				btn_detail_1.enabled 	= false
+				btn_detail_2.enabled 	= false
+				btn_detail_3.enabled 	= false
+				
+				bmp_Affichage.fileName = ""
 				
 			)
 			
@@ -359,9 +434,15 @@ rollout roll_proprietes "Propriétés"  width:800 height:400
 	on ui_editNotes 					entered _text do ()
 	
 	on btn_global rightclick 		do m_labib.menus.apercus ()
-	on btn_detail_1 rightclick	do m_labib.menus.apercus ()
-	on btn_detail_2 rightclick	do m_labib.menus.apercus ()
-	on btn_detail_3 	rightclick do m_labib.menus.apercus ()
+	on btn_detail_1 rightclick		do m_labib.menus.apercus ()
+	on btn_detail_2 rightclick		do m_labib.menus.apercus ()
+	on btn_detail_3 	rightclick 	do m_labib.menus.apercus ()
+		
+	on btn_global rightclick 		do m_labib.menus.apercus ()
+	on btn_detail_1 rightclick		do m_labib.menus.apercus ()
+	on btn_detail_2 rightclick		do m_labib.menus.apercus ()
+	on btn_detail_3 	rightclick 	do m_labib.menus.apercus ()
+	
 		
 )
 
