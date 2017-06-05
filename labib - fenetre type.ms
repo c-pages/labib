@@ -11,7 +11,7 @@
 	Fenetre type	( sert de model de base, n'est pas importé dans le script )	
 	sans barre de titre, draggable et bouton fermer
 	
-	Remplacer (ctr + h): 'vues' par:  'maFenetreAMoi'.
+	Remplacer (ctr + h): 'fenetreType ' par:  'maFenetreAMoi'.
 	il y a des parties a decommenter :"--- a décommenter ---"
 	Noms des variables 
 	-	roll_fenetreType :			le nom de la fenetre
@@ -31,10 +31,12 @@
 ########################################################################################################################*/
 -- destroydialog roll_fenetreType catch ()
 (
+	
+	local str_Pointeur 
 ------------------------------------------------------------------------------
 ----------	Fenetre								 -------------------------
 ------------------------------------------------------------------------------
-rollout roll_fenetreType  "vues" width:296 height:296
+rollout roll_fenetreType  "fenetreType " width:296 height:296
 (
 	------------  Membres	----------------------------------------------------------------------------------
 	---- Pointeurs ----
@@ -46,6 +48,7 @@ rollout roll_fenetreType  "vues" width:296 height:296
 	
 	--- ctro des imgtags ---
 	local m_titre
+	local b_initialisation = false
 	
 	------------  UI	----------------------------------------------------------------------------------		
 	
@@ -78,17 +81,18 @@ rollout roll_fenetreType  "vues" width:296 height:296
 		
 		-- le bouton fermer --
 		ui_btnFermer.bitmap = m_prt.m_icos_fermer[1]	
-		
+		b_initialisation = true
 	)
 	
 	------------  Evenements	----------------------------------------------------------------------------------
 	---- Fenetre -----
 	on roll_fenetreType moved			_pos 	do	m_prt.m_pos	= _pos	
-		
+	on roll_fenetreType open			 			do	initialiser 	str_Pointeur
+	
 	---- Drag ----
-	on roll_fenetreType lbuttondown	_pos 	do	m_drag.demarrer ()
-	on roll_fenetreType lbuttonup 		_pos 	do	m_drag.arreter ()
-	on roll_fenetreType mouseMove 	_pos 	do	m_drag.suivreSouris ()
+	on roll_fenetreType lbuttondown	_pos 	do	if b_initialisation do m_drag.demarrer ()
+	on roll_fenetreType lbuttonup 		_pos 	do	if b_initialisation do m_drag.arreter ()
+	on roll_fenetreType mouseMove 	_pos 	do	if b_initialisation do m_drag.suivreSouris ()
 	
 	---- Bouton fermer -----
 	on 	ui_btnFermer	mouseover 				do 	etatBtnFermer #Survol
@@ -112,7 +116,7 @@ struct str_fenetreType (
 		m_dialog				= roll_fenetreType ,		---- le rollout ----
 		
 		---- props de la fenetre -----
-		m_titre 				= "Labib | vues",
+		m_titre 				= "Labib | fenetreType ",
 		m_pos 				= [100,100],
 		m_taille 				= [300, 300],
 		m_estOuvert 		= false,
@@ -137,7 +141,8 @@ struct str_fenetreType (
 											fgcolor:				col_fenetreTxt 	\
 											style:				#(#style_resizing) \
 											lockHeight:			true	\
-											lockWidth:			true	 \									
+											lockWidth:			true	 \		
+											modal:		true			\
 											pos:					m_pos	
 			
 			---- initialisation de la fenetre ----
@@ -168,7 +173,8 @@ struct str_fenetreType (
 )
 
 
-vues 	=	str_fenetreType 	m_labib:Labib
-vues.ouvrir ()
-
+global fenetreType  	=	str_fenetreType 	m_labib:Labib
+str_Pointeur = fenetreType
+fenetreType.ouvrir ()
+-- destroydialog fenetreType.m_dialog
 )

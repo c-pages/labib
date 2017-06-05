@@ -31,6 +31,10 @@
 ########################################################################################################################*/
 -- destroydialog roll_vues catch ()
 
+
+
+
+
 ------------------------------------------------------------------------------
 ----------	Fenetre								 -------------------------
 ------------------------------------------------------------------------------
@@ -64,8 +68,10 @@ rollout roll_vues  "vues" width:276 height:173
 	---- le bouton pour fermer la fenetre ----
 	ImgTag 'ui_btnFermer' "X" pos:[256,0] width:20 height:20 toolTip:"Fermer" style:#bmp_center align:#left
 	
-	label 'lbl45' "Nom :" pos:[19,22] width:44 height:16 align:#left
+	label 'lbl45' "Nom :" pos:[19,22] width:29 height:16 align:#left
 	edittext 'edt_nom' "" pos:[46,22] width:129 height:17 align:#left
+	checkbutton 'btn_editer' "Editer" pos:[177,21] width:40 height:17 toolTip:"Modifier" align:#left
+	button 'btn_tester' "Tester" pos:[216,21] width:40 height:17 toolTip:"Modifier" align:#left
 	
 	dropdownList 'ddl1' "" pos:[113,71] width:120 height:21 items:#("Face", "    -- ", "Nouveau") align:#left
 	label 'lbl14' "Camera :" pos:[18,74] width:44 height:16 align:#left
@@ -74,8 +80,7 @@ rollout roll_vues  "vues" width:276 height:173
 	label 'lbl17' "Fond :" pos:[18,94] width:34 height:16 align:#left
 	
 	dropdownList 'ddl4' "" pos:[113,51] width:120 height:21 items:#("Rapide", "Super beau", "    -- ", "Nouveau") align:#left
-	label 'lbl_corona' "Param. de rendu :" pos:[18,54] width:88 height:16 align:#left
-	checkbutton 'btn_editer' "Editer" pos:[177,23] width:40 height:17 toolTip:"Modifier" align:#left
+	label 'lbl_corona' "Rendu :" pos:[18,54] width:88 height:16 align:#left
 	
 	dropdownList 'ddl5' "" pos:[113,111] width:120 height:21 items:#("    -- ", "Nouveau") align:#left
 	
@@ -93,7 +98,6 @@ rollout roll_vues  "vues" width:276 height:173
 	subRollout 'subRollout' "" pos:[260,21] width:209 height:139 align:#left 
  
  
-	button 'btn_tester' "Tester" pos:[216,23] width:40 height:17 toolTip:"Modifier" align:#left
 	
 	
 	------------  Fonctions	----------------------------------------------------------------------------------
@@ -102,8 +106,13 @@ rollout roll_vues  "vues" width:276 height:173
 
 		
 		if btn_edit_rendu.checked or btn_edit_camera.checked or btn_edit_fond.checked or btn_edit_lumieres.checked 
-			then	roll_vues.width 	=  488
-			else	roll_vues.width 	=  m_prt.m_taille.x
+			then	(	
+				roll_vues.width 	=  488
+				subRollout.visible = true
+			)	else	(
+				roll_vues.width 	=  m_prt.m_taille.x
+				subRollout.visible = false
+			)
 
 		ui_btnFermer.pos.x		=	roll_vues.width  - 20
 	)
@@ -127,7 +136,7 @@ rollout roll_vues  "vues" width:276 height:173
 	
 	
 	fn afficherVue 	_vue =(
-		edt_nom.text = _vue.m_nom
+		edt_nom.text = 	_vue.m_nom
 		
 	)
 	
@@ -136,8 +145,11 @@ rollout roll_vues  "vues" width:276 height:173
 	---- Initialisation de la fenetre  -----
 	fn initialiser  ptr_Labib	= (
 		
+		debug "initialiser" 
+		
 		-- se raccrocher à labib --
 		m_prt = ptr_Labib
+-- 		debug "ptr_Labib" var:ptr_Labib
 		
 		-- le titre --
 		m_titre 	= str_label 	m_ui:ui_titre			m_texte:m_prt.m_titre
@@ -151,12 +163,17 @@ rollout roll_vues  "vues" width:276 height:173
 		-- le bouton fermer --
 		ui_btnFermer.bitmap = m_prt.m_icos_fermer[1]	
 		
+		if m_prt.m_rendus.getVue_selec () != undefined do
+			afficherVue ( m_prt.m_rendus.getVue_selec () )
+		
+		
 		reagencer ()
 	)
 	
 	------------  Evenements	----------------------------------------------------------------------------------
 	---- Fenetre -----
 	on roll_vues moved			_pos 	do	m_prt.m_pos	= _pos	
+	on roll_vues open			 	do	initialiser 	labib.vues
 -- 	on roll_vues resized _taille 		do	reagencer 	_taille
 	
 	---- Drag ----
@@ -275,10 +292,11 @@ struct str_vues (
 		
 		---- pointeurs ----
 		m_labib,
-		m_dialog				= roll_vues ,		---- le rollout ----
+		m_dialog					= roll_vues ,		---- le rollout ----
 		
 		m_manips   			= str_manipNodes 	,	--- Pour manipuler les nodes, BB, centre etc..
-	
+		m_rendus 				,
+		
 		---- props de la fenetre -----
 		m_titre 				= "Labib | Vue",
 		m_pos 				= [100,100],
@@ -354,10 +372,10 @@ struct str_vues (
 			
 		),
 		
-		fn afficherVue _vue =(
+		/* fn afficherVue _vue =(
 			m_dialog.afficherVue _vue 
-			
-		),
+		), */
+		
 		
 		
 		----- gestion de la fenete------------------------
@@ -374,12 +392,13 @@ struct str_vues (
 											lockWidth:			true	 \		
 											width:m_taille.x \
 											height:m_taille.y \		
+											modal: true \
 											pos:					m_pos	
 -- 											lockHeight:			true	\
 -- 											lockWidth:			true	 \		
 -- 			bgcolor:				col_fenetreFond	 \
 			---- initialisation de la fenetre ----
-			m_dialog.initialiser 	this
+-- 			m_dialog.initialiser 	this
 	
 		),
 		

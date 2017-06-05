@@ -31,11 +31,12 @@ struct str_preset_apercu  (
 ----- differents structs composant une vue -----------------
 ----parametres rendu corona ----
 struct str_preset_paramRendu (
-	m_nom 			= "",   			---- le nom du preset 
+	m_nom 			= "",   			---- 	le nom du preset 
 	
-	m_passLimit,
-	m_noiseLvlLimit,
-	m_timeLimit
+	m_passLimit		=0,			----	progressive_passLimit
+	m_noiseLvlLimit	=0,			----	adaptivity_targetError
+	m_denoising		=0,			---- 	denoise_blendAmount
+	m_timeLimit			=0			----	progressive_timeLimit (en ms)
 )
 
 struct str_preset_camera (
@@ -112,7 +113,7 @@ rollout roll_rendus  "rendus" width:166 height:266
 	ImgTag 'ui_btnFermer' "X" pos:[137,0] width:20 height:20 toolTip:"Fermer" style:#bmp_center align:#left
 	
 	dropdownList 'ddl_presets' "" pos:[15,24] width:124 height:21	align:#left	--	  items:#(/* "Grands arbres", "Mobilier", "Personnages",  */"   - -", "Nouveau" , "Sauvegarder", "Supprimer" /* "chargerPresets",  */)  
-	multilistbox 'lbx_vues' "" pos:[14,67] width:122 height:9 /* items:#("Face", "3/4 - haut", "Coté")  */align:#left
+	listbox 'lbx_vues' "" pos:[14,67] width:122 height:9 /* items:#("Face", "3/4 - haut", "Coté")  */align:#left
 	button 'btn_ajouterVue' "+" pos:[102,48] width:17 height:17 align:#left
 	button 'btn_supprimerVue' "-" pos:[120,48] width:17 height:17 align:#left
 	button 'btn_rendreTout' "Rendre toutes les vues" pos:[14,190] width:120 height:17 align:#left
@@ -239,12 +240,7 @@ rollout roll_rendus  "rendus" width:166 height:266
 	
 	
 	on 	btn_ajouterVue 	pressed 				do 	m_prt.m_boxSelecVue = str_vueSelection 	m_rollParent:roll_rendus
-	on 	btn_supprimerVue 	pressed 			do 	(
-		for id in lbx_vues.selection as array do (
-			m_prt.retirerVueAPreset  id
-		)
-		
-	)
+	on 	btn_supprimerVue 	pressed 			do 	m_prt.retirerVueAPreset  lbx_vues.selection
 	
 	
 	
@@ -262,7 +258,7 @@ rollout roll_rendus  "rendus" width:166 height:266
 		local pos = (GetDialogPos  roll_rendus + [m_prt.m_taille.x+ 3, 0  ] )
 		debug "pos du roll de vue" var:pos
 		m_prt.m_labib.vues.ouvrir 	pos:pos
-		m_prt.m_labib.vues.afficherVue  ( m_prt.getVue_parNom lbx_vues.items[_arg] )
+-- 		m_prt.m_labib.vues.afficherVue  ( m_prt.getVue_parNom lbx_vues.items[_arg] )
 	)
 )
 
@@ -621,6 +617,16 @@ labib.queryNom.ouvrir texte:"Nom pour le nouveau preset"	fnOk:fnTmp_ok	fnCancel:
 			
 			m_boxSelecVue.fermer ()
 			m_dialog.actualiser ()
+		),
+		
+		
+		fn getVue_selec =(
+			local result
+			debug "getVue_selec" 
+			debug "m_dialog.lbx_vues.selection" var:m_dialog.lbx_vues.selection 
+		 	if m_dialog.lbx_vues.selection >0 do
+				result = m_presets_vues[ m_dialog.lbx_vues.selection  ] 
+			result
 		),
 		
 		fn getVue_parNom  _nom =(

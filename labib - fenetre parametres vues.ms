@@ -28,7 +28,7 @@
 ------------------------------------------------------------------------------
 ----------	RENDU								 -------------------------
 ------------------------------------------------------------------------------
-rollout roll_paramRendu "Paramètres de rendu" width:209 height:136
+rollout roll_paramRendu "Rendu" width:209 height:136
 (
 	------------  Membres	----------------------------------------------------------------------------------
 		
@@ -37,27 +37,27 @@ rollout roll_paramRendu "Paramètres de rendu" width:209 height:136
 	---- Pointeurs ----
 	local m_prt				---- pointeur vers la structure de controle ----
 	local m_prefs			---- pointeur vers les preferences "Fenetre"de labib ----
-	
-	---- Structures ----
-	local m_drag			---- la structure gerant le drag de la fenetre ----
-	
-	--- ctro des imgtags ---
-	local m_titre
-	
 	------------  UI	----------------------------------------------------------------------------------		
-	label 'lbl_nom' "Nom :" pos:[3,1] width:44 height:16 align:#left
-	edittext 'edt_nom' "" pos:[30,1] width:131 height:17 align:#left
-	button 'btn_sauvegarderSous' "+" pos:[163,1] width:17 height:17 toolTip:"Sauvegarder sous" align:#left
+	label 'lbl_nom' "Nom :" pos:[11,1] width:44 height:16 align:#left
+	edittext 'edt_nom' "" pos:[38,1] width:131 height:17 align:#left
+	button 'btn_sauvegarderSous' "+" pos:[171,1] width:17 height:17 toolTip:"Sauvegarder sous" align:#left
 	
-	spinner 'ddl1' "" pos:[117,49] width:60 height:16 items:#("Face") align:#left
-	label 'lbl14' "Denoise Amount :" pos:[2,52] width:93 height:16 align:#left
-	spinner 'ddl3' "" pos:[117,68] width:60 height:16 align:#left
-	label 'lbl17' "Time limit :" pos:[2,71] width:82 height:16 align:#left
+	spinner 'ddl1' "" pos:[125,45] width:60 height:16 items:#("Face") align:#left
+	label 'lbl14' "Denoise Amount :" pos:[10,48] width:89 height:16 align:#left
+	spinner 'ddl3' "" pos:[125,60] width:60 height:16 align:#left
+	label 'lbl17' "Pass limit :" pos:[10,63] width:53 height:16 align:#left
 	
-	spinner 'ddl4' "" pos:[117,30] width:60 height:16 items:#("Rapide", "Super beau") align:#left
-	label 'lbl_corona' "Denoise level limit :" pos:[2,33] width:94 height:16 align:#left
+	spinner 'ddl4' "" pos:[125,30] width:60 height:16 items:#("Rapide", "Super beau") align:#left
+	label 'lbl_corona' "Noise level limit :" pos:[10,33] width:81 height:16 align:#left
 	
-
+	spinner 'spn4' "" pos:[131,92] width:45 height:16 range:[0,100,0] align:#left
+	label 'lbl5' "Time limit :" pos:[10,78] width:50 height:16 align:#left
+	label 'lbl11' "h" pos:[66,92] width:10 height:16 align:#left
+	spinner 'spn9' "" pos:[74,92] width:45 height:16 range:[0,100,0] align:#left
+	label 'lbl12' "m" pos:[120,92] width:10 height:16 align:#left
+	spinner 'spn10' "" pos:[20,92] width:45 height:16 range:[0,100,0] align:#left
+	label 'lbl13' "s" pos:[178,92] width:10 height:16 align:#left
+ 
 	------------  Fonctions	----------------------------------------------------------------------------------
 	---- Gere l'état du bouton  -----
 	fn etatBtnFermer		_etat =(
@@ -73,15 +73,6 @@ rollout roll_paramRendu "Paramètres de rendu" width:209 height:136
 		-- se raccrocher à labib --
 		m_prt = ptr_Labib
 		
-		-- le titre --
-		m_titre 	= str_label 	m_ui:ui_titre			m_texte:m_prt.m_titre
-		m_titre.setCouleur 	m_prt.col_fenetreTxt
-		
-		-- le drag --
-		m_drag 		= str_drag 	m_prt:roll_paramRendu
-		
-		-- le bouton fermer --
-		ui_btnFermer.bitmap = m_prt.m_icos_fermer[1]	
 		
 	)
 	
@@ -137,8 +128,7 @@ struct str_paramRendu (
 			m_estOuvert 		= true
 			
 			---- creation de la fenetre ----
-			createDialog m_dialog 	bgcolor:				col_fenetreFond	 \
-											fgcolor:				col_fenetreTxt 	\
+			createDialog m_dialog 	fgcolor:				col_fenetreTxt 	\
 											style:				#(#style_resizing) \
 											lockHeight:			true	\
 											lockWidth:			true	 \			
@@ -187,29 +177,27 @@ rollout roll_paramCamera "Camera" width:217 height:172
 	local m_prt				---- pointeur vers la structure de controle ----
 	local m_prefs			---- pointeur vers les preferences "Fenetre"de labib ----
 	
-
-	------------  UI	----------------------------------------------------------------------------------		
 	
-	label 'lbl_nom' "Nom :" pos:[3,1] width:44 height:16 align:#left
-	edittext 'edt_nom' "" pos:[30,1] width:131 height:17 align:#left
-	button 'btn_sauvegarderSous' "+" pos:[163,1] width:17 height:17 toolTip:"Sauvegarder sous" align:#left
+		label 'lbl_nom' "Nom :" pos:[11,1] width:44 height:16 align:#left
+	edittext 'edt_nom' "" pos:[38,1] width:131 height:17 align:#left
+	button 'btn_sauvegarderSous' "+" pos:[171,1] width:17 height:17 toolTip:"Sauvegarder sous" align:#left
 	
-	spinner 'ddl1' "" pos:[74,49] width:60 height:16 range:[-360,360,0] type:#float items:#("Face") align:#left
-	label 'lbl14' "y:" pos:[54,49] width:17 height:16 align:#left
-	spinner 'ddl3' "" pos:[74,68] width:60 height:16 range:[0.1,100,1] align:#left
-	label 'lbl17' "Distance:" pos:[2,69] width:52 height:16 align:#left
+	spinner 'ddl1' "" pos:[82,45] width:60 height:16 range:[-360,360,0] type:#float items:#("Face") align:#left
+	label 'lbl14' "y:" pos:[62,45] width:17 height:16 align:#left
+	spinner 'ddl3' "" pos:[82,60] width:60 height:16 range:[0.1,100,1] align:#left
+	label 'lbl17' "Distance:" pos:[10,61] width:52 height:16 align:#left
 	
-	spinner 'ddl4' "" pos:[74,30] width:60 height:16 range:[-360,360,0] items:#("Rapide", "Super beau") align:#left
-	label 'lbl_corona' "Rotation:" pos:[2,33] width:52 height:16 align:#left
+	spinner 'ddl4' "" pos:[82,30] width:60 height:16 range:[-360,360,0] items:#("Rapide", "Super beau") align:#left
+	label 'lbl_corona' "Rotation:" pos:[10,33] width:52 height:16 align:#left
 	
 	
-	label 'lbl95' "x:" pos:[54,33] width:17 height:16 align:#left
-	spinner 'spn41' "" pos:[74,87] width:60 height:16 range:[10,170,90] align:#left
-	label 'lbl96' "FOV:" pos:[2,88] width:36 height:16 align:#left
-	button 'btn75' "-45" pos:[133,29] width:23 height:17 toolTip:"Sauvegarder sous" align:#left
-	button 'btn76' "+45" pos:[156,29] width:23 height:17 toolTip:"Sauvegarder sous" align:#left
-	button 'btn77' "-45" pos:[132,49] width:23 height:17 toolTip:"Sauvegarder sous" align:#left
-	button 'btn78' "+45" pos:[155,49] width:23 height:17 toolTip:"Sauvegarder sous" align:#left
+	label 'lbl95' "x:" pos:[62,33] width:17 height:16 align:#left
+	spinner 'spn41' "" pos:[82,75] width:60 height:16 range:[10,170,90] align:#left
+	label 'lbl96' "FOV:" pos:[10,76] width:36 height:16 align:#left
+	button 'btn75' "-45" pos:[142,30] width:23 height:16 toolTip:"Sauvegarder sous" align:#left
+	button 'btn76' "+45" pos:[164,30] width:23 height:16 toolTip:"Sauvegarder sous" align:#left
+	button 'btn77' "-45" pos:[142,45] width:23 height:16 toolTip:"Sauvegarder sous" align:#left
+	button 'btn78' "+45" pos:[164,45] width:23 height:16 toolTip:"Sauvegarder sous" align:#left
  
 	------------  Fonctions	----------------------------------------------------------------------------------
 	---- Gere l'état du bouton  -----
@@ -281,8 +269,7 @@ struct str_paramCamera (
 			m_estOuvert 		= true
 			
 			---- creation de la fenetre ----
-			createDialog m_dialog 	bgcolor:				col_fenetreFond	 \
-											fgcolor:				col_fenetreTxt 	\
+			createDialog m_dialog 	fgcolor:				col_fenetreTxt 	\
 											style:				#(#style_resizing) \
 											lockHeight:			true	\
 											lockWidth:			true	 \			
@@ -334,19 +321,18 @@ rollout roll_paramFond "Fond" width:217 height:172
 
 	
 	------------  UI	----------------------------------------------------------------------------------		
-	label 'lbl_nom' "Nom :" pos:[3,1] width:44 height:16 align:#left
-	edittext 'edt_nom' "" pos:[30,1] width:131 height:17 align:#left
-	button 'btn_sauvegarderSous' "+" pos:[163,1] width:17 height:17 toolTip:"Sauvegarder sous" align:#left
+	label 'lbl_nom' "Nom :" pos:[11,1] width:44 height:16 align:#left
+	edittext 'edt_nom' "" pos:[38,1] width:131 height:17 align:#left
+	button 'btn_sauvegarderSous' "+" pos:[171,1] width:17 height:17 toolTip:"Sauvegarder sous" align:#left
 	
-	dropdownList 'ddl34' "" pos:[57,30] width:120 height:21 items:#("Aucun", "Pli", "Bowl") align:#left
-	label 'lbl103' "Sol :" pos:[3,31] width:32 height:16 align:#left
-	colorPicker 'cp1' "" pos:[58,52] width:21 height:17 align:#left
-	dropdownList 'ddl35' "" pos:[57,71] width:120 height:21 items:#("Aucun", "Bitmap", "Color") align:#left
-	label 'lbl105' "Fond :" pos:[3,73] width:33 height:16 align:#left
-	mapButton 'btn87' "" pos:[84,50] width:21 height:21 align:#left
-	colorPicker 'cp3' "" pos:[58,93] width:21 height:17 color:(color 0 0 155) align:#left
-	mapButton 'btn88' "" pos:[84,91] width:21 height:21 align:#left
+	dropdownList 'ddl34' "" pos:[66,29] width:120 height:21 items:#("Aucun", "Pli", "Bowl") align:#left
+	label 'lbl103' "Sol :" pos:[11,31] width:32 height:16 align:#left
+	colorPicker 'cp1' "" pos:[44,31] width:21 height:17 align:#left
+	dropdownList 'ddl35' "" pos:[66,48] width:120 height:21 items:#("Aucun", "Bitmap", "Color") align:#left
+	label 'lbl105' "Fond :" pos:[11,50] width:32 height:16 align:#left
+	colorPicker 'cp3' "" pos:[43,50] width:21 height:17 color:(color 0 0 155) align:#left
 	
+ 
 	
 	------------  Fonctions	----------------------------------------------------------------------------------
 	---- Gere l'état du bouton  -----
@@ -418,8 +404,7 @@ struct str_paramFond (
 			m_estOuvert 		= true
 			
 			---- creation de la fenetre ----
-			createDialog m_dialog 	bgcolor:				col_fenetreFond	 \
-											fgcolor:				col_fenetreTxt 	\
+			createDialog m_dialog 	fgcolor:				col_fenetreTxt 	\
 											style:				#(#style_resizing) \
 											lockHeight:			true	\
 											lockWidth:			true	 \			
@@ -472,18 +457,13 @@ rollout roll_paramLumieres "Lumières" width:217 height:172
 
 	
 	------------  UI	----------------------------------------------------------------------------------		
-	label 'lbl_nom' "Nom :" pos:[3,1] width:44 height:16 align:#left
-	edittext 'edt_nom' "" pos:[30,1] width:131 height:17 align:#left
-	button 'btn_sauvegarderSous' "+" pos:[163,1] width:17 height:17 toolTip:"Sauvegarder sous" align:#left
-	
-	
-	
-	
-	listbox 'lbx2' "" pos:[2,33] width:175 height:4 align:#left
-	button 'btn102' "+" pos:[142,90] width:17 height:17 align:#left
-	
-	button 'btn103' "-" pos:[160,90] width:17 height:17 align:#left
-	
+	label 'lbl_nom' "Nom :" pos:[11,1] width:44 height:16 align:#left
+	edittext 'edt_nom' "" pos:[38,1] width:131 height:17 align:#left
+	button 'btn_sauvegarderSous' "+" pos:[171,1] width:17 height:17 toolTip:"Sauvegarder sous" align:#left
+	listbox 'lbx2' "" pos:[10,33] width:175 height:4 align:#left
+	button 'btn102' "+" pos:[150,90] width:17 height:17 align:#left
+	button 'btn103' "-" pos:[168,90] width:17 height:17 align:#left
+ 
 	
 	------------  Fonctions	----------------------------------------------------------------------------------
 	---- Gere l'état du bouton  -----
@@ -558,8 +538,7 @@ struct str_paramLumieres (
 			m_estOuvert 		= true
 			
 			---- creation de la fenetre ----
-			createDialog m_dialog 	bgcolor:				col_fenetreFond	 \
-											fgcolor:				col_fenetreTxt 	\
+			createDialog m_dialog 	fgcolor:				col_fenetreTxt 	\
 											style:				#(#style_resizing) \
 											lockHeight:			true	\
 											lockWidth:			true	 \			

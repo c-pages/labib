@@ -197,6 +197,7 @@ struct str_labib (
 		---- initialiser les pointeurs qui restent -----
 		fenetre.m_edit				= edit		
 		gestionRendus.m_edit 	= edit
+		vues.m_rendus			= rendus
 		
 		--- initialiser Edition ----	
 		edit.initialiser ()
