@@ -63,8 +63,7 @@ rollout roll_vues  "vues" width:276 height:173
 	local m_ui_btns_edit =  #()
 	
 	------------  UI	----------------------------------------------------------------------------------		
-
-	ImgTag 'ui_titre' "" pos:[16,4] width:66 height:18 align:#left
+ImgTag 'ui_titre' "" pos:[16,4] width:66 height:18 align:#left
 	
 	---- le bouton pour fermer la fenetre ----
 	ImgTag 'ui_btnFermer' "X" pos:[256,0] width:20 height:20 toolTip:"Fermer" style:#bmp_center align:#left
@@ -74,22 +73,22 @@ rollout roll_vues  "vues" width:276 height:173
 	checkbutton 'btn_editer' "Editer" pos:[177,21] width:40 height:17 toolTip:"Modifier" align:#left
 	button 'btn_tester' "Tester" pos:[216,21] width:40 height:17 toolTip:"Modifier" align:#left
 	
-	dropdownList 'ddl1' "" pos:[113,71] width:120 height:21 items:#("Face", "    -- ", "Nouveau") align:#left
-	label 'lbl14' "Camera :" pos:[18,74] width:44 height:16 align:#left
-	label 'lbl16' "Lumières :" pos:[18,114] width:50 height:16 align:#left
-	dropdownList 'ddl3' "" pos:[113,91] width:120 height:21 items:#("    -- ", "Nouveau") align:#left
-	label 'lbl17' "Fond :" pos:[18,94] width:32 height:16 align:#left
+	dropdownList 'ddl1' "" pos:[113,51] width:120 height:21 items:#("Face", "    -- ", "Nouveau") align:#left
+	label 'lbl14' "Camera :" pos:[18,54] width:44 height:16 align:#left
+	label 'lbl16' "Lumières :" pos:[18,94] width:50 height:16 align:#left
+	dropdownList 'ddl3' "" pos:[113,71] width:120 height:21 items:#("    -- ", "Nouveau") align:#left
+	label 'lbl17' "Fond :" pos:[18,74] width:32 height:16 align:#left
 	
-	dropdownList 'ddl4' "" pos:[113,51] width:120 height:21 items:#("Rapide", "Super beau", "    -- ", "Nouveau") align:#left
-	label 'lbl_corona' "Rendu :" pos:[18,54] width:40 height:16 align:#left
+	dropdownList 'ddl4' "" pos:[113,111] width:120 height:21 items:#("Rapide", "Super beau", "    -- ", "Nouveau") align:#left
+	label 'lbl_corona' "Post effects :" pos:[18,114] width:67 height:16 align:#left
 	
-	dropdownList 'ddl5' "" pos:[113,111] width:120 height:21 items:#("    -- ", "Nouveau") align:#left
+	dropdownList 'ddl5' "" pos:[113,91] width:120 height:21 items:#("    -- ", "Nouveau") align:#left
 	
 	
-	checkbutton 'btn_edit_rendu' "" pos:[232,51] width:21 height:21 toolTip:"Editer paramètre de rendu" align:#left
-	checkbutton 'btn_edit_camera' "" pos:[232,71] width:21 height:21 toolTip:"Editer la camera" align:#left
-	checkbutton 'btn_edit_fond' "" pos:[232,91] width:21 height:21 toolTip:"Editer le fond" align:#left
-	checkbutton 'btn_edit_lumieres' "" pos:[232,111] width:21 height:21 toolTip:"Editer les lumières" align:#left
+	checkbutton 'btn_edit_effects' "" pos:[232,111] width:21 height:21 toolTip:"Editer paramètre de rendu" align:#left
+	checkbutton 'btn_edit_camera' "" pos:[232,51] width:21 height:21 toolTip:"Editer la camera" align:#left
+	checkbutton 'btn_edit_fond' "" pos:[232,71] width:21 height:21 toolTip:"Editer le fond" align:#left
+	checkbutton 'btn_edit_lumieres' "" pos:[232,91] width:21 height:21 toolTip:"Editer les lumières" align:#left
 	
 	
 	button 'btn_sauvegarder' "Sauvegarder" pos:[16,142] width:80 height:17 toolTip:"Sauvegarder" align:#left
@@ -99,6 +98,7 @@ rollout roll_vues  "vues" width:276 height:173
 	subRollout 'subRollout' "" pos:[260,21] width:209 height:139 align:#left 
  
  
+ 
 	
 	
 	------------  Fonctions	----------------------------------------------------------------------------------
@@ -106,7 +106,7 @@ rollout roll_vues  "vues" width:276 height:173
 	fn reagencer  	=(
 
 		
-		if btn_edit_rendu.checked or btn_edit_camera.checked or btn_edit_fond.checked or btn_edit_lumieres.checked 
+		if btn_edit_effects.checked or btn_edit_camera.checked or btn_edit_fond.checked or btn_edit_lumieres.checked 
 			then	(	
 				roll_vues.width 	=  488
 				subRollout.visible = true
@@ -164,7 +164,7 @@ rollout roll_vues  "vues" width:276 height:173
 		-- le drag --
 		m_drag 		= str_drag 	m_prt:roll_vues
 		
-		m_ui_btns_edit = #( btn_edit_rendu, btn_edit_camera ,	btn_edit_fond, btn_edit_lumieres)
+		m_ui_btns_edit = #( btn_edit_effects, btn_edit_camera ,	btn_edit_fond, btn_edit_lumieres)
 		
 		-- le bouton fermer --
 		ui_btnFermer.bitmap = m_prt.m_icos_fermer[1]	
@@ -195,8 +195,8 @@ rollout roll_vues  "vues" width:276 height:173
 	on 	ui_btnFermer 	click 						do 	m_prt.fermer ()
 
 	
-	on btn_edit_rendu 	changed 	state do (
-		checkBtnsEdit btn_edit_rendu		
+	on btn_edit_effects 	changed 	state do (
+		checkBtnsEdit btn_edit_effects		
 		case state of (
 			true:m_prt.ouvrirParam #paramRendu
 			false:m_prt.fermerParam ()

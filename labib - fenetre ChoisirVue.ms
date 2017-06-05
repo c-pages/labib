@@ -66,7 +66,7 @@ rollout roll_vueSelection  "vueSelection"	width:156 height:152
 	
 	
 -- 	button 'btn_editer' "Editer" pos:[66,48] width:35 height:17 toolTip:"Créer les vueSelection en qualité brouillons." align:#left
-	button 'btn_nouvelVue' 		"Nouvelle vue" pos:[13,120] width:100 height:17 align:#left tooltip:"Nouvelle vue"
+-- 	button 'btn_nouvelVue' 		"Nouvelle vue" pos:[13,120] width:100 height:17 align:#left tooltip:"Nouvelle vue"
 -- 	button 'btn_supprimerVue' 	"-" pos:[30,120] width:17 height:17 align:#left tooltip:"Nouvelle vue"
 	
 	button 'btn_cancel' "Cancel" pos:[47,120] width:45 height:17 align:#left
@@ -99,10 +99,10 @@ rollout roll_vueSelection  "vueSelection"	width:156 height:152
 		lbx_vues.width			=	_taille.x - ( 2 * LargeurBordure )
 		lbx_vues.height			=	_taille.y - ( lbx_vues.pos.y +  LargeurPtitBtn + espaceBtn + LargeurBordure)
 		
-		btn_nouvelVue.pos.y 	= lbx_vues.pos.y + lbx_vues.height + espaceBtn
+-- 		btn_nouvelVue.pos.y 	= lbx_vues.pos.y + lbx_vues.height + espaceBtn
 -- 		btn_supprimerVue.pos.y = btn_nouvelVue.pos.y 
-		btn_ok.pos.y 				= btn_nouvelVue.pos.y 
-		btn_cancel.pos.y 		= btn_nouvelVue.pos.y 
+		btn_ok.pos.y 				= lbx_vues.pos.y + lbx_vues.height + espaceBtn
+		btn_cancel.pos.y 		= btn_ok.pos.y
 		
 		btn_ok.pos.x 				= _taille.x - ( LargeurBordure + 2 * LargeurOkCancelBtn + espaceBtn )
 		btn_cancel.pos.x 		=  btn_ok.pos.x  +  LargeurOkCancelBtn 
@@ -186,11 +186,11 @@ rollout roll_vueSelection  "vueSelection"	width:156 height:152
 	
 	
 	
-	
+	/* 
 	--- 
 	on 	btn_nouvelVue 	pressed 				do 	(
 		m_prt.m_rendus.creer_vue ()
-	)-- 
+	)--  */
 	on 	btn_ok 	pressed 				do (
 		m_prt.ajouter_vue 		lbx_vues.selection
 		m_prt.fermer()
@@ -206,7 +206,10 @@ rollout roll_vueSelection  "vueSelection"	width:156 height:152
 	
 	--- liste des vues -----
 	on 	lbx_vues 	selected _arg do actualiser ()  
-	on 	lbx_vues 	doubleClicked  _arg do	 m_prt.choisirVue 	lbx_vues.items[_arg]
+	on 	lbx_vues 	doubleClicked  _arg do	 (
+		m_prt.ajouter_vue 		lbx_vues.selection
+		m_prt.fermer()
+	)
 	
 )
 

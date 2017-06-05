@@ -66,6 +66,18 @@ struct str_preset_lumiere (
 	intensite		= 50,
 	map			= 50 						---- un pourcentage ?
 )
+struct str_preset_effect (
+	id 				= "",	
+	nom 			= "",   					---- le nom du preset
+	
+	vignetting,
+	
+	flou,
+	nettete,
+	
+	bloom,
+	glare
+)
 
 ----------------- LES PRESETS generales du studio ---------------------------------------------------------------------------
 -----  preset d'une vue ------
@@ -73,9 +85,8 @@ struct str_preset_vue (
 	id 					= "",		
 	nom 				= "Vue",   			---- le nom du preset ("Face", "mobilier" ou "détail végétation" .... par ex.)
 	
-	paramRendu	="",					
-	camera			="",
-	fond				="",
+	camera			= "",
+	fond				= "",
 	lumieres 		= #()
 )
 ---- preset de rendus , un groupement de vues pour faire des rendus en serie ------------------
@@ -170,17 +181,22 @@ struct str_liste_mgr (
 		
 		--- Manipulations  courantes -------------------		
 		fn vider = 			m_items = #(),
-		fn sauvegarder  	=(
-			--- la liste des presets -----
-			local liste_idsUniques	=	for item in m_items 	collect 	item.id
-			setINISetting   	fichier	"datas"   type  					( liste_idsUniques as string )
+		fn sauvegarder 		itemCible:  =(
 			
-			--- l' id unique -----
-			setINISetting   	fichier	"datas"   ("idUni_" + type)  	( m_indiceUnique as string )
-			
-			--- les items ----
-			for item in m_items do	enregistrerDatas	item 
-			
+			if itemCible == unsupplied then (
+				--- la liste des presets -----
+				local liste_idsUniques	=	for item in m_items 	collect 	item.id
+				setINISetting   	fichier	"datas"   type  					( liste_idsUniques as string )
+				
+				--- l' id unique -----
+				setINISetting   	fichier	"datas"   ("idUni_" + type)  	( m_indiceUnique as string )
+				
+				--- les items ----
+				for item in m_items do	enregistrerDatas	item 
+					
+			) else (
+				enregistrerDatas	itemCible 
+			)
 		),
 		fn charger			=(
 			
@@ -213,7 +229,18 @@ struct str_liste_mgr (
 			nvPreset
 			
 		),
-		fn supprimer 	_idUnique =(
+		fn supprimer 	_id	=(
+			
+			local presetASupprimer = get 	_id  par:#id
+			if presetASupprimer != undefined do (
+				
+				--- on supprime de la liste des items ----------
+				local index_presetASupprimer = findItem m_items presetASupprimer
+				deleteItem index_presetASupprimer
+				
+				--- on supprime des fichiers ------
+				delIniSetting 	fichier	presetASupprimer.id
+			)
 			
 		),
 		
@@ -229,6 +256,7 @@ struct str_liste_mgr (
 				"C":	m_preset_class = str_preset_camera
 				"F":	m_preset_class = str_preset_fond
 				"L":	m_preset_class = str_preset_lumiere
+				"E":	m_preset_class = str_preset_effect
 			)
 		)
 )
@@ -275,14 +303,18 @@ struct str_presets (
 		--- les managers de presets ---------------
 		m_studios 		= str_liste_mgr 	type:"S"		fichier:m_fichier,  --- liste des differents rendus enregistrés
 		m_vues 			= str_liste_mgr 	type:"V"		fichier:m_fichier,  --- liste des differents presets de vues enregistrés
-	
+		
 		m_rendus 		= str_liste_mgr 	type:"R"		fichier:m_fichier,  --- liste des differents presets de vues enregistrés
+	
 		m_cameras 	= str_liste_mgr 	type:"C"		fichier:m_fichier,  --- liste des differents presets de vues enregistrés
 		m_fonds 		= str_liste_mgr 	type:"F"		fichier:m_fichier,  --- liste des differents presets de vues enregistrés
 		m_lumieres		= str_liste_mgr 	type:"L"		fichier:m_fichier,  --- liste des differents presets de vues enregistrés
+		m_effets		= str_liste_mgr 	type:"E"		fichier:m_fichier,  --- liste des differents presets de vues enregistrés
+		
+		
 		
 		--- regroupe tout les managers ------
-		m_presetsTotal = #( m_studios, m_vues, m_rendus, m_cameras, m_fonds, m_lumieres ),
+		m_presetsTotal = #( m_studios, m_vues, m_rendus, m_cameras, m_fonds, m_lumieres, m_effets ),
 		
 		
 		
@@ -318,15 +350,22 @@ struct str_presets (
 				#camera:	nvPreset =	m_cameras.ajouter 	nom:nom
 				#fond: 		nvPreset =	m_fonds.ajouter 		nom:nom
 				#lumiere:	nvPreset =	m_lumieres.ajouter 	nom:nom
+				#effet:		nvPreset =	m_effets.ajouter 		nom:nom
 			)
 			nvPreset
 		),
 		
 		fn studio_ajouter_vue		_studio		_vueAAjouter =(
 			append _studio.vues		_vueAAjouter.id
-			sauvegarder ()
+			m_studios.sauvegarder 		itemCible:_studio
 		),
 		
+		fn studio_retirerVue 		_studio		_index	=(
+			deleteItem 	_studio.vues	_index
+			sauvegarder ()
+-- 			_studio.supprimer 	_index
+			
+		),
 		
 		
 		---- accession ------------------
@@ -341,6 +380,7 @@ struct str_presets (
 				#camera:	result =	m_cameras.get_items	()
 				#fond: 		result =	m_fonds.get_items		()
 				#lumiere:	result =	m_lumieres.get_items	()
+				#effet:		result =	m_effets.get_items		()
 			)
 			result
 		),  
@@ -353,15 +393,16 @@ struct str_presets (
 			result
 		),
 		
-		fn get  _index	type:#studio  par:#index	=(
+		fn get  _param	type:#studio  par:#index	=(
 			local result 
 			case type  of (
-				#studio: 	result =	m_studios.get		_index	par:par
-				#vue: 		result =	m_vues.get			_index	par:par
-				#rendu: 		result =	m_rendus.get		_index	par:par
-				#camera:	result =	m_cameras.get	_index	par:par
-				#fond: 		result =	m_fonds.get		_index	par:par
-				#lumiere:	result =	m_lumieres.get	_index	par:par
+				#studio: 	result =	m_studios.get		_param	par:par
+				#vue: 		result =	m_vues.get			_param	par:par
+				#rendu: 		result =	m_rendus.get		_param	par:par
+				#camera:	result =	m_cameras.get	_param	par:par
+				#fond: 		result =	m_fonds.get		_param	par:par
+				#lumiere:	result =	m_lumieres.get	_param	par:par
+				#effet:		result =	m_effets.get		_param	par:par
 			)
 			result
 		),
@@ -472,10 +513,16 @@ struct str_presets (
 			nvPreset = creer type:#lumiere	nom:"Exterieur 1"
 			nvPreset = creer type:#lumiere	nom:"Interieur 1"
 			
+			
+			---- effets -------------------------------------------------------------------------------------
+			nvPreset = creer type:#effet		nom:"Neutre"
+			nvPreset = creer type:#effet		nom:"Vignetting + bloom leger"
+			
+			OK
+			
 		)
 		
 		
-	
 		
 		
 		
