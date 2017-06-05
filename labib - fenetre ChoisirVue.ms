@@ -21,63 +21,6 @@
 ########################################################################################################################*/
 
 
---- structre d'un apercu ---
-struct str_preset_apercu  (
-	m_fichier 			= "",   	---- le fichier de l'image
-	
-	m_vue					   	---- le preset de la vue utilisée -----------
-)
-
------ differents structs composant une vue -----------------
-----parametres rendu corona ----
-struct str_preset_paramRendu (
-	m_nom 			= "",   			---- le nom du preset 
-	
-	m_passLimit,
-	m_noiseLvlLimit,
-	m_timeLimit
-)
-
-struct str_preset_camera (
-	m_nom 			= "",   			---- le nom du preset
-	m_rotation		= [0,0,0],		---- rotation de la camera par rapport à la position par defaut ( face au petit coté de la BB ? a définir)	
-	m_fov			= 50,
-	m_distance		= 50 				---- un pourcentage ?
-)
-struct str_preset_fond (
-	m_nom 			= ""   			---- le nom du preset
-)
-struct str_preset_lumiere (
-	m_nom 			= "",   			---- le nom du preset
-	
-	m_rotation		= [0,0,0],		---- rotation de la camera par rapport à la position par defaut ( face au petit coté de la BB ? a définir)	
-	m_fov			= 50,
-	m_distance		= 50 				---- un pourcentage ?
-)
-
-
-
-
------  preset d'une vue ------
-struct str_preset_vue (
-	m_nom 			= "",   			---- le nom du preset ("Face", "mobilier" ou "détail végétation" .... par ex.)
-	m_paramRendu,					
-	m_camera,
-	m_fond,
-	m_lumieres = #()
-)
-
-
----- preset de vueSelection , un groupement de vues ------------------
-struct str_preset_vueSelection (
-	m_nom, 
-	
-	m_vues =#()		--- la liste des differentes vues _rendre -------
-	
-)
-
-
-
 ------------------------------------------------------------------------------
 ----------	Fenetre								 -------------------------
 ------------------------------------------------------------------------------
@@ -123,8 +66,8 @@ rollout roll_vueSelection  "vueSelection"	width:156 height:152
 	
 	
 -- 	button 'btn_editer' "Editer" pos:[66,48] width:35 height:17 toolTip:"Créer les vueSelection en qualité brouillons." align:#left
-	button 'btn_nouvelVue' 		"+" pos:[13,120] width:17 height:17 align:#left tooltip:"Nouvelle vue"
-	button 'btn_supprimerVue' 	"-" pos:[30,120] width:17 height:17 align:#left tooltip:"Nouvelle vue"
+	button 'btn_nouvelVue' 		"Nouvelle vue" pos:[13,120] width:100 height:17 align:#left tooltip:"Nouvelle vue"
+-- 	button 'btn_supprimerVue' 	"-" pos:[30,120] width:17 height:17 align:#left tooltip:"Nouvelle vue"
 	
 	button 'btn_cancel' "Cancel" pos:[47,120] width:45 height:17 align:#left
 	button 'btn_ok' "OK" pos:[92,120] width:45 height:17 align:#left
@@ -157,7 +100,7 @@ rollout roll_vueSelection  "vueSelection"	width:156 height:152
 		lbx_vues.height			=	_taille.y - ( lbx_vues.pos.y +  LargeurPtitBtn + espaceBtn + LargeurBordure)
 		
 		btn_nouvelVue.pos.y 	= lbx_vues.pos.y + lbx_vues.height + espaceBtn
-		btn_supprimerVue.pos.y = btn_nouvelVue.pos.y 
+-- 		btn_supprimerVue.pos.y = btn_nouvelVue.pos.y 
 		btn_ok.pos.y 				= btn_nouvelVue.pos.y 
 		btn_cancel.pos.y 		= btn_nouvelVue.pos.y 
 		
@@ -174,16 +117,22 @@ rollout roll_vueSelection  "vueSelection"	width:156 height:152
 	
 	
 	fn actualiser =(
-		
+		/* 
 		-----la liste des vues  
 		local vues_aAfficher = #()		
 		local listeVues = m_prt.m_rendus.m_presets_vues
 		for vue in listeVues  do
 			append vues_aAfficher 		vue.m_nom
-		lbx_vues.items = vues_aAfficher
+ */
+		
 		
 		btn_ok.enabled = lbx_vues.selection != 0
 		
+	)
+	
+	fn afficher _presetsVues 	=(
+		lbx_vues.items = _presetsVues
+		actualiser()
 	)
 	
 	
@@ -202,7 +151,7 @@ rollout roll_vueSelection  "vueSelection"	width:156 height:152
 		
 		-- se raccrocher à labib --
 		m_prt = ptr_Parent
-		m_rendus = m_prt.m_rendus
+-- 		m_rendus = m_prt.m_rendus
 		
 		-- le titre --
 		m_titre 	= str_label 	m_ui:ui_titre			m_texte:m_prt.m_titre
@@ -240,13 +189,20 @@ rollout roll_vueSelection  "vueSelection"	width:156 height:152
 	
 	--- 
 	on 	btn_nouvelVue 	pressed 				do 	(
-		m_rendus.vues_nouveau ()
+		m_prt.m_rendus.creer_vue ()
 	)-- 
-	on 	btn_supprimerVue 	pressed 				do 	(
--- 		m_prt.supprimerVue 		lbx_vues.selection
-		m_rendus.supprimerVue  	m_rendus.m_presets_vues[ lbx_vues.selection ]
+	on 	btn_ok 	pressed 				do (
+		m_prt.ajouter_vue 		lbx_vues.selection
+		m_prt.fermer()
 	)
-	
+	on 	btn_cancel 	pressed 				do (
+		m_prt.fermer()
+	)
+/* 	on 	btn_supprimerVue 	pressed 				do 	(
+-- 		m_prt.supprimerVue 		lbx_vues.selection
+-- 		m_rendus.supprimerVue  	m_rendus.m_presets_vues[ lbx_vues.selection ]
+	)
+	 */
 	
 	--- liste des vues -----
 	on 	lbx_vues 	selected _arg do actualiser ()  
@@ -269,8 +225,10 @@ struct str_vueSelection (
 	public
 		
 		---- pointeurs ----
-		m_labib 		= labib,
-		m_dialog		= roll_vueSelection ,		---- le rollout ----
+		m_labib 			,
+		m_dialog			= roll_vueSelection ,		---- le rollout ----
+		m_rendus,
+		
 		m_rollParent,
 		
 		---- props de la fenetre -----
@@ -291,7 +249,7 @@ struct str_vueSelection (
 		
 	public
 		----------------------- GESTION DES PRESETS ---------------------------------------------------------------------------------------------------------------
-		m_rendus 				= m_labib.rendus,	-- le managers des vues ----
+-- 		m_rendus 				= m_labib.rendus,	-- le managers des vues ----
 		
 		/* 
 		fn creerVue =(
@@ -301,33 +259,45 @@ struct str_vueSelection (
 			debug "supprimerVue"
 			m_rendus.vue_supprimer _id
 		), */
+		fn afficher  _presetsVues =(
+-- 			this.ouvrir ()
+			m_dialog.afficher _presetsVues
+		),
 		
+		fn ajouter_vue 	_id =(
+			m_rendus.ajouter_vue 	_id 
+		),
 		fn choisirVue 	_nomVue =(
-			m_rendus.ajouterVueAPreset 		_nomVue
+			-- m_rendus.ajouterVueAPreset 		_nomVue
 		),
 		
 		---- GESTION DE LA FENETRE ------------------
 		fn estOuvert = m_estOuvert,
-		fn ouvrir =(			
+		fn ouvrir 	rendus:	=(			
 			
-			m_estOuvert 		= true
+			if rendus != unsupplied do 
+				m_rendus = rendus
 			
-			m_pos = mouse.screenpos + [ - m_taille.x / 2 , 10 ]
-			
-			---- creation de la fenetre ----
-			createDialog m_dialog 	fgcolor:				col_fenetreTxt 		\
-											style:				#(#style_resizing) 	\	
-											pos:					m_pos	  \
-											parent:				m_rollParent.hwnd \
-											width:				m_taille.x \
-											height:				m_taille.y 
--- 			bgcolor:				col_fenetreFond	 	\
--- 											lockHeight:			true	\
--- 											lockWidth:			true	 \						
-			
-			---- initialisation de la fenetre ----
-			m_dialog.initialiser 	this
-	
+			if not m_estOuvert do (
+				m_estOuvert 		= true
+				
+				m_pos = mouse.screenpos + [ - m_taille.x / 2 , 10 ]
+				
+				---- creation de la fenetre ----
+				createDialog m_dialog 	fgcolor:				col_fenetreTxt 		\
+												style:				#(#style_resizing) 	\	
+												pos:					m_pos	  \
+												parent:				m_rollParent.hwnd \
+												width:				m_taille.x \
+												height:				m_taille.y 
+	-- 			bgcolor:				col_fenetreFond	 	\
+	-- 											lockHeight:			true	\
+	-- 											lockWidth:			true	 \						
+
+				
+				---- initialisation de la fenetre ----
+				m_dialog.initialiser 	this
+			)
 		),
 		fn fermer  enregistrer:true =(
 			
@@ -349,7 +319,7 @@ struct str_vueSelection (
 		on create do (		
 			---- output ----
 			debug "Structure créée."	
-			ouvrir ()
+			
 		) 
 		
 ) -- fin su struct -------------------------

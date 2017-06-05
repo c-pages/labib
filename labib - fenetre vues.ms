@@ -63,6 +63,7 @@ rollout roll_vues  "vues" width:276 height:173
 	local m_ui_btns_edit =  #()
 	
 	------------  UI	----------------------------------------------------------------------------------		
+
 	ImgTag 'ui_titre' "" pos:[16,4] width:66 height:18 align:#left
 	
 	---- le bouton pour fermer la fenetre ----
@@ -75,12 +76,12 @@ rollout roll_vues  "vues" width:276 height:173
 	
 	dropdownList 'ddl1' "" pos:[113,71] width:120 height:21 items:#("Face", "    -- ", "Nouveau") align:#left
 	label 'lbl14' "Camera :" pos:[18,74] width:44 height:16 align:#left
-	label 'lbl16' "Lumières :" pos:[18,114] width:73 height:16 align:#left
+	label 'lbl16' "Lumières :" pos:[18,114] width:50 height:16 align:#left
 	dropdownList 'ddl3' "" pos:[113,91] width:120 height:21 items:#("    -- ", "Nouveau") align:#left
-	label 'lbl17' "Fond :" pos:[18,94] width:34 height:16 align:#left
+	label 'lbl17' "Fond :" pos:[18,94] width:32 height:16 align:#left
 	
 	dropdownList 'ddl4' "" pos:[113,51] width:120 height:21 items:#("Rapide", "Super beau", "    -- ", "Nouveau") align:#left
-	label 'lbl_corona' "Rendu :" pos:[18,54] width:88 height:16 align:#left
+	label 'lbl_corona' "Rendu :" pos:[18,54] width:40 height:16 align:#left
 	
 	dropdownList 'ddl5' "" pos:[113,111] width:120 height:21 items:#("    -- ", "Nouveau") align:#left
 	
@@ -140,7 +141,12 @@ rollout roll_vues  "vues" width:276 height:173
 		
 	)
 	
-	
+	fn actualiser =(
+		/* 
+		local presets_aAfficher = m_prt.m_presets.get_noms ()
+		ddl_presets.items 		= 	presets_aAfficher
+		 */
+	)
 	
 	---- Initialisation de la fenetre  -----
 	fn initialiser  ptr_Labib	= (
@@ -162,10 +168,10 @@ rollout roll_vues  "vues" width:276 height:173
 		
 		-- le bouton fermer --
 		ui_btnFermer.bitmap = m_prt.m_icos_fermer[1]	
-		
+		/* 
 		if m_prt.m_rendus.getVue_selec () != undefined do
 			afficherVue ( m_prt.m_rendus.getVue_selec () )
-		
+		 */
 		
 		reagencer ()
 	)
@@ -173,7 +179,7 @@ rollout roll_vues  "vues" width:276 height:173
 	------------  Evenements	----------------------------------------------------------------------------------
 	---- Fenetre -----
 	on roll_vues moved			_pos 	do	m_prt.m_pos	= _pos	
-	on roll_vues open			 	do	initialiser 	labib.vues
+-- 	on roll_vues open			 	do	initialiser 	labib.vues
 -- 	on roll_vues resized _taille 		do	reagencer 	_taille
 	
 	---- Drag ----
@@ -392,13 +398,13 @@ struct str_vues (
 											lockWidth:			true	 \		
 											width:m_taille.x \
 											height:m_taille.y \		
-											modal: true \
 											pos:					m_pos	
+-- 											modal: true \
 -- 											lockHeight:			true	\
 -- 											lockWidth:			true	 \		
 -- 			bgcolor:				col_fenetreFond	 \
 			---- initialisation de la fenetre ----
--- 			m_dialog.initialiser 	this
+			m_dialog.initialiser 	this
 	
 		),
 		

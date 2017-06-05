@@ -55,6 +55,7 @@ include "$userScripts\cp - labib\cp - GLOBAL\DragDialog.ms"
 include "$userScripts\cp - labib\labib - output.ms"
 include "$userScripts\cp - labib\labib - Outils divers.ms"
 include "$userScripts\cp - labib\labib - manipNodes.ms"
+include "$userScripts\cp - labib\labib - presets.ms"
 
 include "$userScripts\cp - labib\labib - fenetre queryNom.ms"	
 include "$userScripts\cp - labib\labib - fenetre ChoisirVue.ms"	
