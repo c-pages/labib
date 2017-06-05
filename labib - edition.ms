@@ -50,7 +50,7 @@ struct str_edition (
 		m_fenetre				= m_labib.fenetre,			---- les apercus ----
 		m_gestionRendus 	= m_labib.gestionRendus,	---- creer m_gestionRendus ---
 		
-		m_manips   = str_manipNodes (),	--- Pour manipuler les nodes, BB, centre etc..
+		m_manips   			= str_manipNodes (),	--- Pour manipuler les nodes, BB, centre etc..
 		
 		
 	public 
@@ -349,7 +349,7 @@ struct str_edition (
 		--- Actions interne ---------------------------------
 		fn importerNoeud _noeud =(
 			
-			local nodesImport
+			local nodesImport =#()
 			---- on merge le fichier ---
 			mergeMAXFile   _noeud.fichier 	 #autoRenameDups  #renameMtlDups mergedNodes:&nodesImport   quiet:true  
 			
@@ -363,6 +363,7 @@ struct str_edition (
 			
  			select dummyParent
 			append nodesImport  dummyParent
+			
 			nodesImport
 			
 		),
@@ -397,7 +398,7 @@ struct str_edition (
 				leDummy.pos 		= [decallageX,0,tailleDuGroupe.z / 2]
 				
 				append dummiesImport 	leDummy
-				append nodesImport 	nvNodes
+				nodesImport 	+=  nvNodes
 			)
 			
 			-- le dummy de l'import si plusieurs noeud importés -------			
@@ -416,6 +417,7 @@ struct str_edition (
 			--- maj de l'interface
 			actualiser ()
 			m_LV.selectionner _noeudsAImporter
+			
 			nodesImport
 		),
 		

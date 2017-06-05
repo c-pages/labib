@@ -582,7 +582,8 @@ struct str_preferences (
 					Float:			setProperty _datas 	propNom		( propFichier	as float )
 					BooleanClass:	setProperty _datas 	propNom		( if propFichier == "true" then true else false )
 					Point2:			setProperty _datas 	propNom		( execute propFichier )
-					Defaut:			setProperty _datas 	propNom		propFichier
+					Color:			setProperty _datas 	propNom		( execute propFichier )
+					Default:			setProperty _datas 	propNom		propFichier
 				) 
 			)		
 			

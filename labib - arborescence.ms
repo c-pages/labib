@@ -13,33 +13,6 @@
 
 
 
-
-struct str_preset_vue (
-	m_nom 			= "",   			---- le nom du preset ("Face", "mobilier" ou "détail végétation" .... par ex.)
-	m_rotation		= [0,0,0],		---- rotation de la camera par rapport à la position par defaut ( face au petit coté de la BB ? a définir)	
-	m_fov			= 50,
-	m_distance		= 50 				---- un pourcentage ?
-)
-
-
---- structre portant un preset pour la création d'un apercu ---
-struct str_preset_apercu  (
-	m_nom 			= "",   	---- le nom du preset ("Face - végétation", "mobilier - 3/4" ou "détail végétation" .... par ex.)
-	
-	m_vue,					   	---- le nom d
-	m_fond			,
-	m_lumieres 		= #()
-	
-)
-
-struct str_preset_rendus (
-	--- la liste des presets des rendus ---- composé de str_rdus ---
-	m_rendus =#()
-)
-
-
-
-
 -------------------------------------------------------------------------------------------------------------------
 ------- Les composites de l'arborescence ----------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------

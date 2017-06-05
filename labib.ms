@@ -54,6 +54,11 @@ include "$userScripts\cp - labib\cp - GLOBAL\DragDialog.ms"
 
 include "$userScripts\cp - labib\labib - output.ms"
 include "$userScripts\cp - labib\labib - Outils divers.ms"
+include "$userScripts\cp - labib\labib - manipNodes.ms"
+
+include "$userScripts\cp - labib\labib - fenetre queryNom.ms"	
+include "$userScripts\cp - labib\labib - fenetre ChoisirVue.ms"	
+include "$userScripts\cp - labib\labib - fenetre parametres vues.ms"	
 
 --------------------------------------
 ----- les fichiers corps --------
@@ -72,13 +77,15 @@ include "$userScripts\cp - labib\labib - menus.ms"
 
 include "$userScripts\cp - labib\labib - fenetre proprietes.ms"
 include "$userScripts\cp - labib\labib - fenetre vues.ms"
-include "$userScripts\cp - labib\labib - fenetre rendu.ms"
+include "$userScripts\cp - labib\labib - fenetre rendus.ms"
 include "$userScripts\cp - labib\labib - fenetre apercus.ms"
+
+
+
 
  include "$userScripts\cp - labib\labib - fenetre.ms"
 
 include "$userScripts\cp - labib\labib - gestion rendus.ms"
-include "$userScripts\cp - labib\labib - manipNodes.ms"
 include "$userScripts\cp - labib\labib - edition.ms"
 
 include "$userScripts\cp - labib\labib - Mgr - Commandes.ms"	
@@ -98,9 +105,10 @@ struct str_labib (
 	----------------------------------------------------------------------------------------------------------
 	
 	
-		
-		
 	
+	
+		fn getDossierInstal = dossierScript ,
+		
 	------------ Les structures	----------------------------------------------------------------------------------
 	public
 	
@@ -117,7 +125,7 @@ struct str_labib (
 		-- Fenetres secondaires --
 		proprietes 	= 	str_proprietes 		m_labib:this,							---- la fenetre de creation des proprietes -----
 		apercus		=	str_apercus 		m_labib:this,							--- la fenetre des appercus
-		vues					= 	str_vues						m_labib:this,
+		vues			= 	str_vues				m_labib:this,
  		rendus		= 	str_rendus 			m_labib:this,							---- la fenetre de creation des apercus -----
 		
 		---- editions ----
@@ -130,7 +138,7 @@ struct str_labib (
 		
 		
 		
-		
+		queryNom = str_queryNom		m_labib:this,			
 		
 		
 		---les actions --------

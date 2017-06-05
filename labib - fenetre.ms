@@ -790,7 +790,7 @@ struct str_fenLabib (
 -- 			m_dialog.m_TV.selectionner  ( m_edit.getDossier () )
 			
 			--- on enregistre pour le gestionnaire de viewport----
-			registerViewWindow m_dialog
+-- 			registerViewWindow m_dialog
 			
 			
 			m_edit.logger "Ouverture de Labib"

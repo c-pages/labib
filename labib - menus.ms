@@ -101,16 +101,40 @@ struct str_menus (
 	------------------------------------------------------------------------------------------------------------------
 		
 	public 	
+		fn presets_rendus = (		
+			
+			 rcMenu nvMenu
+			(
+				menuItem nouveau  					"Nouveau preset" 			
+				menuItem sauvegarder  			"Sauvegarder" 		enabled:( labib.rendus.aUnPresetSelection () )
+				menuItem sauvegarderSous  		"Sauvegarder sous" 	enabled:( labib.rendus.aUnPresetSelection () )
+				menuItem supprimer		  			"Supprimer" 			enabled:( labib.rendus.aUnPresetSelection () )
+				
+				
+				on nouveau 				picked do	labib.rendus.presets_nouveau ()
+				on sauvegarder 			picked do	labib.rendus.presets_sauvegarder ()
+				on sauvegarderSous 	picked do	labib.rendus.presets_sauvegarderSous ()
+				on supprimer 				picked do	labib.rendus.presets_supprimer ()
+				
+			)
+			
+			popUpMenu 	nvMenu
+		),
+		
+		
+		
+		
+	public 	
 		fn apercus = (			
 			format "APERCU\n"
-			 rcMenu rcMenuApercu
+			 rcMenu nvMenu
 			(
 				menuItem changerImage  			"Choisir image sur le disque" 	--filter:siRechercheEnCours
 				menuItem rendreApercuAuto  	"Apercu auto" 	
 				menuItem modeCreationApercu  	"Mode Apercu" 	
 			) 
 			
-			popUpMenu 	rcMenuApercu
+			popUpMenu 	nvMenu
 		),
 		
 		
@@ -118,7 +142,7 @@ struct str_menus (
 		
 		
 		fn elements = (			
-			rcMenu rcMenuElements
+			rcMenu nvMenu
 			(
 				------------ DEBUG	----------------------------------------------------------------------------------
 
@@ -274,7 +298,7 @@ struct str_menus (
 				on affichSelec						picked do		for n in labib.edit.getSelection () do	labib.arbo.afficherNoeud	n
 				
 			)
-			popUpMenu 	rcMenuElements
+			popUpMenu 	nvMenu
 			
 		),
 		
@@ -284,7 +308,7 @@ struct str_menus (
 			-------------------------------------------------------------
 			------- le menu ------------------------------------------
 			-------------------------------------------------------------
-			rcMenu rcMenuDossiers
+			rcMenu nvMenu
 			(
 				
 				------------ DEBUG	----------------------------------------------------------------------------------
@@ -361,10 +385,10 @@ struct str_menus (
 				
 			)
 			
-			popUpMenu 	rcMenuDossiers
+			popUpMenu 	nvMenu
 		),
 		fn recherche = (	
-			rcMenu rcRecherche
+			rcMenu nvMenu
 			(	
 				------- le menu ------------------------------------------
 				
@@ -380,11 +404,11 @@ struct str_menus (
 				on rechercheTags 	picked do	labib.fenetre.m_dialog.m_recherche.toggle_rechercheDansTags ()
 				on recursif 	picked do	labib.fenetre.m_dialog.m_recherche.toggle_recursif ()
 			)
-			popUpMenu rcRecherche
+			popUpMenu nvMenu
 		),
 		
 		fn tags = (	
-			rcMenu rcTags
+			rcMenu nvMenu
 			(	
 				------- le menu ------------------------------------------
 				
@@ -401,10 +425,10 @@ struct str_menus (
 				on uncheckAll 	picked do	()
 				on recursif 			picked do	labib.fenetre.m_dialog.m_tags.toggleRecursif ()
 			)
-			popUpMenu rcTags
+			popUpMenu nvMenu
 		),
 		fn fenetre = (	
-			rcMenu rcFenetre
+			rcMenu nvMenu
 			(	
 				------- le menu ------------------------------------------
 				
@@ -443,7 +467,7 @@ struct str_menus (
 				
 				on site 			picked do	labib.ouvrirSiteInternet ()
 			)
-			popUpMenu rcFenetre
+			popUpMenu nvMenu
 		),
 	---------- evenements ----------------------------
 		on create do (

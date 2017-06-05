@@ -34,8 +34,18 @@
 ------------------------------------------------------------------------------
 ----------	Fenetre								 -------------------------
 ------------------------------------------------------------------------------
-rollout roll_vues  "vues" width:308 height:259
+rollout roll_vues  "vues" width:276 height:173
 (
+	------------ DEBUG	----------------------------------------------------------------------------------
+		local m_debug = true
+-- 		m_debug = false,
+		local  m_dbgPrefix ="roll_vues"
+		fn debug 	_txt  var:	 param:    =(
+			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+		)
+	----------------------------------------------------------------------------------------------------------
+		
+		
 	------------  Membres	----------------------------------------------------------------------------------
 	---- Pointeurs ----
 	local m_prt				---- pointeur vers la structure de controle ----
@@ -46,43 +56,65 @@ rollout roll_vues  "vues" width:308 height:259
 	
 	--- ctro des imgtags ---
 	local m_titre
+	local m_ui_btns_edit =  #()
 	
 	------------  UI	----------------------------------------------------------------------------------		
-	
 	ImgTag 'ui_titre' "" pos:[16,4] width:66 height:18 align:#left
 	
 	---- le bouton pour fermer la fenetre ----
-	ImgTag ui_btnFermer "X" pos:[276,0] width:20 height:20 toolTip:"Fermer" style:#bmp_center
+	ImgTag 'ui_btnFermer' "X" pos:[256,0] width:20 height:20 toolTip:"Fermer" style:#bmp_center align:#left
+	
+	label 'lbl45' "Nom :" pos:[19,22] width:44 height:16 align:#left
+	edittext 'edt_nom' "" pos:[46,22] width:129 height:17 align:#left
+	
+	dropdownList 'ddl1' "" pos:[113,71] width:120 height:21 items:#("Face", "    -- ", "Nouveau") align:#left
+	label 'lbl14' "Camera :" pos:[18,74] width:44 height:16 align:#left
+	label 'lbl16' "Lumières :" pos:[18,114] width:73 height:16 align:#left
+	dropdownList 'ddl3' "" pos:[113,91] width:120 height:21 items:#("    -- ", "Nouveau") align:#left
+	label 'lbl17' "Fond :" pos:[18,94] width:34 height:16 align:#left
+	
+	dropdownList 'ddl4' "" pos:[113,51] width:120 height:21 items:#("Rapide", "Super beau", "    -- ", "Nouveau") align:#left
+	label 'lbl_corona' "Param. de rendu :" pos:[18,54] width:88 height:16 align:#left
+	checkbutton 'btn_editer' "Editer" pos:[177,23] width:40 height:17 toolTip:"Modifier" align:#left
+	
+	dropdownList 'ddl5' "" pos:[113,111] width:120 height:21 items:#("    -- ", "Nouveau") align:#left
 	
 	
+	checkbutton 'btn_edit_rendu' "" pos:[232,51] width:21 height:21 toolTip:"Editer paramètre de rendu" align:#left
+	checkbutton 'btn_edit_camera' "" pos:[232,71] width:21 height:21 toolTip:"Editer la camera" align:#left
+	checkbutton 'btn_edit_fond' "" pos:[232,91] width:21 height:21 toolTip:"Editer le fond" align:#left
+	checkbutton 'btn_edit_lumieres' "" pos:[232,111] width:21 height:21 toolTip:"Editer les lumières" align:#left
 	
 	
-	label 'lbl45' "Nom :" pos:[28,68] width:44 height:16 align:#left
-	edittext 'edt9' "" pos:[117,68] width:163 height:17 align:#left
+	button 'btn_sauvegarder' "Sauvegarder" pos:[16,142] width:80 height:17 toolTip:"Sauvegarder" align:#left
+	button 'btn_sauvegarderSous' "+" pos:[95,142] width:17 height:17 toolTip:"Sauvegarder sous" align:#left
+	button 'btn_annuler' "Annuler" pos:[174,142] width:80 height:17 toolTip:"Annuler" align:#left
 	
-	GroupBox 'grp1' "Vue" pos:[17,47] width:272 height:192 align:#left
-	dropdownList 'ddl1' "" pos:[122,123] width:120 height:21 items:#("Face") align:#left
-	label 'lbl14' "Camera :" pos:[27,126] width:44 height:16 align:#left
-	listbox 'lbx2' "" pos:[122,173] width:120 height:4 items:#("Spot contre jour", "Soleil") align:#left
-	button 'btn9' "+" pos:[245,173] width:17 height:17 align:#left
-	button 'btn10' "-" pos:[263,173] width:17 height:17 align:#left
-	label 'lbl16' "Lumières :" pos:[27,176] width:73 height:16 align:#left
-	dropdownList 'ddl3' "" pos:[122,148] width:120 height:21 align:#left
-	label 'lbl17' "Fond :" pos:[27,149] width:34 height:16 align:#left
-	colorPicker 'cp1' "" pos:[244,148] width:25 height:21 align:#left
-	button 'btn11' "Editer" pos:[246,123] width:35 height:17 toolTip:"Modifier" align:#left
-	button 'btn12' "Editer" pos:[245,190] width:35 height:17 toolTip:"Modifier" align:#left
-	
-	dropdownList 'ddl4' "" pos:[122,98] width:120 height:21 items:#("Rapide", "Super beau") align:#left
-	label 'lbl_corona' "Param. de rendu :" pos:[27,101] width:88 height:16 align:#left
-	button 'btn_coronaEdit' "Editer" pos:[246,98] width:35 height:17 toolTip:"Modifier" align:#left
-	
-	dropdownList 'ddl29' "" pos:[19,25] width:123 height:21 items:#("Face", "Coté", "Dessus", "   ---", "Charger", "Sauvegarder") align:#left
-	
-	
+	subRollout 'subRollout' "" pos:[260,21] width:209 height:139 align:#left 
+ 
+ 
+	button 'btn_tester' "Tester" pos:[216,23] width:40 height:17 toolTip:"Modifier" align:#left
 	
 	
 	------------  Fonctions	----------------------------------------------------------------------------------
+	
+	fn reagencer  	=(
+
+		
+		if btn_edit_rendu.checked or btn_edit_camera.checked or btn_edit_fond.checked or btn_edit_lumieres.checked 
+			then	roll_vues.width 	=  488
+			else	roll_vues.width 	=  m_prt.m_taille.x
+
+		ui_btnFermer.pos.x		=	roll_vues.width  - 20
+	)
+	
+	
+	fn checkBtnsEdit 	_btn =(
+		for btn in m_ui_btns_edit do
+			if btn != _btn do
+				btn.checked = false
+	)
+	
 	---- Gere l'état du bouton  -----
 	fn etatBtnFermer		_etat =(
 		case _etat of (
@@ -92,8 +124,18 @@ rollout roll_vues  "vues" width:308 height:259
 		)
 	)
 	
+	
+	
+	fn afficherVue 	_vue =(
+		edt_nom.text = _vue.m_nom
+		
+	)
+	
+	
+	
 	---- Initialisation de la fenetre  -----
-	fn initialiser  ptr_Labib= (
+	fn initialiser  ptr_Labib	= (
+		
 		-- se raccrocher à labib --
 		m_prt = ptr_Labib
 		
@@ -104,15 +146,19 @@ rollout roll_vues  "vues" width:308 height:259
 		-- le drag --
 		m_drag 		= str_drag 	m_prt:roll_vues
 		
+		m_ui_btns_edit = #( btn_edit_rendu, btn_edit_camera ,	btn_edit_fond, btn_edit_lumieres)
+		
 		-- le bouton fermer --
 		ui_btnFermer.bitmap = m_prt.m_icos_fermer[1]	
 		
+		reagencer ()
 	)
 	
 	------------  Evenements	----------------------------------------------------------------------------------
 	---- Fenetre -----
 	on roll_vues moved			_pos 	do	m_prt.m_pos	= _pos	
-		
+-- 	on roll_vues resized _taille 		do	reagencer 	_taille
+	
 	---- Drag ----
 	on roll_vues lbuttondown	_pos 	do	m_drag.demarrer ()
 	on roll_vues lbuttonup 		_pos 	do	m_drag.arreter ()
@@ -124,7 +170,99 @@ rollout roll_vues  "vues" width:308 height:259
 	on 	ui_btnFermer	mousedown 			do 	etatBtnFermer #Press
 	on 	ui_btnFermer	mouseup				do 	etatBtnFermer #Repos
 	on 	ui_btnFermer 	click 						do 	m_prt.fermer ()
+
 	
+	on btn_edit_rendu 	changed 	state do (
+		checkBtnsEdit btn_edit_rendu		
+		case state of (
+			true:m_prt.ouvrirParam #paramRendu
+			false:m_prt.fermerParam ()
+		)
+		reagencer ()
+	)
+	on btn_edit_camera 	changed 	state do (
+		checkBtnsEdit 	btn_edit_camera		
+		case state of (
+			true:m_prt.ouvrirParam #paramCamera
+			false:m_prt.fermerParam ()
+		)
+		reagencer ()
+	)
+	on btn_edit_fond 	changed 	state do (
+		checkBtnsEdit 	btn_edit_fond		
+		case state of (
+			true:m_prt.ouvrirParam #paramFond
+			false:m_prt.fermerParam ()
+		)
+		reagencer ()
+	)
+	on btn_edit_lumieres 	changed 	state do (
+		checkBtnsEdit btn_edit_lumieres		
+		case state of (
+			true:m_prt.ouvrirParam #paramLumieres
+			false:m_prt.fermerParam ()
+		)
+		reagencer ()
+	)
+	
+	
+	on btn_Editer changed state do (
+		if state then (
+			
+			
+			loadMaxFile ( getDir #userscripts + "\cp - Labib\data\labib_modeEdition.max" )
+			local nodesAsset
+			if ( m_prt.m_labib.edit.getSelection () ).count > 0 then (
+				nodesAsset = m_prt.m_labib.edit.importer  ( m_prt.m_labib.edit.getSelection () )[1]
+
+				debug "nodesAsset" var:nodesAsset
+				debug "nodesAsset[nodesAsset.count]" var:nodesAsset[nodesAsset.count]
+				local dummyLabib = nodesAsset[nodesAsset.count]
+				clearSelection ()
+				select 	dummyLabib
+				dummyLabib.pos.x = 0
+				dummyLabib.pos.y = 0
+				debug "dummyLabib" var:dummyLabib
+				
+				$BBox.ishidden = true
+				
+				local tailleBBAsset = m_prt.m_manips.calculerTaillesBB  nodesAsset
+				if tailleBBAsset.y > tailleBBAsset.x do
+					rotate dummyLabib (angleaxis -90 [0,0,1])
+					
+				max freeze selection
+				max freeze inv
+				
+				m_prt.appliquer_distanceParDefaut	nodesAsset
+			) else (
+				m_prt.appliquer_distanceParDefaut	#($BBox)
+			)
+			max tool zoomextents all
+			
+			
+			/* 
+			rollout roll_test "test" width:256 height:207
+			(
+				label 'lbl16' "Gestion des parametres du studio" pos:[28,10] width:182 height:64 align:#left
+				
+			)
+			createdialog roll_test bgcolor:(color 129 129 129 )
+			
+			fn setLastRegisteredViewWindow = (
+				-- not more then 10 VW can be registered (THANKS DEVELOPERS!)
+				id = 10 
+				-- returns TRUE for success and FALSE other way
+				while id > 0 and not (actionMan.executeAction 0 ((40403 + id) as string)) do id -= 1 
+				id
+			)
+			maxfilename = ""
+			viewport.activeViewport = 2
+			registerViewWindow	roll_test
+			setLastRegisteredViewWindow() */
+		)
+		else 
+			resetMaxFile 	#noPrompt
+	)
 )
 
 ------------------------------------------------------------------------------
@@ -139,16 +277,17 @@ struct str_vues (
 		m_labib,
 		m_dialog				= roll_vues ,		---- le rollout ----
 		
+		m_manips   			= str_manipNodes 	,	--- Pour manipuler les nodes, BB, centre etc..
 	
 		---- props de la fenetre -----
-		m_titre 				= "Labib | vues",
+		m_titre 				= "Labib | Vue",
 		m_pos 				= [100,100],
-		m_taille 				= [308, 259],
+		m_taille 				= [276, 172],
 		m_estOuvert 		= false,
 		
 		col_fenetreFond	= m_labib.prefs.fenetre.col_fenetreFond, 	----  ----
 		col_fenetreTxt		= m_labib.prefs.fenetre.col_fenetreTxt, 	----  ----
-	
+		
 		--- images bouton fermer ---
 		m_icos_fermer= #( 					---- les images pour les icones du bouton de fermeture ----		
 									openBitMap m_labib.prefs.fenetre.ico_btnFermer_R ,		-- Repos ----
@@ -156,20 +295,91 @@ struct str_vues (
 									openBitMap m_labib.prefs.fenetre.ico_btnFermer_P 		-- Pressé ----
 								),
 		
-		------------  Fonctions	----------------------------------------------------------------------------------
 	public
+		m_param_rendu 		= str_paramRendu 		m_labib:m_labib,
+		m_param_camera 	= str_paramCamera 		m_labib:m_labib,
+		m_param_fond 		= str_paramFond 		m_labib:m_labib,
+		m_param_lumieres	= str_paramLumieres 	m_labib:m_labib,
+		
+		---- gestion des presets ----------------
+		m_presets_vues 				= #(), 
+		
+		m_presets_paramRendus 	= #(), 
+		m_presets_cameras 			= #(), 
+		m_presets_fonds 				= #(), 
+		m_presets_lumieres 			= #(), 
+		
+								
+		fn fermerParam =(
+			removeSubRollout m_dialog.SubRollout		m_param_rendu.m_dialog
+			removeSubRollout m_dialog.SubRollout		m_param_camera.m_dialog
+			removeSubRollout m_dialog.SubRollout		m_param_fond.m_dialog
+			removeSubRollout m_dialog.SubRollout		m_param_lumieres.m_dialog
+	
+		),
+		
+		fn ouvrirParam 	_param =(
+			fermerParam ()
+			 
+			local pos = (GetDialogPos  roll_vues + [m_taille.x+ 3, 0  ] )
+			case _param of (				
+				#paramRendu:		addSubRollout 	m_dialog.SubRollout		m_param_rendu.m_dialog
+				#paramCamera:	addSubRollout		m_dialog.SubRollout		m_param_camera.m_dialog
+				#paramFond:		addSubRollout		m_dialog.SubRollout		m_param_fond.m_dialog
+				#paramLumieres:	addSubRollout		m_dialog.SubRollout		m_param_lumieres.m_dialog
+			)
+
+		),
+		------------  Fonctions	----------------------------------------------------------------------------------
+		fn appliquer_distanceParDefaut  		_objets  =(
+			
+			cam 					= $Camera
+			camTarget 			= $'Camera.Target'
+			ptRotation 			= $ptCam_rot
+			ptDeplacement 	= $ptCam_pos
+			ptRoot 				= $PtCam_root
+			
+			ratioDistance = 1
+			
+			tailleBB 				= m_manips.calculerTaillesBB  _objets
+			ptRoot.pos 			= m_manips.calculerCentre	_objets
+			in coordsys parent 		camTarget.pos.y = bb[1].y
+			cam_fov 			= cam.fov *.65
+			grdeLongueurBB 	= if tailleBB.x > tailleBB.z then tailleBB.x else tailleBB.z
+			
+			d = ( grdeLongueurBB / 2 ) / tan (cam_fov/2 ) * ratioDistance
+			
+			in coordsys parent cam.pos.y =  in coordsys parent camTarget.pos.y  - d
+			
+			
+		),
+		
+		fn afficherVue _vue =(
+			m_dialog.afficherVue _vue 
+			
+		),
+		
+		
+		----- gestion de la fenete------------------------
 		fn estOuvert = m_estOuvert,
-		fn ouvrir =(			
+		fn ouvrir pos: =(			
+			
+			if pos != unsupplied do m_pos = pos
+				
 			m_estOuvert 		= true
 			---- creation de la fenetre ----
 			createDialog m_dialog 	fgcolor:				col_fenetreTxt 	\
-											style:				#(#style_resizing) \
+											style:				#(#style_resizing) \		
 											lockHeight:			true	\
-											lockWidth:			true	 \									
+											lockWidth:			true	 \		
+											width:m_taille.x \
+											height:m_taille.y \		
 											pos:					m_pos	
+-- 											lockHeight:			true	\
+-- 											lockWidth:			true	 \		
 -- 			bgcolor:				col_fenetreFond	 \
 			---- initialisation de la fenetre ----
-			m_dialog.initialiser this
+			m_dialog.initialiser 	this
 	
 		),
 		
