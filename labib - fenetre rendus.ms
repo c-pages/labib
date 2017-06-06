@@ -46,79 +46,94 @@ rollout roll_rendus  "rendus" width:166 height:266
 	
 	--- ctro des imgtags ---
 	local m_titre
+-- 	local m_resume
+	
+	local m_ui_btns_edit
 	
 	local m_ddlPresets_selecBack = 1
 	
-	ImgTag 'ui_titre' "" pos:[16,4] width:66 height:18 align:#left
-	
 	---- le bouton pour fermer la fenetre ----
-	ImgTag 'ui_btnFermer' "X" pos:[189,0] width:20 height:20 toolTip:"Fermer" style:#bmp_center align:#left
+	ImgTag 'ui_titre' "" pos:[13,0] width:66 height:18 align:#left
+	ImgTag 'ui_btnFermer' "X" pos:[244,0] width:20 height:20 toolTip:"Fermer" style:#bmp_center align:#left
+	dropdownList 'ddl_presets' "" pos:[83,26] width:140 height:21 align:#left
+	dropdownList 'ddl_qualite' "" pos:[83,46] width:140 height:21 align:#left
+	label 'lbl2' "Vues :" pos:[15,29] width:47 height:16 align:#left
+	label 'lbl_qualite' "Qualité :" pos:[15,51] width:47 height:16 align:#left
+	button 'btn4' "Lancer les rendus" pos:[83,86] width:160 height:51 align:#left
+	dropdownList 'ddl_application' "" pos:[83,66] width:140 height:21 items:#("Selection courante", "Assets n'ayant pas ces vues", "Assets n'ayant pas d'aperçu") align:#left
+	label 'lbl3' "Appliquer à :" pos:[15,71] width:63 height:16 align:#left
+	subRollout 'subRollout' "" pos:[251,23] width:215 height:125 align:#left
 	
-	dropdownList 'ddl_presets' "" pos:[64,22] width:124 height:21 align:#left	--	  items:#(/* "Grands arbres", "Mobilier", "Personnages",  */"   - -", "Nouveau" , "Sauvegarder", "Supprimer" /* "chargerPresets",  */)  
-	--	  items:#(/* "Grands arbres", "Mobilier", "Personnages",  */"   - -", "Nouveau" , "Sauvegarder", "Supprimer" /* "chargerPresets",  */)  
-	--	  items:#(/* "Grands arbres", "Mobilier", "Personnages",  */"   - -", "Nouveau" , "Sauvegarder", "Supprimer" /* "chargerPresets",  */)  
-	--	  items:#(/* "Grands arbres", "Mobilier", "Personnages",  */"   - -", "Nouveau" , "Sauvegarder", "Supprimer" /* "chargerPresets",  */)  
-	listbox 'lbx_vues' "" pos:[15,66] width:174 height:9 align:#left
-	button 'btn_ajouterVue' "+" pos:[157,48] width:17 height:17 align:#left
-	button 'btn_supprimerVue' "-" pos:[173,48] width:17 height:17 align:#left
-	
-	
--- 	button 'btn_editer' "Editer" pos:[66,48] width:35 height:17 toolTip:"Créer les rendus en qualité brouillons." align:#left
-	label 'lbl53' "Prises de vues :" pos:[15,51] width:75 height:16 align:#left
-	dropdownList 'ddl_rendu' "" pos:[65,188] width:123 height:21 align:#left
-	
-	button 'btn_rendreTout' "Rendre les vues" pos:[15,209] width:174 height:21 align:#left
-	label 'lbl2' "Presets :" pos:[15,25] width:47 height:16 align:#left
-	label 'lbl_qualite' "Qualité :" pos:[15,190] width:47 height:16 align:#left
-	
+	checkbutton 'btn_edit_studio' "" pos:[222,26] width:21 height:21 align:#left
+	checkbutton 'btn_edit_qualite' "" pos:[222,46] width:21 height:21 align:#left
+	checkbutton 'btn_edit_application' "" pos:[222,66] width:21 height:21 align:#left
+
+
+
 
 	------------  Fonctions	----------------------------------------------------------------------------------
 	
-	fn reagencer _taille =(
+	fn reagencer  =(
 		
 		
-		debug "_taille" var:_taille
-		local LargeurPtitBtn 			= 17
-		local LargeurBtn 			= 20
+-- 		debug "_taille" var:_taille
+		/* local LargeurPtitBtn 			= 17
 		local LargeurApercusBtn 			= 45
 		local LargeurBordure 	= 19
 		local espaceBtn 			= 1
 		
-		local largeurMax = 400
-		
+		local largeurMax 	= 800
+		local largeurMin 	= 300 */
+		local LargeurBtn 			= 20
+		/* 
 		---- limiter la taille -----
-		if _taille.x <157 do _taille.x = 157
+		if _taille.x <largeurMin do _taille.x = largeurMin
 		if _taille.x > largeurMax do _taille.x =largeurMax
-		if _taille.y <124 do _taille.y = 124
-		m_prt.m_taille = _taille
+-- 		if _taille.y <124 do _taille.y = 100
+		m_prt.m_taille = _taille */
 		
-		ui_btnFermer.pos.x		=	_taille.x - ( LargeurBtn )
-
-		lbx_vues.width			=	_taille.x - ( 2 * LargeurBordure )
-		lbx_vues.height			=	_taille.y - 	121		
+		
+		if btn_edit_studio.checked or btn_edit_qualite.checked or btn_edit_application.checked 
+			then	(	
+				roll_rendus.width 	=  488
+				subRollout.visible = true
+			)	else	(
+				roll_rendus.width 	=  m_prt.m_taille.x
+				subRollout.visible = false
+			)
+		ui_btnFermer.pos.x		=	roll_rendus.width - ( LargeurBtn )
+-- 		lbx_vues.width			=	_taille.x - ( 2 * LargeurBordure )
+-- 		lbx_vues.height			=	_taille.y - 	121		
 		
 -- 		btn_nouvelleVue.pos.y 		= lbx_vues.pos.y + lbx_vues.height - 1
 -- 		btn_editer.pos.y 				= btn_nouvelleVue.pos.y
 
-		lbl_qualite.pos.y 				= lbx_vues.pos.y + lbx_vues.height + 3
-		ddl_rendu.pos.y 				= lbl_qualite.pos.y	-	4
+-- 		lbl_qualite.pos.y 				= lbx_vues.pos.y + lbx_vues.height + 3
+-- 		ddl_rendu.pos.y 				= lbl_qualite.pos.y	-	4
 -- 		btn_rendreVue.pos.y 		= lbl_qualite.pos.y	+	16
-		btn_rendreTout.pos.y 		=  lbl_qualite.pos.y	+	16
+-- 		btn_rendreTout.pos.y 		=  lbl_qualite.pos.y	+	16
 
-		roll_rendus.width 	=  _taille.x
-		roll_rendus.height =  _taille.y
-
+-- 		roll_rendus.width 	=  _taille.x
+-- 		roll_rendus.height =  _taille.y
 		
 		
 	)
 	
 	
+	fn checkBtnsEdit 	_btn =(
+		for btn in m_ui_btns_edit do
+			if btn != _btn do
+				btn.checked = false
+	)
+	
 	fn actualiser =(
 		
 		--- le DDL des presets ---
 		ddl_presets.items 		= 	m_prt.getStudios_Noms ()
-		lbx_vues.items				=	m_prt.getStudios_vues ()
-		ddl_rendu.items			=	m_prt.getRendus_Noms ()
+-- 		lbx_vues.items				=	m_prt.getStudios_vues ()
+		ddl_qualite.items			=	m_prt.getQualites_Noms ()
+		
+-- 		m_resume.setTexte 	( m_prt.get_resume () )
 	)
 	
 	
@@ -142,20 +157,26 @@ rollout roll_rendus  "rendus" width:166 height:266
 		m_titre 	= str_label 	m_ui:ui_titre			m_texte:m_prt.m_titre
 		m_titre.setCouleur 	m_prt.col_fenetreTxt
 		
+		-- le resmé --
+-- 		m_resume 	= str_label 	m_ui:ui_resume			m_texte:""
+-- 		m_resume.setCouleur 	m_prt.col_fenetreTxt
+		
 		-- le drag --
 		m_drag 		= str_drag 	m_prt:roll_rendus
 		
 		-- le bouton fermer --
 		ui_btnFermer.bitmap = m_prt.m_icos_fermer[1]	
 		
-		reagencer [ roll_rendus.width  , roll_rendus.height ]
+		m_ui_btns_edit = #( btn_edit_studio, btn_edit_qualite ,	btn_edit_application )
+	
+		reagencer ()
 		actualiser()
 	)
 	
 	------------  Evenements	----------------------------------------------------------------------------------
 	---- Fenetre -----
 	on roll_rendus moved			_pos 	do	m_prt.m_pos	= _pos	
-	on roll_rendus resized 		_taille 	do	reagencer 	_taille
+-- 	on roll_rendus resized 		_taille 	do	reagencer 	()
 	
 	---- Drag ----
 	on roll_rendus lbuttondown	_pos 	do	m_drag.demarrer ()
@@ -184,7 +205,38 @@ rollout roll_rendus  "rendus" width:166 height:266
 		actualiser ()		
 	)
 		
-
+	
+	
+	
+	
+	on btn_edit_studio 	changed 	state do (
+		checkBtnsEdit 	btn_edit_studio		
+		case state of (
+			true:m_prt.ouvrirParam #paramStudio
+			false:m_prt.fermerParam ()
+		)
+		reagencer ()
+	)
+	on btn_edit_qualite 	changed 	state do (
+		checkBtnsEdit 	btn_edit_qualite		
+		case state of (
+			true:m_prt.ouvrirParam #paramQualite
+			false:m_prt.fermerParam ()
+		)
+		reagencer ()
+	)
+	on btn_edit_application 	changed 	state do (
+		checkBtnsEdit 	btn_edit_application		
+		case state of (
+			true:m_prt.ouvrirParam #paramApplication
+			false:m_prt.fermerParam ()
+		)
+		reagencer ()
+	)
+	
+	
+	
+	
 	--- liste des vues -----
 	on 	lbx_vues 	doubleClicked  _arg do	(
 		m_prt.editer_vue ()
@@ -216,7 +268,7 @@ struct str_rendus (
 		---- props de la fenetre -----
 		m_titre 				= "Labib | Studio",
 		m_pos 				= [800,100],
-		m_taille 				= [210, 300],
+		m_taille 				= [265, 155],
 		m_estOuvert 		= false,
 		
 		col_fenetreFond	= m_labib.prefs.fenetre.col_fenetreFond, 	----  ----
@@ -237,7 +289,24 @@ struct str_rendus (
 		
 		m_presets				= str_presets (),
 		
+		fn fermerParam =(
+			
+			removeSubRollout m_dialog.SubRollout		roll_param_studio
+			removeSubRollout m_dialog.SubRollout		roll_param_qualite
+-- 			removeSubRollout m_dialog.SubRollout		m_param_fond.m_dialog
+	
+		),
 		
+		fn ouvrirParam 	_param =(
+			fermerParam ()
+			
+			case _param of (				
+				#paramStudio:				addSubRollout 	m_dialog.SubRollout		roll_param_studio
+				#paramQualite:			addSubRollout		m_dialog.SubRollout		roll_param_qualite
+				#paramApplication:		addSubRollout		m_dialog.SubRollout		roll_param_studio
+			) 
+
+		),
 		
 		 ------ accessions --------------------------
 		fn getStudio_actif =(			
@@ -246,10 +315,13 @@ struct str_rendus (
 			result
 		),
 		fn getStudios_Noms =(
-			m_presets.get_noms ()
+-- 			m_presets.get_noms ()
+			local studios = m_presets.get_items	()
+			local result = 	for stud in studios collect ( stud.nom + " (" + stud.vues.count as string + ")" )
+			result
 		),	
-		fn getRendus_Noms =(
-			m_presets.get_noms type:#rendu
+		fn getQualites_Noms =(
+			m_presets.get_noms type:#qualite
 		),	
 		fn getStudios_vues 	=(
 			local std_actif = getStudio_actif ()
@@ -258,7 +330,7 @@ struct str_rendus (
 				append result ( m_presets.get 	idVue	 par:#id		type:#vue ).nom
 			)
 			result
-		),
+		),  
 		
 		fn getVue_actif =(
 			
@@ -314,6 +386,17 @@ struct str_rendus (
 		), 
 		
 		
+		/* 
+		fn get_resume 	=(
+			local texte = "Nombre de prises par asset : " + (getStudios_vues () ).count as string
+			texte
+		), */
+		
+		
+		
+		
+		
+		
 		
 		
 		---- GESTION DE LA FENETRE ------------------
@@ -328,7 +411,8 @@ struct str_rendus (
 											width:				m_taille.x 				\
 											height:				m_taille.y 				\		
 											pos:					m_pos	 				 \	 
-											lockWidth:			true	
+											lockheight:			true	 \	 
+											lockwidth:			true	
 			
 			
 			--- chargemnt des presets enregistreés ----

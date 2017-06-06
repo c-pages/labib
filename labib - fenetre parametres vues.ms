@@ -21,7 +21,51 @@
 ########################################################################################################################*/
 -- destroydialog roll_paramRendu catch ()
 
+rollout roll_param_qualite  "Qualité"	width:156 height:152
+(
+	label 'lbl_nom' "Nom :" pos:[11,1] width:44 height:16 align:#left
+	edittext 'edt_nom' "" pos:[38,1] width:131 height:17 align:#left
+	button 'btn_sauvegarderSous' "+" pos:[171,1] width:17 height:17 toolTip:"Sauvegarder sous" align:#left
+	
+	spinner 'ddl1' "" pos:[125,34] width:60 height:16 items:#("Face") align:#left
+	label 'lbl14' "Denoise Amount :" pos:[10,37] width:89 height:16 align:#left
+	spinner 'ddl3' "" pos:[125,49] width:60 height:16 align:#left
+	label 'lbl17' "Pass limit :" pos:[10,52] width:53 height:16 align:#left
+	
+	spinner 'ddl4' "" pos:[125,19] width:60 height:16 items:#("Rapide", "Super beau") align:#left
+	label 'lbl_corona' "Noise level limit :" pos:[10,22] width:81 height:16 align:#left
+	
+	spinner 'spn4' "" pos:[131,81] width:45 height:16 range:[0,100,0] align:#left
+	label 'lbl5' "Time limit :" pos:[10,67] width:50 height:16 align:#left
+	label 'lbl11' "h" pos:[66,81] width:10 height:16 align:#left
+	spinner 'spn9' "" pos:[74,81] width:45 height:16 range:[0,100,0] align:#left
+	label 'lbl12' "m" pos:[120,81] width:10 height:16 align:#left
+	spinner 'spn10' "" pos:[20,81] width:45 height:16 range:[0,100,0] align:#left
+	label 'lbl13' "s" pos:[178,81] width:10 height:16 align:#left
 
+
+)
+
+rollout roll_param_studio "Prises de vues" width:487 height:300
+(
+	
+	---- le bouton pour fermer la fenetre ----
+	
+	label 'lbl45' "Nom du studio :" pos:[10,0] width:84 height:16 align:#left
+	edittext 'edt_nom' "" pos:[86,0] width:100 height:17 align:#left
+	
+	checkbutton 'btn_edit_effects' "-" pos:[187,32] width:17 height:17 toolTip:"Editer paramètre de rendu" align:#left
+	
+	
+	listbox 'lbx1' "" pos:[10,17] width:176 height:5 align:#left
+ 
+ 
+ 
+	checkbutton 'ckb6' "+" pos:[187,16] width:17 height:17 toolTip:"Editer paramètre de rendu" align:#left
+	
+	
+	
+)
 
 
 
@@ -93,6 +137,9 @@ rollout roll_paramRendu "Rendu" width:209 height:136
 	on 	ui_btnFermer 	click 						do 	m_prt.fermer ()
 	
 )
+
+
+-- createdialog roll_paramRendu
 ------------------------------------------------------------------------------
 struct str_paramRendu (
 	
@@ -142,7 +189,9 @@ struct str_paramRendu (
 		),
 		
 		fn fermer  silence:false =(		---- silence : fermer sans modifier l'état des preferences ---
+			
 			m_estOuvert 		= false
+			
 			---- maj des preferences ----	
 			if not silence do (
 			)

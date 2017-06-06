@@ -33,7 +33,7 @@ struct str_preset_apercu  (
 ------------------------------------------------------------------------------------------------------------------------------
 ----------------- LES DIFFERENTS PRESETS ---------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------
-struct str_preset_rendu (
+struct str_preset_qualite (
 	id 					= "",		
 	nom 				= "Rendu", 		---- 	le nom du preset 
 	
@@ -252,7 +252,7 @@ struct str_liste_mgr (
 			case type of (
 				"S":	m_preset_class = str_preset_studio
 				"V":	m_preset_class = str_preset_vue
-				"R":	m_preset_class = str_preset_rendu
+				"R":	m_preset_class = str_preset_qualite
 				"C":	m_preset_class = str_preset_camera
 				"F":	m_preset_class = str_preset_fond
 				"L":	m_preset_class = str_preset_lumiere
@@ -283,8 +283,8 @@ struct str_presets (
 			for item in this.m_studios.get_items () 	do	debug  "item"	var:item 
 			debug"m_vues"
 			for item in this.m_vues.get_items () 		do	debug  "item"	var:item 
-			debug"m_rendus"
-			for item in this.m_rendus.get_items () 	do	debug  "item"	var:item 
+			debug"m_qualite"
+			for item in this.m_qualite.get_items () 	do	debug  "item"	var:item 
 			debug"m_cameras"
 			for item in this.m_cameras.get_items () 	do	debug  "item"	var:item 
 			debug"m_fonds"
@@ -304,7 +304,7 @@ struct str_presets (
 		m_studios 		= str_liste_mgr 	type:"S"		fichier:m_fichier,  --- liste des differents rendus enregistrés
 		m_vues 			= str_liste_mgr 	type:"V"		fichier:m_fichier,  --- liste des differents presets de vues enregistrés
 		
-		m_rendus 		= str_liste_mgr 	type:"R"		fichier:m_fichier,  --- liste des differents presets de vues enregistrés
+		m_qualite 		= str_liste_mgr 	type:"R"		fichier:m_fichier,  --- liste des differents presets de vues enregistrés
 	
 		m_cameras 	= str_liste_mgr 	type:"C"		fichier:m_fichier,  --- liste des differents presets de vues enregistrés
 		m_fonds 		= str_liste_mgr 	type:"F"		fichier:m_fichier,  --- liste des differents presets de vues enregistrés
@@ -314,7 +314,7 @@ struct str_presets (
 		
 		
 		--- regroupe tout les managers ------
-		m_presetsTotal = #( m_studios, m_vues, m_rendus, m_cameras, m_fonds, m_lumieres, m_effets ),
+		m_presetsTotal = #( m_studios, m_vues, m_qualite, m_cameras, m_fonds, m_lumieres, m_effets ),
 		
 		
 		
@@ -346,7 +346,7 @@ struct str_presets (
 			case type of (
 				#studio: 	nvPreset =	m_studios.ajouter 	nom:nom
 				#vue: 		nvPreset =	m_vues.ajouter 		nom:nom
-				#rendu: 		nvPreset =	m_rendus.ajouter 	nom:nom
+				#qualite: 		nvPreset =	m_qualite.ajouter 	nom:nom
 				#camera:	nvPreset =	m_cameras.ajouter 	nom:nom
 				#fond: 		nvPreset =	m_fonds.ajouter 		nom:nom
 				#lumiere:	nvPreset =	m_lumieres.ajouter 	nom:nom
@@ -375,12 +375,15 @@ struct str_presets (
 			local result 
 			case type  of (
 				#studio: 	result =	m_studios.get_items		()
-				#vue: 		result =	m_vues.get_items		()
-				#rendu: 		result =	m_rendus.get_items		()
+				
+				#vue: 		result =	m_vues.get_items		()				
+				#qualite: 	result =	m_qualite.get_items		()
+				
 				#camera:	result =	m_cameras.get_items	()
 				#fond: 		result =	m_fonds.get_items		()
 				#lumiere:	result =	m_lumieres.get_items	()
 				#effet:		result =	m_effets.get_items		()
+				
 			)
 			result
 		),  
@@ -398,7 +401,7 @@ struct str_presets (
 			case type  of (
 				#studio: 	result =	m_studios.get		_param	par:par
 				#vue: 		result =	m_vues.get			_param	par:par
-				#rendu: 		result =	m_rendus.get		_param	par:par
+				#qualite: 		result =	m_qualite.get		_param	par:par
 				#camera:	result =	m_cameras.get	_param	par:par
 				#fond: 		result =	m_fonds.get		_param	par:par
 				#lumiere:	result =	m_lumieres.get	_param	par:par
@@ -442,28 +445,28 @@ struct str_presets (
 			nvPreset = creer type:#vue		nom:"Oblique"
 			
 			---- rendus -------------------------------------------------------------------------------------
-			nvPreset = creer type:#rendu	nom:"trés rapide"
+			nvPreset = creer type:#qualite	nom:"trés rapide"
 			nvPreset.id 					= "R1"
 			nvPreset.passLimit 			= 5
 			nvPreset.noiseLvlLimit 		= 0
 			nvPreset.denoising 			= 1
 			nvPreset.timelimit 			= 0
 			
-			nvPreset = creer type:#rendu	nom:"Rapide"
+			nvPreset = creer type:#qualite	nom:"Rapide"
 			nvPreset.id 					= "R2"
 			nvPreset.passLimit 			= 15
 			nvPreset.noiseLvlLimit 		= 0
 			nvPreset.denoising 			= .75
 			nvPreset.timelimit 			= 0
 			
-			nvPreset = creer type:#rendu	nom:"Normal"
+			nvPreset = creer type:#qualite	nom:"Normal"
 			nvPreset.id 					= "R3"
 			nvPreset.passLimit 			= 0
 			nvPreset.noiseLvlLimit 		= 5
 			nvPreset.denoising 			= .7
 			nvPreset.timelimit 			= 0
 			
-			nvPreset = creer type:#rendu	nom:"Qualité"
+			nvPreset = creer type:#qualite	nom:"Qualité"
 			nvPreset.id 					= "R4"
 			nvPreset.passLimit 			= 0
 			nvPreset.noiseLvlLimit 		= 2
@@ -551,10 +554,10 @@ str_tmp.creer #studio		nom:"Végétation - Interieur"
 str_tmp.creer #vue			nom:"Face"
 str_tmp.creer #vue			nom:"Profil D"
 str_tmp.creer #vue			nom:"Profil G"
-str_tmp.creer #rendu		nom:"trés rapide"
-str_tmp.creer #rendu		nom:"Rapide"
-str_tmp.creer #rendu		nom:"Normal"
-str_tmp.creer #rendu		nom:"Qualité"
+str_tmp.creer #qualite		nom:"trés rapide"
+str_tmp.creer #qualite		nom:"Rapide"
+str_tmp.creer #qualite		nom:"Normal"
+str_tmp.creer #qualite		nom:"Qualité"
 str_tmp.creer #fond			nom:"Présentation objets"
 str_tmp.creer #lumiere		nom:"Exterieur 1"
 str_tmp.creer #lumiere		nom:"Interieur 1"
