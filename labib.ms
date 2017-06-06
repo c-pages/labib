@@ -55,11 +55,8 @@ include "$userScripts\cp - labib\cp - GLOBAL\DragDialog.ms"
 include "$userScripts\cp - labib\labib - output.ms"
 include "$userScripts\cp - labib\labib - Outils divers.ms"
 include "$userScripts\cp - labib\labib - manipNodes.ms"
-include "$userScripts\cp - labib\labib - presets.ms"
+-- include "$userScripts\cp - labib\labib - presets.ms"
 
-include "$userScripts\cp - labib\labib - fenetre queryNom.ms"	
-include "$userScripts\cp - labib\labib - fenetre ChoisirVue.ms"	
-include "$userScripts\cp - labib\labib - fenetre parametres vues.ms"	
 
 --------------------------------------
 ----- les fichiers corps --------
@@ -67,7 +64,6 @@ include "$userScripts\cp - labib\labib - fenetre parametres vues.ms"
 include "$userScripts\cp - labib\labib - preferences.ms"
 include "$userScripts\cp - labib\labib - arborescence.ms"	
 
--- include "$userScripts\cp - labib\labib - rendus.ms"
 
 include "$userScripts\cp - labib\labib - Mgr - Divers.ms"
 include "$userScripts\cp - labib\labib - Mgr - TreeView.ms"
@@ -77,16 +73,20 @@ include "$userScripts\cp - labib\labib - Mgr - ListView Tags.ms"
 include "$userScripts\cp - labib\labib - menus.ms"
 
 include "$userScripts\cp - labib\labib - fenetre proprietes.ms"
-include "$userScripts\cp - labib\labib - fenetre vues.ms"
-include "$userScripts\cp - labib\labib - fenetre rendus.ms"
 include "$userScripts\cp - labib\labib - fenetre apercus.ms"
-
-
-
+/* 
+---- le studio ----------
+include "$userScripts\cp - labib\labib - fenetre vues.ms"
+include "$userScripts\cp - labib\labib - fenetre parametres vues.ms"	
+include "$userScripts\cp - labib\labib - fenetre queryNom.ms"	
+include "$userScripts\cp - labib\labib - fenetre ChoisirVue.ms"	
+include "$userScripts\cp - labib\labib - gestion rendus.ms"
+include "$userScripts\cp - labib\labib - studio - presets.ms"
+include "$userScripts\cp - labib\labib - studio.ms"
+ */
 
  include "$userScripts\cp - labib\labib - fenetre.ms"
 
-include "$userScripts\cp - labib\labib - gestion rendus.ms"
 include "$userScripts\cp - labib\labib - edition.ms"
 
 include "$userScripts\cp - labib\labib - Mgr - Commandes.ms"	
@@ -98,7 +98,7 @@ struct str_labib (
 	
 	
 		------------ DEBUG	----------------------------------------------------------------------------------
-		m_debug = false,
+		m_debug = true,
 		m_dbgPrefix ="LABIB",
 		fn debug 	_txt  var:	 param:    =(
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
@@ -108,7 +108,6 @@ struct str_labib (
 	
 	
 	
-		fn getDossierInstal = dossierScript ,
 		
 	------------ Les structures	----------------------------------------------------------------------------------
 	public
@@ -116,7 +115,7 @@ struct str_labib (
 		---- preferences ----
 		prefs		= 	str_preferences 		m_labib:this 	dossierScript:dossierScript,		---- les préferences utilisateurs ----		
 		
-		---- arborescence ----
+		---- manager de l'arborescence de la bib ----
 		arbo		= 	str_arborescence 	fichierArbo:prefs.general.fichierArbo,		---- la gestion de l'arborescenece de la bibliotheque ----	
 		
 		---- interfaces ----
@@ -124,25 +123,19 @@ struct str_labib (
 		fenetre	= str_fenLabib				m_labib:this,							---- le manager de la fenetre principale (en post car boucle infernale avec edit sinon ) ----
 		
 		-- Fenetres secondaires --
-		proprietes 	= 	str_proprietes 		m_labib:this,							---- la fenetre de creation des proprietes -----
+		proprietes 	= 	str_proprietes 		m_labib:this,							---- la fenetre de creation des proprietes -----		
 		apercus		=	str_apercus 		m_labib:this,							--- la fenetre des appercus
-		vues			= 	str_vues				m_labib:this,
- 		rendus		= 	str_rendus 			m_labib:this,							---- la fenetre de creation des apercus -----
 		
-		---- editions ----
- 		gestionRendus		= 	str_gestionRendus 		m_labib:this,			---- la creation des apercus -----
-		edit					= 	str_edition					m_labib:this,			---- les commandes utilisateurs,  l'edition proprement dite de la bibliotheque (creation d'un asset, import dans la scene ... ) ----
+		--- le manager des rendus des aperçcus ----
+--  		studio		= 	str_studio 			m_labib:this,							---- la fenetre de creation des apercus -----
 		
-		---- commandes ----
-		cmd 		= 	str_commandesMgr 	m_edit:edit,
+		---- le coeur de la bib : commandes principales et gestion undo/redo  ----
+		edit				= 	str_edition					m_labib:this,			---- les commandes utilisateurs,  l'edition proprement dite de la bibliotheque (creation d'un asset, import dans la scene ... ) ----		
+		cmd 				= 	str_commandesMgr 		m_edit:edit,
 		
-		
+			
 		
 		
-		queryNom = str_queryNom		m_labib:this,			
-		
-		
-		---les actions --------
 		
 	------------ Fonctions		----------------------------------------------------------------------------------
 	--- Edition ----	
@@ -154,9 +147,15 @@ struct str_labib (
 		
 		fn creerDossier	_nom 	parent:arbo.root	=	edit.creerDossier	nom:_nom 	parent:parent,
 		
+		
+	---- Accessions diverses -----------
+	public
+		fn getDossierInstal = dossierScript ,
+		
 	--- Fenetre ----	
 	public
 		fn ouvrir 		= 	(
+			debug "ouvrir fenêtre"
 			fenetre.ouvrir()
 		),			
 		fn fermer 		= (
@@ -197,14 +196,16 @@ struct str_labib (
 		
 		---- initialiser les pointeurs qui restent -----
 		fenetre.m_edit				= edit		
-		gestionRendus.m_edit 	= edit
-		vues.m_rendus			= rendus
+-- 		gestionRendus.m_edit 	= edit
+-- 		vues.m_rendus			= rendus
+-- 		studio.initialiser ()
 		
 		--- initialiser Edition ----	
 		edit.initialiser ()
 		
 		---- output ----
 		debug "Structure créée."	
+		ecrire "Prêt."	
 		
 	) 
 	
@@ -212,12 +213,12 @@ struct str_labib (
 
 
 
-
+-- labib
 -----------------------------------------
 ----- Création de la structure principale -------
 -----------------------------------------
 labib = str_labib ()
 	
--- )
+--  )
 
 

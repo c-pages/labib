@@ -16,14 +16,14 @@ clearListener ()
 	scene vertex
  */
 
-	
-try ( 	
-	labib.fermer()	
-) catch  ()
-try ( 	
-	destroydialog labib.fenetre.m_dialog		
-) catch  ()
-	
+-- 	
+-- try ( 	
+-- 	labib.fermer()	
+-- ) catch  ()
+-- try ( 	
+-- 	destroydialog labib.fenetre.m_dialog		
+-- ) catch  ()
+-- 	
 macroScript Labib
 category:"#CPages"
 buttonText:"Labib"
@@ -36,7 +36,7 @@ icon:#("Labib", 1)
 	fileIn	 "$userScripts\cp - labib\labib.ms" 
 -- 	fileIn "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib.ms" 
 	
-	labib.prefs.reset()
+-- 	labib.prefs.reset()
 	
 	 on execute do 	(
 		
@@ -69,7 +69,7 @@ buttonText:"Labib - reload"
 	fileIn	 "$userScripts\cp - labib\labib.ms" 
 -- 	fileIn "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib.ms" 
 	
-	labib.prefs.reset()
+-- 	labib.prefs.reset()
 	labib.ouvrir 	()
 
 )

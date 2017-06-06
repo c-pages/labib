@@ -169,8 +169,8 @@ ImgTag 'ui_titre' "" pos:[16,4] width:66 height:18 align:#left
 		-- le bouton fermer --
 		ui_btnFermer.bitmap = m_prt.m_icos_fermer[1]	
 		/* 
-		if m_prt.m_rendus.getVue_selec () != undefined do
-			afficherVue ( m_prt.m_rendus.getVue_selec () )
+		if m_prt.m_studio.getVue_selec () != undefined do
+			afficherVue ( m_prt.m_studio.getVue_selec () )
 		 */
 		
 		reagencer ()
@@ -301,7 +301,7 @@ struct str_vues (
 		m_dialog					= roll_vues ,		---- le rollout ----
 		
 		m_manips   			= str_manipNodes 	,	--- Pour manipuler les nodes, BB, centre etc..
-		m_rendus 				,
+		m_studio 				,
 		
 		---- props de la fenetre -----
 		m_titre 				= "Labib | Vue",

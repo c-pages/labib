@@ -773,7 +773,7 @@ struct str_fenLabib (
 			
 			-- les fenetres secondaires --
 			if m_labib.proprietes.estOuvert() 	do m_labib.proprietes.ouvrir()			
-			if m_labib.rendus.estOuvert() 		do m_labib.rendus.ouvrir()		
+-- 			if m_labib.studio.estOuvert() 		do m_labib.rendus.ouvrir()		
 			if m_labib.apercus.estOuvert() 		do m_labib.apercus.ouvrir()
 			
 			---- maj des preferences ----	
@@ -800,7 +800,7 @@ struct str_fenLabib (
 			debug "fermeture"
 			
 			m_labib.proprietes.fermer 		enregistrer:false
-			m_labib.rendus.fermer 			enregistrer:false
+-- 			m_labib.studio.fermer 			enregistrer:false
 			m_labib.apercus.fermer 		enregistrer:false
 			
 			---- maj des preferences ----	

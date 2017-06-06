@@ -42,7 +42,7 @@ rcMenu rc_fenLabib
 -- 		menuItem m_nouveauDossier 	"Nouveau dossier" 
 -- 		menuItem m_supprimer 				"Supprimer"					
 -- 	)
-	seperator sep01					
+-- 	seperator sep01					
 -- 	subMenu "Vues" (
 		menuItem m_afficherproprietes 			"proprietes"  		
 		menuItem m_afficherApercus		"Création des aperçus" 
@@ -101,20 +101,20 @@ struct str_menus (
 	------------------------------------------------------------------------------------------------------------------
 		
 	public 	
-		fn presets_rendus = (		
+		fn presets_studio = (		
 			
 			 rcMenu nvMenu
 			(
 				menuItem nouveau  					"Nouveau preset" 			
-				menuItem sauvegarder  			"Sauvegarder" 		enabled:( labib.rendus.aUnPresetSelection () )
-				menuItem sauvegarderSous  		"Sauvegarder sous" 	enabled:( labib.rendus.aUnPresetSelection () )
-				menuItem supprimer		  			"Supprimer" 			enabled:( labib.rendus.aUnPresetSelection () )
+				menuItem sauvegarder  			"Sauvegarder" 		enabled:( labib.studio.aUnPresetSelection () )
+				menuItem sauvegarderSous  		"Sauvegarder sous" 	enabled:( labib.studio.aUnPresetSelection () )
+				menuItem supprimer		  			"Supprimer" 			enabled:( labib.studio.aUnPresetSelection () )
 				
 				
-				on nouveau 				picked do	labib.rendus.presets_nouveau ()
-				on sauvegarder 			picked do	labib.rendus.presets_sauvegarder ()
-				on sauvegarderSous 	picked do	labib.rendus.presets_sauvegarderSous ()
-				on supprimer 				picked do	labib.rendus.presets_supprimer ()
+				on nouveau 				picked do	labib.studio.presets_nouveau ()
+				on sauvegarder 			picked do	labib.studio.presets_sauvegarder ()
+				on sauvegarderSous 	picked do	labib.studio.presets_sauvegarderSous ()
+				on supprimer 				picked do	labib.studio.presets_supprimer ()
 				
 			)
 			
@@ -228,9 +228,9 @@ struct str_menus (
 					menuItem apercus 		"Aperçus" 				checked:( labib.apercus.estOuvert() )
 					menuItem proprietes 	"Propriétés" 		checked:( labib.proprietes.estOuvert() )
 				
-				subMenu  "Rendus" (
-					menuItem rendre	 	"Rendre" 			
-					menuItem rendus	 	"Gérer les rendus" 				checked:( labib.rendus.estOuvert() )
+				subMenu  "studio" (
+					menuItem rendre	 		"Rendre" 			
+					menuItem ourvirStudio	 	"Ouvrir" 			--	checked:( labib.studio.estOuvert() )
 				)
 				
 				seperator sep5476
@@ -292,7 +292,7 @@ struct str_menus (
 				
 				on proprietes						picked do	labib.proprietes.toggleOuverture ()
 				on apercus							picked do	labib.apercus.toggleOuverture ()
-				on rendus							picked do	labib.rendus.toggleOuverture ()
+-- 				on ourvirStudio					picked do	labib.studio.toggleOuverture ()
 				on prefs								picked do	labib.prefs.toggleOuverture ()
 			
 				on affichSelec						picked do		for n in labib.edit.getSelection () do	labib.arbo.afficherNoeud	n

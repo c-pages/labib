@@ -48,7 +48,7 @@ struct str_edition (
 		m_prefs					= m_labib.prefs,				---- les preferences ---
 		m_arbo					= m_labib.arbo,				---- l'arborescence ---		
 		m_fenetre				= m_labib.fenetre,			---- les apercus ----
-		m_gestionRendus 	= m_labib.gestionRendus,	---- creer m_gestionRendus ---
+-- 		m_gestionRendus 	= m_labib.gestionRendus,	---- creer m_gestionRendus ---
 		
 		m_manips   			= str_manipNodes (),	--- Pour manipuler les nodes, BB, centre etc..
 		
@@ -142,13 +142,10 @@ struct str_edition (
 			m_dossier
 		),
 		fn setDossier		_noeudA		= ( 
-			debug "setDossier" var:_noeudA param:#nom
-			debug "m_dossier BACK" var:m_dossier param:#nom
-			if _noeudA != m_dossier do (				
-			debug "------------<><>" 
+			debug "setDossier" 
+			
+			if _noeudA != m_dossier do (
 				m_dossier = _noeudA 
-			debug "m_dossier NEW" var:m_dossier param:#nom
--- 				m_TV.selectionner _noeudA
 			)
 			
 		),
@@ -213,6 +210,7 @@ struct str_edition (
 			
 			---- on actualise la fenetre ----
 			m_labib.fenetre.actualiser 		() 
+
 			
 		),
 		
@@ -231,6 +229,7 @@ struct str_edition (
 		
 		fn logger _texte =(
 			m_fenetre.m_dialog.m_log.setTexte 	_texte
+			ecrire _texte
 		),
 		
 		
@@ -480,13 +479,14 @@ struct str_edition (
 		
 		
 		fn faireApercus 	_noeuds =(
-			
+			/* 
 			activer_ModeApercus ()
 			
 			m_gestionRendus.creer 		_noeuds
 			
 			desactiver_ModeApercus ()
-			
+			 */
+			 debug "REMPLIR LE CODE ICI : #1"
 		),
 		
 		
@@ -648,8 +648,8 @@ struct str_edition (
 																			type:#vide	
 				
 				---- creation de l'apercu ----
-				if querybox "voulez vous crééer les aperçus maintenant?" do
-					m_gestionRendus.creer 	nouvelElement
+				if querybox "voulez vous crééer les aperçus maintenant?" do ( debug "REMPLIR LE CODE ICI : #1")
+-- 					m_gestionRendus.creer 	nouvelElement
 				
 				---- actualise l'UI ----
 				m_fenetre.actualiser ()
@@ -700,8 +700,8 @@ struct str_edition (
 				(  getDossier () ).enregistrer ()
 				
 				---- creation de l'apercu ----
-				if querybox "voulez vous crééer les aperçus maintenant?" do
-					m_gestionRendus.creer 	nouveauxElements
+				if querybox "voulez vous crééer les aperçus maintenant?" do  ( debug "REMPLIR LE CODE ICI : #2")
+-- 					m_gestionRendus.creer 	nouveauxElements
 				
 				m_fenetre.actualiser ()			
 				m_fenetre.selectionnerLV 	nouveauxElements
@@ -827,6 +827,7 @@ struct str_edition (
 		--- Initialisations -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		fn initialiser =(
 			
+			debug "initaliser la structure ..."
 -- 			debug "initaliser"
 			
 			----- initialiser les scripts exterieurs --------------------
@@ -844,13 +845,11 @@ struct str_edition (
 			--- fenetre ----
 			setDossier 		( m_arbo.getParNomUnique 	m_prefs.fenetre.dossierCourant )
 			m_ndsAAfficher 	= (getDossier()).enfants
-			debug "initaliser"
-			debug "m_ndsAAfficher" var:m_ndsAAfficher param:#nom
--- 			m_selection 		= (getDossier()).enfants
 			
 			--- historique ----			
 			m_hist 			= str_historique 		m_dialog:m_fenetre.m_dialog		m_edit:this			
--- 			m_hist.enregistrer  	m_prefs.fenetre.dossierCourant
+
+			debug "... Structure initialisée."
 			
 		),		
 		fn majPointeursFenetre =(

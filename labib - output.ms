@@ -48,7 +48,7 @@ fn remplirTexte  _txt  var:	 param:  prefix: = (
 
 fn debuger 	_txt  var:	 param:    prefix: = 	(
 	if DEBUG_MODE   do (
-		local txtFinal = "<DEBUG>	"
+		local txtFinal = "--debug--	"
 		
 		txtFinal += remplirTexte  _txt  var:var	 param:param 	prefix:prefix
 		
@@ -57,11 +57,11 @@ fn debuger 	_txt  var:	 param:    prefix: = 	(
 )		
 ----- output ------------------------------
 fn ecrire 		_txt  var:	 param:   = 	(
-	if not DEBUG_MODE then  (
-		local txtFinal = "<Labib>	"		
+-- 	if not DEBUG_MODE then  (
+		local txtFinal = "|Labib|	"		
 		txtFinal += remplirTexte  _txt  var:var	 param:param
 		format "%\n"	txtFinal
-	) else debuger 	_txt  	var:var	 param:param	
+-- 	) else debuger 	_txt  	var:var	 param:param	
 )
 
 ------ OUTPUT	------------------------------------------------------------------------------------------------------------------------------------

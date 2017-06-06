@@ -11,13 +11,13 @@
 	Fenetre type	( sert de model de base, n'est pas importé dans le script )	
 	sans barre de titre, draggable et bouton fermer
 	
-	Remplacer (ctr + h): 'fenetreType ' par:  'maFenetreAMoi'.
+	Remplacer (ctr + h): 'fileAttente ' par:  'maFenetreAMoi'.
 	il y a des parties a decommenter :"--- a décommenter ---"
 	Noms des variables 
-	-	roll_fenetreType :			le nom de la fenetre
-	-	fenetreType_pos :			le parametre des prefs stockant la pos de la fenetre
-	-	fenetreType_estOuvert :	le nom du parametre ouvert dans les preferences ( labib.prefs.fenetre. ' fenetreTypeOuvert )
-	-	str_fenetreType:			le nom de la struicture de controle de la fenetre
+	-	roll_fileAttente :			le nom de la fenetre
+	-	fileAttente_pos :			le parametre des prefs stockant la pos de la fenetre
+	-	fileAttente_estOuvert :	le nom du parametre ouvert dans les preferences ( labib.prefs.fenetre. ' fileAttenteOuvert )
+	-	str_fileAttente:			le nom de la struicture de controle de la fenetre
 	
 ##########################################################################################################################
 
@@ -29,24 +29,26 @@
 	- Mise en place globale ( mise au propre du travail durant l'été)
 	- Une interface souple et simple
 ########################################################################################################################*/
--- destroydialog roll_fenetreType catch ()
+
+/* 
+-- destroydialog roll_fileAttente catch ()
 (
 	
 	
 include "$userScripts\cp - labib\cp - GLOBAL\UI.ms"
 include "$userScripts\cp - labib\cp - GLOBAL\DragDialog.ms"
 	
+	 */
 	
-	
-	local str_Pointeur 
+
 ------------------------------------------------------------------------------
 ----------	Fenetre								 -------------------------
 ------------------------------------------------------------------------------
-rollout roll_fenetreType  "fenetreType " width:296 height:296
+rollout roll_fileAttente  "File de rendus" width:500 height:300
 (
 	------------ DEBUG	----------------------------------------------------------------------------------
 	local m_debug = true
-	local m_dbgPrefix ="studio-fenetreType rollout"
+	local m_dbgPrefix ="studio-fileAttente rollout"
 	fn debug 	_txt  var:	 param:    =(
 		if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
 	)
@@ -65,21 +67,35 @@ rollout roll_fenetreType  "fenetreType " width:296 height:296
 	
 	
 	------------  UI	----------------------------------------------------------------------------------		
-	
-	ImgTag 'ui_titre' "" pos:[16,4] width:66 height:18 align:#left
+		ImgTag 'ui_titre' "" pos:[16,4] width:66 height:18 align:#left
 	
 	---- le bouton pour fermer la fenetre ----
-	ImgTag ui_btnFermer "X" pos:[276,0] width:20 height:20 toolTip:"Fermer" style:#bmp_center
+	ImgTag 'ui_btnFermer' "X" pos:[276,0] width:20 height:20 toolTip:"Fermer" style:#bmp_center align:#left
+	
+
+	dotNetControl ui_LV 	"system.windows.forms.listView"	pos:		[18,27] \
+																				width:261 height:233 \
+																				border:	false	\
+																				align:#left
+	
+	
+	button 'btn_pause' 		"pause" pos:[16,260] width:52 height:17 align:#left
+	button 'btn_annuler' 	"annuler" pos:[67,260] width:52 height:17 align:#left
 	
 	------------  Fonctions	----------------------------------------------------------------------------------
 	
 	fn reagencer taille: 	=(
 		
-		Local LargeurBtn = 20
+		Local largeurBtn = 16
+		Local largeurBordure = 20
 		
-		if taille == unsupplied do taille = [ roll_fenetreType.width, roll_fenetreType.height ]
-		ui_btnFermer.pos.x		=	taille.x - ( LargeurBtn )
+		if taille == unsupplied do taille = [ roll_fileAttente.width, roll_fileAttente.height ]
+		ui_btnFermer.pos.x		=	taille.x - ( largeurBordure )
 		
+		ui_LV.width 			= taille.x - ( 2 * largeurBordure ) + 1 
+		ui_LV.height 			= taille.y - ( ui_LV.pos.y +  2 * largeurBordure  ) + 5
+		btn_pause.pos.y 		= ui_LV.pos.y + 	ui_LV.height
+		btn_annuler.pos.y 	= btn_pause.pos.y
 	)
 	
 	
@@ -107,22 +123,55 @@ rollout roll_fenetreType  "fenetreType " width:296 height:296
 		m_titre.setCouleur 	m_prt.col_fenetreTxt
 		
 		-- le drag --
-		m_drag 		= str_drag 	m_prt:roll_fenetreType
+		m_drag 		= str_drag 	m_prt:roll_fileAttente
 		
 		-- le bouton fermer --
 		ui_btnFermer.bitmap = m_prt.m_icos_fermer[1]	
-		b_initialisation = true
+		
+		
+		
+-- 		local col_fondDossierPrt 		= m_prefs.fenetre.col_fondDossierPrt	
+-- 		local col_txt						= m_prefs.fenetre.col_txt
+		
+		local col_uiFond 		= color 130 136 152
+		local col_txt			= color 255	 255	255
+		
+		-- UI --
+		ui_LV.borderstyle 			= (dotnetclass "System.Windows.Forms.BorderStyle").None
+		ui_LV.showitemtooltips 		= true
+		ui_LV.gridlines 				= false
+		ui_LV.checkboxes 			= true
+		ui_LV.labeledit 				= false
+		ui_LV.MultiSelect				= true
+		ui_LV.HideSelection 			= false
+		ui_LV.allowdrop 				= false
+		ui_LV.AllowColumnReorder	= true
+		ui_LV.BackColor 				= toCouleurDotnet	col_uiFond
+		ui_LV.ForeColor 				= toCouleurDotnet   col_txt
+		
+		
+		
+		ui_LV.view = (dotNetClass "system.windows.forms.view").details
+		ui_LV.columns.add "Nom de l'assset" 200
+		ui_LV.columns.add "Priorité" 50
+		ui_LV.columns.add "Date de l'ajout" 50
+		ui_LV.columns.add "Date du rendu" 50
+		
+		ui_LV.FullRowSelect = true
+		
+		reagencer ()
+		
 	)
 	
 	------------  Evenements	----------------------------------------------------------------------------------
 	---- Fenetre -----
-	on roll_fenetreType moved			_pos 		do	m_prt.m_pos	= _pos	
-	on roll_fenetreType resized			_taille 	do	reagencer ()
+	on roll_fileAttente moved			_pos 		do	m_prt.m_pos	= _pos	
+	on roll_fileAttente resized			_taille 	do	reagencer ()
 	
 	---- Drag ----
-	on roll_fenetreType lbuttondown	_pos 	do	m_drag.demarrer ()
-	on roll_fenetreType lbuttonup 		_pos 	do	m_drag.arreter ()
-	on roll_fenetreType mouseMove 	_pos 	do	m_drag.suivreSouris ()
+	on roll_fileAttente lbuttondown	_pos 	do	m_drag.demarrer ()
+	on roll_fileAttente lbuttonup 		_pos 	do	m_drag.arreter ()
+	on roll_fileAttente mouseMove 	_pos 	do	m_drag.suivreSouris ()
 	
 	---- Bouton fermer -----
 	on 	ui_btnFermer	mouseover 				do 	etatBtnFermer #Survol
@@ -136,11 +185,11 @@ rollout roll_fenetreType  "fenetreType " width:296 height:296
 ------------------------------------------------------------------------------
 ----------	Structure								 -------------------------
 ------------------------------------------------------------------------------
-struct str_fenetreType (
+struct str_fileAttente (
 		
 	------------ DEBUG	----------------------------------------------------------------------------------
 	m_debug = true,
-	m_dbgPrefix ="studio-fenetreType",
+	m_dbgPrefix ="studio-fileAttente",
 	fn debug 	_txt  var:	 param:    =(
 		if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
 	),
@@ -149,12 +198,12 @@ struct str_fenetreType (
 		
 		---- pointeurs ----
 		m_labib,
-		m_dialog				= roll_fenetreType ,		---- le rollout ----
+		m_dialog				= roll_fileAttente ,		---- le rollout ----
 		
 		---- props de la fenetre -----
-		m_titre 				= "Labib | fenetreType ",
+		m_titre 				= "Labib | Studio | File de rendus",
 		m_pos 				= [100,100],
-		m_taille 				= [300, 300],
+		m_taille 				= [500, 300],
 		m_estOuvert 		= false,
 		
 		--- ui libre de labib -----------	
@@ -211,11 +260,22 @@ struct str_fenetreType (
 		
 		------------  Evenements	----------------------------------------------------------------------------------
 	
+) -- fin struct ---------
+
+/* 
+global fileAttente  	=	str_fileAttente () --	m_labib:Labib
+
+fileAttente.ouvrir ()
+-- destroydialog fileAttente.m_dialog
 )
+ */
 
 
-global fenetreType  	=	str_fenetreType () --	m_labib:Labib
 
-fenetreType.ouvrir ()
--- destroydialog fenetreType.m_dialog
-)
+
+
+
+
+
+
+
