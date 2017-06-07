@@ -36,39 +36,44 @@ struct str_preset_apercu  (
 struct str_preset_qualite (
 	id 					= "",		
 	nom 				= "qualite", 		---- 	le nom du preset 
+	locked			= false,
 	
-	passLimit		=0,				----	progressive_passLimit
-	noiseLvlLimit	=0,				----	adaptivity_targetError
-	denoising		=0,				---- 	denoise_blendAmount
-	timeLimit		=0				----	progressive_timeLimit (en ms)
+	nbrPass		=0,				----	progressive_nbrPass
+	noiseLvl		=0.0,				----	adaptivity_targetError
+	denoise		=0.0,				---- 	denoise_blendAmount
+	timeLimit	=0				----	progressive_timeLimit (en ms)
 )
 struct str_preset_camera (
 	id 					= "",	
 	nom 				= "Camera",  		---- le nom du preset	
+	locked			= false,
 	
 	rot			= [0,0,0],				---- rotation de la camera par rapport à la position par defaut ( face au petit coté de la BB ? a définir)	
 	pos			= [0,0,0],				---- decallage effectué apres la rotation
-	fov			= 50,
-	dist_ratio	= 1 						---- un ratio, 		( 1 : la position de la camera par algorithme,  0->1 : on avance  1>100 : on s'éloigne )
+	fov			= 50.0,
+	dist_ratio	= 1.0 						---- un ratio, 		( 1 : la position de la camera par algorithme,  0->1 : on avance  1>100 : on s'éloigne )
 )
 struct str_preset_fond (
 	id 				= "",	
-	nom 			= ""   					---- le nom du preset
+	nom 			= "",   					---- le nom du preset
+	locked			= false
 	
 )
 struct str_preset_lumiere (
 	id 				= "",	
 	nom 			= "Lumiere",  			---- le nom du preset
+	locked			= false,
 	
 	rot			= [0,0,0],				----	sur 2 ou 3 axes ?!? 	----	rotation de la camera par rapport à la position par defaut ( face au petit coté de la BB ? a définir)	
 	pos			= [0,0,0],				----	sur 2 ou 3 axes ?!? 	----	decallage effectué apres la rotation
 	taille			= [1,1,1],				----	sur 2 ou 3 axes ?!? 	----	
-	intensite		= 50,
-	map			= 50 						---- un pourcentage ?
+	intensite		= 50.0,
+	map			= 50.0					---- un pourcentage ?
 )
 struct str_preset_effect (
 	id 				= "",	
 	nom 			= "",   					---- le nom du preset
+	locked			= false,
 	
 	vignetting,
 	
@@ -84,6 +89,7 @@ struct str_preset_effect (
 struct str_preset_vue (
 	id 					= "",		
 	nom 				= "Vue",   			---- le nom du preset ("Face", "mobilier" ou "détail végétation" .... par ex.)
+	locked			= false,
 	
 	camera			= "",
 	fond				= "",
@@ -93,6 +99,7 @@ struct str_preset_vue (
 struct str_preset_studio (
 	id 				= "",	
 	nom 			= "Studio", 
+	locked			= false,
 	
 	vues 			=#()		--- la liste des differentes ID des vues à rendre -------
 )
@@ -103,6 +110,13 @@ struct str_preset_studio (
 ----------------- MANAGER DES LISTES --------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------
 struct str_liste_mgr (
+	
+			------------ DEBUG	----------------------------------------------------------------------------------
+		m_debug = true,
+		m_dbgPrefix ="studio|liste mgr",
+		fn debug 	_txt  var:	 param:    =(
+			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
+		),
 	public
 		---- a definir à la création ---------
 		type					="",
@@ -120,8 +134,9 @@ struct str_liste_mgr (
 		),
 		fn enregistrerDatas  _datas  =(
 			local propsNoms 	= getPropNames  _datas
-			for propNom in propsNoms do 
+			for propNom in propsNoms do (
 				setINISetting   	fichier	_datas.id   propNom  	( ( getProperty _datas	 propNom	)	as string )
+			)
 		),
 		fn chargerDatas	&_preset =(
 			
@@ -210,7 +225,7 @@ struct str_liste_mgr (
 			-- on charge les presets ----
 			if liste_idsUniques != ok do
 				for id in liste_idsUniques do (
-					local nvPreset= str_preset_studio 	id:id
+					local nvPreset= m_preset_class 	id:id
 					chargerDatas  &nvPreset
 					append 	m_items 	nvPreset
 				)
@@ -252,7 +267,7 @@ struct str_liste_mgr (
 			case type of (
 				"S":	m_preset_class = str_preset_studio
 				"V":	m_preset_class = str_preset_vue
-				"R":	m_preset_class = str_preset_qualite
+				"Q":	m_preset_class = str_preset_qualite
 				"C":	m_preset_class = str_preset_camera
 				"F":	m_preset_class = str_preset_fond
 				"L":	m_preset_class = str_preset_lumiere
@@ -283,8 +298,8 @@ struct str_studio_presets (
 			for item in this.m_studios.get_items () 	do	debug  "item"	var:item 
 			debug"m_vues"
 			for item in this.m_vues.get_items () 		do	debug  "item"	var:item 
-			debug"m_qualite"
-			for item in this.m_qualite.get_items () 	do	debug  "item"	var:item 
+			debug"m_qualites"
+			for item in this.m_qualites.get_items () 	do	debug  "item"	var:item 
 			debug"m_cameras"
 			for item in this.m_cameras.get_items () 	do	debug  "item"	var:item 
 			debug"m_fonds"
@@ -304,7 +319,7 @@ struct str_studio_presets (
 		m_studios 		= str_liste_mgr 	type:"S"		fichier:m_fichier,  --- liste des differents studio enregistrés
 		m_vues 			= str_liste_mgr 	type:"V"		fichier:m_fichier,  --- liste des differents presets de vues enregistrés
 		
-		m_qualite 		= str_liste_mgr 	type:"R"		fichier:m_fichier,  --- liste des differents presets de vues enregistrés
+		m_qualites 		= str_liste_mgr 	type:"Q"		fichier:m_fichier,  --- liste des differents presets de vues enregistrés
 	
 		m_cameras 	= str_liste_mgr 	type:"C"		fichier:m_fichier,  --- liste des differents presets de vues enregistrés
 		m_fonds 		= str_liste_mgr 	type:"F"		fichier:m_fichier,  --- liste des differents presets de vues enregistrés
@@ -314,22 +329,40 @@ struct str_studio_presets (
 		
 		
 		--- regroupe tout les managers ------
-		m_presetsTotal = #( m_studios, m_vues, m_qualite, m_cameras, m_fonds, m_lumieres, m_effets ),
+		m_presetsTotal = #( m_studios, m_vues, m_qualites, m_cameras, m_fonds, m_lumieres, m_effets ),
 		
 		
 		
 	public
 		--- stockage --------
-		fn sauvegarder  =(
+		fn sauvegarder  item: =(
 			debug "sauvegarder"
-			--- ecriture des presets ----
-			for presets in m_presetsTotal do
-					presets.sauvegarder ()
+			if item == unsupplied then (
+				--- ecriture des presets ----
+				for presets in m_presetsTotal do
+						presets.sauvegarder ()
+			) else (
+				local mgr_temp
+				case classOf item of (
+					str_preset_studio:	mgr_temp = m_studios
+					str_preset_vue:		mgr_temp = m_vues
+					
+					str_preset_qualite:	mgr_temp = m_qualites
+					
+					str_preset_camera:	mgr_temp = m_cameras
+					str_preset_fond:		mgr_temp = m_fonds
+					str_preset_lumiere:	mgr_temp = m_lumieres
+					str_preset_effect:	mgr_temp = m_effets
+					
+				)
+				mgr_temp.sauvegarder	itemCible:item
+			)
 		),
 		fn charger =(
 			debug "charger"
-			for presets in m_presetsTotal do
-				presets.charger ()
+			if doesfileExist m_fichier do
+				for presets in m_presetsTotal do
+					presets.charger ()
 		),
 		
 		
@@ -346,7 +379,7 @@ struct str_studio_presets (
 			case type of (
 				#studio: 	nvPreset =	m_studios.ajouter 	nom:nom
 				#vue: 		nvPreset =	m_vues.ajouter 		nom:nom
-				#qualite: 		nvPreset =	m_qualite.ajouter 	nom:nom
+				#qualite: 	nvPreset =	m_qualites.ajouter 	nom:nom
 				#camera:	nvPreset =	m_cameras.ajouter 	nom:nom
 				#fond: 		nvPreset =	m_fonds.ajouter 		nom:nom
 				#lumiere:	nvPreset =	m_lumieres.ajouter 	nom:nom
@@ -377,7 +410,7 @@ struct str_studio_presets (
 				#studio: 	result =	m_studios.get_items		()
 				
 				#vue: 		result =	m_vues.get_items		()				
-				#qualite: 	result =	m_qualite.get_items		()
+				#qualite: 	result =	m_qualites.get_items		()
 				
 				#camera:	result =	m_cameras.get_items	()
 				#fond: 		result =	m_fonds.get_items		()
@@ -397,23 +430,25 @@ struct str_studio_presets (
 		),
 		
 		fn get  _param	type:#studio  par:#index	=(
-			local result 
+			
+			local result  
 			case type  of (
 				#studio: 	result =	m_studios.get		_param	par:par
 				#vue: 		result =	m_vues.get			_param	par:par
-				#qualite: 		result =	m_qualite.get		_param	par:par
+				#qualite: 	result =	m_qualites.get		_param	par:par
 				#camera:	result =	m_cameras.get	_param	par:par
 				#fond: 		result =	m_fonds.get		_param	par:par
 				#lumiere:	result =	m_lumieres.get	_param	par:par
 				#effet:		result =	m_effets.get		_param	par:par
 			)
+			
 			result
 		),
 		
 		----------------------------------------------------------------------------------------------------------------------------------------------------------------
 		---- initialiser les VALEURS PAR DEFAUTS ------------------------------------------------------------------------------------------------
 		----------------------------------------------------------------------------------------------------------------------------------------------------------------
-		fn valeursParDefaut 	=(
+		fn defaut 	=(
 			
 			local nvPreset
 			
@@ -422,88 +457,93 @@ struct str_studio_presets (
 			
 			
 			---- studios -------------------------------------------------------------------------------------
-			nvPreset = creer nom:"Simple"	
-			nvPreset.id 		= "S1"	
+			nvPreset = creer nom:"Défaut"	
+			nvPreset.locked	=  true
 			nvPreset.vues 	=#( "V1" )
 			
 			nvPreset = creer nom:"Végétation - Exterieur"	
-			nvPreset.id 		= "S2"	
-			nvPreset.vues 	=#( "V1" )
+			nvPreset.vues 	=#( "V1" , "V2", "V3")
 			
 			nvPreset = creer nom:"Végétation - Interieur"
-			nvPreset.id 		= "S3"
 			nvPreset.vues 	=#( "V1" )
 			
 			nvPreset = creer nom:"Mobilier"
-			nvPreset.id 		= "S4"
 			nvPreset.vues 	=#( "V1" )
 			
 			---- vues -------------------------------------------------------------------------------------
 			nvPreset = creer type:#vue		nom:"Face"
+			nvPreset.locked	=  true
 			nvPreset = creer type:#vue		nom:"Profil D"
+			nvPreset.locked	=  true
 			nvPreset = creer type:#vue		nom:"Profil G"
-			nvPreset = creer type:#vue		nom:"Oblique"
+			nvPreset.locked	=  true
+			nvPreset = creer type:#vue		nom:"Dessus"
+			nvPreset.locked	=  true
+			nvPreset = creer type:#vue		nom:"Custom"
 			
 			---- qualité -------------------------------------------------------------------------------------
-			nvPreset = creer type:#qualite	nom:"trés rapide"
-			nvPreset.id 					= "R1"
-			nvPreset.passLimit 			= 5
-			nvPreset.noiseLvlLimit 		= 0
-			nvPreset.denoising 			= 1
+			nvPreset = creer type:#qualite	nom:"Trés rapide"
+			nvPreset.locked				=  true
+			nvPreset.nbrPass 			= 5
+			nvPreset.noiseLvl 			= 0
+			nvPreset.denoise 			= 1
 			nvPreset.timelimit 			= 0
 			
 			nvPreset = creer type:#qualite	nom:"Rapide"
-			nvPreset.id 					= "R2"
-			nvPreset.passLimit 			= 15
-			nvPreset.noiseLvlLimit 		= 0
-			nvPreset.denoising 			= .75
+			nvPreset.locked				=  true
+			nvPreset.nbrPass 			= 15
+			nvPreset.noiseLvl 			= 0
+			nvPreset.denoise 			= 0.75
 			nvPreset.timelimit 			= 0
 			
 			nvPreset = creer type:#qualite	nom:"Normal"
-			nvPreset.id 					= "R3"
-			nvPreset.passLimit 			= 0
-			nvPreset.noiseLvlLimit 		= 5
-			nvPreset.denoising 			= .7
+			nvPreset.locked				=  true
+			nvPreset.nbrPass 			= 0
+			nvPreset.noiseLvl 			= 5
+			nvPreset.denoise 			= 0.7
 			nvPreset.timelimit 			= 0
 			
 			nvPreset = creer type:#qualite	nom:"Qualité"
-			nvPreset.id 					= "R4"
-			nvPreset.passLimit 			= 0
-			nvPreset.noiseLvlLimit 		= 2
-			nvPreset.denoising 			= 0
+			nvPreset.locked				=  true
+			nvPreset.nbrPass 			= 0
+			nvPreset.noiseLvl 			= 2
+			nvPreset.denoise 			= 0
 			nvPreset.timelimit 			= 0
+			
+			nvPreset = creer type:#qualite	nom:"1 minute"
+			nvPreset.nbrPass 			= 0
+			nvPreset.noiseLvl 			= 0
+			nvPreset.denoise 			= 0
+			nvPreset.timelimit 			= 1000 * 60
+			
 			
 			---- cameras  -------------------------------------------------------------------------------------
 			nvPreset = creer type:#camera	nom:"Face"
-			nvPreset.id 			= "C1"
+			nvPreset.locked	=  true
 			nvPreset.rot			= [0,0,0]
 			nvPreset.pos			= [0,0,0]
 			nvPreset.fov			= 90
 			nvPreset.dist_ratio	= 1
 			
 			nvPreset = creer type:#camera	nom:"Arrière"
-			nvPreset.id 			= "C2"
 			nvPreset.rot			= [0,0,180]
 			nvPreset.pos			= [0,0,0]
 			nvPreset.fov			= 90
 			nvPreset.dist_ratio	= 1
 			
 			nvPreset = creer type:#camera	nom:"Profil D"
-			nvPreset.id 			= "C3"
 			nvPreset.rot			= [0,0,90]
 			nvPreset.pos			= [0,0,0]
 			nvPreset.fov			= 90
 			nvPreset.dist_ratio	= 1
 			
 			nvPreset = creer type:#camera	nom:"Profil G"
-			nvPreset.id 			= "C4"
 			nvPreset.rot			= [0,0,-90]
 			nvPreset.pos			= [0,0,0]
 			nvPreset.fov			= 90
 			nvPreset.dist_ratio	= 1			
 			
 			nvPreset = creer type:#camera	nom:"Détail 1"
-			nvPreset.id 			= "C5"
 			nvPreset.rot			= [0,15,15]
 			nvPreset.pos			= [0,0,0]
 			nvPreset.fov			= 50
@@ -521,7 +561,7 @@ struct str_studio_presets (
 			nvPreset = creer type:#effet		nom:"Neutre"
 			nvPreset = creer type:#effet		nom:"Vignetting + bloom leger"
 			
-			OK
+			sauvegarder ()
 			
 		)
 		

@@ -198,7 +198,7 @@ ImgTag 'ui_titre' "" pos:[16,4] width:66 height:18 align:#left
 	on btn_edit_effects 	changed 	state do (
 		checkBtnsEdit btn_edit_effects		
 		case state of (
-			true:m_prt.ouvrirParam #paramRendu
+			true:m_prt.ouvrirParam #paramEffet
 			false:m_prt.fermerParam ()
 		)
 		reagencer ()
@@ -297,18 +297,19 @@ struct str_vues (
 	public
 		
 		---- pointeurs ----
-		m_labib,
+-- 		m_labib,
 		m_dialog					= roll_vues ,		---- le rollout ----
 		
 		m_manips   			= str_manipNodes 	,	--- Pour manipuler les nodes, BB, centre etc..
 		m_studio 				,
 		
 		---- props de la fenetre -----
-		m_titre 				= "Labib | Vue",
+		m_titre 				= "Labib | Studio | Vue",
 		m_pos 				= [100,100],
-		m_taille 				= [276, 172],
+		m_taille 				= [276, 173],
 		m_estOuvert 		= false,
 		
+
 
 		--- ui libre de labib -----------	
 		col_fenetreFond			= color 68 68 68, 		---- MAX 	----
@@ -319,30 +320,20 @@ struct str_vues (
 		ico_btnFermer_S	=	"$userScripts\cp - labib\cp - GLOBAL\ico\ico_fermer_grisFoncee_S.jpg",
 		ico_btnFermer_P	=	"$userScripts\cp - labib\cp - GLOBAL\ico\ico_fermer_grisFoncee_P.jpg", 
 	
-		m_icos_fermer= #( 	ico_btnFermer_R, ico_btnFermer_S, ico_btnFermer_P ),
-		
+		m_icos_fermer= #( 	openBitMap ico_btnFermer_R, 
+											openBitMap	ico_btnFermer_S,
+											openBitMap	ico_btnFermer_P ),
 		
 		
 	public
-		m_param_rendu 		= str_paramRendu 		m_labib:m_labib,
-		m_param_camera 	= str_paramCamera 		m_labib:m_labib,
-		m_param_fond 		= str_paramFond 		m_labib:m_labib,
-		m_param_lumieres	= str_paramLumieres 	m_labib:m_labib,
-		
-		---- gestion des presets ----------------
-		m_presets_vues 				= #(), 
-		
-		m_presets_paramRendus 	= #(), 
-		m_presets_cameras 			= #(), 
-		m_presets_fonds 				= #(), 
-		m_presets_lumieres 			= #(), 
+
 		
 								
 		fn fermerParam =(
-			removeSubRollout m_dialog.SubRollout		m_param_rendu.m_dialog
-			removeSubRollout m_dialog.SubRollout		m_param_camera.m_dialog
-			removeSubRollout m_dialog.SubRollout		m_param_fond.m_dialog
-			removeSubRollout m_dialog.SubRollout		m_param_lumieres.m_dialog
+			removeSubRollout m_dialog.SubRollout		roll_paramEffets
+			removeSubRollout m_dialog.SubRollout		roll_paramCamera
+			removeSubRollout m_dialog.SubRollout		roll_paramFond
+			removeSubRollout m_dialog.SubRollout		roll_paramLumieres
 	
 		),
 		
@@ -351,10 +342,10 @@ struct str_vues (
 			 
 			local pos = (GetDialogPos  roll_vues + [m_taille.x+ 3, 0  ] )
 			case _param of (				
-				#paramRendu:		addSubRollout 	m_dialog.SubRollout		m_param_rendu.m_dialog
-				#paramCamera:	addSubRollout		m_dialog.SubRollout		m_param_camera.m_dialog
-				#paramFond:		addSubRollout		m_dialog.SubRollout		m_param_fond.m_dialog
-				#paramLumieres:	addSubRollout		m_dialog.SubRollout		m_param_lumieres.m_dialog
+				#paramEffet:		addSubRollout 	m_dialog.SubRollout		roll_paramEffets
+				#paramCamera:	addSubRollout		m_dialog.SubRollout		roll_paramCamera
+				#paramFond:		addSubRollout		m_dialog.SubRollout		roll_paramFond
+				#paramLumieres:	addSubRollout		m_dialog.SubRollout		roll_paramLumieres
 			)
 
 		),

@@ -28,7 +28,6 @@ macroScript Labib
 category:"#CPages"
 buttonText:"Labib"
 toolTip:""
-icon:#("Labib", 1)
 (
 
 	global labib
@@ -74,7 +73,34 @@ buttonText:"Labib - reload"
 
 )
 
+macroScript Labib_studio
+category:"#CPages"
+buttonText:"Labib Studio - reload"
+icon:#("Labib_studio", 1)
+tooltip:"Labib Studio - Recréation de la structure"
+(
+	
+	try ( 	
+		studio.fermer()	
+	) catch  ()
+	try ( 	
+		destroydialog studio.m_dialog		
+	) catch  ()
 
+	clearListener ()
+-- 	global studio
+	
+	filein  "$userScripts\cp - labib\labib - studio.ms"
+	
+	
+
+)
+
+/* 
+
+studio.m_presets.defaut ()
+studio.m_presets.print ()
+ */
 
 --labib.ouvrir 	()
 
