@@ -23,13 +23,10 @@
 
 
 
-
 rcmenu  RCmenu_studio (
 	
-	subMenu "Mode" (	
-		menuItem mode_simple			"Simple" 
-		menuItem mode_complet 		"Complet"  	
-	)
+		menuItem mode_complet 		"Mode complet"   checked:( labib_studio.estEnModeComplet ())
+		on mode_complet 	picked do	studio.basculer_mode ()
 )
 
 
@@ -65,17 +62,20 @@ rollout roll_studioComplet "Studio" width:285 height:173
 	dropdownList 'ddl_qualite' "" pos:[83,46] width:160 height:21 align:#left
 	label 'lbl2' "Preset :" pos:[15,29] width:47 height:16 align:#left
 	label 'lbl_qualite' "Qualité :" pos:[15,51] width:47 height:16 align:#left
-	button 'btn4' "Rendre maintenant" pos:[83,117] width:180 height:41 align:#left
 	dropdownList 'ddl_application' "" pos:[83,66] width:160 height:21 items:#("Selection courante", "Assets n'ayant pas ces vues", "Assets n'ayant pas d'aperçu") align:#left
 	label 'lbl3' "Appliquer à :" pos:[15,71] width:63 height:16 align:#left
 	checkbutton 'btn_edit_studio' "" pos:[242,26] width:21 height:21 toolTip:"" align:#left
 	checkbutton 'btn_edit_qualite' "" pos:[242,46] width:21 height:21 align:#left
 	checkbutton 'btn_edit_application' "" pos:[242,66] width:21 height:21 align:#left
 -- 	checkbutton 'btn5' "Edition" pos:[15,97] width:69 height:21 toolTip:"Passer en mode Edition (Ouvre le fichier studio et les rollouts nécessaires pour manipuler les paramètres cameras, lumieres, .. en direct depuis le studio)." align:#left
-	button 'btn7' "Ajouter à la file de rendus" pos:[83,97] width:160 height:21 toolTip:"La fenêtre de la file d'attente des rendus du studio." align:#left
-	checkbutton 'ckb_fileAttente' "" pos:[242,97] width:21 height:21 toolTip:"Ouvrir la file d'attente" align:#left
 -- 	button 'btn23' "Tester" pos:[15,117] width:69 height:41 toolTip:"Rendus rapides des vues du preset d'un asset choisi au hasard dans la bibliotheque." align:#left
 	subRollout 'subRollout' "" pos:[273,25] width:215 height:133 align:#left
+	
+	checkbutton 'btn_editVues' "Vues" pos:[15,141] width:60 height:17 toolTip:"L'éditeur de vues" align:#left
+	checkbutton 'ckb_fileAttente' "Rendus" pos:[15,125] width:60 height:17 toolTip:"Ouvrir la pile de rendus" align:#left
+	
+	button 'btn_rendre' "Rendre maintenant" pos:[83,117] width:180 height:41 align:#left
+	button 'btn_ajouterAPile' "Ajouter à la pile de rendus" pos:[83,97] width:180 height:21 toolTip:"La fenêtre de la file d'attente des rendus du studio." align:#left
 	
 	fn reagencer 	=(
 		
@@ -146,20 +146,13 @@ rollout roll_studioComplet "Studio" width:285 height:173
 		
 	)
 	
----- Fenetre -----
+	on btn_editVues changed state do (
+		local pos = GetDialogPos  roll_studioComplet + [0,roll_studioComplet.height + 9]
+		m_prt.m_vues.toggleOuverture 	pos:pos
+	)
 		
--- 	on roll_studio resized 		_taille 	do	reagencer 	()
-	
-	---- Drag ----
-	
-	---- Bouton fermer -----
-	
-	--- file d'attente -----
-	
-	--- edition des parametres -----
-
-	on roll_studioComplet moved _pos 	do 	m_prt.m_pos	= _pos
-		
+	on roll_studioComplet moved _pos 	do
+		m_prt.m_pos	= _pos
 	on roll_studioComplet rbuttondown _pos 	do
 		popUpMenu 	RCmenu_studio
 	on roll_studioComplet lbuttondown _pos 	do
@@ -178,6 +171,18 @@ rollout roll_studioComplet "Studio" width:285 height:173
 		etatBtnFermer #Repos
 	on ui_btnFermer click do
 		m_prt.fermer ()
+	on ddl_presets selected arg do
+	(
+			actualiser () --subRollout.rollouts
+			if subRollout.rollouts[1] != undefined do
+				subRollout.rollouts[1].actualiser ()
+		)
+	on ddl_qualite selected arg do
+	(
+			actualiser () --subRollout.rollouts
+			if subRollout.rollouts[1] != undefined do
+				subRollout.rollouts[1].actualiser ()
+		)
 	on btn_edit_studio changed state do
 	(
 			checkBtnsEdit 	btn_edit_studio		
@@ -208,21 +213,11 @@ rollout roll_studioComplet "Studio" width:285 height:173
 	on ckb_fileAttente changed state do
 		m_prt.ouvrir_fileAttente ()
 	
-	
-	on ddl_presets 	selected  arg do (
-		actualiser () --subRollout.rollouts
-		if subRollout.rollouts[1] != undefined do
-			subRollout.rollouts[1].actualiser ()
-	)
-		
-	on ddl_qualite 	selected  arg do (
-		actualiser () --subRollout.rollouts
-		if subRollout.rollouts[1] != undefined do
-			subRollout.rollouts[1].actualiser ()
-	)
+	on 	btn_ajouterAPile	pressed do m_prt.ajouterAlaPile ()
+	on 	btn_rendre	pressed do m_prt.ajouterAlaPile critique:true
 )
 
-rollout roll_studioSimple "Studio" width:265 height:153
+rollout roll_studioSimple "Studio" width:265 height:162
 (
 		------------ DEBUG	----------------------------------------------------------------------------------
 	local m_debug = true
@@ -247,13 +242,12 @@ rollout roll_studioSimple "Studio" width:265 height:153
 	dropdownList 'ddl_qualite' "" pos:[83,46] width:160 height:21 align:#left
 	label 'lbl2' "Preset :" pos:[15,29] width:47 height:16 align:#left
 	label 'lbl_qualite' "Qualité :" pos:[15,51] width:47 height:16 align:#left
-	button 'btn4' "Rendre maintenant" pos:[15,99] width:228 height:41 align:#left
-	
-
-	button 'btn7' "Ajouter à la file d'attente" pos:[15,79] width:208 height:21 toolTip:"La fenêtre de la file d'attente des rendus du studio." align:#left
-	checkbutton 'ckb_fileAttente' "" pos:[222,79] width:21 height:21 align:#left tooltip:"Ouvrir la file d'attente"
 	
 	
+	checkbutton 'ckb_fileAttente' "Rendus" pos:[15,121] width:60 height:17 toolTip:"Ouvrir la pile de rendus" align:#left
+	
+	button 'btn4' "Rendre maintenant" pos:[83,97] width:160 height:41 align:#left
+	button 'btn7' "Ajouter à la pile de rendus" pos:[83,77] width:160 height:21 toolTip:"La fenêtre de la file d'attente des rendus du studio." align:#left
 		fn actualiser =(
 			
 			--- les listes  ---
@@ -301,26 +295,37 @@ rollout roll_studioSimple "Studio" width:265 height:153
 		)
 		
 	---- Fenetre -----
-		on roll_studioSimple moved			_pos 	do	m_prt.m_pos	= _pos	
-		on roll_studioSimple	 rbuttondown 		_pos 	do	popUpMenu 	RCmenu_studio
 	-- 	on roll_studio resized 		_taille 	do	reagencer 	()
 		
 		---- Drag ----
-		on roll_studioSimple lbuttondown		_pos 	do	m_drag.demarrer ()
-		on roll_studioSimple lbuttonup 			_pos 	do	m_drag.arreter ()
-		on roll_studioSimple mouseMove 		_pos 	do	m_drag.suivreSouris ()
 		
 		---- Bouton fermer -----
-		on 	ui_btnFermer	mouseover 					do 	etatBtnFermer #Survol
-		on 	ui_btnFermer	mouseout 					do 	etatBtnFermer #Repos
-		on 	ui_btnFermer	mousedown 				do 	etatBtnFermer #Press
-		on 	ui_btnFermer	mouseup					do 	etatBtnFermer #Repos
-		on 	ui_btnFermer 	click 							do 	m_prt.fermer ()
 		
 
 		--- file d'attente -----
-		on ckb_fileAttente changed state do m_prt.ouvrir_fileAttente ()
 		
+	on roll_studioSimple moved _pos 	do
+		m_prt.m_pos	= _pos
+	on roll_studioSimple rbuttondown _pos 	do
+		popUpMenu 	RCmenu_studio
+	on roll_studioSimple lbuttondown _pos 	do
+		m_drag.demarrer ()
+	on roll_studioSimple lbuttonup _pos 	do
+		m_drag.arreter ()
+	on roll_studioSimple mouseMove _pos 	do
+		m_drag.suivreSouris ()
+	on ui_btnFermer mouseover do
+		etatBtnFermer #Survol
+	on ui_btnFermer mouseout do
+		etatBtnFermer #Repos
+	on ui_btnFermer mouseDown do
+		etatBtnFermer #Press
+	on ui_btnFermer mouseUp do
+		etatBtnFermer #Repos
+	on ui_btnFermer click do
+		m_prt.fermer ()
+	on ckb_fileAttente changed state do
+		m_prt.ouvrir_fileAttente ()
 )
 
 
@@ -337,13 +342,11 @@ rollout roll_param_studio "Preset" width:487 height:300
 	
 	label 'lbl45' "Nom :" pos:[10,0] width:33 height:16 align:#left
 	edittext 'edt_nom' "" pos:[42,0] width:130 height:16 align:#left
-	button 'btn_retirerVue' "-" pos:[26,89] width:17 height:17 toolTip:"Supprimer une prise de vue" align:#left
-	listbox 'lbx_vues' "" pos:[10,31] width:176 height:4 align:#left
-	button 'btn_ajouterVue' "+" pos:[10,89] width:17 height:17 toolTip:"Ajouter une prise de vue" align:#left
+	button 'btn_retirerVue' "-" pos:[170,17] width:17 height:17 toolTip:"Supprimer une prise de vue" align:#left
+	listbox 'lbx_vues' "" pos:[10,34] width:176 height:5 align:#left
+	button 'btn_ajouterVue' "+" pos:[154,17] width:17 height:17 toolTip:"Ajouter une prise de vue" align:#left
 	checkbutton 'btn_menu' "" pos:[171,0] width:17 height:17 toolTip:"Editer paramètre de rendu" align:#left
-	checkbutton 'ckb_editer' "Editer" pos:[153,89] width:35 height:17 toolTip:"Editer paramètre de rendu" align:#left
-	label 'lbl27' "Prises de vues :" pos:[10,18] width:104 height:14 align:#left
-	button 'btn8' "Créer vue" pos:[42,89] width:56 height:17 toolTip:"Supprimer une prise de vue" align:#left
+	label 'lbl27' "Prises de vues :" pos:[10,17] width:104 height:14 align:#left
 	
 	fn actualiser =(
 		
@@ -353,14 +356,14 @@ rollout roll_param_studio "Preset" width:487 height:300
 		lbx_vues.items 	= m_prt.getPreset_vues ()
 		
 		btn_retirerVue.enabled 		= lbx_vues.selection != 0
-		ckb_editer.enabled 			= lbx_vues.selection != 0
+-- 		ckb_editer.enabled 			= lbx_vues.selection != 0
 		
 		-- si preset verouillé --------
-		for ui in m_liste_uis do ui.enabled = not presetActif.locked
+		for ui in roll_param_studio.controls  do ui.enabled = not presetActif.locked
 		if  presetActif.locked do lbx_vues.selection = 0
 		
 		btn_retirerVue.enabled 	= lbx_vues.selection != 0 and not presetActif.locked
-		ckb_editer.enabled 			= lbx_vues.selection != 0 and not presetActif.locked
+-- 		ckb_editer.enabled 			= lbx_vues.selection != 0 and not presetActif.locked
 		
 	)
 	
@@ -376,29 +379,24 @@ rollout roll_param_studio "Preset" width:487 height:300
 	
 	
 	------- evenemetns -------------------------------------------------------------------
-	on lbx_vues selected arg do actualiser ()
 	
-	on ckb_editer changed state do (
-		case state of (
-			true:		m_prt.ouvrir_editerVue ()
-			false:		m_prt.fermer_editerVue ()
-		)
-	)
+	
+	
+	
+	
 	
 	on edt_nom changed texte do
 	(
 			m_prt.renommer_presetActif		texte
 			m_prt.m_dialog.actualiser ()
 		)
-	on btn_ajouterVue pressed do
-		m_prt.ouvrir_choixVue ()
-	
 	on btn_retirerVue pressed do
 		m_prt.retirer_vue 	lbx_vues.selection
-	
-	
-	
-) -- fin rollout 
+	on lbx_vues selected arg do
+		actualiser ()
+	on btn_ajouterVue pressed do
+		m_prt.ouvrir_choixVue ()
+)
 
 
 
@@ -431,7 +429,7 @@ rollout roll_param_qualite "Qualité" width:290 height:152
 	fn actualiser =(
 		
 		-- si preset verouillé --------
-		for ui in m_liste_uis do ui.enabled = not ( m_prt.getQualite_actif () ).locked
+		for ui in roll_param_qualite.controls do ui.enabled = not ( m_prt.getQualite_actif () ).locked
 		
 		-- maj des uis -----
 		edt_nom.text 			= ( m_prt.getQualite_actif () ).nom
@@ -489,21 +487,38 @@ rollout roll_param_qualite "Qualité" width:290 height:152
 		)
 )
 
-rollout roll_param_application "Appliquer à ..." width:487 height:300
+rollout roll_param_application "Options" width:487 height:300
 (
 	
 	---- le bouton pour fermer la fenetre ----
 	
-	button 'ckb3' "Définir défaut" pos:[9,90] width:84 height:16 toolTip:"" align:#left
-	checkbox 'chk1' "Sélection de Labib" pos:[9,0] width:173 height:15 align:#left
-	checkbox 'chk2' "Sélection de la scène" pos:[9,12] width:173 height:15 align:#left
-	button 'ckb48' "Rétablir défaut" pos:[113,90] width:84 height:16 toolTip:"" align:#left
-	edittext 'edt13' "" pos:[5,38] width:173 height:16 align:#left
-	button 'btn10' "..." pos:[178,37] width:19 height:19 align:#left
-	checkbox 'chk3' "Dossier source :" pos:[9,24] width:94 height:15 align:#left
-	edittext 'edt14' "" pos:[5,69] width:173 height:16 enabled:true align:#left
-	button 'btn11' "..." pos:[178,68] width:19 height:19 align:#left
-	checkbox 'chk4' "Dossier destination :" pos:[10,54] width:117 height:15 align:#left
+-- 	button 'ckb3' "Définir défaut" pos:[9,90] width:84 height:16 toolTip:"" align:#left
+	checkbox 'chk1' "Sélection de Labib" pos:[9,5] width:106 height:14 toolTip:"" align:#left
+	checkbox 'chk2' "Sélection de la scène" pos:[9,17] width:117 height:14 toolTip:"" align:#left
+	edittext 'edt_dossier_source' "" pos:[5,63] width:173 height:16 toolTip:"" align:#left
+	button 'btn_dossier_source' "..." pos:[178,61] width:19 height:19 toolTip:"" align:#left
+	checkbox 'chk_dossier_source' "Dossier source :" pos:[9,49] width:94 height:14 toolTip:"" align:#left
+	edittext 'edt_dossier_dest' "" pos:[5,95] width:173 height:16 enabled:true toolTip:"" align:#left
+	button 'btn_dossier_dest' "..." pos:[178,93] width:19 height:19 toolTip:"" align:#left
+	checkbox 'chk_dossier_dest' "Dossier destination :" pos:[9,80] width:112 height:14 align:#left
+	checkbox 'chk9' "Scène courante" pos:[9,29] width:92 height:14 toolTip:"Rend la vue active de la scène actuelle, avec ses parametres de rendu (taille, nom ...)" align:#left
+	checkbox 'chk10' "Rendre avec BackBurner" pos:[9,118] width:139 height:14 toolTip:"Utiliser le backburner à la place du manager du studio.(à voir comment faire pour préparer les scenes avant d'envoyer ...)" align:#left
+	
+	
+	fn actualiser =(
+		edt_dossier_source.enabled = chk_dossier_source.checked
+		btn_dossier_source.enabled = chk_dossier_source.checked
+		
+		edt_dossier_dest.enabled = chk_dossier_dest.checked
+		btn_dossier_dest.enabled = chk_dossier_dest.checked
+	)
+	
+	on roll_param_application open do
+		actualiser ()
+	on chk_dossier_source changed state do
+		actualiser ()
+	on chk_dossier_dest changed state do
+		actualiser ()
 )
 
 
@@ -1012,8 +1027,8 @@ rollout roll_paramEffets "Effets" width:217 height:172
 	
 	------------  UI	----------------------------------------------------------------------------------		
 
-	label 'lbl_nom' "Nom :" pos:[11,1] width:28 height:16 align:#left
-	edittext 'edt_nom' "" pos:[38,1] width:131 height:17 align:#left
+	label 'lbl_nom' "Nom :" pos:[11,1] width:28 height:16 align:#left 
+	edittext 'edt_nom' "" pos:[38,1] width:131 height:17 align:#left  	
 	button 'btn_menu' "" pos:[171,1] width:17 height:17 toolTip:"Sauvegarder sous" align:#left
 	
 	spinner 'spin_nbrPass' "" pos:[125,43] width:60 height:16 range:[0,10,0] align:#left
@@ -1022,6 +1037,12 @@ rollout roll_paramEffets "Effets" width:217 height:172
 	spinner 'spin_vignet' "" pos:[125,23] width:60 height:16 range:[0,10,0] align:#left
 	label 'lbl_vignetting' "Vignetting :" pos:[10,24] width:62 height:16 align:#left
 	
+	spinner 'spn13' "" pos:[125,58] width:60 height:16 range:[0,50,0] align:#left
+	label 'lbl19' "Blur :" pos:[10,59] width:50 height:16 align:#left
+	spinner 'spn14' "" pos:[125,78] width:60 height:16 range:[0,50,0] align:#left
+	label 'lbl20' "Bloom :" pos:[10,79] width:50 height:16 align:#left
+	spinner 'spn15' "" pos:[125,93] width:60 height:16 range:[0,50,0] align:#left
+	label 'lbl21' "Glare :" pos:[10,94] width:50 height:16 align:#left
 	------------  Fonctions	----------------------------------------------------------------------------------
 	---- Gere l'état du bouton  -----
 	fn etatBtnFermer		_etat =(
@@ -1047,15 +1068,7 @@ rollout roll_paramEffets "Effets" width:217 height:172
 	
 	---- Bouton fermer -----
 	
-	spinner 'spn13' "" pos:[125,58] width:60 height:16 range:[0,50,0] align:#left
-	label 'lbl19' "Blur :" pos:[10,59] width:50 height:16 align:#left
-	spinner 'spn14' "" pos:[125,78] width:60 height:16 range:[0,50,0] align:#left
-	label 'lbl20' "Bloom :" pos:[10,79] width:50 height:16 align:#left
-	spinner 'spn15' "" pos:[125,93] width:60 height:16 range:[0,50,0] align:#left
-	label 'lbl21' "Glare :" pos:[10,94] width:50 height:16 align:#left
 )
-
-
 
 
 

@@ -38,7 +38,7 @@
 ------------------------------------------------------------------------------
 ----------	Fenetre								 -------------------------
 ------------------------------------------------------------------------------
-rollout roll_vues  "vues" width:276 height:173
+rollout roll_vues "vues" width:276 height:173
 (
 	------------ DEBUG	----------------------------------------------------------------------------------
 		local m_debug = true
@@ -62,44 +62,36 @@ rollout roll_vues  "vues" width:276 height:173
 	local m_titre
 	local m_ui_btns_edit =  #()
 	
-	------------  UI	----------------------------------------------------------------------------------		
-ImgTag 'ui_titre' "" pos:[16,4] width:66 height:18 align:#left
+	------------  UI	----------------------------------------------------------------------------------			ImgTag 'ui_titre' "" pos:[16,4] width:66 height:18 align:#left
+	ImgTag 'ui_titre' "" pos:[16,4] width:66 height:18 align:#left
 	
 	---- le bouton pour fermer la fenetre ----
-	ImgTag 'ui_btnFermer' "X" pos:[256,0] width:20 height:20 toolTip:"Fermer" style:#bmp_center align:#left
-	
-	label 'lbl45' "Nom :" pos:[19,22] width:29 height:16 align:#left
-	edittext 'edt_nom' "" pos:[46,22] width:129 height:17 align:#left
-	checkbutton 'btn_editer' "Editer" pos:[177,21] width:40 height:17 toolTip:"Modifier" align:#left
-	button 'btn_tester' "Tester" pos:[216,21] width:40 height:17 toolTip:"Modifier" align:#left
-	
-	dropdownList 'ddl1' "" pos:[113,51] width:120 height:21 items:#("Face", "    -- ", "Nouveau") align:#left
-	label 'lbl14' "Camera :" pos:[18,54] width:44 height:16 align:#left
-	label 'lbl16' "Lumières :" pos:[18,94] width:50 height:16 align:#left
-	dropdownList 'ddl3' "" pos:[113,71] width:120 height:21 items:#("    -- ", "Nouveau") align:#left
-	label 'lbl17' "Fond :" pos:[18,74] width:32 height:16 align:#left
-	
-	dropdownList 'ddl4' "" pos:[113,111] width:120 height:21 items:#("Rapide", "Super beau", "    -- ", "Nouveau") align:#left
-	label 'lbl_corona' "Post effects :" pos:[18,114] width:67 height:16 align:#left
-	
-	dropdownList 'ddl5' "" pos:[113,91] width:120 height:21 items:#("    -- ", "Nouveau") align:#left
+	ImgTag 'ui_btnFermer' "X" pos:[274,0] width:20 height:20 toolTip:"Fermer" style:#bmp_center align:#left
+	label 'lbl45' "Nom :" pos:[19,57] width:29 height:16 align:#left
+	edittext 'edt_nom' "" pos:[79,57] width:163 height:17 align:#left
+	dropdownList 'ddl1' "" pos:[83,74] width:160 height:21 items:#("Face", "    -- ", "Nouveau") align:#left
+	label 'lbl14' "Camera :" pos:[18,77] width:44 height:16 align:#left
+	label 'lbl16' "Lumières :" pos:[18,117] width:50 height:16 align:#left
+	dropdownList 'ddl3' "" pos:[83,94] width:160 height:21 items:#("    -- ", "Nouveau") align:#left
+	label 'lbl17' "Fond :" pos:[18,97] width:32 height:16 align:#left	
 	
 	
-	checkbutton 'btn_edit_effects' "" pos:[232,111] width:21 height:21 toolTip:"Editer paramètre de rendu" align:#left
-	checkbutton 'btn_edit_camera' "" pos:[232,51] width:21 height:21 toolTip:"Editer la camera" align:#left
-	checkbutton 'btn_edit_fond' "" pos:[232,71] width:21 height:21 toolTip:"Editer le fond" align:#left
-	checkbutton 'btn_edit_lumieres' "" pos:[232,91] width:21 height:21 toolTip:"Editer les lumières" align:#left
+	dropdownList 'ddl4' "" pos:[83,134] width:160 height:21 items:#("Rapide", "Super beau", "    -- ", "Nouveau") align:#left
+	label 'lbl_corona' "Effets :" pos:[18,137] width:40 height:16 align:#left	
 	
 	
-	button 'btn_sauvegarder' "Sauvegarder" pos:[16,142] width:80 height:17 toolTip:"Sauvegarder" align:#left
-	button 'btn_sauvegarderSous' "+" pos:[95,142] width:17 height:17 toolTip:"Sauvegarder sous" align:#left
-	button 'btn_annuler' "Annuler" pos:[174,142] width:80 height:17 toolTip:"Annuler" align:#left
+	dropdownList 'ddl5' "" pos:[83,114] width:160 height:21 items:#("    -- ", "Nouveau") align:#left	
 	
-	subRollout 'subRollout' "" pos:[260,21] width:209 height:139 align:#left 
- 
- 
- 
 	
+	checkbutton 'btn_edit_effects' "" pos:[242,134] width:21 height:21 toolTip:"Editer paramètre de rendu" align:#left
+	checkbutton 'btn_edit_camera' "" pos:[242,74] width:21 height:21 toolTip:"Editer la camera" align:#left
+	checkbutton 'btn_edit_fond' "" pos:[242,94] width:21 height:21 toolTip:"Editer le fond" align:#left
+	checkbutton 'btn_edit_lumieres' "" pos:[242,114] width:21 height:21 toolTip:"Editer les lumières" align:#left
+	subRollout 'subRollout' "" pos:[273,21] width:215 height:139 align:#left
+	dropdownList 'ddl9' "" pos:[83,22] width:160 height:21 align:#left
+	label 'lbl46' "Vue :" pos:[17,24] width:29 height:16 align:#left
+	checkbutton 'btn_modeEdition' "" pos:[242,55] width:21 height:21 toolTip:"Mode Edition (éditer en direct des éléments du studio) " align:#left  highlightColor:yellow
+	button 'btn_menu' "" pos:[242,22] width:21 height:21 toolTip:"Menu" align:#left
 	
 	------------  Fonctions	----------------------------------------------------------------------------------
 	
@@ -108,7 +100,7 @@ ImgTag 'ui_titre' "" pos:[16,4] width:66 height:18 align:#left
 		
 		if btn_edit_effects.checked or btn_edit_camera.checked or btn_edit_fond.checked or btn_edit_lumieres.checked 
 			then	(	
-				roll_vues.width 	=  488
+				roll_vues.width 	=  505
 				subRollout.visible = true
 			)	else	(
 				roll_vues.width 	=  m_prt.m_taille.x
@@ -178,114 +170,70 @@ ImgTag 'ui_titre' "" pos:[16,4] width:66 height:18 align:#left
 	
 	------------  Evenements	----------------------------------------------------------------------------------
 	---- Fenetre -----
-	on roll_vues moved			_pos 	do	m_prt.m_pos	= _pos	
 -- 	on roll_vues open			 	do	initialiser 	labib.vues
 -- 	on roll_vues resized _taille 		do	reagencer 	_taille
 	
 	---- Drag ----
-	on roll_vues lbuttondown	_pos 	do	m_drag.demarrer ()
-	on roll_vues lbuttonup 		_pos 	do	m_drag.arreter ()
-	on roll_vues mouseMove 	_pos 	do	m_drag.suivreSouris ()
 	
 	---- Bouton fermer -----
-	on 	ui_btnFermer	mouseover 				do 	etatBtnFermer #Survol
-	on 	ui_btnFermer	mouseout 				do 	etatBtnFermer #Repos
-	on 	ui_btnFermer	mousedown 			do 	etatBtnFermer #Press
-	on 	ui_btnFermer	mouseup				do 	etatBtnFermer #Repos
-	on 	ui_btnFermer 	click 						do 	m_prt.fermer ()
 
 	
-	on btn_edit_effects 	changed 	state do (
-		checkBtnsEdit btn_edit_effects		
-		case state of (
-			true:m_prt.ouvrirParam #paramEffet
-			false:m_prt.fermerParam ()
-		)
-		reagencer ()
-	)
-	on btn_edit_camera 	changed 	state do (
-		checkBtnsEdit 	btn_edit_camera		
-		case state of (
-			true:m_prt.ouvrirParam #paramCamera
-			false:m_prt.fermerParam ()
-		)
-		reagencer ()
-	)
-	on btn_edit_fond 	changed 	state do (
-		checkBtnsEdit 	btn_edit_fond		
-		case state of (
-			true:m_prt.ouvrirParam #paramFond
-			false:m_prt.fermerParam ()
-		)
-		reagencer ()
-	)
-	on btn_edit_lumieres 	changed 	state do (
-		checkBtnsEdit btn_edit_lumieres		
-		case state of (
-			true:m_prt.ouvrirParam #paramLumieres
-			false:m_prt.fermerParam ()
-		)
-		reagencer ()
-	)
 	
 	
-	on btn_Editer changed state do (
-		if state then (
-			
-			
-			loadMaxFile ( getDir #userscripts + "\cp - Labib\data\labib_modeEdition.max" )
-			local nodesAsset
-			if ( m_prt.m_labib.edit.getSelection () ).count > 0 then (
-				nodesAsset = m_prt.m_labib.edit.importer  ( m_prt.m_labib.edit.getSelection () )[1]
-
-				debug "nodesAsset" var:nodesAsset
-				debug "nodesAsset[nodesAsset.count]" var:nodesAsset[nodesAsset.count]
-				local dummyLabib = nodesAsset[nodesAsset.count]
-				clearSelection ()
-				select 	dummyLabib
-				dummyLabib.pos.x = 0
-				dummyLabib.pos.y = 0
-				debug "dummyLabib" var:dummyLabib
-				
-				$BBox.ishidden = true
-				
-				local tailleBBAsset = m_prt.m_manips.calculerTaillesBB  nodesAsset
-				if tailleBBAsset.y > tailleBBAsset.x do
-					rotate dummyLabib (angleaxis -90 [0,0,1])
-					
-				max freeze selection
-				max freeze inv
-				
-				m_prt.appliquer_distanceParDefaut	nodesAsset
-			) else (
-				m_prt.appliquer_distanceParDefaut	#($BBox)
+	on roll_vues moved _pos 	do
+		m_prt.m_pos	= _pos
+	on roll_vues lbuttondown _pos 	do
+		m_drag.demarrer ()
+	on roll_vues lbuttonup _pos 	do
+		m_drag.arreter ()
+	on roll_vues mouseMove _pos 	do
+		m_drag.suivreSouris ()
+	on ui_btnFermer mouseover do
+		etatBtnFermer #Survol
+	on ui_btnFermer mouseout do
+		etatBtnFermer #Repos
+	on ui_btnFermer mouseDown do
+		etatBtnFermer #Press
+	on ui_btnFermer mouseUp do
+		etatBtnFermer #Repos
+	on ui_btnFermer click do
+		m_prt.fermer ()
+	on btn_edit_effects changed state do
+	(
+			checkBtnsEdit btn_edit_effects		
+			case state of (
+				true:m_prt.ouvrirParam #paramEffet
+				false:m_prt.fermerParam ()
 			)
-			max tool zoomextents all
-			
-			
-			/* 
-			rollout roll_test "test" width:256 height:207
-			(
-				label 'lbl16' "Gestion des parametres du studio" pos:[28,10] width:182 height:64 align:#left
-				
-			)
-			createdialog roll_test bgcolor:(color 129 129 129 )
-			
-			fn setLastRegisteredViewWindow = (
-				-- not more then 10 VW can be registered (THANKS DEVELOPERS!)
-				id = 10 
-				-- returns TRUE for success and FALSE other way
-				while id > 0 and not (actionMan.executeAction 0 ((40403 + id) as string)) do id -= 1 
-				id
-			)
-			maxfilename = ""
-			viewport.activeViewport = 2
-			registerViewWindow	roll_test
-			setLastRegisteredViewWindow() */
+			reagencer ()
 		)
-		else 
-			resetMaxFile 	#noPrompt
-	)
+	on btn_edit_camera changed state do
+	(
+			checkBtnsEdit 	btn_edit_camera		
+			case state of (
+				true:m_prt.ouvrirParam #paramCamera
+				false:m_prt.fermerParam ()
+			)
+			reagencer ()
+		)
+	on btn_edit_fond changed state do
+	(
+			checkBtnsEdit 	btn_edit_fond		
+			case state of (
+				true:m_prt.ouvrirParam #paramFond
+				false:m_prt.fermerParam ()
+			)
+			reagencer ()
+		)
+	on btn_edit_lumieres changed state do
+	(
+			checkBtnsEdit btn_edit_lumieres		
+			case state of (
+				true:m_prt.ouvrirParam #paramLumieres
+				false:m_prt.fermerParam ()
+			)
+			reagencer ()
+		)
 )
 
 ------------------------------------------------------------------------------
@@ -300,13 +248,13 @@ struct str_vues (
 -- 		m_labib,
 		m_dialog					= roll_vues ,		---- le rollout ----
 		
-		m_manips   			= str_manipNodes 	,	--- Pour manipuler les nodes, BB, centre etc..
+-- 		m_manips   			= str_manipNodes 	,	--- Pour manipuler les nodes, BB, centre etc..
 		m_studio 				,
 		
 		---- props de la fenetre -----
 		m_titre 				= "Labib | Studio | Vue",
 		m_pos 				= [100,100],
-		m_taille 				= [276, 173],
+		m_taille 				= [281, 173],
 		m_estOuvert 		= false,
 		
 
@@ -350,7 +298,7 @@ struct str_vues (
 
 		),
 		------------  Fonctions	----------------------------------------------------------------------------------
-		fn appliquer_distanceParDefaut  		_objets  =(
+		/* fn appliquer_distanceParDefaut  		_objets  =(
 			
 			cam 					= $Camera
 			camTarget 			= $'Camera.Target'
@@ -371,7 +319,7 @@ struct str_vues (
 			in coordsys parent cam.pos.y =  in coordsys parent camTarget.pos.y  - d
 			
 			
-		),
+		), */
 		
 		/* fn afficherVue _vue =(
 			m_dialog.afficherVue _vue 
@@ -413,11 +361,11 @@ struct str_vues (
 			try destroydialog m_dialog catch ()
 		),
 		
-		fn toggleOuverture =(
+		fn toggleOuverture pos: =(
 			
 			if m_estOuvert
 				then fermer ()
-				else	ouvrir ()
+				else	ouvrir pos:pos
 			
 		)
 		

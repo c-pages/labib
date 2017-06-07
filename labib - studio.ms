@@ -23,22 +23,19 @@
 -- (
 	
 	
-	/* 
+
+-- global labib_studio
 	
-include "$userScripts\cp - labib\labib - fenetre parametres vues.ms"	
-include "$userScripts\cp - labib\labib - fenetre queryNom.ms"	
-include "$userScripts\cp - labib\labib - fenetre ChoisirVue.ms"	
-include "$userScripts\cp - labib\labib - gestion rendus.ms"
-	*/
+	
+
 include "$userScripts\cp - labib\cp - GLOBAL\UI.ms"
 include "$userScripts\cp - labib\cp - GLOBAL\DragDialog.ms"
 	
-include "$userScripts\cp - labib\labib - studio - fileAttente.ms"
+-- include "$userScripts\cp - labib\labib - studio - mgrRendus.ms"
 include "$userScripts\cp - labib\labib - studio - fenetres.ms"
 include "$userScripts\cp - labib\labib - studio - presets.ms"
 include "$userScripts\cp - labib\labib - studio - Vues.ms"
 
-global studio
 	
 
 ------------------------------------------------------------------------------
@@ -59,11 +56,11 @@ struct str_studio (
 		---- pointeurs ----
 		
 		
-		m_dialog_complet		= roll_studioComplet ,		---- le rollout ----
+		m_dialog_complet	= roll_studioComplet ,		---- le rollout ----
 		m_dialog_simple		= roll_studioSimple ,		---- le rollout ----
 		
 		m_dialog					= m_dialog_complet,
-		m_modeComplet 		= true,	
+		m_modeComplet 	= true,	
 		
 		---- props de la fenetre -----
 		m_titre 				= "Labib | Studio",
@@ -92,21 +89,15 @@ struct str_studio (
 		
 		
 	public
-		--- le manager des presets ---------
-		m_presets				= 	str_studio_presets (),
-		
-		--- le manager des la file d'attente des rendus --------
-		m_fileAtttente 		=	str_fileAttente (),
-		
-		-- le manager des vues ---------
-		m_vues					= str_vues 	(),
+		--- le manager  ---------
+		m_presets				=	str_studio_presets (),
+-- 		m_mgrRendus 			=	labib_rendus,
+		m_vues					=	str_vues 	(),
 		
 		--- les rollouts secondaires -------------
 		m_fen_choisirVue		= 	roll_choisirVue,
 		m_fen_queryNom		= 	roll_queryNom,
-		
--- 		m_vues 					= str_vues				/* 	m_labib:m_labib 	 */m_studio:this,		-- le managers des vues ----
-		
+
 -- 		m_mgrRendus			= 	str_gestionRendus 	() /* m_labib:m_labib */,			---- la creation des apercus -----
 		
 		
@@ -114,7 +105,10 @@ struct str_studio (
 								
 
 		
-		 ------ accessions --------------------------
+		------ accessions --------------------------
+		
+		
+		fn estEnModeComplet =  m_modeComplet,
 		
 		fn getPreset_actif =(			
 			local indexSelec = m_dialog.ddl_presets.selection
@@ -170,10 +164,12 @@ struct str_studio (
 		
 		fn getVue_actif =(
 			
-			local stdio_actif 		= getStudio_actif ()
-			local indexSelec 		= m_dialog.lbx_vues.selection
-			local idVueActive 	= stdio_actif.vues[ indexSelec ]
-			local result 			= m_presets.get		idVueActive	type:#vue  par:#id
+			local preset_actif 		= getPreset_actif ()
+			local result = #() 
+			for IDvue in preset_actif.vues do(
+				local vue = m_presets.get		IDvue	type:#vue  par:#id
+				append result   vue
+			)
 			
 			result
 			
@@ -231,8 +227,25 @@ struct str_studio (
 -- 			m_labib.vues.fermer ()
 		), 
 		
-	
 		
+		
+		--------- rendus -------------
+		fn ajouterAlaPile	critique:false	=(
+			local assetsARendre = labib.getSelection ()
+			local vues	= getVue_actif ()
+			local qualite = getQualite_actif ()
+			for asset in assetsARendre where classof asset != str_branche do (
+				for vue in vues do (
+					labib_rendus.ajouter 	pause:false				\
+													critique:critique		\
+													asset:asset 			\
+													fichier:""					\
+													vue:vue					\
+													qualite:qualite			\
+													dateEnvoi:localTime
+				)
+			)
+		),
 		
 		
 		---- GESTION DE LA FENETRE ------------------
@@ -262,7 +275,7 @@ struct str_studio (
 		
 		fn ouvrir_fileAttente =(
 			debug "toggle file d'attente "
-			m_fileAtttente.toggleOuverture ()			
+			labib_rendus.toggleOuverture ()			
 		),
 		
 		fn ouvrir_choixVue =(
@@ -329,6 +342,8 @@ struct str_studio (
 			if enregistrerPresets do
 				m_estOuvert = false
 			
+			m_vues.fermer ()
+-- 			labib_rendus.fermer ()
 -- 			m_vues.fermer ()
 			
 			---- fermer la fenêtre ----
@@ -341,7 +356,11 @@ struct str_studio (
 				else	ouvrir ()
 			
 		),
-		
+		fn  basculer_mode =(
+			m_modeComplet = not m_modeComplet
+			try destroydialog m_dialog catch ()
+			ouvrir()
+		),
 		
 		
 		-------
@@ -357,6 +376,7 @@ struct str_studio (
 		on create do (		
 			---- output ----
 			debug "Structure créée."	
+			ecrire "|Studio| Prêt."
 			initialiser()
 		) 
 		
@@ -366,10 +386,8 @@ struct str_studio (
 
 
 
-studio		= 	str_studio ()		--	m_labib:labib
-
-
-studio.ouvrir ()
+ labib_studio		= 	str_studio ()		--	m_labib:labib
+-- studio.ouvrir ()
 
 -- )
 

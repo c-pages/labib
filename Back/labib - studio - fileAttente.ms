@@ -210,12 +210,14 @@ struct str_fileAttente (
 		col_fenetreFond			= color 68 68 68, 		---- MAX 	----
 		col_fenetreTxt				= color 230  230 230, 	----  		----
 		
+		
 		ico_btnFermer_R	=	"$userScripts\cp - labib\cp - GLOBAL\ico\ico_fermer_grisFoncee_R.jpg",
 		ico_btnFermer_S	=	"$userScripts\cp - labib\cp - GLOBAL\ico\ico_fermer_grisFoncee_S.jpg",
 		ico_btnFermer_P	=	"$userScripts\cp - labib\cp - GLOBAL\ico\ico_fermer_grisFoncee_P.jpg", 
 	
-		m_icos_fermer= #( 	ico_btnFermer_R, ico_btnFermer_S, ico_btnFermer_P ),
-		
+		m_icos_fermer= #( 	openBitMap ico_btnFermer_R, 
+											openBitMap	ico_btnFermer_S,
+											openBitMap	ico_btnFermer_P ),
 		
 		------------  Fonctions	----------------------------------------------------------------------------------
 	public

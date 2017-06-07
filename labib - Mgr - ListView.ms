@@ -57,7 +57,6 @@ struct str_listViewMgr (
 		m_edit	=	m_prt.m_prt.m_labib.edit,
 		m_cmd	=	m_prt.m_prt.m_labib.cmd,
 		
-		
 		---- pour la creation des items -----
 		m_itemsAAfficher		= #(),
 		m_iconesAAfficher,

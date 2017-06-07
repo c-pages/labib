@@ -233,7 +233,6 @@ rollout roll_labib  "Labib" width:296 height:296
 		
 	)
 	
-	
 	---- les listes et tree -----
 	fn actualiser 	= (
 		
@@ -834,7 +833,7 @@ struct str_fenLabib (
 		fn selectionnerLV		_noeudsA 	= m_dialog.m_LV.selectionner 	_noeudsA,
 		fn actualiser 							= m_dialog.actualiser (),
 		fn editerNom 			_noeudA		= m_dialog.m_LV.editerNom 		_noeudA,
-			
+-- 		fn getAssetsSelec					= m_dialog.getAssetsSelec(),
 		
 		------------  Evenements	----------------------------------------------------------------------------------
 		on create do (

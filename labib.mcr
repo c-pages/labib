@@ -24,15 +24,56 @@ clearListener ()
 -- 	destroydialog labib.fenetre.m_dialog		
 -- ) catch  ()
 -- 	
+
+macroScript Labib_rechargerStructs
+category:"#CPages"
+buttonText:"Labib - reload"
+
+(
+
+	
+	try ( 	
+		destroydialog labib.fenetre.m_dialog		
+		destroydialog labib_studio.m_dialog		
+		destroydialog labib_rendus.m_dialog	
+	) catch  ()
+
+	
+	global labib
+	global labib_studio	
+	global  labib_rendus 
+	
+	filein	"$userScripts\cp - labib\labib.ms" 
+	filein  "$userScripts\cp - labib\labib - studio - mgrRendus.ms"
+	filein  "$userScripts\cp - labib\labib - studio.ms"	
+
+
+)
+
+--------------------------------------------------------------------------------
+------ ajouter un menu quad ctrl+shft+RMB dans le viewport ----
+macroScript Labib_mcr_nouvelAsset
+category:"#CPages"
+buttonText:"Creer nouvel asset de la sélection."
+toolTip:""
+(
+	format "Creer nouvel asset de la sélection.\n"
+	labib.cmd.nvlAssetSelec (selection as array)
+)
+
+
+
+
 macroScript Labib
 category:"#CPages"
 buttonText:"Labib"
+icon:#("Labib", 1)
 toolTip:""
 (
 
-	global labib
-	
-	fileIn	 "$userScripts\cp - labib\labib.ms" 
+-- 	global labib
+-- 	
+-- 	fileIn	 "$userScripts\cp - labib\labib.ms" 
 -- 	fileIn "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib.ms" 
 	
 -- 	labib.prefs.reset()
@@ -49,29 +90,6 @@ toolTip:""
 	
 )
 
-macroScript Labib_rechargerStructs
-category:"#CPages"
-buttonText:"Labib - reload"
-
-(
-	
-	try ( 	
-		labib.fermer()	
-	) catch  ()
-	try ( 	
-		destroydialog labib.fenetre.m_dialog		
-	) catch  ()
-
-	clearListener ()
-	global labib
-	
-	fileIn	 "$userScripts\cp - labib\labib.ms" 
--- 	fileIn "C:\Users\kris\AppData\Local\Autodesk\3dsMax\2014 - 64bit\ENU\scripts\labib\labib.ms" 
-	
--- 	labib.prefs.reset()
-	labib.ouvrir 	()
-
-)
 
 macroScript Labib_studio
 category:"#CPages"
@@ -79,21 +97,73 @@ buttonText:"Labib Studio - reload"
 icon:#("Labib_studio", 1)
 tooltip:"Labib Studio - Recréation de la structure"
 (
+		 on execute do 	(
+		
+		if ( labib_studio.estOuvert () )	
+			then	labib_studio.fermer	()
+			else 	labib_studio.ouvrir 	()
+		
+	)
 	
-	try ( 	
-		studio.fermer()	
-	) catch  ()
-	try ( 	
-		destroydialog studio.m_dialog		
-	) catch  ()
+	on isChecked return try ( labib_studio.estOuvert () )  catch	( false )	 
+/* -- 	global labib
+	global labib_studio
+-- 	global labib_rendus
+	
+	 on execute do 	(
+		try ( 	
+			labib_studio.fermer()	
+		) catch  ()
+		try ( 	
+			destroydialog labib_studio.m_dialog		
+		) catch  ()
 
-	clearListener ()
--- 	global studio
+-- 		clearListener ()
+		
+	global labib_studio
+		filein  "$userScripts\cp - labib\labib - studio.ms"
+		
+		labib_studio.ouvrir ()
+	) */
 	
-	filein  "$userScripts\cp - labib\labib - studio.ms"
-	
-	
+)
 
+
+macroScript Labib_rendus
+category:"#CPages"
+buttonText:"Labib - Rendus"
+icon:#("Labib_rendus", 1)
+tooltip:"Labib Studio - Pile des rendus"
+(
+	on execute do 	(
+		
+		if ( labib_rendus.estOuvert () )	
+			then	labib_rendus.fermer	()
+			else 	labib_rendus.ouvrir 	()
+		
+	)
+	
+	on isChecked return try ( labib_rendus.estOuvert () )  catch	( false )	 
+	/* 
+-- 	global labib
+	global labib_rendus
+-- 	global labib_studio
+	
+	on execute do 	(
+		try ( 	
+			labib_rendus.fermer()	
+		) catch  ()
+		try ( 	
+			destroydialog labib_rendus.m_dialog		
+		) catch  ()
+
+-- 		clearListener ()
+		
+		filein  "$userScripts\cp - labib\labib - studio - mgrRendus.ms"
+		
+		labib_rendus.ouvrir ()
+	)
+	 */
 )
 
 /* 

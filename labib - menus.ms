@@ -21,17 +21,6 @@
 
 
 
---------------------------------------------------------------------------------
------- ajouter un menu quad ctrl+shft+RMB dans le viewport ----
-macroScript Labib_mcr_nouvelAsset
-category:"#CPages"
-buttonText:"Creer nouvel asset de la sélection."
-toolTip:""
-(
-	format "Creer nouvel asset de la sélection.\n"
-	labib.cmd.nvlAssetSelec (selection as array)
-)
-
 
 
 

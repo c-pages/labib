@@ -37,7 +37,7 @@
 
 -- (
  
-Global 	labib 
+-- Global 	labib 
 
 ----  Le dossier du script  ----
 nomDossierScript = "cp - labib"
@@ -46,7 +46,7 @@ dossierScript = getdir #userScripts + "\\" + nomDossierScript + "\\"
 
 ------------------------------------------------------------------------------
 ----------	Fichiers annexes						--------------------------
-------------------------------------------------------------------------------
+----------------------------------------------------------------------------
 include "$userScripts\cp - labib\cp - GLOBAL\global - outils.ms"
 include "$userScripts\cp - labib\cp - GLOBAL\UI.ms"
 include "$userScripts\cp - labib\cp - GLOBAL\DragDialog.ms"
@@ -150,7 +150,8 @@ struct str_labib (
 		
 	---- Accessions diverses -----------
 	public
-		fn getDossierInstal = dossierScript ,
+		fn getDossierInstal 	= dossierScript ,
+		fn getSelection		= edit.getSelection (),
 		
 	--- Fenetre ----	
 	public
