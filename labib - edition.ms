@@ -349,18 +349,26 @@ struct str_edition (
 		fn importerNoeud _noeud =(
 			
 			local nodesImport =#()
+			
+-- 			debug "PAR LA"
+-- 			debug "_noeud.fichier " _noeud.fichier 
+			
 			---- on merge le fichier ---
-			mergeMAXFile   _noeud.fichier 	 #autoRenameDups  #renameMtlDups mergedNodes:&nodesImport   quiet:true  
+			mergeMAXFile   _noeud.fichier   #autoRenameDups  #renameMtlDups mergedNodes:&nodesImport   quiet:true  
+			
+-- 			debug "PAR ici"
 			
 			-- on met a jour quelques infos
 			_noeud.setNouvelImport()
 			
 			--- on lie à un dummy parent ----		
-			dummyParent = Dummy name:("lb_" + _noeud.nom )	 pos:( m_manips.calculerCentre 	nodesImport ) scale:( ( m_manips.calculerTaillesBB 	nodesImport ) /10 )
-			for obj in nodesImport do 
-				if obj.parent == undefined do obj.parent = dummyParent
+-- 			dummyParent = Dummy name:("lb_" + _noeud.nom )	 pos:( m_manips.calculerCentre 	nodesImport ) scale:( ( m_manips.calculerTaillesBB 	nodesImport ) /10 )
+-- 			for obj in nodesImport do 
+-- 				if obj.parent == undefined do obj.parent = dummyParent
 			
- 			select dummyParent
+			local dummyParent = m_manips.creerDummyParent	nodesImport
+				
+--  			select dummyParent
 			append nodesImport  dummyParent
 			
 			nodesImport
@@ -410,7 +418,7 @@ struct str_edition (
 -- 			local dummyGlobal= Dummy name: "Import_labib"	 pos:centreGlobal		 scale:TailleGlobal
 -- 			for dum in dummiesImport do 
 -- 				dum.parent = dummyGlobal	
-			select dummiesImport
+-- 			select dummiesImport
 			
 			
 			--- maj de l'interface

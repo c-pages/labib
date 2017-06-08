@@ -31,22 +31,21 @@ buttonText:"Labib - reload"
 
 (
 
-	
-	try ( 	
-		destroydialog labib.fenetre.m_dialog		
-		destroydialog labib_studio.m_dialog		
-		destroydialog labib_rendus.m_dialog	
-	) catch  ()
+	on execute do 	(
+		
+		clearListener ()
+		
+		try 	destroydialog ::labib.fenetre.m_dialog		catch ()
+		try 	destroydialog ::labib_studio.m_dialog		 catch  ()
+		try 	destroydialog ::labib_rendus.m_dialog	 catch  ()
 
-	
-	global labib
-	global labib_studio	
-	global  labib_rendus 
-	
-	filein	"$userScripts\cp - labib\labib.ms" 
-	filein  "$userScripts\cp - labib\labib - studio - mgrRendus.ms"
-	filein  "$userScripts\cp - labib\labib - studio.ms"	
-
+		filein	 ( getdir #userStartupScripts + "\labib - startup.ms" )
+		
+		::labib.ouvrir 	()		
+		::labib_studio.ouvrir 	()
+		::labib_rendus.ouvrir 	()
+		
+	)
 
 )
 
@@ -80,13 +79,13 @@ toolTip:""
 	
 	 on execute do 	(
 		
-		if ( labib.estOuvert () )	
-			then	labib.fermer	()
-			else 	labib.ouvrir 	()
+		if ( ::labib.estOuvert () )	
+			then	::labib.fermer	()
+			else 	::labib.ouvrir 	()
 		
 	)
 	
-	on isChecked return try ( labib.estOuvert () )  catch	( false )	 
+	on isChecked return try ( ::labib.estOuvert () )  catch	( false )	 
 	
 )
 
@@ -99,13 +98,13 @@ tooltip:"Labib Studio - Recréation de la structure"
 (
 		 on execute do 	(
 		
-		if ( labib_studio.estOuvert () )	
-			then	labib_studio.fermer	()
-			else 	labib_studio.ouvrir 	()
+		if ( ::labib_studio.estOuvert () )	
+			then	::labib_studio.fermer	()
+			else 	::labib_studio.ouvrir 	()
 		
 	)
 	
-	on isChecked return try ( labib_studio.estOuvert () )  catch	( false )	 
+	on isChecked return try ( ::labib_studio.estOuvert () )  catch	( false )	 
 /* -- 	global labib
 	global labib_studio
 -- 	global labib_rendus
@@ -137,13 +136,13 @@ tooltip:"Labib Studio - Pile des rendus"
 (
 	on execute do 	(
 		
-		if ( labib_rendus.estOuvert () )	
-			then	labib_rendus.fermer	()
-			else 	labib_rendus.ouvrir 	()
+		if ( ::labib_rendus.estOuvert () )	
+			then	::labib_rendus.fermer	()
+			else 	::labib_rendus.ouvrir 	()
 		
 	)
 	
-	on isChecked return try ( labib_rendus.estOuvert () )  catch	( false )	 
+	on isChecked return try ( ::labib_rendus.estOuvert () )  catch	( false )	 
 	/* 
 -- 	global labib
 	global labib_rendus

@@ -38,7 +38,7 @@ struct str_prefsFenPrincipale (
 	
 	---- les parametres de la fenetre ----	
 	fenLabib_estOuvert	= false,
-	fenLabib_pos 			= [50,50],
+	fenLabib_pos 			= [1200,300],
 	fenLabib_taille 		= [578,366],
 	
 	-- les sliders --
@@ -163,7 +163,7 @@ struct str_prefsRendus (
 	
 	-- parametres du moteur de rendu --
 -- 	moteur							= "Corona_1_5__hotfix_1()",	-- execute ( ( filterString moteur ":")[1] +"()" )
-	taille								= [256,256],	
+	taille								= [512,512],	
 	coefDistance					= 1.7,
 	
 	exposition 						= -5,

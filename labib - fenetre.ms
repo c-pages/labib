@@ -22,6 +22,8 @@
 	- Une interface souple et simple
 ########################################################################################################################*/
 
+-- include "$userScripts\cp - labib\cp - GLOBAL\UI.ms"
+
 
 ------------------------------------------------------------------------------
 ----------	Fenetre								 -------------------------
@@ -51,22 +53,24 @@ rollout roll_labib  "Labib" width:296 height:296
 	local m_tailleRolloutCreation =  [1200 , 500 ]
 	local m_ecartUI			= 19		----  ----
 	local m_ecartUISimple	= 1		----  ----	
+	local m_largeur = 200
 	
-	------------  UI	----------------------------------------------------------------------------------
-	
-	ImgTag 'ui_barreAdresse' "" 	pos:[/* 200 +  */m_ecartUI, 3 ] width:66 height:18 align:#left
+	------------  UI	virtuelle ----------------------------------------------------------------------------------
 	
 	
-	local 	ui_slider_H  		 	= 	str_btnVirtuel					pos:		[200, m_ecartUI] \
+	local 	ui_slider_H  	/* 	 	= 	str_btnVirtuel					pos:		[200, m_ecartUI] \
 																					width:	m_ecartUI	\
 																					height: 	( m_tailleRolloutCreation.y - 2 *m_ecartUI )
-																					
-	local 	ui_slider_V  	 		= 	str_btnVirtuel					pos:		[m_ecartUI, m_tailleRolloutCreation.y - 100 ] \
-																							width:	( ui_slider_H.pos.x )	\
-																							height: 	m_ecartUI 
+									 */												
+	local 	ui_slider_V  	 /* 		= 	str_btnVirtuel					pos:		[m_ecartUI, m_tailleRolloutCreation.y - 100 ] \
+																					width:	( ui_slider_H.pos.x )	\
+																					height: 	m_ecartUI 
+	 */
+	------------  UI	----------------------------------------------------------------------------------
+	ImgTag 'ui_barreAdresse' "" 	pos:[/* 200 +  */m_ecartUI, 3 ] width:66 height:18 align:#left
 																					
 	dotNetControl ui_recherche		"TextBox"	 							pos:		[ m_ecartUI , 	m_ecartUI   ]  \
-																							width:	( ui_slider_V.width - ( m_ecartUI + m_ecartUISimple  + 2 )	)\
+																							width:	( m_largeur - ( m_ecartUI + m_ecartUISimple  + 2 )	)\
 																							border:	false	\
 																							height:	0
 																							
@@ -77,16 +81,16 @@ rollout roll_labib  "Labib" width:296 height:296
 																							style:	#bmp_center  
 																							
 	dotNetControl ui_TV 				"TreeView"			 			pos:		[m_ecartUI ,ui_recherche.pos.y + ui_recherche.height - 5  ]	\
-																							width:	ui_slider_V.width	\
+																							width:	m_largeur	\
 																							height:	0 	
 																					
 																					
 	dotNetControl ui_tags	"system.windows.forms.listView"	pos:		( ui_TV.pos + [0,ui_TV.height  + m_ecartUI ] ) \
-																							width:	ui_slider_V.width  \
+																							width:	m_largeur  \
 																							height:	0
 																								
 																					
-	dotNetControl ui_LV 	"system.windows.forms.listView"	pos:		[ ui_slider_H.pos.x + ui_slider_H.width, m_ecartUI ] \
+	dotNetControl ui_LV 	"system.windows.forms.listView"	pos:		[ m_largeur + m_ecartUI, m_ecartUI ] \
 																							width:	0 \
 																							height:	( m_tailleRolloutCreation.y - 2* m_ecartUI ) \
 																							border:	false
@@ -269,6 +273,15 @@ rollout roll_labib  "Labib" width:296 height:296
 	 	m_TV 			= str_treeViewMgr	m_prt:roll_labib	m_ui:ui_TV
 		m_LV.m_TV 	=	m_TV  -- sinon ca boucle a l'init avec la creation du m_TV--
 		
+		--- btns virtuelles -----------
+		ui_slider_H  		 	= 	str_btnVirtuel					pos:		[200, m_ecartUI] \
+																			width:	m_ecartUI	\
+																			height: 	( m_tailleRolloutCreation.y - 2 *m_ecartUI )
+																					
+		ui_slider_V  	 		= 	str_btnVirtuel					pos:		[m_ecartUI, m_tailleRolloutCreation.y - 100 ] \
+																			width:	( ui_slider_H.pos.x )	\
+																			height: 	m_ecartUI 
+																					
 		-- recherche --
 		m_recherche 	= str_recherche		m_prt:roll_labib	m_ui:ui_recherche	m_arbo:m_arbo	m_edit:m_edit
 		
@@ -845,7 +858,7 @@ struct str_fenLabib (
 
 
 
-
+-- toto = str_fenLabib()
 
 
 

@@ -44,17 +44,17 @@ nomDossierScript = "cp - labib"
 dossierScript = getdir #userScripts + "\\" + nomDossierScript + "\\"
 
 
-------------------------------------------------------------------------------
-----------	Fichiers annexes						--------------------------
 ----------------------------------------------------------------------------
-include "$userScripts\cp - labib\cp - GLOBAL\global - outils.ms"
-include "$userScripts\cp - labib\cp - GLOBAL\UI.ms"
-include "$userScripts\cp - labib\cp - GLOBAL\DragDialog.ms"
+--------	Fichiers annexes						--------------------------
+--------------------------------------------------------------------------
+-- include "$userScripts\cp - labib\cp - GLOBAL\global - outils.ms"
+-- include "$userScripts\cp - labib\cp - GLOBAL\UI.ms"
+-- include "$userScripts\cp - labib\cp - GLOBAL\DragDialog.ms"
 
 
-include "$userScripts\cp - labib\labib - output.ms"
-include "$userScripts\cp - labib\labib - Outils divers.ms"
-include "$userScripts\cp - labib\labib - manipNodes.ms"
+-- include "$userScripts\cp - labib\labib - output.ms"
+-- include "$userScripts\cp - labib\labib - Outils divers.ms"
+-- include "$userScripts\cp - labib\labib - manipNodes.ms"
 -- include "$userScripts\cp - labib\labib - presets.ms"
 
 
@@ -62,8 +62,7 @@ include "$userScripts\cp - labib\labib - manipNodes.ms"
 ----- les fichiers corps --------
 --------------------------------------
 include "$userScripts\cp - labib\labib - preferences.ms"
-include "$userScripts\cp - labib\labib - arborescence.ms"	
-
+include "$userScripts\cp - labib\labib - arborescence.ms"
 
 include "$userScripts\cp - labib\labib - Mgr - Divers.ms"
 include "$userScripts\cp - labib\labib - Mgr - TreeView.ms"
@@ -74,21 +73,9 @@ include "$userScripts\cp - labib\labib - menus.ms"
 
 include "$userScripts\cp - labib\labib - fenetre proprietes.ms"
 include "$userScripts\cp - labib\labib - fenetre apercus.ms"
-/* 
----- le studio ----------
-include "$userScripts\cp - labib\labib - fenetre vues.ms"
-include "$userScripts\cp - labib\labib - fenetre parametres vues.ms"	
-include "$userScripts\cp - labib\labib - fenetre queryNom.ms"	
-include "$userScripts\cp - labib\labib - fenetre ChoisirVue.ms"	
-include "$userScripts\cp - labib\labib - gestion rendus.ms"
-include "$userScripts\cp - labib\labib - studio - presets.ms"
-include "$userScripts\cp - labib\labib - studio.ms"
- */
-
- include "$userScripts\cp - labib\labib - fenetre.ms"
+include "$userScripts\cp - labib\labib - fenetre.ms"
 
 include "$userScripts\cp - labib\labib - edition.ms"
-
 include "$userScripts\cp - labib\labib - Mgr - Commandes.ms"	
 
 -----------------------------------------

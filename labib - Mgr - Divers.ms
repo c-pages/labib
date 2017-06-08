@@ -360,7 +360,7 @@ struct str_historique (
 
 
 
-
+/* 
 ------------------------------------------------------------------------------
 ----------	dragger une fenetre 					--------------------------
 ------------------------------------------------------------------------------
@@ -390,32 +390,6 @@ struct str_drag (
 	
 ) -- fin struct drag --
 
-------------------------------------------------------------------------------
-----------	Bouton virtuel 						--------------------------
-------------------------------------------------------------------------------
-struct str_btnVirtuel (
-	---- membres ----
-	pos 			= [0,0],
-	width 		= 0,
-	height 		= 0,
-	
-	pressed 		= false,
-	posPress 	= [0,0],
-	posOrigine 	= [0,0],
-	
-	---- fonctions ----
-	fn bouge _decallage = (
-		pos	= posOrigine + _decallage
-	),
-	fn survole _pos =(
-		local result = false
-		if _pos.x > pos.x	and _pos.x < pos.x + width do
-			if _pos.y > pos.y	and _pos.y < pos.y + height do
-				result = true
-		result
-	)
-	
-)
 
-
+ */
 

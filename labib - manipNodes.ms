@@ -70,8 +70,6 @@ struct str_manipNodes (
 				for obj in _objets where ( superclassof obj != light  	and	superclassof obj != camera 	and 	superclassof obj != helper	and 	superclassof obj != shape and classOf obj != Targetobject and not obj.ishidden )	do (
 					
 					BoundingTemp = ( nodeGetBoundingBox obj mtrx_repereWorld  )
-
-					format "BB_result : %		BoundingTemp : %\n"   BB_result  BoundingTemp
 					
 					if BoundingTemp[1].x < BB_result[1].x 	do 	BB_result[1].x = BoundingTemp[1].x 
 					if BoundingTemp[1].y < BB_result[1].y 	do 	BB_result[1].y = BoundingTemp[1].y 
@@ -100,7 +98,10 @@ struct str_manipNodes (
 		),
 		
 		fn creerDummyParent _objets =(
-			
+			dummyParent = Dummy name:("lb_dummy" )	 pos:( calculerCentre 	_objets ) scale:( ( calculerTaillesBB 	_objets ) /10 )
+			for obj in _objets do 
+				if obj.parent == undefined do obj.parent = dummyParent
+			dummyParent
 		)
 		
 

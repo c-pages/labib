@@ -63,12 +63,20 @@ struct str_preset_lumiere (
 	id 				= "",	
 	nom 			= "Lumiere",  			---- le nom du preset
 	locked			= false,
-	
+	/* 
 	rot			= [0,0,0],				----	sur 2 ou 3 axes ?!? 	----	rotation de la camera par rapport à la position par defaut ( face au petit coté de la BB ? a définir)	
 	pos			= [0,0,0],				----	sur 2 ou 3 axes ?!? 	----	decallage effectué apres la rotation
 	taille			= [1,1,1],				----	sur 2 ou 3 axes ?!? 	----	
 	intensite		= 50.0,
-	map			= 50.0					---- un pourcentage ?
+	map			= 50.0,					---- un pourcentage ?
+	 */
+	
+	--- reglages coronas ----
+	EV = -5.0
+	
+	
+	
+	
 )
 struct str_preset_effect (
 	id 				= "",	
@@ -87,14 +95,32 @@ struct str_preset_effect (
 ----------------- LES PRESETS generales du studio ---------------------------------------------------------------------------
 -----  preset d'une vue ------
 struct str_preset_vue (
+	
 	id 					= "",		
 	nom 				= "Vue",   			---- le nom du preset ("Face", "mobilier" ou "détail végétation" .... par ex.)
 	locked			= false,
 	
 	camera			= "",
 	fond				= "",
-	lumieres 		= #()
+	lumiere 			= "",
+	effet 				= "",
+	
+	fn setCamera 	_cam 	=(
+		camera = _cam.id
+	),
+	fn setFond 		_fond 	=(
+		fond = _fond.id
+	),
+	fn setLumiere 	_lum 	=(
+		lumiere = _lum.id
+	),
+	fn setEffet 		_effet 	=(
+		effet = _effet.id
+	)
+	
 )
+
+
 ---- preset de studio , un groupement de vues pour faire des studio en serie ------------------
 struct str_preset_studio (
 	id 				= "",	
@@ -134,15 +160,16 @@ struct str_liste_mgr (
 		),
 		fn enregistrerDatas  _datas  =(
 			local propsNoms 	= getPropNames  _datas
-			for propNom in propsNoms do (
-				setINISetting   	fichier	_datas.id   propNom  	( ( getProperty _datas	 propNom	)	as string )
-			)
+			
+			for propNom in propsNoms where classof ( getProperty _datas	 propNom	) != MAXScriptFunction
+				do setINISetting   	fichier	_datas.id   propNom  	( ( getProperty _datas	 propNom	)	as string )
+			
 		),
 		fn chargerDatas	&_preset =(
 			
 			local propsNoms 	= getPropNames  _preset
 		
-			for propNom in propsNoms do (
+			for propNom in propsNoms where classof ( getProperty _preset	 propNom	) != MAXScriptFunction  do (
 				local propType 	= classof ( getProperty 	_preset  propNom )
 				local propFichier 	= getINISetting   	fichier		_preset.id   	propNom 
 				
@@ -151,6 +178,7 @@ struct str_liste_mgr (
 					Float:			setProperty 	_preset 	propNom		( propFichier	as float )
 					BooleanClass:	setProperty 	_preset 	propNom		( if propFichier == "true" then true else false )
 					Point2:			setProperty 	_preset 	propNom		( execute propFichier )
+					Point3:			setProperty 	_preset 	propNom		( execute propFichier )
 					Array:			setProperty 	_preset 	propNom		( execute propFichier )
 					Default:			setProperty 	_preset 	propNom		propFichier
 				)  
@@ -444,7 +472,11 @@ struct str_studio_presets (
 			
 			result
 		),
-		
+		fn reset =(
+			
+			for presets in  m_presetsTotal do	presets.vider ()
+			deletefile  m_fichier
+		),
 		----------------------------------------------------------------------------------------------------------------------------------------------------------------
 		---- initialiser les VALEURS PAR DEFAUTS ------------------------------------------------------------------------------------------------
 		----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -454,32 +486,10 @@ struct str_studio_presets (
 			
 			-- on vide tout ---
 			for presets in  m_presetsTotal do	presets.vider ()
+			deletefile  m_fichier
 			
 			
-			---- studios -------------------------------------------------------------------------------------
-			nvPreset = creer nom:"Défaut"	
-			nvPreset.locked	=  true
-			nvPreset.vues 	=#( "V1" )
 			
-			nvPreset = creer nom:"Végétation - Exterieur"	
-			nvPreset.vues 	=#( "V1" , "V2", "V3")
-			
-			nvPreset = creer nom:"Végétation - Interieur"
-			nvPreset.vues 	=#( "V1" )
-			
-			nvPreset = creer nom:"Mobilier"
-			nvPreset.vues 	=#( "V1" )
-			
-			---- vues -------------------------------------------------------------------------------------
-			nvPreset = creer type:#vue		nom:"Face"
-			nvPreset.locked	=  true
-			nvPreset = creer type:#vue		nom:"Profil D"
-			nvPreset.locked	=  true
-			nvPreset = creer type:#vue		nom:"Profil G"
-			nvPreset.locked	=  true
-			nvPreset = creer type:#vue		nom:"Dessus"
-			nvPreset.locked	=  true
-			nvPreset = creer type:#vue		nom:"Custom"
 			
 			---- qualité -------------------------------------------------------------------------------------
 			nvPreset = creer type:#qualite	nom:"Trés rapide"
@@ -490,6 +500,13 @@ struct str_studio_presets (
 			nvPreset.timelimit 			= 0
 			
 			nvPreset = creer type:#qualite	nom:"Rapide"
+			nvPreset.locked				=  true
+			nvPreset.nbrPass 			= 15
+			nvPreset.noiseLvl 			= 0
+			nvPreset.denoise 			= 0.75
+			nvPreset.timelimit 			= 0
+			
+			nvPreset = creer type:#qualite	nom:"Défaut"
 			nvPreset.locked				=  true
 			nvPreset.nbrPass 			= 15
 			nvPreset.noiseLvl 			= 0
@@ -518,6 +535,13 @@ struct str_studio_presets (
 			
 			
 			---- cameras  -------------------------------------------------------------------------------------
+			nvPreset = creer type:#camera	nom:"Défaut"
+			nvPreset.locked	=  true
+			nvPreset.rot			= [0,0,0]
+			nvPreset.pos			= [0,0,0]
+			nvPreset.fov			= 90
+			nvPreset.dist_ratio	= 1
+			
 			nvPreset = creer type:#camera	nom:"Face"
 			nvPreset.locked	=  true
 			nvPreset.rot			= [0,0,0]
@@ -532,13 +556,13 @@ struct str_studio_presets (
 			nvPreset.dist_ratio	= 1
 			
 			nvPreset = creer type:#camera	nom:"Profil D"
-			nvPreset.rot			= [0,0,90]
+			nvPreset.rot			= [90,0,0]
 			nvPreset.pos			= [0,0,0]
 			nvPreset.fov			= 90
 			nvPreset.dist_ratio	= 1
 			
 			nvPreset = creer type:#camera	nom:"Profil G"
-			nvPreset.rot			= [0,0,-90]
+			nvPreset.rot			= [-90,0,0]
 			nvPreset.pos			= [0,0,0]
 			nvPreset.fov			= 90
 			nvPreset.dist_ratio	= 1			
@@ -550,16 +574,78 @@ struct str_studio_presets (
 			nvPreset.dist_ratio	= .333	
 			
 			---- fond -------------------------------------------------------------------------------------
+			nvPreset = creer type:#fond		nom:"Défaut"
 			nvPreset = creer type:#fond		nom:"Présentation objets"
 			
 			---- lumieres -------------------------------------------------------------------------------------
+			nvPreset = creer type:#lumiere	nom:"Défaut"
+			
+			
 			nvPreset = creer type:#lumiere	nom:"Exterieur 1"
 			nvPreset = creer type:#lumiere	nom:"Interieur 1"
 			
 			
 			---- effets -------------------------------------------------------------------------------------
+			nvPreset = creer type:#effet		nom:"Défaut"
 			nvPreset = creer type:#effet		nom:"Neutre"
 			nvPreset = creer type:#effet		nom:"Vignetting + bloom leger"
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			---- vues -------------------------------------------------------------------------------------
+			nvPreset = creer type:#vue		nom:"Défaut"
+			nvPreset.locked	=  true
+			nvPreset.setLumiere 		( get  "Défaut"	type:#lumiere  	par:#nom )
+			nvPreset.setCamera 		( get  "Défaut"	type:#camera  	par:#nom )
+			nvPreset.setFond 			( get  "Défaut"	type:#fond  		par:#nom )
+			nvPreset.setEffet 			( get  "Défaut"	type:#effet  		par:#nom )
+			
+			nvPreset = creer type:#vue		nom:"Face"
+			nvPreset.locked	=  true
+			nvPreset = creer type:#vue		nom:"Profil D"
+			nvPreset.locked	=  true
+			nvPreset.setLumiere 		( get  "Défaut"	type:#lumiere  	par:#nom )
+			nvPreset.setCamera 		( get  "Profil D"	type:#camera  	par:#nom )
+			nvPreset.setFond 			( get  "Défaut"	type:#fond  		par:#nom )
+			nvPreset.setEffet 			( get  "Défaut"	type:#effet  		par:#nom )
+			
+			nvPreset = creer type:#vue		nom:"Profil G"
+			nvPreset.locked	=  true
+			nvPreset.setLumiere 		( get  "Défaut"	type:#lumiere  	par:#nom )
+			nvPreset.setCamera 		( get  "Profil G"	type:#camera  	par:#nom )
+			nvPreset.setFond 			( get  "Défaut"	type:#fond  		par:#nom )
+			nvPreset.setEffet 			( get  "Défaut"	type:#effet  		par:#nom )
+			
+			nvPreset = creer type:#vue		nom:"Dessus"
+			nvPreset.locked	=  true
+			nvPreset = creer type:#vue		nom:"Custom"
+			
+			
+			---- studios -------------------------------------------------------------------------------------
+			nvPreset = creer nom:"Défaut"	
+			nvPreset.locked	=  true
+			nvPreset.vues 	=#( "V1" )
+			
+			nvPreset = creer nom:"Végétation - Exterieur"	
+			nvPreset.vues 	=#( "V1" , "V3", "V4")
+			
+			nvPreset = creer nom:"Végétation - Interieur"
+			nvPreset.vues 	=#( "V1" )
+			
+			nvPreset = creer nom:"Mobilier"
+			nvPreset.vues 	=#( "V1" )
+			
+			
+			
+			
 			
 			sauvegarder ()
 			
@@ -570,42 +656,40 @@ struct str_studio_presets (
 		
 		
 )
-
-
-
-
-
 /* 
-clearlistener ()
-str_tmp = str_presets ()
-str_tmp.valeursParDefaut ()
-str_tmp.print ()
-str_tmp.get 2 type:#camera
-str_tmp.get_items  	type:#camera
-str_tmp.get_noms 	type:#vue
 
- */
+labib_studio.m_presets.get  "Défaut"	type:#lumiere  par:#nom
+labib_studio.m_presets.reset ()
+labib_studio.m_presets.defaut ()
+labib_studio.m_presets.print ()
 
-
-/* 
-str_tmp.get_items 	type:#camera
-str_tmp.creer #studio		nom:"Végétation - Exterieur"
-str_tmp.creer #studio		nom:"Végétation - Interieur"
-str_tmp.creer #vue			nom:"Face"
-str_tmp.creer #vue			nom:"Profil D"
-str_tmp.creer #vue			nom:"Profil G"
-str_tmp.creer #qualite		nom:"trés rapide"
-str_tmp.creer #qualite		nom:"Rapide"
-str_tmp.creer #qualite		nom:"Normal"
-str_tmp.creer #qualite		nom:"Qualité"
-str_tmp.creer #fond			nom:"Présentation objets"
-str_tmp.creer #lumiere		nom:"Exterieur 1"
-str_tmp.creer #lumiere		nom:"Interieur 1"
-
-
- str_tmp.charger ()
-str_tmp.print ()
-str_tmp.get 
  */
 
 --
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

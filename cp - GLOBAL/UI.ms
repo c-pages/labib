@@ -20,6 +20,47 @@
 	include "$userScripts\cp - labib\cp - GLOBAL\Polices.ms"
 
 
+
+------------------------------------------------------------------------------
+----------	dragger une fenetre 					--------------------------
+------------------------------------------------------------------------------
+struct str_drag (
+	
+	m_prt, 
+	
+	posOrigineSouris 		= [0,0],
+	posOrigineFenetre 	= [0,0],
+	enCours 				= false,
+	
+	fn demarrer 	=(
+		enCours 				= true
+		posOrigineSouris		= mouse.screenpos 
+		posOrigineFenetre 	= GetDialogPos 	m_prt
+	),
+	fn arreter  	=(
+		enCours 				= false
+	),
+	fn suivreSouris 	 	=(
+		if enCours  do (			
+			local ecart = ( mouse.screenpos  - posOrigineSouris )
+			SetDialogPos  m_prt	( posOrigineFenetre + ecart )
+		)
+	)
+	
+) -- fin struct drag --
+
+
+------------------------------------------------------------------------------
+----------	elements d'interfaces					--------------------------
+------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
 	struct str_elemUI_fond (
 		m_prt,												--- pointeur PaRenT à initialiser a la creation ----
 		m_couleur	= 	color 68  68 68,		----- la couleur du texte -----
@@ -230,7 +271,33 @@
 			)
 	) 
 	
-	
+	------------------------------------------------------------------------------
+	----------	Bouton virtuel 						--------------------------
+	------------------------------------------------------------------------------
+	struct str_btnVirtuel (
+		---- membres ----
+		pos 			= [0,0],
+		width 		= 0,
+		height 		= 0,
+		
+		pressed 		= false,
+		posPress 	= [0,0],
+		posOrigine 	= [0,0],
+		
+		---- fonctions ----
+		fn bouge _decallage = (
+			pos	= posOrigine + _decallage
+		),
+		fn survole _pos =(
+			local result = false
+			if _pos.x > pos.x	and _pos.x < pos.x + width do
+				if _pos.y > pos.y	and _pos.y < pos.y + height do
+					result = true
+			result
+		)
+		
+	)
+
 	
 	
 	

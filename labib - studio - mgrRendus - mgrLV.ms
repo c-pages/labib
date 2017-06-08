@@ -70,6 +70,10 @@ struct str_studio_LVmgr (
 			nvItem.subItems.add 	( _rendu.critique as string)
 			nvItem.subItems.add 	( _rendu.dateEnvoi as string)
 			nvItem.subItems.add 	( _rendu.dateRendu as string)
+			
+			local couleurLigne  	= if _rendu.renduFait then color 180 180 180 else white
+ 			nvItem.ForeColor		= toCouleurDotnet	couleurLigne 
+			
 			nvItem
 		),
 		
@@ -97,7 +101,7 @@ struct str_studio_LVmgr (
 			debug "INIT"
 			---- affichage ----
 	
-			local col_uiFond 		= color 130 136 152
+			local col_uiFond 		= color 100 100 100
 			local col_txt			= color 255	 255	255
 			
 			-- UI --
@@ -113,15 +117,13 @@ struct str_studio_LVmgr (
 			m_ui.BackColor 				= toCouleurDotnet	col_uiFond
 			m_ui.ForeColor 				= toCouleurDotnet   col_txt
 			
-			
-			
 			m_ui.view = (dotNetClass "system.windows.forms.view").details
 			m_ui.columns.add "Nom de l'assset" 200
 			m_ui.columns.add "vue" 80
 			m_ui.columns.add "qualité" 80
 			m_ui.columns.add "Critique" 50
-			m_ui.columns.add "Ajouté le" 100
-			m_ui.columns.add "Rendu le" 100
+			m_ui.columns.add "Ajouté le" 130
+			m_ui.columns.add "Rendu le" 130
 			
 			m_ui.FullRowSelect = true
 		

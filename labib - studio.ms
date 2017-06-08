@@ -20,22 +20,10 @@
 	- Mise en place globale 
 ########################################################################################################################*/
 
--- (
-	
-	
 
--- global labib_studio
-	
-	
-
-include "$userScripts\cp - labib\cp - GLOBAL\UI.ms"
-include "$userScripts\cp - labib\cp - GLOBAL\DragDialog.ms"
-	
--- include "$userScripts\cp - labib\labib - studio - mgrRendus.ms"
 include "$userScripts\cp - labib\labib - studio - fenetres.ms"
 include "$userScripts\cp - labib\labib - studio - presets.ms"
 include "$userScripts\cp - labib\labib - studio - Vues.ms"
-
 	
 
 ------------------------------------------------------------------------------

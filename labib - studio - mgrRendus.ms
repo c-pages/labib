@@ -36,8 +36,8 @@
 -- (
 	
 ---- a ne pas doubler ----
-include "$userScripts\cp - labib\cp - GLOBAL\UI.ms"
-include "$userScripts\cp - labib\cp - GLOBAL\DragDialog.ms"
+-- include "$userScripts\cp - labib\cp - GLOBAL\UI.ms"
+-- include "$userScripts\cp - labib\cp - GLOBAL\DragDialog.ms"
 
 	
 	
@@ -47,30 +47,31 @@ include "$userScripts\cp - labib\cp - GLOBAL\DragDialog.ms"
 --- pour fonctionnement mgr rendus -----
 include "$userScripts\cp - labib\labib - studio - mgrRendus - mgrLV.ms"
 	
-	
-	
-	
-fn executer_THREAD  sender e  =(
--- 			debug "sender" var:sender
-		local pileRendus = labib_rendus.m_pile.getItems ()
+/* 	
+---- les trhead pour fonction en paralleles -----
+global labib_thread_1
+
+fn dialogThread =(
+	format " THREAD § § § § § THREAD § § § § § THREAD § § § § § THREAD § § § § §\n"
+	rollout unnamedRollout "Untitled" width:162 height:98
+	(
+		progressBar 'pb1' "ProgressBar" pos:[8,35] width:145 height:23 align:#left
+		button 'btn1' "Button" pos:[12,64] width:143 height:26 align:#left
 		
-		for renduAFaire in pileRendus do (
-			if keyboard.escPressed do
-					If thread_1.IsBusy Then thread_1.CancelAsync()
-			If thread_1.CancellationPending 
-				then 	(
-					e.cancel = true	
-					labib_rendus.pauser ()
-				)
-				else 		(
-					labib_rendus.rendre 	renduAFaire
-					
-				)
+		on btn1 pressed  do	(
+			::labib_rendus.annulerRendus ()
 		)
 	)
-thread_1 = dotnetobject "CSharpUtilities.SynchronizingBackgroundWorker"
-thread_1.WorkerSupportsCancellation = true		
-dotNet.addEventHandler thread_1 "DoWork" 	executer_THREAD
+   createdialog unnamedRollout
+)
+
+
+
+
+ */
+
+
+
 
 	
 struct str_node_rendu (
@@ -100,28 +101,31 @@ struct str_mgr_pileRendus (
 			if m_debug do ::debuger 	_txt  	var:var	 param:param	prefix:m_dbgPrefix
 		),
 	
-	
-	
-	
 	private
 		m_items =#(),
 		m_pause = true,
 		m_indexID = 0,
 		
 	public
+		
+		fn marquerFait  _item 	=(
+			_item.dateRendu = localTime
+			_item.renduFait = true
+		),
+		
 		fn supprimerPremier  =(
 			debug "supprimerPremier"
 			if m_items.count > 0 do
 				deleteItem m_items 1
 		),
+		
 		fn supprimer	_rendu  =(
-			debug "supprimerPremier"
+			debug "supprimer"
 			local id = findItem m_items	_rendu
 			deleteItem m_items id
 			
--- 			if m_items.count > 0 do
--- 				deleteItem m_items 1
 		),
+		
 		fn ajouter 	_rendu =(
 			debug "ajouter" 
 			
@@ -133,8 +137,20 @@ struct str_mgr_pileRendus (
 			append 	m_items 	nvRendu
 			nvRendu
 		),
-		fn getItems = m_items
 		
+		fn get _index =(
+			m_items[_index]
+		),
+		fn getItems = m_items,
+		fn aItems = m_items.count > 0,
+			
+		fn getItemsARendre =(
+			local result =for item in m_items where not item.renduFait collect item
+			result
+		),
+		fn aItemsARendre =(
+			( getItemsARendre() ).count > 0
+		)
 )
 
 
@@ -178,8 +194,8 @@ rollout roll_mgrRendus  "File de rendus" width:500 height:300
 																				align:#left
 	
 	
-	checkButton	'chk_pause' 		"pause" pos:[16,260] width:52 height:17 align:#left
-	button 'btn_annuler' 	"annuler" pos:[67,260] width:52 height:17 align:#left
+	checkButton	'chk_pause' 		"Pauser" pos:[16,260] width:52 height:17 align:#left
+	button 'btn_annuler' 	"Annuler" pos:[67,260] width:52 height:17 align:#left
 	
 	------------  Fonctions	----------------------------------------------------------------------------------
 	
@@ -211,7 +227,17 @@ rollout roll_mgrRendus  "File de rendus" width:500 height:300
 	fn actualiser = (
 		
 		m_LV.actualiser ()
-		chk_pause.checked = m_prt.estEnPause ()
+		
+		
+		if m_prt.m_pile.aItemsARendre ()  then (
+			chk_pause.checked 	= m_prt.estEnPause ()
+			
+		) else (
+			chk_pause.checked = false
+		)
+		chk_pause.enabled 	= m_prt.m_pile.aItemsARendre () 
+		btn_annuler.enabled = m_prt.m_pile.aItemsARendre () 
+		
 	)
 	
 	
@@ -268,13 +294,18 @@ rollout roll_mgrRendus  "File de rendus" width:500 height:300
 	
 	on chk_pause changed state 				do	(
 		if state 
-			then m_prt.pauser ()
-			else m_prt.retirerPause () 
+			then (
+				m_prt.pauser ()
+				chk_pause.text = "Rendre"
+			)	else ( 
+				m_prt.lancerExecution () 
+				chk_pause.text = "Pauser"
+			)
 		actualiser ()
 	)
 	
-	on btn_annuler pressed do 
-					If thread_1.IsBusy Then thread_1.CancelAsync()
+	on btn_annuler pressed do annulerRendus ()
+	
 )
 	
 ------------------------------------------------------------------------------
@@ -312,22 +343,260 @@ struct str_mgrRendus (
 		ico_btnFermer_P	=	"$userScripts\cp - labib\cp - GLOBAL\ico\ico_fermer_grisFoncee_P.jpg", 
 	
 		m_icos_fermer= #( 	openBitMap ico_btnFermer_R, 
-											openBitMap	ico_btnFermer_S,
-											openBitMap	ico_btnFermer_P ),
+									openBitMap	ico_btnFermer_S,
+									openBitMap	ico_btnFermer_P ),
+		
+		
 		
 		
 
 	private
 		m_estOuvert 	= false,	
 		m_pause 		= true,
+		m_canceled	= false ,
 		
+		--- fichier MAX servant de studio ----------
+		m_fichierStudio			=	getDir #userscripts + "\cp - labib\data\labib_modeEdition.max",
+		m_fichierStudio_ouvert 	= false,
 		
-		------ multi threading ------------------
-		m_thread_1 = dotnetobject "CSharpUtilities.SynchronizingBackgroundWorker",
-
+		m_manips   			= str_manipNodes (),
+		
+-- 		m_thread_1 		 = dotnetobject "CSharpUtilities.SynchronizingBackgroundWorker",
 		
 		------------  Fonctions	----------------------------------------------------------------------------------
+		
+
+		
+		fn ouvrir_fichierStudio =(
+			debug "ouvrir_fichierStudio"
+			
+				
+				resetMaxFile 	#noPrompt
+				
+			
+				--- les elements du studio ---------------
+				mergeMaxFile	m_fichierStudio 
+				
+				m_fichierStudio_ouvert = true
+				
+-- 			)
+		),
+		
+		
+		fn quitter_fichierStudio =(
+			debug "quitter_fichierStudio"
+			resetMaxFile 	#noPrompt
+			m_fichierStudio_ouvert = false
+		),
+		
+		
+	private
+		fn annulerRendus =(
+			ecrire "annulerRendus"
+			m_canceled = true
+-- 			progressEnd() 
+		),
+		fn estAnnule =(
+-- 			if getProgressCancel()  then annulerRendus () else
+			 if  keyboard.escPressed  do annulerRendus ()
+			m_canceled
+		),
+			
+		
+		
+		---- divers ---------
+		fn placer_CamDefaut  		_objets  =(
+			
+			local cam 					= $Camera
+			local camTarget 			= $'Camera.Target'
+			local ptRotation 			= $ptCam_rot
+			local ptDeplacement 	= $ptCam_pos
+			local ptRoot 				= $PtCam_root
+			
+			local ratioDistance = 1
+			
+			local BB 					= m_manips.calculerBB  		_objets
+			local tailleBB 				= m_manips.calculerTaillesBB  _objets
+			
+			ptRoot.pos 					= m_manips.calculerCentre	_objets
+			
+			
+			in coordsys parent 		camTarget.pos.y = BB[1].y
+			local cam_fov 			= cam.fov *.65
+			local grdeLongueurBB 	= if tailleBB.x > tailleBB.z then tailleBB.x else tailleBB.z
+			
+			local d = ( grdeLongueurBB / 2 ) / tan (cam_fov/2 ) * ratioDistance
+			
+			in coordsys parent cam.pos.y =  in coordsys parent camTarget.pos.y  - d
+			
+			
+		),
+		
+		
 	public
+				
+		--------- RENDU ------------
+		--- lancé par le thread, ----------------
+		fn preparerVue 	nodes:  vue:	qualite: 		 =  /* with redraw off  */ (
+			
+			local mtr_rendu 	= 	renderers.current		
+			local lum 			=	labib_studio.m_presets.get	vue.lumiere			type:#lumiere 		par:#id
+			local cam 			=	labib_studio.m_presets.get	vue.camera			type:#camera 	par:#id
+			local ptCamRotation 	= $ptCam_rot
+			
+			m_studio_camera = $Camera
+			viewport.setLayout #layout_1
+			viewport.setType #view_camera
+			
+			--- VUE ---------------------------------------
+			-- camera --
+			placer_CamDefaut	nodes
+			local posBak = ptCamRotation.pos
+			in coordsys parent rotate ptCamRotation (angleaxis cam.rot.x  [0,0,1])
+			in coordsys parent rotate ptCamRotation (angleaxis cam.rot.y  [1,0,0])
+			ptCamRotation.pos = posBak
+			
+			-- fond --
+			-- lumieres --			
+			mtr_rendu.bg_source = 1
+			mtr_rendu.bg_texmap = CoronaSky ()
+			mtr_rendu.colorMap_simpleExposure = lum.EV
+			-- effets --
+			
+			
+			--- QUALITE ----------------------------	
+			mtr_rendu.progressive_passLimit			=	qualite.nbrPass
+			mtr_rendu.adaptivity_targetError		=	qualite.noiseLvl
+			mtr_rendu.denoise_blendAmount			=	qualite.denoise
+			mtr_rendu.progressive_timeLimit			=	qualite.timeLimit
+			
+			
+		),
+		
+		
+		fn rendre 	_renduAFaire	=(
+			
+			debug "rendre"
+			
+			local nomRendu 
+			local prefix = _renduAFaire.vue.nom
+			local suffix = _renduAFaire.asset.nomUnique
+			
+			nomRendu = ::labib.prefs.general.dossierApercus + "\\" + prefix + "_" + suffix + ".jpg"
+			
+			debug "nomRendu" var:nomRendu
+			CoronaRenderer.CoronaFp.showVfB true
+			
+			imageRendu = 	render m_studio_camera 		outputSize:::labib.prefs.rendus.taille   	\
+									outputfile:nomRendu 			vfb:false 			quiet:true				\
+									cancelled:&m_canceled	 		missingExtFilesAction:#logmsg
+			
+-- 			_renduAFaire.asset.apercu = nomRendu
+			display imageRendu
+			imageRendu
+			
+		),
+		
+		
+		fn executer =  (
+			
+			debug "executer"
+			
+			local fen_labib_ouverte 	= labib.estOuvert ()
+			local fen_studio_ouverte 	= labib_studio.estOuvert ()
+			local fen_rendus_ouverte 	= labib_rendus.estOuvert ()
+
+			
+			local nodesImport
+			local dumPrt 
+			local assetBack
+
+			local nbrRendus_init 	= (m_pile.getItemsARendre ()).count as float
+			local nbreRendus_fait 	= 0.
+				
+				
+			if not checkForSave()  do return #canceled
+			
+			-- on regarde si on est dans le studio ----
+			if not m_fichierStudio_ouvert 
+				do 	ouvrir_fichierStudio ()
+			
+			
+			progressStart "| Labib | Rendus de la pile en cours" 
+			progressUpdate ( nbreRendus_fait / nbrRendus_init * 100. )
+			
+			
+			while m_pile.aItemsARendre () do with redraw off  (
+				
+				
+				progressUpdate ( nbreRendus_fait / nbrRendus_init * 100. )
+				
+				local listeRendus = m_pile.getItemsARendre ()
+				
+-- 				debug "listeRendus" var:listeRendus param:#fichier
+				
+				local renduAFaire = listeRendus[1]
+-- 				debug "renduAFaire" var:renduAFaire.fichier
+				
+				
+				if estAnnule () do return #canceled	-------------------------------- CHECK ANNULATION ---
+
+				
+				if renduAFaire.asset  != assetBack 	then 	(
+					
+					-- on vide la scene de l'ancien asset --
+					if nodesImport != undefined 	do delete nodesImport
+					if dumPrt != undefined 			do delete dumPrt
+					
+					--- on importe le nouveau ---
+					mergeMAXFile   renduAFaire.asset.fichier   #autoRenameDups  #renameMtlDups mergedNodes:&nodesImport   quiet:true  
+					dumPrt = m_manips.creerDummyParent	nodesImport
+					dumPrt.pos.x = 0
+					dumPrt.pos.y = 0
+					
+				) 
+				
+				-- on applique les parametres de la vue a rendre -------				  	
+				preparerVue 	nodes:nodesImport  vue:renduAFaire.vue		qualite:renduAFaire.qualite		
+				
+				
+				--- rendre la vue -------------
+				rendre 	renduAFaire
+				
+				--- conclusions ------
+				assetBack = renduAFaire.asset
+				nbreRendus_fait += 1.
+				progressUpdate ( nbreRendus_fait / nbrRendus_init * 100. )
+				m_pile.marquerFait 	renduAFaire
+				
+				--m_dialog.actualiser ()
+				
+			)
+			
+			if m_fichierStudio_ouvert do quitter_fichierStudio ()
+			progressEnd() 
+			
+-- 			debug "2- fen_labib_ouverte"		var:fen_labib_ouverte
+-- 			debug "2- fen_studio_ouverte"	var:fen_studio_ouverte
+-- 			debug "2- fen_rendus_ouverte"	var:fen_rendus_ouverte
+			
+-- 			if fen_labib_ouverte 			do labib.ouvrir ()
+-- 			if fen_studio_ouverte 		do labib_studio.ouvrir ()
+-- 			if fen_rendus_ouverte 		do labib_rendus.ouvrir ()
+			
+			
+		),
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		---- accesssions ----
 		fn get_rendus =(
 			m_pile.getItems ()
@@ -335,65 +604,30 @@ struct str_mgrRendus (
 		fn estEnPause = m_pause,
 		
 		
-		---- divers ---------
-		fn rendre 	_rendu =(
-			debug "RENDRE" 
-			debug "rendu"  var:_rendu
-			m_pile.supprimer 	_rendu
-			m_dialog.actualiser ()
-		),
 		
-	/* 	fn executer_THREAD  sender e  =(
--- 			debug "sender" var:sender
-			local pileRendus = labib_rendus.m_pile.getItems ()
-			
-			for renduAFaire in pileRendus do (
-				If m_thread_1.CancellationPending 
-					then 	(e.cancel = true	)
-					else 		(labib_rendus.rendre 	renduAFaire)
-			)
-			
--- 			if not m_pause do (
--- 				debug "executer" 
--- 				-- annulation -----
--- 				if if not thread_1.IsBusy do thread_1.RunWorkerAsync()do  ( m_pause = true; 	return #annuler )
--- 					
--- 				local pile = m_pile.getItems ()
--- 				
--- 				-- annulation -----
--- 				if keyboard.escPressed do ( m_pause = true; 	return #annuler  )
--- 					
--- 				if pile.count > 0 then (
--- 					local renduAFaire = pile[1]
--- 				-- annulation -----
--- 				if keyboard.escPressed do ( m_pause = true; 	return #annuler  )
--- 					rendre 	renduAFaire
--- 				-- annulation -----
--- 				if keyboard.escPressed do ( m_pause = true; 	return #annuler  )
--- 					m_pile.supprimerPremier ()
--- 				-- annulation -----
--- 				if keyboard.escPressed do ( m_pause = true; 	return #annuler  )
--- 					executer ()
--- 				) else 	debug "Plus rien a rendre" 
--- 			) 
-		), */
-		
-		fn executer =(
-			-- on execute par le thread ---
-			if not thread_1.IsBusy do thread_1.RunWorkerAsync()
-		),
-		fn retirerPause = (
+		---- manipuler l'execution de la pile de rendus  ----
+		fn lancerExecution = (
 			m_pause = false
 			m_dialog.actualiser ()
-			executer()
+			
+			if executer() == #canceled do (
+				debug "A été annulé, on pourrait faire un truc là ......................................................................................."
+				
+				if m_fichierStudio_ouvert do quitter_fichierStudio ()
+				progressEnd() 
+			)
+			
 		),
+		
+		
+		
 		fn pauser = (
 			m_pause = true
 			m_dialog.actualiser ()
 		),
 		
 		
-		
+		---- manipuler la pile de rendus  ----
 		fn ajouter  pause:true	critique:false		asset:""	fichier:""		vue:""	qualite:""	dateEnvoi:localTime		= (
 			
 			local rendu 		=	m_pile.ajouter 	_rendu
@@ -414,12 +648,14 @@ struct str_mgrRendus (
 		
 		
 		
-		
+	
 		
 		
 		
 		
 	public
+		
+		---- la fenetre generale des rendus-------------------
 		fn estOuvert = m_estOuvert,
 		fn ouvrir =(			
 			debug "ouvrir"
@@ -462,9 +698,13 @@ struct str_mgrRendus (
 		on create do (
 			
 			--	MainThread.WorkerReportsProgress = true
-			m_thread_1.WorkerSupportsCancellation = true		
-			dotNet.addEventHandler m_thread_1 "DoWork" 	executer_THREAD
+			/* 
+			labib_thread_1 = dotnetobject "CSharpUtilities.SynchronizingBackgroundWorker"
+			labib_thread_1.WorkerSupportsCancellation = true	
+			dotNet.addEventHandler labib_thread_1 "DoWork" dialogThread
+			 */
 			
+			-- au cas ou on retire l'ecouteur , pour pas cumuler ---			
 			ecrire "|Rendus| Prêt."
 		)
 		
