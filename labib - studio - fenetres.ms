@@ -26,7 +26,7 @@
 rcmenu  RCmenu_studio (
 	
 		menuItem mode_complet 		"Mode complet"   checked:( labib_studio.estEnModeComplet ())
-		on mode_complet 	picked do	studio.basculer_mode ()
+		on mode_complet 	picked do	labib_studio.basculer_mode ()
 )
 
 

@@ -214,12 +214,14 @@ struct str_menus (
 				 */
 					seperator sep26548
 -- 				subMenu  "Fenêtres" (
-					menuItem apercus 		"Aperçus" 				checked:( labib.apercus.estOuvert() )
+					menuItem apercus 		"Aperçus" 			checked:( labib.apercus.estOuvert() )
 					menuItem proprietes 	"Propriétés" 		checked:( labib.proprietes.estOuvert() )
+					menuItem ourvirStudio	 "Studio" 			checked:( labib.studio.estOuvert() )
 				
-				subMenu  "studio" (
-					menuItem rendre	 		"Rendre" 			
-					menuItem ourvirStudio	 	"Ouvrir" 			--	checked:( labib.studio.estOuvert() )
+				subMenu  "Rendus" (
+					menuItem rendre	 			"Rendre maintenant" 		
+					menuItem envoisPile	 		"Ajouter à la pile de rendus" 			
+					menuItem ourvirStudio2	 	"Ouvrir" 			--	checked:( labib.studio.estOuvert() )
 				)
 				
 				seperator sep5476

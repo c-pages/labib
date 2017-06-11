@@ -491,7 +491,8 @@ struct str_mgrRendus (
 									outputfile:nomRendu 			vfb:false 			quiet:true				\
 									cancelled:&m_canceled	 		missingExtFilesAction:#logmsg
 			
--- 			_renduAFaire.asset.apercu = nomRendu
+			_renduAFaire.asset.apercu = nomRendu
+			
 			display imageRendu
 			imageRendu
 			

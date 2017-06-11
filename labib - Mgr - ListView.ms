@@ -466,11 +466,11 @@ struct str_listViewMgr (
 			local delta
 			
 			if _deltaArg > 0 
-				then delta = 20
-				else  delta = -20
+				then delta = 10
+				else  delta = -10
 				
 			local tailleMin 		= 40
-			local tailleMax 	= m_prefs.rendus.taille.x
+			local tailleMax 	= 256
 			m_prefs.fenetre.tailleApercusLV += delta
 			
 			if  m_prefs.fenetre.tailleApercusLV < tailleMin do 
