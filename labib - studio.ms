@@ -220,8 +220,8 @@ struct str_studio (
 		--------- rendus -------------
 		fn ajouterAlaPile	critique:false	=(
 			local assetsARendre = labib.getSelection ()
-			local vues	= getVue_actif ()
-			local qualite = getQualite_actif ()
+			local vues				= getVue_actif ()
+			local qualite 			= getQualite_actif ()
 			for asset in assetsARendre where classof asset != str_branche do (
 				for vue in vues do (
 					labib_rendus.ajouter 	pause:false				\

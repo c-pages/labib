@@ -591,10 +591,11 @@ struct str_listViewMgr (
 			debug "drag_recevoir"
 		
 			local posDrop	= m_ui.PointToClient 	m_ui.MousePosition
+			debug "posDrop" var:posDrop
 			local noeudDest = getNoeudA_at 	posDrop.x 	posDrop.y
 			
-			debug "noeudDest" var:noeudDest
-			debug "m_edit.getNdsDrag()" var:(m_edit.getNdsDrag())
+-- 			debug "noeudDest" var:noeudDest.nom
+-- 			debug "m_edit.getNdsDrag()" var:(m_edit.getNdsDrag())
 			
 			if noeudDest != undefined do (
 				---- si dépose dans "retour" ---

@@ -216,7 +216,7 @@ struct str_menus (
 -- 				subMenu  "Fenêtres" (
 					menuItem apercus 		"Aperçus" 			checked:( labib.apercus.estOuvert() )
 					menuItem proprietes 	"Propriétés" 		checked:( labib.proprietes.estOuvert() )
-					menuItem ourvirStudio	 "Studio" 			checked:( labib.studio.estOuvert() )
+-- 					menuItem ourvirStudio	 "Studio" 			checked:( labib.studio.estOuvert() )
 				
 				subMenu  "Rendus" (
 					menuItem rendre	 			"Rendre maintenant" 		

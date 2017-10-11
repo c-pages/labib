@@ -126,13 +126,12 @@ struct str_mgr_pileRendus (
 			
 		),
 		
-		fn ajouter 	_rendu =(
+		fn ajouter 	 =(
 			debug "ajouter" 
 			
 			local nvRendu = str_node_rendu ()
 			nvRendu.id = m_indexID as string
 			m_indexID += 1
-			nvRendu.asset = _rendu
 			
 			append 	m_items 	nvRendu
 			nvRendu
@@ -363,9 +362,10 @@ struct str_mgrRendus (
 		
 -- 		m_thread_1 		 = dotnetobject "CSharpUtilities.SynchronizingBackgroundWorker",
 		
+		m_coroConverter,
+		m_coroProxyConverter,
 		------------  Fonctions	----------------------------------------------------------------------------------
 		
-
 		
 		fn ouvrir_fichierStudio =(
 			debug "ouvrir_fichierStudio"
@@ -413,7 +413,7 @@ struct str_mgrRendus (
 			local ptDeplacement 	= $ptCam_pos
 			local ptRoot 				= $PtCam_root
 			
-			local ratioDistance = 1
+			local ratioDistance 		= .5
 			
 			local BB 					= m_manips.calculerBB  		_objets
 			local tailleBB 				= m_manips.calculerTaillesBB  _objets
@@ -434,8 +434,71 @@ struct str_mgrRendus (
 		
 		
 	public
-				
+		
 		--------- RENDU ------------
+		
+		fn convertMateriauxScene =(
+			
+			debug "convertMateriauxScene - debut" 
+			
+			if m_coroConverter == undefined do (
+				m_coroConverter 		= CoronaConverter
+				m_coroProxyConverter 	= CoronaProxyConverter
+			)
+			m_coroConverter.convertScene ()
+			
+			debug "convertMateriauxScene - fin" 
+		),
+		
+		fn relinkBitmap =(
+			
+						---- collecter les bitmaps --------
+			fn chercher_fichier  _bitmap_map 	_dossier	=(
+				
+				local recurant = true
+				local chemin_fichier = _bitmap_map.fileName
+				local fichier = filenameFromPath chemin_fichier
+-- 							format"fichier a chercher :%\n" (  fichier)
+				
+				local i = 1
+				local trouve= false
+		
+				if doesFileExist ( _dossier + "\\" + fichier) then (
+					format"	---->	fichier trouvé:%	<----\n" ( _dossier + "\\" + fichier)
+					_bitmap_map.fileName = ( _dossier + "\\" + fichier)
+					trouve	= true
+				) else if recurant do (
+					local sousDossiers = getDirectories 	(_dossier + "*")
+					for sousDossier in sousDossiers where not trouve	do (
+						
+						format"	sous dossiers:%\n"  sousDossier
+						trouve = chercher_fichier  _bitmap_map 	sousDossier
+					)
+				)
+					
+				trouve
+			)
+			
+			
+			local dossiers_recherche = #(	"D:\01 - modeles 3D\00 - collections\ARCHMODELS\MAPS Evermotion" )
+			local allTxtMaps = getClassInstances BitmapTexture
+
+			for bitmap_map in allTxtMaps do
+			(
+				
+				bitmap_map.fileName
+				if not (doesFileExist ( bitmap_map.fileName ) ) do (
+					format"fichier manquant:%\n" ( bitmap_map.fileName)
+					local trouve = false
+					for dossier in dossiers_recherche where not trouve	do (
+						trouve = chercher_fichier	bitmap_map  dossier
+					)
+				)
+				
+			)
+
+			
+		),
 		--- lancé par le thread, ----------------
 		fn preparerVue 	nodes:  vue:	qualite: 		 =  /* with redraw off  */ (
 			
@@ -470,7 +533,9 @@ struct str_mgrRendus (
 			mtr_rendu.denoise_blendAmount			=	qualite.denoise
 			mtr_rendu.progressive_timeLimit			=	qualite.timeLimit
 			
-			
+			--- conversion materiaux coro et relink ---
+			convertMateriauxScene ()
+			relinkBitmap ()
 		),
 		
 		
@@ -478,22 +543,24 @@ struct str_mgrRendus (
 			
 			debug "rendre"
 			
-			local nomRendu 
 			local prefix = _renduAFaire.vue.nom
-			local suffix = _renduAFaire.asset.nomUnique
-			
-			nomRendu = ::labib.prefs.general.dossierApercus + "\\" + prefix + "_" + suffix + ".jpg"
+			local suffix = _renduAFaire.asset.nomUnique			
+			local nomRendu  = ::labib.prefs.general.dossierApercus + "\\" + prefix + "_" + suffix + ".jpg"
 			
 			debug "nomRendu" var:nomRendu
-			CoronaRenderer.CoronaFp.showVfB true
 			
-			imageRendu = 	render m_studio_camera 		outputSize:::labib.prefs.rendus.taille   	\
-									outputfile:nomRendu 			vfb:false 			quiet:true				\
-									cancelled:&m_canceled	 		missingExtFilesAction:#logmsg
+			CoronaRenderer.CoronaFp.showVfB false
+			
+			local imageRendu = 	render m_studio_camera 		outputSize:::labib.prefs.rendus.taille   	\
+											outputfile:nomRendu 			vfb:false 			quiet:true				\
+											cancelled:&m_canceled	 		missingExtFilesAction:#logmsg
 			
 			_renduAFaire.asset.apercu = nomRendu
+			_renduAFaire.asset.enregistrer ()
 			
-			display imageRendu
+-- 			display imageRendu
+			gc ()
+			
 			imageRendu
 			
 		),
@@ -523,7 +590,7 @@ struct str_mgrRendus (
 				do 	ouvrir_fichierStudio ()
 			
 			
-			progressStart "| Labib | Rendus de la pile en cours" 
+			progressStart "| Labib | Rendus en cours" 
 			progressUpdate ( nbreRendus_fait / nbrRendus_init * 100. )
 			
 			
@@ -533,11 +600,7 @@ struct str_mgrRendus (
 				progressUpdate ( nbreRendus_fait / nbrRendus_init * 100. )
 				
 				local listeRendus = m_pile.getItemsARendre ()
-				
--- 				debug "listeRendus" var:listeRendus param:#fichier
-				
 				local renduAFaire = listeRendus[1]
--- 				debug "renduAFaire" var:renduAFaire.fichier
 				
 				
 				if estAnnule () do return #canceled	-------------------------------- CHECK ANNULATION ---
@@ -631,7 +694,7 @@ struct str_mgrRendus (
 		---- manipuler la pile de rendus  ----
 		fn ajouter  pause:true	critique:false		asset:""	fichier:""		vue:""	qualite:""	dateEnvoi:localTime		= (
 			
-			local rendu 		=	m_pile.ajouter 	_rendu
+			local rendu 		=	m_pile.ajouter 	()
 			
 			rendu.pause		=	pause
 			rendu.critique		=	critique

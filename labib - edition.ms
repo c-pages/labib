@@ -320,18 +320,18 @@ struct str_edition (
 		
 		fn convertMateriauxScene =(
 			
-			debug "convertMateriauxScene - debut" 
-			
-			if m_coroConverter == undefined do (
-				m_coroConverter 		= CoronaConverter
-				m_coroProxyConverter 	= CoronaProxyConverter
-			)
-			m_coroConverter.convertScene ()
+-- 			debug "convertMateriauxScene - debut" 
+-- 			
+-- 			if m_coroConverter == undefined do (
+-- 				m_coroConverter 		= CoronaConverter
+-- 				m_coroProxyConverter 	= CoronaProxyConverter
+-- 			)
+-- 			m_coroConverter.convertScene ()
 			
 			--- on relink les bitmaps manquantes -----
-			relinkBitmaps ()
+-- 			relinkBitmaps ()
 			
-			debug "convertMateriauxScene - fin" 
+-- 			debug "convertMateriauxScene - fin" 
 		),
 		fn convertToProxy =(
 			
@@ -841,13 +841,13 @@ struct str_edition (
 			----- initialiser les scripts exterieurs --------------------
 			------- Corona	---------------
 			global CoronaConverterSuppressGui = true
-			include  "$scripts\CoronaRenderer\coronaConverter_v1.34.ms"
+			include  "$scripts\CoronaRenderer\coronaConverter_v1.36.ms"
 			CoronaConverterSuppressGui = false
 			
 			------- relinkBitmaps	  ---------------			
 			relinkBitmapsInit ()
 			
-			popoi = "$scripts\CoronaRenderer\coronaConverter_v1.34.ms"
+-- 			popoi = "$scripts\CoronaRenderer\coronaConverter_v1.36.ms"
 			
 			
 			--- fenetre ----

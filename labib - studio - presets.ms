@@ -539,38 +539,38 @@ struct str_studio_presets (
 			nvPreset.locked	=  true
 			nvPreset.rot			= [0,0,0]
 			nvPreset.pos			= [0,0,0]
-			nvPreset.fov			= 90
+			nvPreset.fov			= 45
 			nvPreset.dist_ratio	= 1
 			
 			nvPreset = creer type:#camera	nom:"Face"
 			nvPreset.locked	=  true
 			nvPreset.rot			= [0,0,0]
 			nvPreset.pos			= [0,0,0]
-			nvPreset.fov			= 90
+			nvPreset.fov			= 45
 			nvPreset.dist_ratio	= 1
 			
 			nvPreset = creer type:#camera	nom:"Arrière"
 			nvPreset.rot			= [0,0,180]
 			nvPreset.pos			= [0,0,0]
-			nvPreset.fov			= 90
+			nvPreset.fov			= 45
 			nvPreset.dist_ratio	= 1
 			
 			nvPreset = creer type:#camera	nom:"Profil D"
 			nvPreset.rot			= [90,0,0]
 			nvPreset.pos			= [0,0,0]
-			nvPreset.fov			= 90
+			nvPreset.fov			= 45
 			nvPreset.dist_ratio	= 1
 			
 			nvPreset = creer type:#camera	nom:"Profil G"
 			nvPreset.rot			= [-90,0,0]
 			nvPreset.pos			= [0,0,0]
-			nvPreset.fov			= 90
+			nvPreset.fov			= 45
 			nvPreset.dist_ratio	= 1			
 			
 			nvPreset = creer type:#camera	nom:"Détail 1"
 			nvPreset.rot			= [0,15,15]
 			nvPreset.pos			= [0,0,0]
-			nvPreset.fov			= 50
+			nvPreset.fov			= 20
 			nvPreset.dist_ratio	= .333	
 			
 			---- fond -------------------------------------------------------------------------------------
